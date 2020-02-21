@@ -4,6 +4,9 @@
  
 Realized in the frame of project *"Digitaalse muusikateooria ja solfedžo õppevara loomine"* at [Georg Ots Tallin Music School](www.otsakool.edu.ee)  
 
+The code is in branch gh-pages.
+
+
 <br>
 Supported by European Social Fund 
 
