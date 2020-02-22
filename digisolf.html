@@ -21,9 +21,13 @@
 	
 	<!--common classes or data-->
 	<script src="baseclass.js"></script>
+	<script src="pianoclass.js"></script>
+	<script src="noteclass.js"></script>
+	<script src="intervalclass.js"></script>
 	
 	
 	<!--exercises-->
+	<script src="ask_interval.js"></script>
 	
     <!--main-->
     <script>
@@ -44,7 +48,7 @@
 			var exerciseNumber = parameters[0].split("=")[1];
 			console.log("you want to open exercise", exerciseNumber)
 			switch (exerciseNumber) {
-				//case "1.1" : exercise = recognizeDuration(); break;
+				case "1.1" : exercise = askInterval(); break;
 
 				default: console.log("Exercise "+exerciseNumber+" is unkonwn or not defined yet");
 			}
