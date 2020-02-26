@@ -135,12 +135,12 @@ function askInterval(clef, direction, containerNode, canvasClassName) {  // clef
 		this.containerNode.getElementsByClassName("attempts")[0].innerHTML = exercise.attempts;
 		this.containerNode.getElementsByClassName("score")[0].innerHTML = exercise.score;
 		this.containerNode.getElementsByClassName("feedback")[0].innerHTML = feedback; 
-		exercise.notes = ":w " + intervals.makeChord( [note1, note2]) ; // the note the interval is built from	
+		exercise.notes = ":w " + intervals.makeChord( [note1, note2]) ; // the notes the interval is built from	
 		exercise.draw();
 		answered = true;
 		
 		if (exercise.testIsRunning) { // add info to test report
-			exercise.testReport +=  exercise.currentQuestion.toString() +  '. Mängitud intervall: ' + interval.longName + '. Sisestatud intervall: ' + interval.longName;
+			exercise.testReport +=  exercise.currentQuestion.toString() +  '. Mängitud intervall: ' + interval.shortName + '. Sisestatud intervall: ' + answer;
 			exercise.testReport += ".<br>Tagasiside: " + feedback + "<br>";	
 		}
 		
