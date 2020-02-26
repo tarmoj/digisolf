@@ -21,7 +21,7 @@
 	
 	<!--common classes or data-->
 	<script src="baseclass.js"></script>
-	<script src="pianoclass.js"></script>
+<!--	<script src="pianoclass.js"></script>-->
 	<script src="noteclass.js"></script>
 	<script src="intervalclass.js"></script>
 	
@@ -40,6 +40,7 @@
     
 	window.onload = function() {
 		
+		
 		// get GET parameter to load specific expikaercise set in URL
 		// the link van be set as ?e=<exercise number> like e=1.2.3 The 'e' actually does not matter
 		var searchString = window.location.search;
@@ -54,7 +55,7 @@
 			}
 			
 		} else {		
-  			exercise = new MusicExercise(document.body, "mainCanvas") ;
+  			exercise = askInterval(); //new MusicExercise(document.body, "mainCanvas") ;
   			exercise.draw(); // dummy exercise -  just show empty staff
 		}
 	}
@@ -74,16 +75,21 @@
 	<h2 class="exerciseTitle">Harjutuse nimi</h2>
 	<p class="description">Ülesande kirjeldus.</p>
 	<br>
+
+	<span class="question">Küsimus</span> <button class="replyButton" onclick="exercise.checkResponse()">Vasta</button><br>
+	
+	
+	<br>
+	<div class="mainControls">
+	<button class="renewButton" onclick='exercise.renew()'>Uuenda</button>  
 	<button class="playButton" onclick="exercise.play();">Mängi</button>
+	</div>
 	<div class="mainCanvas"></div>
-	<br>
-	<button class="renewButton" onclick='exercise.renew()'>Uuenda</button><br>
-	<br>
-	<span class="question">Küsimus</span>
+	
 	
 	<span class="responseDiv">	
 	</span>
-	<button class="replyButton" onclick="exercise.checkResponse()">Vasta</button>
+	
 	
 	<p class="feedback"></p>
 	Katseid: <label id="attempts" class="attempts">0</label>. Neist õigeid vastuseid: <label id ="score" class="score">0</label> 

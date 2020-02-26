@@ -298,7 +298,7 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 		}
 		var _start = 0, _duration = 1;
 		var notes = this.artist.staves[0].note_notes ;
-		console.log("notes: ", notes)
+		//console.log("notes: ", notes)
 		for (var i=0; i<notes.length; i++ ) {
 			var _note = notes[i];
 			//console.log("Note to play:", _note);
