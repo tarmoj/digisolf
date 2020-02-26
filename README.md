@@ -4,6 +4,8 @@
  
 Realized in the frame of project *"Digitaalse muusikateooria ja solfedžo õppevara loomine"* at [Georg Ots Tallin Music School](www.otsakool.edu.ee)  
 
+Open <https://tarmoj.github.io/digisolf/digisolf.html> to try out.
+
 <br>
 Supported by European Social Fund 
 
