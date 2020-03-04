@@ -150,24 +150,19 @@ function IntervalClass() {
 
 		while ( note2 === undefined) { // make sure that the other note is not the same, i.e exclude unisono (primo) AND interval is not bigger than allowed
 			//note2 = possibleNotes[Math.floor(Math.random()* possibleNotes.length)];
-			var semitones  = Math.floor(Math.random()*maxIntervalInSemitones);
+			var semitones  = 1 + Math.floor(Math.random()*maxIntervalInSemitones); // exclude unisono (index 0)
 			interval = this.findIntervalBySemitones(semitones);
-			note2 = this.makeInterval(note1, interval.shortName, direction, possibleNotes); // undefined if the interval does not work out
+			if (interval == this.noInterval  ) {
+				note2 = undefined;
+			} else {
+				note2 = this.makeInterval(note1, interval.shortName, direction, possibleNotes); // undefined if the interval does not work out
+			}
 			// NB! if note1 is lowest note and direction is down or vices versa -  may create endless loop!
 			if (++safeCounter>10) {
 				console.log("Let's try with different note1");
 				note1 = possibleNotes[Math.floor(Math.random()* possibleNotes.length)];
 			}
 		}
-
-		// // if direction is set, make sure that note 1 is higher/lower than the other one; swap, if necessary
-		// if ( (direction === "up" && note2.midiNote < note1.midiNote ) ||
-		// 	(direction === "down" && note2.midiNote > note1.midiNote ) ) {
-		// 		var temp = note2;
-		// 		note2 = note1;
-		// 		note1 = temp;
-		// }
-
 
 		console.log("Notes: ", note1.vtNote, note2.vtNote);
 

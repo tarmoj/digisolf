@@ -3,9 +3,10 @@
 function askInterval(clef, direction, containerNode, canvasClassName) {  // clef and direction not needed for now
 	if (direction===undefined) direction = "up";
 	if (clef===undefined) clef = "treble";
+
 	
-	var answered = false;
-	var interval = undefined , note1 = undefined, note2 = undefined;
+	var answered = false;;
+	var intervalData = undefined;
 	this.containerNode = containerNode===undefined ? document.body : containerNode;
 	this.canvasClassName = canvasClassName === undefined ? "mainCanvas" : canvasClassName;
 	
@@ -18,34 +19,12 @@ function askInterval(clef, direction, containerNode, canvasClassName) {  // clef
  	exercise.time = "";
  	exercise.key = "";
 	exercise.timeToThink = 30; // more time for doing the test
+	exercise.clef = clef;
 	
-	
-	var possibleIntervals = intervals.possibleIntervals;
-	var possibleNotes = notes.violinClefNotes;
-	var possibleBaseNotes = possibleNotes.slice(0, possibleNotes.length/2); // take from first octave
-	
+	var possibleNotes = (clef==="bass") ? notes.bassClefNotes : notes.violinClefNotes;
+	//var possibleBaseNotes = possibleNotes.slice(0, possibleNotes.length/2); // take from first octave
 	
 
-/*	
-	if (clef==="bass" ) { 
-		exercise.clef ="bass"
-		possibleNotes = notes.bassClefNotes;
-		if (direction.toLowerCase()==="up") {
-			possibleBaseNotes =  ["F/2", "G/2", "A/2", "B/2", "C/3", "D/3"];
-		} else {
-			possibleBaseNotes =  ["F/3", "G/3", "A/3", "B/3", "C/4"];
-		}
-	} else {
-		exercise.clef = "treble"
-		possibleNotes = notes.violinClefNotes;
-		if (direction.toLowerCase()==="up") {
-			possibleBaseNotes =  ["C/4", "D/4", "E/4", "F/4", "G/4", "A/4"]; 
-		} else {
-			possibleBaseNotes =  ["C/5", "D/5", "E/5", "F/5", "G/5", "A/5"];
-		}
-	}
-*/	
-	
 	// Create or set necessary HTML elements
 	this.containerNode.getElementsByClassName("exerciseTitle")[0].innerHTML = "Intervallide määramine";
 	this.containerNode.getElementsByClassName("description")[0].innerHTML = ""; 
@@ -54,22 +33,14 @@ function askInterval(clef, direction, containerNode, canvasClassName) {  // clef
 		
 	exercise.generate = function() {
 				
-		//var lowerNoteMidi = 60 + Math.floor(Math.random()* 12); // for now only 1. octave
+		intervalData =  intervals.getRandomInterval(possibleNotes, "up"); // comes in as: { note1: <object>, note2: <object> , interval: <object>, direction: "up|down" }
+
+		var question = [intervalData]; // for test to chech there isn no repeating questions
 		
-		note2 = undefined; 
-		var noteIndex = -1; // Math.floor(Math.random()* possibleBaseNotes.length);  //notes.findIndexesByMidiNote(lowerNoteMidi, possibleNotes);
-		var intervalIndex = Math.floor(Math.random()* possibleIntervals.length); // take an interval anf find sutiable notes
-		interval = possibleIntervals[intervalIndex];
-	
-		
-		var question = [intervalIndex]; // for test to chech there isn no repeating questions
-		
-		while (!exercise.isNewQuestion(question) || note2 === undefined ) {
-			noteIndex = Math.floor(Math.random()* possibleBaseNotes.length);
-			note1 = possibleBaseNotes[noteIndex];
-			note2 = intervals.makeInterval(note1, interval.shortName, "up", possibleNotes); // returns undefined if fails, then loop once again
-			question = [intervalIndex];
-			console.log("Try again to find a valid question");
+		while (!exercise.isNewQuestion(question) ) {
+			intervalData =  intervals.getRandomInterval(possibleNotes, "up");
+			question = [intervalData];
+			console.log("Try again to find new question");
 		}
 		
 		if (exercise.testIsRunning()) {
@@ -78,14 +49,12 @@ function askInterval(clef, direction, containerNode, canvasClassName) {  // clef
 			exercise.questions[0] = question;
 		}
 		
-		console.log("Note1: ", note1.name, " interval ", interval.longName);			
-		console.log(" note2: ", note2.name);
+		console.log("notes, interval ", intervalData.note1.vtNote, intervalData.note2.vtNote, intervalData.interval.shortName );
 		
-		exercise.notes = ":w " + note1.vtNote;
+		exercise.notes = ":w " + intervalData.note1.vtNote;
 		
-		//exercise.play();
-		answered = false; 
-	}
+		answered = false;
+	};
 	
 	
 	exercise.renew = function() {
@@ -99,10 +68,12 @@ function askInterval(clef, direction, containerNode, canvasClassName) {  // clef
 	
 	exercise.play = function() { // must be (re)defined after renew is called, ie staves created
 		console.log("New play");
-		exercise.playNote( note1.midiNote, 0, 4 );
-		exercise.playNote( note2.midiNote, 0, 4 );
-		console.log("Play interval: ", note1.midiNote, note2.midiNote);
-	}
+		if (intervalData !== undefined) {
+			exercise.playNote( intervalData.note1.midiNote, 0, 4 );
+			exercise.playNote( intervalData.note2.midiNote, 0, 4 );
+			console.log("Play interval: ", intervalData.note1.midiNote, intervalData.note2.midiNote);
+		}
+	};
 	
 	exercise.responseFunction = function() {
 		
@@ -118,11 +89,11 @@ function askInterval(clef, direction, containerNode, canvasClassName) {  // clef
 		var answer = this.containerNode.getElementsByClassName("answer")[0].value.trim() ;
 		
 		
-		if (interval.shortName === answer ) {  // NB! this is not fool proof!!! test!
+		if (intervalData.interval.shortName === answer ) {  // NB! this is not fool proof!!! test!
 			feedback += "<b>Intervall õige! </b>"
 			correct = true;
 		} else {
-			feedback += "<b>Vale.</b> Mängitud intervall on: <b>" + interval.longName + "  (" + interval.shortName + ")</b>"; 
+			feedback += "<b>Vale.</b> Mängitud intervall on: <b>" + intervalData.interval.longName + "  (" + intervalData.interval.shortName + ")</b>";
 			correct = false;
 		}
 		
@@ -133,16 +104,16 @@ function askInterval(clef, direction, containerNode, canvasClassName) {  // clef
 		this.containerNode.getElementsByClassName("attempts")[0].innerHTML = exercise.attempts;
 		this.containerNode.getElementsByClassName("score")[0].innerHTML = exercise.score;
 		this.containerNode.getElementsByClassName("feedback")[0].innerHTML = feedback; 
-		exercise.notes = ":w " + intervals.makeChord( [note1, note2]) ; // the notes the interval is built from	
+		exercise.notes = ":w " + intervals.makeChord( [intervalData.note1, intervalData.note2]) ; // the notes the interval is built from
 		exercise.draw();
 		answered = true;
 		
 		if (exercise.testIsRunning) { // add info to test report
-			exercise.testReport +=  exercise.currentQuestion.toString() +  '. Mängitud intervall: ' + interval.shortName + '. Sisestatud intervall: ' + answer;
+			exercise.testReport +=  exercise.currentQuestion.toString() +  '. Mängitud intervall: ' + intervalData.interval.shortName + '. Sisestatud intervall: ' + answer;
 			exercise.testReport += ".<br>Tagasiside: " + feedback + "<br>";	
 		}
 		
-	}
+	};
 	
 	return exercise;
 
