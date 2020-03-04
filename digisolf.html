@@ -27,8 +27,8 @@
 	
 	
 	<!--exercises-->
+	<script src="ask_interval_initial.js"></script>
 	<script src="ask_interval.js"></script>
-	
     <!--main-->
     <script>
     
@@ -47,15 +47,16 @@
 		if (searchString.length>0) {
 			var parameters = searchString.split("&"); // remove ?
 			var exerciseNumber = parameters[0].split("=")[1];
-			console.log("you want to open exercise", exerciseNumber)
+			//console.log("you want to open exercise", exerciseNumber)
 			switch (exerciseNumber) {
-				case "1.1" : exercise = askInterval(); break;
+				case "1.10" : exercise = askInterval(); break;
 
-				default: console.log("Exercise "+exerciseNumber+" is unkonwn or not defined yet");
+				default:  exercise = askIntervalInitial();
+					console.log("Exercise "+exerciseNumber+" is unkonwn or not defined yet");
 			}
 			
 		} else {		
-  			exercise = askInterval(); //new MusicExercise(document.body, "mainCanvas") ;
+  			//exercise = askInterval(); //new MusicExercise(document.body, "mainCanvas") ;
   			exercise.draw(); // dummy exercise -  just show empty staff
 		}
 	}

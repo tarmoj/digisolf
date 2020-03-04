@@ -286,7 +286,10 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 	//audio -------------------------------------
 	this.volume = 0.3;
 	this.tempo = 60.0;
-	this.playNote = function(midiNote, start, duration) {
+	this.playNote = function(midiNote, start, duration, volume) {
+		if (volume === undefined) {
+			volume = this.volume;
+		}
 		this.player.queueWaveTable(this.audioContext, this.audioContext.destination,
 		this.selectedPreset, this.audioContext.currentTime+start, midiNote, duration, this.volume);
 	}
