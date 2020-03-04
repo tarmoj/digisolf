@@ -291,7 +291,7 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 			volume = this.volume;
 		}
 		this.player.queueWaveTable(this.audioContext, this.audioContext.destination,
-		this.selectedPreset, this.audioContext.currentTime+start, midiNote, duration, this.volume);
+		this.selectedPreset, this.audioContext.currentTime+start, midiNote, duration, volume);
 	}
 
 	this.play = function() {

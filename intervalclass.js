@@ -60,7 +60,7 @@ function IntervalClass() {
 			}
 		}
 		return this.noInterval;
-	}
+	};
 	
 	this.findIntervalByShortName = function(shortName) {
 		for (var i= 0; i<this.possibleIntervals.length; i++) {
@@ -69,7 +69,7 @@ function IntervalClass() {
 			}
 		}
 		return this.noInterval;
-	}
+	};
 	
 	this.findIntervalByLongName = function(longName) {
 		for (var i= 0; i<this.possibleIntervals.length; i++) {
@@ -78,7 +78,7 @@ function IntervalClass() {
 			}
 		}
 		return this.noInterval;
-	}
+	};
 	
 	this.getInterval = function(note1, note2) { // return interval object and direction
 		if (note1 === undefined || note2 === undefined) {
@@ -102,7 +102,7 @@ function IntervalClass() {
 		var interval = this.findIntervalBySemitones(Math.abs(semitones), degrees);
 		//console.log("semitones, degrees, interval, direction", semitones, degrees, interval.longName, direction )
 		return {interval: interval, direction: direction};
-	}
+	};
 	
 	this.makeInterval = function(note, shortName, direction, possibleNotes) { // possibleNotes -  array of note objects
 		// return found note as object or undefined otherwise
@@ -122,9 +122,10 @@ function IntervalClass() {
 		
 		var oct1 = parseInt(note.vtNote.split("/")[1]); // 4 for first octava etc
 		var degree1 = note.degree + oct1*7 ; // take also octave into account to get correct difference
-		console.log("note: ", note.midiNote, oct1, degree1);
+		//console.log("note: ", note.midiNote, oct1, degree1);
+
+
 		// find note by midiNote
-		
 		for (var i=0; i<possibleNotes.length; i++) {
 			var oct2 = parseInt(possibleNotes[i].vtNote.split("/")[1]);
 			var degree2 = possibleNotes[i].degree + oct2*7;
@@ -134,8 +135,44 @@ function IntervalClass() {
 			}
 		}
 		
-		// otherwise return undefined
-	}
+		return undefined;// otherwise return undefined
+	};
+
+	this.getRandomInterval = function(possibleNotes, direction) {
+		if (direction === undefined) {
+			direction = Math.random() > 0.5 ? "up" : "down"; // 50/50 probability
+		}
+		var note1 = possibleNotes[Math.floor(Math.random()* possibleNotes.length)];
+		var note2 = undefined;
+		var maxIntervalInSemitones = 12 ; // constant for now, make a parameter later
+		var interval;
+		var safeCounter = 0;
+
+		while ( note2 === undefined) { // make sure that the other note is not the same, i.e exclude unisono (primo) AND interval is not bigger than allowed
+			//note2 = possibleNotes[Math.floor(Math.random()* possibleNotes.length)];
+			var semitones  = Math.floor(Math.random()*maxIntervalInSemitones);
+			interval = this.findIntervalBySemitones(semitones);
+			note2 = this.makeInterval(note1, interval.shortName, direction, possibleNotes); // undefined if the interval does not work out
+			// NB! if note1 is lowest note and direction is down or vices versa -  may create endless loop!
+			if (++safeCounter>10) {
+				console.log("Let's try with different note1");
+				note1 = possibleNotes[Math.floor(Math.random()* possibleNotes.length)];
+			}
+		}
+
+		// // if direction is set, make sure that note 1 is higher/lower than the other one; swap, if necessary
+		// if ( (direction === "up" && note2.midiNote < note1.midiNote ) ||
+		// 	(direction === "down" && note2.midiNote > note1.midiNote ) ) {
+		// 		var temp = note2;
+		// 		note2 = note1;
+		// 		note1 = temp;
+		// }
+
+
+		console.log("Notes: ", note1.vtNote, note2.vtNote);
+
+		return { note1: note1, note2: note2, interval: interval, direction: direction };  // direction - makes sense if it was not set and taken randomly
+	};
 	
 	
 	this.makeChord = function(noteArray) { // noteArray - array of type possibleNotes, to have midiNotes to sort those
@@ -149,14 +186,14 @@ function IntervalClass() {
 		var vtString = "("; // make vextab chord notation
 		for (var i=0; i<localArray.length; i++) {
 			
-			if (i>0 && localArray[i] != undefined) vtString += "."; // separator between chord notes 
-			if (localArray[i] != undefined)
+			if (i>0 && localArray[i] !== undefined) vtString += "."; // separator between chord notes
+			if (localArray[i] !== undefined)
 				vtString += localArray[i].vtNote;
 		}
 		vtString += ")";
 		//console.log("Sorted chord: ", vtString);
 		return vtString;
 		
-	}
+	};
 	
 }
