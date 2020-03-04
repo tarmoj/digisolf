@@ -1,6 +1,6 @@
 
 
-function askInterval(clef, direction, containerNode, canvasClassName) {  // clef and direction not needed for now
+function askIntervalInitial(clef, direction, containerNode, canvasClassName) {  // clef and direction not needed for now
 	if (direction===undefined) direction = "up";
 	if (clef===undefined) clef = "treble";
 

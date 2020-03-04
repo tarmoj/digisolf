@@ -24,12 +24,13 @@
 <!--	<script src="pianoclass.js"></script>-->
 	<script src="noteclass.js"></script>
 	<script src="intervalclass.js"></script>
-	
-	
+
 	<!--exercises-->
 	<script src="ask_interval_initial.js"></script>
 	<script src="ask_interval.js"></script>
-    <!--main-->
+    <script src="ask_interval_serveral_from_note.js"></script>
+
+	<!--main-->
     <script>
     
 	var exercise; 
@@ -49,14 +50,16 @@
 			var exerciseNumber = parameters[0].split("=")[1];
 			//console.log("you want to open exercise", exerciseNumber)
 			switch (exerciseNumber) {
-				case "1.10" : exercise = askInterval(); break;
+				case "1.1" : exercise = askInterval(); break; // askInerval will be changed..
+				case "1.2" : exercise = askIntervalSeveralFromNote(); break;
+				case "1.10" : exercise = askIntervalInitial(); break; // for testing
 
-				default:  exercise = askInterval();
+				default:  exercise = askIntervalInitial();
 					console.log("Exercise "+exerciseNumber+" is unkonwn or not defined yet");
 			}
 			
 		} else {		
-  			//exercise = askInterval(); //new MusicExercise(document.body, "mainCanvas") ;
+  			exercise = new MusicExercise(document.body, "mainCanvas") ;
   			exercise.draw(); // dummy exercise -  just show empty staff
 		}
 	}
