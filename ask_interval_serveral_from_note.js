@@ -120,19 +120,14 @@ function askIntervalSeveral(type, clef, containerNode, canvasClassName) {  // cl
 			correct = false;
 		}
 
-		if (answeredIntervals.length >= 2 ) {
-			if (intervalData2.interval.shortName === answeredIntervals[1]) {  // NB! this is not fool proof!!! test!
-				feedback += "<b>Intervall 2  õige! </b><br>"
-				correct = true;
-			} else {
-				feedback += "<b>Vale.</b> Teine intervall on: <b>" + intervalData2.interval.longName + "  (" + intervalData2.interval.shortName + ")</b><br>";
-				correct = false;
-			}
-		} else  {
-			feedback += "<b>Teine intervall vastamata!</b><br>";
+		if (intervalData2.interval.shortName === answeredIntervals[1]) {  // NB! this is not fool proof!!! test!
+			feedback += "<b>Intervall 2  õige! </b><br>"
+			correct = true;
+		} else {
+			feedback += "<b>Vale.</b> Teine intervall on: <b>" + intervalData2.interval.longName + "  (" + intervalData2.interval.shortName + ")</b><br>";
 			correct = false;
 		}
-
+K
 		
 		if (correct) {
 			exercise.score += 1;
