@@ -2,6 +2,10 @@
 function IntervalClass() {
 	
 	// TODO: how to handle translation to English and Russian?
+
+	// NB! have a look at VexFlow music.js for many of this functionality...
+	// access: exercise.vextab.artist.music_api
+	// source: https://github.com/0xfe/vexflow/blob/master/src/music.js
 	
 	this.possibleIntervals = [
 		{ shortName: "p1", longName: "puhas priim", semitones: 0, degrees: 0 }, // degrees (astmeid) -  difference in scale degrees (Ces/C/Cis - 0,  Des/D/Dis - 1 etc)
