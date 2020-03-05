@@ -310,10 +310,17 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 				var keys = _note.getPlayNote(); // can be an array if chord
 				for (var j=0; j<keys.length; j++) { 
 					var noteName = keys[j].split("/")[0];
-					var octave = keys[j].split("/")[1];
+					var octave = parseInt( keys[j].split("/")[1]);
 					noteName = noteName.trim().toLowerCase();
+					if (noteName === "b#" || noteName === "b##") { // his means -  midi pitch in actually of next octave
+						octave += 1;
+					}
+					if (noteName === "cb" ||  noteName === "cbb") { // his means -  actually h/b of lower octave
+						octave -= 1;
+					}
 					var noteValue =Vex.Flow.Music.noteValues[noteName];
-					var midiNote = (24 + ((octave-1) * 12)) + noteValue.int_val
+					var midiNote = (24 + ((octave-1) * 12)) + noteValue.int_val;
+					// TODO: octave is wrong if
 					// get start from note, maybe 
 					//console.log(midiNote, _start, _duration); // 
 					if (_note.noteType=="n") { 
