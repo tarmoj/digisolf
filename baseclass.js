@@ -70,7 +70,7 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 		var notesString = (this.notes==="") ? ""  : "\nnotes " + this.notes + "\n";
 		var endString = "\noptions space=20\n";
 		return startString + clefString + keyString + timeString + notesString + endString;
-	}
+	};
 	
 	
 	this.clickActions = function(x,y){ console.log("clickactions", x,y)}; // you can define other things to be done connected to click event
@@ -80,7 +80,7 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 		var _y =  (event.layerY - _this.canvas.offsetTop) / _this.canvasScale; // was: clientX, clientY 
 		//console.log("Click coordinates: ",_x,_y, event);
 		_this.clickActions(_x,_y); // this workaround is necessary to be able to overload clickActions to reach "this." properties
-	}
+	};
 
 	this.init = function() {
 			// for SVG -  remove everything what is inside the div:
@@ -118,7 +118,7 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 				console.log("Canvas width is 0, renderer and player not created.");
 			}
 
-	}
+	};
 	
 	this.init();
 	
@@ -130,7 +130,7 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 			}
 		}
 		return isNew;
-	}
+	};
 	
 	this.generate = function() {console.log("generate(). Implement in derived object.");}
 	
@@ -144,13 +144,13 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 		} catch (e) {
 			console.log(e);
 		}
-	}
+	};
 	
 	this.renew = function() { // in some exercise you may need to add more functionality, like hide() or similar
 		this.containerNode.getElementsByClassName("feedback")[0].innerHTML = "";
         this.generate();
         this.draw();
-    }
+    };
 	
 	
 	this.getNotes = function(staff) {
@@ -158,7 +158,7 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 			staff=0			
 		}
 		return this.artist.staves[staff].note_notes;		
-	}
+	};
 		
 	this.responseFunction = function()  {console.log("Implement in derived object;")}
 	
@@ -167,13 +167,12 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 		if (this.testIsRunning() ) {
 			this.nextQuestion(); // this also stops the countdown of test question
 		}
-	}
+	};
 
 	
 	// methods for making tests ----------------
 	
-	// TODO: add timeSpent + feedback "Testi tegemiseks kulus aega: "+ this.timeSpent
-	
+
 	var startTime = 0;
 	
 	function countdown() {		
@@ -218,11 +217,11 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 		startTime = Date.now();
 		this.currentQuestion = 0;
 		this.nextQuestion();		
-	}
+	};
 	
 	this.testIsRunning = function() {
         return (this.timer>=0)
-    }
+    };
     
     this.nextQuestion = function() {
 		clearTimeout(_this.countdownReference); // stop timer
@@ -237,7 +236,7 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 			this.stopTest();
 		}
 		
-	}
+	};
     
     this.makePDF = function() {
 		// very initial state, just for testing
@@ -263,7 +262,7 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 		var fileName = name + "_" + title + ".pdf";
 		fileName = fileName.replace(/\s+/g, '_').toLowerCase(); // replace spaces and to lowercase
 		doc.save(fileName);
-	}
+	};
     
     this.stopTest= function() {
         console.log("Stop");
@@ -280,7 +279,7 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 		this.containerNode.getElementsByClassName("questionNumber")[0].innerHTML = "0";
 		this.containerNode.getElementsByClassName("timer")[0].innerHTML = "0";
 		this.questions = [];
-    }
+    };
 	
 	
 	//audio -------------------------------------
@@ -292,7 +291,7 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 		}
 		this.player.queueWaveTable(this.audioContext, this.audioContext.destination,
 		this.selectedPreset, this.audioContext.currentTime+start, midiNote, duration, volume);
-	}
+	};
 
 	this.play = function() {
 		if (this.noSound) {
@@ -320,7 +319,6 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 					}
 					var noteValue =Vex.Flow.Music.noteValues[noteName];
 					var midiNote = (24 + ((octave-1) * 12)) + noteValue.int_val;
-					// TODO: octave is wrong if
 					// get start from note, maybe 
 					//console.log(midiNote, _start, _duration); // 
 					if (_note.noteType=="n") { 
@@ -330,7 +328,7 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 				_start += _duration;  
 			} 
 		}
-	}
+	};
 }
 
  
