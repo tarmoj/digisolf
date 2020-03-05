@@ -127,7 +127,7 @@ function askIntervalSeveral(type, clef, containerNode, canvasClassName) {  // cl
 			feedback += "<b>Vale.</b> Teine intervall on: <b>" + intervalData2.interval.longName + "  (" + intervalData2.interval.shortName + ")</b><br>";
 			correct = false;
 		}
-K
+
 		
 		if (correct) {
 			exercise.score += 1;
