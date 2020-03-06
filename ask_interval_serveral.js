@@ -78,19 +78,20 @@ function askIntervalSeveral(type, clef, containerNode, canvasClassName) {  // cl
 		var elements = pattern.split(" ");
 		var counter = 0;
 		// TODO: make sure that at least 2 notes of the pattern are used
-		// maybe: shuffle the possibleNotes array every time it is exhausted?
 		for  (var i=0; i<elements.length; i++) {
 			var vtElement = "";
 			var duration = parseInt(elements[i]);
 			duration /= beats;
+			var durationString = Math.abs(duration) + ( (elements[i].indexOf("d")>0) ? "d" : ""); // add "d" if dotted rhytm
+
 			if ( duration < 0 ) { // rest
-				vtElement = " :" + Math.abs(duration) + " ##"; // vextab rest
+				vtElement = " :" + durationString + " ##"; // vextab rest
 			} else {
-				vtElement = " :" + duration + " " + localArray[counter];
+				vtElement = " :" + durationString + " " + localArray[counter];
+				counter++;
 			}
-			console.log(i, counter, vtElement);
 			vextabString += vtElement;
-			if (++counter >= localArray.length) {
+			if (counter >= localArray.length) {
 				counter = 0;
 				localArray.sort(() => Math.random() - 0.5); // reshuffle
 			}
