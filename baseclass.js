@@ -306,22 +306,21 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 			//console.log("Note to play:", _note);
 			if (_note.duration!=="b") { // check if not barline
 				_duration = _note.getTicks().value()/4096.0 * 60.0/this.tempo;
-				var keys = _note.getPlayNote(); // can be an array if chord
-				for (var j=0; j<keys.length; j++) { 
-					var noteName = keys[j].split("/")[0];
-					var octave = parseInt( keys[j].split("/")[1]);
-					noteName = noteName.trim().toLowerCase();
-					if (noteName === "b#" || noteName === "b##") { // his means -  midi pitch in actually of next octave
-						octave += 1;
-					}
-					if (noteName === "cb" ||  noteName === "cbb") { // his means -  actually h/b of lower octave
-						octave -= 1;
-					}
-					var noteValue =Vex.Flow.Music.noteValues[noteName];
-					var midiNote = (24 + ((octave-1) * 12)) + noteValue.int_val;
-					// get start from note, maybe 
-					//console.log(midiNote, _start, _duration); // 
-					if (_note.noteType=="n") { 
+				if (_note.noteType=="n") {
+					var keys = _note.keys; // can be an array if chord
+					for (var j=0; j<keys.length; j++) {
+						var noteName = keys[j].split("/")[0];
+						var octave = parseInt( keys[j].split("/")[1]);
+						noteName = noteName.trim().toLowerCase();
+						if (noteName === "b#" || noteName === "b##") { // his means -  midi pitch in actually of next octave
+							octave += 1;
+						}
+						if (noteName === "cb" ||  noteName === "cbb") { // his means -  actually h/b of lower octave
+							octave -= 1;
+						}
+						var noteValue =Vex.Flow.Music.noteValues[noteName];
+						var midiNote = (24 + ((octave-1) * 12)) + noteValue.int_val;
+						//console.log(midiNote, _start, _duration); //
 						this.playNote(midiNote, _start, _duration);
 					}
 				}
