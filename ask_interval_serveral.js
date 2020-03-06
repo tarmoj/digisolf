@@ -3,7 +3,7 @@
 // hetkel 2 intervalli järjest, võibolla tulevikus luba seadistada 2, 3, 4 vms
 
 function askIntervalSeveral(type, clef, containerNode, canvasClassName) {  // clef and direction not needed for now
-	// type : "harmonic | melodic | rhythmisized"
+	// type : "harmonic | melodic | rhythmized"
 
 	if (type===undefined) type = "harmonic";
 	if (clef===undefined) clef = "treble";
@@ -19,23 +19,84 @@ function askIntervalSeveral(type, clef, containerNode, canvasClassName) {  // cl
 
 	
 	// set necessary methods in exercise
-	var exercise = new MusicExercise(this.containerNode, this.canvasClassName, 150,10,10,1.5); // bigger scale for note input
+	var width = (type === "harmonic") ? 150 : 300 ; // wider canvas for melodic and rhytmized
+	var exercise = new MusicExercise(this.containerNode, this.canvasClassName, width,10,10,1.5); // bigger scale for note input
  	exercise.time = "";
  	exercise.key = "";
 	exercise.timeToThink = 30; // more time for doing the test
 	exercise.clef = clef;
+	exercise.tempo =  (type=== "harmonic") ? 100 : 60;
 	
-	var possibleIntervals = intervals.possibleIntervals;
 	var possibleNotes = notes.violinClefNotes;
-	var possibleBaseNotes = possibleNotes.slice(0, possibleNotes.length/2); // take from first octave
 
 
 	// Create or set necessary HTML elements
 	this.containerNode.getElementsByClassName("exerciseTitle")[0].innerHTML = "Intervallide määramine";
-	this.containerNode.getElementsByClassName("description")[0].innerHTML = 'Kõlavad kaks intervalli. Alustamiseks vajutage "Mängi"';
+	var description, question;
+	switch (type) {
+		case "harmonic" : description = 'Kõlavad kaks harmoonilist intervalli.'; break;
+		case "rhythmized" : description = 'Kõlavad kaks pausidega eraldatud motiivi, mõlemal on oma intervall'; break;
+		case "melodic" : description = 'Kõlavad kaks meloodilist, pausidega eraldatud intervalli.'; break; break;
+		default: description = ""; break;
+	}
+
+	description += '<br>Alustamiseks vajutage "Mängi"';
+	this.containerNode.getElementsByClassName("description")[0].innerHTML =  description;
 	this.containerNode.getElementsByClassName("question")[0].innerHTML = 
 	'Mis intervallid  kõlavad? Eraldage tühikuga (nt p5  >4) <input class="answer" type="text" size=8> </input> ';
-		
+
+	// rhythm  patterns of one beat 16 -  16th, 8 - 8th etc 8d -  8th with dot; negative: rest
+	// evey pattern must have at least 2 notes
+	var possiblePatterns = [
+		"8 8",  "8d 16", "16 8d",
+		"8 16 16", "16 8 16",  "16 16 8",
+		"-8 16 16", "-16 8 16",  "-16 16 8",
+		"8 -16 16", "16 -8 16",  "16 -16 8",
+		"8 16 -16", "16 8 -16",  "16 16 -8",
+		"16 16 16 16",  "-16 16 16 16",
+		"16 16 -16 16",  "16 16 16 -16",
+		"16 -16 16 -16",  "-16 16 -16 16",
+		"16 -16 -16 16",  "16 -16 -16 16"
+	];
+
+	exercise.getRandomPattern =  function(noteArray, beats) { // combines given notes with a random ryhthm pattern over given number of beats, deafult is 1 beat
+		// noteArray - array of notes in vextab notation, must have at least 2 notes and both of them mut be used
+		if (noteArray.length<2) {
+			console.log("At least 2 notes must be given as array in first parameter.");
+			return "";
+		}
+
+		if (beats === undefined) {
+			beats = 1;
+		}
+
+		var localArray = noteArray.slice(); // otherwise original array will be sorted
+		localArray.sort(() => Math.random() - 0.5); // simple shuffle to get the notes in random order
+
+		var vextabString = "";
+		var pattern = possiblePatterns[Math.floor(Math.random() * possiblePatterns.length )];
+		var elements = pattern.split(" ");
+		var counter = 0;
+		// TODO: make sure that at least 2 notes of the pattern are used
+		// maybe: shuffle the possibleNotes array every time it is exhausted?
+		for  (var i=0; i<elements.length; i++) {
+			var vtElement = "";
+			var duration = parseInt(elements[i]);
+			duration /= beats;
+			if ( duration < 0 ) { // rest
+				vtElement = " :" + Math.abs(duration) + " ##"; // vextab rest
+			} else {
+				vtElement = " :" + duration + " " + localArray[counter];
+			}
+			console.log(i, counter, vtElement);
+			vextabString += vtElement;
+			if (++counter >= localArray.length) {
+				counter = 0;
+				localArray.sort(() => Math.random() - 0.5); // reshuffle
+			}
+		}
+		return vextabString;
+	};
 
 	exercise.generate = function() {
 
@@ -65,7 +126,15 @@ function askIntervalSeveral(type, clef, containerNode, canvasClassName) {  // cl
 		if (type === "harmonic") {
 			exercise.notes = ":2 " + intervals.makeChord([intervalData1.note1, intervalData1.note2]);
 			exercise.notes += ":2 " + intervals.makeChord([intervalData2.note1, intervalData2.note2]);
-		} // TODO: melodic, rhytmisized
+		} else if (type === "rhythmized") {
+			exercise.notes = exercise.getRandomPattern([intervalData1.note1.vtNote, intervalData1.note2.vtNote], 1 );
+			exercise.notes += " :4 ## "; // add quarter rest in between
+			exercise.notes += exercise.getRandomPattern([intervalData2.note1.vtNote, intervalData2.note2.vtNote], 1 );
+			exercise.notes += " :4 ## ";
+		} else { // melodic
+			exercise.notes = " : 4 " + intervalData1.note1.vtNote + " " + intervalData1.note2.vtNote;
+			exercise.notes  += " ## " +  intervalData2.note1.vtNote + " " + intervalData2.note2.vtNote;
+		}
 
 		answered = false;
 	}
@@ -143,7 +212,8 @@ function askIntervalSeveral(type, clef, containerNode, canvasClassName) {  // cl
 		answered = true;
 		
 		if (exercise.testIsRunning) { // add info to test report
-			exercise.testReport +=  exercise.currentQuestion.toString() +  '. Mängitud intervall: ' + interval.shortName + '. Sisestatud intervall: ' + answer;
+			exercise.testReport +=  exercise.currentQuestion.toString() +  '. Mängitud intervall 1 : ' + intervalData1.interval.shortName + '. Sisestatud intervall: ' + answer;
+			exercise.testReport +=  exercise.currentQuestion.toString() +  '. Mängitud intervall 2 : ' + intervalData2.interval.shortName + '. Sisestatud intervall: ' + answer;
 			exercise.testReport += ".<br>Tagasiside: " + feedback + "<br>";	
 		}
 		

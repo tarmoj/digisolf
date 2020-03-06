@@ -28,7 +28,7 @@
 	<!--exercises-->
 	<script src="ask_interval_initial.js"></script>
 	<script src="ask_interval.js"></script>
-    <script src="ask_interval_serveral_from_note.js"></script>
+    <script src="ask_interval_serveral.js"></script>
 
 	<!--main-->
     <script>
@@ -52,6 +52,8 @@
 			switch (exerciseNumber) {
 				case "1.1" : exercise = askInterval(); break; // askInerval will be changed..
 				case "1.2" : exercise = askIntervalSeveral("harmonic"); break;
+				case "1.3" : exercise = askIntervalSeveral("melodic"); break;
+				case "1.4" : exercise = askIntervalSeveral("rhythmized"); break;
 				case "1.10" : exercise = askIntervalInitial(); break; // for testing
 
 				default:  exercise = askIntervalInitial();
