@@ -144,7 +144,7 @@ function IntervalClass() {
 
 	this.getRandomInterval = function(possibleNotes, direction) {
 		if (direction === undefined) {
-			direction = Math.random() > 0.5 ? "up" : "down"; // 50/50 probability
+			direction = Math.random() >= 0.5 ? "up" : "down"; // 50/50 probability
 		}
 		var note1 = possibleNotes[Math.floor(Math.random()* possibleNotes.length)];
 		var note2 = undefined;
@@ -197,4 +197,61 @@ function IntervalClass() {
 		
 	};
 	
+}
+
+const possibleIntervals = [
+	{ shortName: "p1", longName: "puhas priim", semitones: 0, degrees: 0 }, // degrees (astmeid) -  difference in scale degrees (Ces/C/Cis - 0,  Des/D/Dis - 1 etc)
+	{ shortName: "v2", longName: "väikes sekund", semitones: 1, degrees: 1 },
+	{ shortName: "s2", longName: "suur sekund", semitones: 2, degrees: 1 },
+	{ shortName: "v3", longName: "väike terts", semitones: 3, degrees: 2 },
+	{ shortName: "s3", longName: "suur terts", semitones: 4, degrees: 2 },
+	{ shortName: "p4", longName: "puhas kvart", semitones: 5, degrees: 3 },
+	{ shortName: ">4", longName: "suurendatud kvart", semitones: 6, degrees: 3 }, // vähendatud kvint?
+	{ shortName: "<5", longName: "vähendatud kvint", semitones: 6, degrees: 4 },
+	{ shortName: "p5", longName: "puhas kvint", semitones: 7, degrees: 4 },
+	{ shortName: "v6", longName: "väike sekst", semitones: 8, degrees: 5 },
+	{ shortName: "s6", longName: "suur sekst", semitones: 9, degrees: 5 },
+	{ shortName: "v7", longName: "väike septim", semitones: 10, degrees: 6 },
+	{ shortName: "s7", longName: "suur septim", semitones: 11, degrees: 6 },
+	{ shortName: "p8", longName: "puhas oktav", semitones: 12, degrees:  7 },
+];
+
+function getInterval(note1, note2) {
+	const semitones = note2.midiNote - note1.midiNote;
+
+	let direction;
+	if (semitones > 0) {
+		direction = "up";
+	} else if (semitones === 0) {
+		direction = "same";
+	} else {
+		direction = "down";
+	}
+
+	const interval = findIntervalBySemitones(Math.abs(semitones));
+	return {note1: note1, note2: note2, interval: interval, direction: direction};
+}
+
+function findIntervalBySemitones(semitones) {	// Return first found interval
+	return possibleIntervals.find(interval => interval.semitones === semitones);
+}
+
+function makeChord (noteArray) { // noteArray - array of type possibleNotes, to have midiNotes to sort those
+	// sort, return vtString (<note>.<note>.<et>)
+	if (noteArray.length<2) {
+		console.log("Not enough notes for chord");
+		return "";
+	}
+	var localArray = noteArray.slice(); // otherwise original array will be sorted
+	localArray.sort(function(a,b) { return a.midiNote - b.midiNote; }  )
+	var vtString = "("; // make vextab chord notation
+	for (var i=0; i<localArray.length; i++) {
+
+		if (i>0 && localArray[i] !== undefined) vtString += "."; // separator between chord notes
+		if (localArray[i] !== undefined)
+			vtString += localArray[i].vtNote;
+	}
+	vtString += ")";
+	//console.log("Sorted chord: ", vtString);
+	return vtString;
 }

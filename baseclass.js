@@ -175,7 +175,11 @@ function MusicExercise(containerNode, canvasClassName, width, x, y, scale, noSou
 
 	var startTime = 0;
 	
-	function countdown() {		
+	function countdown() {
+		if (this.containerNode === undefined) {	// Et tööle läheks
+			this.containerNode = containerNode;
+		}
+
         //console.log(_this.timer);
         this.containerNode.getElementsByClassName("timer")[0].innerHTML = _this.timer.toString();
 		this.totalTestTime = (Date.now() - startTime) / 1000.0;
