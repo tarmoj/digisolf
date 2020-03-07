@@ -235,23 +235,3 @@ function getInterval(note1, note2) {
 function findIntervalBySemitones(semitones) {	// Return first found interval
 	return possibleIntervals.find(interval => interval.semitones === semitones);
 }
-
-function makeChord (noteArray) { // noteArray - array of type possibleNotes, to have midiNotes to sort those
-	// sort, return vtString (<note>.<note>.<et>)
-	if (noteArray.length<2) {
-		console.log("Not enough notes for chord");
-		return "";
-	}
-	var localArray = noteArray.slice(); // otherwise original array will be sorted
-	localArray.sort(function(a,b) { return a.midiNote - b.midiNote; }  )
-	var vtString = "("; // make vextab chord notation
-	for (var i=0; i<localArray.length; i++) {
-
-		if (i>0 && localArray[i] !== undefined) vtString += "."; // separator between chord notes
-		if (localArray[i] !== undefined)
-			vtString += localArray[i].vtNote;
-	}
-	vtString += ")";
-	//console.log("Sorted chord: ", vtString);
-	return vtString;
-}
