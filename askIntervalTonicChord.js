@@ -45,7 +45,7 @@ function askIntervalTonicChord(clef = "treble", direction = "up", containerNode 
         exercise.attempts += 1;
         let answer = containerNode.getElementsByClassName("answer")[0].value.trim();
 
-        let feedback;
+        let feedback = "";
         if (intervalData.interval.shortName === answer) {  // NB! this is not fool proof!!! test!
             feedback += "<b>Intervall õige! </b>";
             exercise.score += 1;
