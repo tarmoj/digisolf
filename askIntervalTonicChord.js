@@ -21,7 +21,6 @@ function askIntervalTonicChord(clef = "treble", direction = "up", containerNode 
     containerNode.getElementsByClassName("replyButton")[0].style.visibility = "hidden";
     containerNode.getElementsByClassName("question")[0].style.visibility = "hidden";
 
-    // let answered = false;
     let intervalData = getNewInterval(isMajor, selectedTonicNote, possibleNotes);
 
     exercise.renew = function() {
@@ -44,21 +43,14 @@ function askIntervalTonicChord(clef = "treble", direction = "up", containerNode 
 
     exercise.responseFunction = function() {
         exercise.attempts += 1;
-        let feedback = "";
-        let correct = false;
-
         let answer = containerNode.getElementsByClassName("answer")[0].value.trim();
 
+        let feedback;
         if (intervalData.interval.shortName === answer) {  // NB! this is not fool proof!!! test!
-            feedback += "<b>Intervall õige! </b>"
-            correct = true;
+            feedback += "<b>Intervall õige! </b>";
+            exercise.score += 1;
         } else {
             feedback += "<b>Vale.</b> Mängitud intervall on: <b>" + intervalData.interval.longName + "  (" + intervalData.interval.shortName + ")</b>";
-            correct = false;
-        }
-
-        if (correct) {
-            exercise.score += 1;
         }
 
         containerNode.getElementsByClassName("attempts")[0].innerHTML = exercise.attempts;
