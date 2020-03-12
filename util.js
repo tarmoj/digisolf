@@ -42,6 +42,11 @@ function getAllNotesWithSameName(note, noteArray) {
     return notes;
 }
 
+function getRandomInt(from, to) {
+    return from + Math.floor(Math.random()* (to-from));
+}
+
+
 // const getChordNotes = (tonicNote, isMajor, notes) => {
 //     let chordNotes = [];
 //
