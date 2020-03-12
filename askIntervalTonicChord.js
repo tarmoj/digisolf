@@ -33,7 +33,7 @@ function askIntervalTonicChord(clef = "treble", direction = "up", containerNode 
         containerNode.getElementsByClassName("replyButton")[0].style.visibility = "visible";
         containerNode.getElementsByClassName("question")[0].style.visibility = "visible";
         containerNode.getElementsByClassName("question")[0].innerHTML =
-            'Mis intervall kõlab? (kujul p5, s3, >4 jne) <input id="answerInput" type="text" size=8> </input> ';
+            'Mis intervall kõlab? (kujul p5, s3, >4 jne) <input id="answerInput" class="answer" type="text" size=8> </input> ';
         document.getElementById("answerInput").focus();
 
         exercise.playNote(intervalData.note1.midiNote, 0, 4);
