@@ -1,7 +1,7 @@
 // plays a perfect interval -  whetrher fourth (4/3), fifth (3/2) or octave (2/1) that may be in tune, low on high
 // the possible error is given in cents. If cents = 0, take a random amount of cents;
 // type -  harmonic|melodic, deviation -  deviation in cents
-function intonation(type = "harmonic",  instrument = "beep", cents = 0, containerNode = document.body, canvasClassName = "mainCanvas") {  // clef and direction not needed for now
+function intonation(type = "harmonic",  instrument = "beep", cents = 0, containerNode = document.body, canvasClassName = "mainCanvas") {
 
     const possibleDeviations = [5, 10, 20, 30];
     let deviationAmount =  (cents === 0) ? getRandomElementFromArray(possibleDeviations) : cents; // the number of cents the interval can be wrong
@@ -20,14 +20,17 @@ function intonation(type = "harmonic",  instrument = "beep", cents = 0, containe
 
     // Create or set necessary HTML elements
     containerNode.getElementsByClassName("exerciseTitle")[0].innerHTML = "Häälestus.";
-    containerNode.getElementsByClassName("description")[0].innerHTML = '<button onclick"startCsound();">Csound</button>';
+    //containerNode.getElementsByClassName("description")[0].innerHTML = '<button id="csoundButton"  onclick="exercise.startCsound();">Csound</button>';
     containerNode.getElementsByClassName("question")[0].innerHTML = "Kas intervall on puhas, kitsas või lai?";
 
+    containerNode.getElementsByClassName("infoDiv")[0].style.visibility = "hidden"; // audio context is muted until first click; use button in startCoundDiv to activate it.
+    containerNode.getElementsByClassName("startCsoundDiv")[0].style.visibility = "visible";
 
-
-
-    //containerNode.getElementsByClassName("replyButton")[0].style.visibility = "hidden";
-    //containerNode.getElementsByClassName("question")[0].style.visibility = "hidden";
+    containerNode.getElementsByClassName("startCsoundButton")[0].onclick = function() {
+        exercise.startCsound();
+        containerNode.getElementsByClassName("infoDiv")[0].style.visibility = "visible"; // audio context is muted until first click; use button in startCoundDiv to activate it.
+        containerNode.getElementsByClassName("startCsoundDiv")[0].style.visibility = "hidden";
+    };
 
     exercise.generate = function() { // set the deviation - negative, 0, or positive
         const random = Math.random()*3;
@@ -48,7 +51,7 @@ function intonation(type = "harmonic",  instrument = "beep", cents = 0, containe
     };
 
     exercise.play = function() { // use Csound to play the inetrval
-        if (csound !== undefined) {
+        if (csound !== undefined) { // csound is in global space
             csound.inputMessage('i 1 0 2 0.1 67 1.3333333 -20 3 1');
         }
 

@@ -98,14 +98,17 @@
 	<h2 class="exerciseTitle">Harjutuse nimi</h2>
 	<p class="description">Ülesande kirjeldus.</p>
 	<br>
-
-	<span class="question">Küsimus</span> <button class="replyButton" onclick="exercise.checkResponse()">Vasta</button><br>
-	
-	
-	<br>
-	<div class="mainControls">
-	<button class="renewButton" onclick='exercise.renew()'>Uuenda</button>  
-	<button class="playButton" onclick="exercise.play();">Mängi</button>
+	<div class="startCsoundDiv" style="visibility: hidden">
+		Alustamiseks vajutage siia:
+		<button class="startCsoundButton">Start Csound</button>
+	</div>
+	<div class="infoDiv">
+		<span class="question">Küsimus</span> <button class="replyButton" onclick="exercise.checkResponse()">Vasta</button><br>
+		<br>
+		<div class="mainControls">
+		<button class="renewButton" onclick='exercise.renew()'>Uuenda</button>
+		<button class="playButton" onclick="exercise.play();">Mängi</button>
+		</div>
 	</div>
 	<div class="mainCanvas"></div>
 	
@@ -119,7 +122,7 @@
 	<button  class="resetButton" onclick='exercise.attempts=0;exercise.score=0;attempts.innerHTML="0"; score.innerHTML = "0" '>Nulli</button>
 	<br>
 	<br>
-	Kui tunned, et oled valmis <b>testi sooritama</b>, vajuta: <button  class="showTestButton" onclick='testDiv.style.visibility="visible";'> Test</button> <br>
+	<button  class="showTestButton" onclick='testDiv.style.visibility="visible";'>Test</button> <br>
 	
 	<div id="testDiv" class="testDiv" style="visibility:hidden">
 	Kas soovite tulemuse salvestada pdf faili (nt esitamiseks õpetajale)? 
