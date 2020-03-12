@@ -20,8 +20,11 @@ function intonation(type = "harmonic",  instrument = "beep", cents = 0, containe
 
     // Create or set necessary HTML elements
     containerNode.getElementsByClassName("exerciseTitle")[0].innerHTML = "Häälestus.";
-    //containerNode.getElementsByClassName("description")[0].innerHTML = '<button id="csoundButton"  onclick="exercise.startCsound();">Csound</button>';
-    containerNode.getElementsByClassName("question")[0].innerHTML = "Kas intervall on puhas, kitsas või lai?";
+    containerNode.getElementsByClassName("description")[0].innerHTML = '';
+    containerNode.getElementsByClassName("question")[0].innerHTML = 'Kas intervall on puhas, kitsas või lai? <br>' +
+        '<input value="low" class="answer" name="intonation" type="radio"> Madal <input value="inTune" class="answer" name="intonation" type="radio"> Hääles' +
+        '<input value="high" class="answer" name="intonation" type="radio"> Kõrge ';
+
 
     containerNode.getElementsByClassName("infoDiv")[0].style.visibility = "hidden"; // audio context is muted until first click; use button in startCoundDiv to activate it.
     containerNode.getElementsByClassName("startCsoundDiv")[0].style.visibility = "visible";
@@ -47,12 +50,13 @@ function intonation(type = "harmonic",  instrument = "beep", cents = 0, containe
 
     exercise.renew = function() {
         exercise.containerNode.getElementsByClassName("feedback")[0].innerHTML = "";
+        exercise.generate();
         exercise.play();
     };
 
     exercise.play = function() { // use Csound to play the inetrval
         if (csound !== undefined) { // csound is in global space
-            csound.inputMessage('i 1 0 2 0.1 67 1.3333333 -20 3 1');
+            csound.inputMessage('i 1 0 2 0.1 ' + midiNote + '  1.5 ' + deviation +  ' 3 0');
         }
 
     };

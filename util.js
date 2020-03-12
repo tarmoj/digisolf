@@ -46,6 +46,17 @@ function getRandomInt(from, to) {
     return from + Math.floor(Math.random()* (to-from));
 }
 
+function getRadioValue(className, container = document.body) {
+    const elements = container.getElementsByClassName(className); // typical would be document.getElementsByName, but this works only within document, not given container
+    let radioValue;
+    for (let i=0;  i<elements.length; i++) {
+        if (elements[i].checked) {
+            radioValue = elements[i].value;
+        }
+    }
+    return radioValue;
+}
+
 
 // const getChordNotes = (tonicNote, isMajor, notes) => {
 //     let chordNotes = [];
