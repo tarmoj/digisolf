@@ -64,7 +64,15 @@
 				case "1.10" : exercise = askIntervalInitial(); break; // for testing
 
 
-				case "4.1" : exercise = intonation(); break;
+				case "4.1" : exercise = intonation("melodic", 30); break;
+				case "4.2" : exercise = intonation("harmonic", 30); break;
+				case "4.3" : exercise = intonation("melodic", 20); break;
+				case "4.4" : exercise = intonation("harmonic", 20); break;
+				case "4.5" : exercise = intonation("melodic", 10); break;
+				case "4.6" : exercise = intonation("harmonic", 10); break;
+				case "4.7" : exercise = intonation("melodic", 5); break;
+				case "4.8" : exercise = intonation("harmonic", 5); break;
+				case "4.9" : exercise = intonation("harmonic", 0); break;
 
 				default:  exercise = askIntervalInitial();
 					console.log("Exercise "+exerciseNumber+" is unkonwn or not defined yet");
@@ -92,7 +100,7 @@
 <img src=https://www.struktuurifondid.ee/sites/default/files/el_sotsiaalfond_horisontaalne.jpg width=200> 
 	</div>
 	<br>
-	<!--<a href=index.html>Sisukord</a><br>-->
+	<a href=index.html>Sisukord</a><br>
 	<div id="exercise1">
 	
 	<h2 class="exerciseTitle">Harjutuse nimi</h2>

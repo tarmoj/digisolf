@@ -8,7 +8,6 @@ sr = 44100
 ksmps = 32
 nchnls = 2
 0dbfs = 1
-
 giSine ftgen 1,0, 16384, 10, 1 ; Sine
 giSawtooth ftgen 2,0,  16384, 10, 1, 0.5, 0.3, 0.25, 0.2, 0.167, 0.14, 0.125, .111   ; Sawtooth
 giSquare ftgen 3,  0, 16384, 10, 1, 0,   0.3, 0,    0.2, 0,     0.14, 0,     .111   ; Square
@@ -44,6 +43,18 @@ instr Beep
 	aSignal poscil aEnvelope, iFreq, iTable
 	outs aSignal, aSignal
 endin
+
+schedule "Instrument", 0, 3, 1, 1, 0
+schedule "Instrument", 0, 3, 1, 0.5, 0
+instr Instrument
+	iAmp = p4
+	iSpeed = p5
+	iInstrument = p6
+	aSignal[] init 2
+	aSignal diskin2 "fl-note.wav", iSpeed
+	out aSignal
+endin
+
 
 </CsInstruments>
 <CsScore>
