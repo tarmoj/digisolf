@@ -1,7 +1,7 @@
 // plays a perfect interval -  whetrher fourth (4/3), fifth (3/2) or octave (2/1) that may be in tune, low on high
 // the possible error is given in cents. If cents = 0, take a random amount of cents;
 // type -  harmonic|melodic, deviation -  deviation in cents
-function intonation(type = "melodic",  instrument = "beep", cents = 0, containerNode = document.body, canvasClassName = "mainCanvas") {
+function intonation(type = "melodic", cents = 0, containerNode = document.body, canvasClassName = "mainCanvas") {
 
     const possibleDeviations = [5, 10, 20, 30];
     let deviation = 0;
@@ -31,6 +31,21 @@ function intonation(type = "melodic",  instrument = "beep", cents = 0, container
         containerNode.getElementsByClassName("infoDiv")[0].style.visibility = "visible"; // audio context is muted until first click; use button in startCoundDiv to activate it.
         containerNode.getElementsByClassName("startCsoundDiv")[0].style.visibility = "hidden";
     };
+
+    const instrumentMenu = document.createElement("p");
+    instrumentMenu.innerHTML = `
+        <br>
+        Instrument (heli tüüp): 
+        <select class="sound">
+            <option value="1" selected>Siinus</option>
+            <option value="2" >Saehammas</option>
+            <option value="3" >Nelinurk</option>
+            <option value="4" disabled>Flööt</option>
+        </select>
+        <br>
+    `;
+
+    containerNode.getElementsByClassName("mainControls")[0].appendChild(instrumentMenu); // bad placement maybe
 
     exercise.generate = function() { // set the deviation - negative, 0, or positive
         const deviationAmount =  (cents === 0) ? getRandomElementFromArray(possibleDeviations) : cents; // the number of cents the interval can be wrong
@@ -63,7 +78,7 @@ function intonation(type = "melodic",  instrument = "beep", cents = 0, container
             csoundString += midiNote + ' ';
             csoundString += intervalRatio + ' ';
             csoundString += deviation + ' ';
-            csoundString +=  ' 3 '; // soundtype: 1- sine, 2 - saw, 3- square
+            csoundString +=  containerNode.getElementsByClassName("sound")[0].value +  ' '; // soundtype: 1- sine, 2 - saw, 3- square
             csoundString += (type === "melodic") ? ' 1 ' : ' 0 ';
             console.log(csoundString);
             csound.inputMessage(csoundString);
