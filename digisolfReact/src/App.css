@@ -1,0 +1,71 @@
+.App {
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+    background-color: #f2f2f2;
+}
+
+.appBody {
+    margin-top: 65px;
+    margin-left: 5px;
+}
+
+.appFooter {
+    position: fixed;
+    bottom: 0;
+    margin-bottom: 5px;
+    margin-left: 5px;
+}
+
+.AppHeader {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    text-align: center;
+    display: flex;
+    height: 65px;
+    padding: 5px;
+}
+
+.exerciseBtn {
+    width: 200px;
+}
+
+.exerciseBtns {
+    max-width: 600px;
+}
+
+.footerLogo {
+    width: 156px !important;
+    height: 83px !important;
+    margin-bottom: 5px;
+ }
+
+.fullWidth {
+    width: 100%;
+}
+
+.languageSelect {
+    float: right;
+    right: 5px;
+    top: 5px;
+}
+
+.headerText {
+    margin: auto !important;
+}
+
+.mainMenuBtn {
+    /*width: 20em;*/
+}
+
+.marginTop {
+    margin-top: 10px !important;
+}
+
