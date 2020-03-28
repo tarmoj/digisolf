@@ -28,7 +28,7 @@ body {
     top: 0;
     left: 0;
     text-align: center;
-    display: flex;
+    /*display: flex;*/
     height: 65px;
     padding: 5px;
 }
@@ -67,5 +67,14 @@ body {
 
 .marginTop {
     margin-top: 10px !important;
+}
+
+.message {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    text-align: center;
+    z-index: 1;
 }
 

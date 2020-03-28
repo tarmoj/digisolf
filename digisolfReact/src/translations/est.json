@@ -8,5 +8,19 @@
   "tonicTriad": "Toonika kolmkõla",
   "harmonic": "harmooniline",
   "severalIntervals": "Mitu intervalli",
-  "askIntervalTonicTriad": "Intervalli määramine toonika kolmkõla helide vahel"
+  "askIntervalTonicTriad": "Intervalli määramine toonika kolmkõla helide vahel",
+  "unison": "unisoon",
+  "second": "sekund",
+  "third": "terts",
+  "fourth": "kvart",
+  "fifth": "kvint",
+  "sixth": "sekst",
+  "seventh": "septim",
+  "octave": "octave",
+  "diminished": "vähendatud",
+  "augmented": "suurendatud",
+  "minor": "väike",
+  "major": "suur",
+  "perfect": "puhas",
+  "correctAnswerWas": "Õige vastus oli"
 }

@@ -2,11 +2,13 @@ import { combineReducers } from "redux";
 import {componentReducer} from "./component";
 import {languageReducer} from "./language";
 import {exerciseReducer} from "./exercise";
+import {headerMessageReducer} from "./headerMessage";
 
 const appReducer = combineReducers({
     componentReducer,
     languageReducer,
-    exerciseReducer
+    exerciseReducer,
+    headerMessageReducer
 });
 
 const rootReducer = (state, action) => {
