@@ -55,12 +55,19 @@ const AskInterval = () => {
         const newInterval = getNewInterval(isMajor, selectedTonicNote, violinClefNotes);
         setInterval(newInterval);
 
-        playNote(newInterval.note1.midiNote, 0, 4);
-        playNote(newInterval.note2.midiNote, 0, 4);
+        if (isHarmonic) {
+            playNote(newInterval.note1.midiNote, 0, 4);
+            playNote(newInterval.note2.midiNote, 0, 4);
+        } else {
+            playNote(newInterval.note1.midiNote, 0, 2);
+            playNote(newInterval.note2.midiNote, 2000, 2);
+        }
     };
 
     const playNote = (midiNote, start, duration) => {
-        midiSounds.current.playChordNow(3, [midiNote], duration);
+        setTimeout(() => {
+            midiSounds.current.playChordNow(3, [midiNote], duration);
+        }, start)
     };
 
     const getNewInterval = (isMajor, selectedTonicNote, possibleNotes) => {
@@ -151,9 +158,13 @@ const AskInterval = () => {
         return selectedTonicNote !== null;
     };
 
+    const getExerciseType = () => {
+        return isHarmonic ? t("harmonic") : t("melodic");
+    };
+
     return (
         <div>
-            <Header size='large'>{t(name)}</Header>
+            <Header size='large'>{`${t(name)} - ${getExerciseType()}`}</Header>
             <Grid>
                 <Grid.Row columns={2}>
                     <Grid.Column>

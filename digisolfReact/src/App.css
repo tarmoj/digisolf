@@ -59,6 +59,10 @@ body {
     top: 5px;
 }
 
+.mainMenuBtn {
+    width: 90%;
+}
+
 .marginTopSmall {
     margin-top: 10px !important;
 }

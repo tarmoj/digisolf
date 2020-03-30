@@ -9,9 +9,8 @@ const MainMenu = () => {
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
 
-    const goToTonicTriadHarmonic = () => {
-        dispatch(setIsHarmonic(true));
-        dispatch(setIsTonic(true));
+    const startTonicTriad = (isHarmonic) => {
+        dispatch(setIsHarmonic(isHarmonic));
         dispatch(setName("askIntervalTonicTriad"));
         dispatch(setComponent("AskInterval"));
     };
@@ -21,7 +20,8 @@ const MainMenu = () => {
             <Grid.Row columns={2}>
                 <Grid.Column>
                     <Header size='large'>{t("intervals")}</Header>
-                    <Button className={"mainMenuBtn"} onClick={goToTonicTriadHarmonic}>{t("tonicTriad")} - {t("harmonic")}</Button><br/>
+                    <Button className={"mainMenuBtn"} onClick={() => startTonicTriad(true)}>{t("tonicTriad")} - {t("harmonic")}</Button><br/>
+                    <Button className={"marginTopSmall mainMenuBtn"} onClick={() => startTonicTriad(false)}>{t("tonicTriad")} - {t("melodic")}</Button><br/>
                     <Button className={"marginTopSmall mainMenuBtn"}>{t("severalIntervals")} - {t("harmonic")}</Button><br/>
                 </Grid.Column>
                 <Grid.Column>
