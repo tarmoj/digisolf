@@ -5,7 +5,7 @@ import euLogo from "../images/eu.jpg";
 const AppFooter = () => {
     return (
         <Grid>
-            <div className={"appFooter"}>
+            <div className={"marginTop"}>
                 <Grid.Row>
                     <Grid.Column>
                         <Image className={"footerLogo"} fluid src={euLogo} />

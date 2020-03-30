@@ -22,7 +22,7 @@ const MainMenu = () => {
                 <Grid.Column>
                     <Header size='large'>{t("intervals")}</Header>
                     <Button className={"mainMenuBtn"} onClick={goToTonicTriadHarmonic}>{t("tonicTriad")} - {t("harmonic")}</Button><br/>
-                    <Button className={"marginTop mainMenuBtn"}>{t("severalIntervals")} - {t("harmonic")}</Button><br/>
+                    <Button className={"marginTopSmall mainMenuBtn"}>{t("severalIntervals")} - {t("harmonic")}</Button><br/>
                 </Grid.Column>
                 <Grid.Column>
                     <div>

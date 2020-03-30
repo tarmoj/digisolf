@@ -16,11 +16,15 @@
   "fifth": "kvint",
   "sixth": "sekst",
   "seventh": "septim",
-  "octave": "octave",
+  "octave": "oktav",
   "diminished": "vähendatud",
   "augmented": "suurendatud",
   "minor": "väike",
   "major": "suur",
   "perfect": "puhas",
-  "correctAnswerWas": "Õige vastus oli"
+  "correctAnswerIs": "Õige vastus on",
+  "startExercise": "Alusta harjutust",
+  "playNext": "Mängi järgmine",
+  "changeKey": "Vaheta helistikku",
+  "goBack": "Tagasi"
 }

@@ -4,7 +4,7 @@ import {Header, Message} from 'semantic-ui-react'
 import {useTranslation} from "react-i18next";
 import {removeMessage} from "../actions/headerMessage";
 
-const AppHeader = () => {
+const HeaderMessage = () => {
     const positiveMessage = useSelector(state => state.headerMessageReducer.positiveMessage);
     const negativeMessage = useSelector(state => state.headerMessageReducer.negativeMessage);
     const delayedClose = useSelector(state => state.headerMessageReducer.delayedClose);
@@ -31,9 +31,11 @@ const AppHeader = () => {
             closeMessageTimeout.current = setTimeout(dismissMessage, delayedClose);
         }
 
-        return <Message className={"message"} positive={positive} negative={negative} onDismiss={dismissMessage}>
-            <Message.Header>{text}</Message.Header>
-        </Message>
+        return (
+            <Message className={"headerMessage"} positive={positive} negative={negative} onDismiss={dismissMessage}>
+                <Message.Header>{text}</Message.Header>
+            </Message>
+        )
     };
 
     const dismissMessage = () => {
@@ -41,11 +43,8 @@ const AppHeader = () => {
     };
 
     return (
-        <div className={"AppHeader"}>
-            <Header size='huge' className={"headerText"}>{t("digisolfeggio")}</Header>
-            {displayMessage()}
-        </div>
+        displayMessage()
     );
 };
 
-export default AppHeader;
+export default HeaderMessage;
