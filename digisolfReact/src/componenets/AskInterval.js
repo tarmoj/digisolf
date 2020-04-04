@@ -44,7 +44,7 @@ const AskInterval = () => {
         const tonicNotes = getAllNotesWithSameName(tonicNote, violinClefNotes);	// Get all tonic notes
         const isMajor = getRandomBoolean();
         const selectedTonicNote = getRandomElementFromArray(tonicNotes);	// Select random note from tonic notes
-
+        midiSounds.current.setMasterVolume(0.4); // not too loud TODO: add control slider
         playNewInterval(isMajor, selectedTonicNote);
     };
 
