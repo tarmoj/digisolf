@@ -45,22 +45,26 @@ const AskInterval = () => {
         const isMajor = getRandomBoolean();
         const selectedTonicNote = getRandomElementFromArray(tonicNotes);	// Select random note from tonic notes
         midiSounds.current.setMasterVolume(0.4); // not too loud TODO: add control slider
-        playNewInterval(isMajor, selectedTonicNote);
+        getNewInterval(isMajor, selectedTonicNote);
     };
 
-    const playNewInterval = (isMajor, selectedTonicNote) => {
+    const getNewInterval = (isMajor, selectedTonicNote) => {
         setIsMajor(isMajor);
         setSelectedTonicNote(selectedTonicNote);
 
-        const newInterval = getNewInterval(isMajor, selectedTonicNote, violinClefNotes);
+        const newInterval = generateInterval(isMajor, selectedTonicNote, violinClefNotes);
         setInterval(newInterval);
 
+        playInterval(newInterval);
+    };
+
+    const playInterval = (interval) => {
         if (isHarmonic) {
-            playNote(newInterval.note1.midiNote, 0, 4);
-            playNote(newInterval.note2.midiNote, 0, 4);
+            playNote(interval.note1.midiNote, 0, 4);
+            playNote(interval.note2.midiNote, 0, 4);
         } else {
-            playNote(newInterval.note1.midiNote, 0, 2);
-            playNote(newInterval.note2.midiNote, 2000, 2);
+            playNote(interval.note1.midiNote, 0, 2);
+            playNote(interval.note2.midiNote, 2000, 2);
         }
     };
 
@@ -70,7 +74,7 @@ const AskInterval = () => {
         }, start)
     };
 
-    const getNewInterval = (isMajor, selectedTonicNote, possibleNotes) => {
+    const generateInterval = (isMajor, selectedTonicNote, possibleNotes) => {
         const triadNote = getTriadNote(isMajor, selectedTonicNote, possibleNotes);
         return getInterval(selectedTonicNote, triadNote);
     };
@@ -140,18 +144,34 @@ const AskInterval = () => {
         return `${t(parts[0])} ${t(parts[1])}`
     };
 
-    const createPlaySoundButton = () => {
+    const createPlayNextButton = () => {
         if (exerciseHasBegun()) {
-            return <Button color={"green"} onClick={() => playNewInterval(isMajor, selectedTonicNote)} className={"fullWidth marginTopSmall"}>{t("playNext")}</Button>
+            return <Button color={"green"} onClick={() => getNewInterval(isMajor, selectedTonicNote)} className={"fullWidth marginTopSmall"}>{t("playNext")}</Button>
         } else {
             return <Button color={"green"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>
         }
     };
 
-    const createSetNewKeyButton = () => {
+    const createButtons = () => {
+        let buttons = [];
+
+        const startExerciseButton = <Button primary onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>;
+        const changeKeyButton = <Button primary onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("changeKey")}</Button>;
+        const playNextIntervalButton = <Button color={"olive"} onClick={() => getNewInterval(isMajor, selectedTonicNote)} className={"fullWidth marginTopSmall"}>{t("playNext")}</Button>;
+        const repeatIntervalButton = <Button color={"green"} onClick={() => playInterval(interval)} className={"fullWidth marginTopSmall"}>{t("repeat")}</Button>;
+
+        const goBackButton = <Button onClick={goBack} className={"fullWidth marginTopSmall"}>{t("goBack")}</Button>;
+
         if (exerciseHasBegun()) {
-            return <Button primary onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("changeKey")}</Button>
+            buttons.push([repeatIntervalButton, playNextIntervalButton, changeKeyButton]);
+            buttons.push();
+        } else {
+            buttons.push([startExerciseButton]);
         }
+
+        buttons.push(goBackButton);
+
+        return buttons;
     };
 
     const exerciseHasBegun = () => {
@@ -232,9 +252,7 @@ const AskInterval = () => {
                 </Grid.Row>
                 <Grid.Row>
                     <Grid.Column>
-                        {createPlaySoundButton()}
-                        {createSetNewKeyButton()}
-                        <Button onClick={goBack} className={"fullWidth marginTopSmall"}>{t("goBack")}</Button>
+                        {createButtons()}
                     </Grid.Column>
                 </Grid.Row>
             </Grid>

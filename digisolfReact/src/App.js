@@ -32,8 +32,8 @@ function App() {
                 </div>
                 <div className={"appBody"}>
                     {renderComponent()}
+                    <AppFooter/>
                 </div>
-                <AppFooter/>
             </div>
         </div>
     );

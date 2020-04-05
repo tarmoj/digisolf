@@ -27,5 +27,6 @@
   "startExercise": "Alusta harjutust",
   "playNext": "Mängi järgmine",
   "changeKey": "Vaheta helistikku",
-  "goBack": "Tagasi"
+  "goBack": "Tagasi",
+  "repeat": "Korda"
 }
