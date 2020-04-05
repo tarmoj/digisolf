@@ -101,12 +101,10 @@ const AskInterval = () => {
 
             if (newNote !== undefined) {
                 newNoteDiffersFromPrevious = true;
-                let previousIntervalExists = Object.keys(interval).length > 0;
+                const previousIntervalExists = Object.keys(interval).length > 0;
 
-                if (previousIntervalExists) {
-                    if (previousIntervalExists && newNote.midiNote === interval.note2.midiNote) {
-                        newNoteDiffersFromPrevious = false;
-                    }
+                if (previousIntervalExists && newNote.midiNote === interval.note2.midiNote) {
+                    newNoteDiffersFromPrevious = false;
                 }
             }
         }
@@ -177,10 +175,9 @@ const AskInterval = () => {
         const goBackButton = <Button key={"goBack"} onClick={goBack} className={"fullWidth marginTopSmall"}>{t("goBack")}</Button>;
 
         if (exerciseHasBegun()) {
-            buttons.push([repeatIntervalButton, playNextIntervalButton, changeKeyButton]);
-            buttons.push();
+            buttons.push(repeatIntervalButton, playNextIntervalButton, changeKeyButton);
         } else {
-            buttons.push([startExerciseButton]);
+            buttons.push(startExerciseButton);
         }
 
         buttons.push(goBackButton);
@@ -210,73 +207,49 @@ const AskInterval = () => {
         return color;
     };
 
+    const createIntervalButton = (interval, displayedName) => {
+        return (
+            <Grid.Column>
+                <Button color={getButtonColor(interval)} onClick={() => setAnswer(interval)} className={"exerciseBtn"}>{displayedName}</Button>
+            </Grid.Column>
+        )
+    };
+
     return (
         <div>
             <Header size='large'>{`${t(name)} - ${getExerciseType()}`}</Header>
             <Grid>
                 <Grid.Row columns={2}>
-                    <Grid.Column>
-
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Button color={getButtonColor("p1")} onClick={() => setAnswer("p1")} className={"exerciseBtn"}>{t("unison")}</Button>
-                    </Grid.Column>
+                    <Grid.Column/>
+                    {createIntervalButton("p1", t("unison"))}
                 </Grid.Row>
                 <Grid.Row columns={2}>
-                    <Grid.Column>
-                        <Button color={getButtonColor("v2")} onClick={() => setAnswer("v2")} className={"exerciseBtn"}>{t("minor")} {t("second")}</Button>
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Button color={getButtonColor("s2")} onClick={() => setAnswer("s2")} className={"exerciseBtn"}>{t("major")} {t("second")}</Button>
-                    </Grid.Column>
+                    {createIntervalButton("v2", `${t("minor")} ${t("second")}`)}
+                    {createIntervalButton("s2", `${t("major")} ${t("second")}`)}
                 </Grid.Row>
                 <Grid.Row columns={2}>
-                    <Grid.Column>
-                        <Button color={getButtonColor("v3")} onClick={() => setAnswer("v3")} className={"exerciseBtn"}>{t("minor")} {t("third")}</Button>
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Button color={getButtonColor("s3")} onClick={() => setAnswer("s3")} className={"exerciseBtn"}>{t("major")} {t("third")}</Button>
-                    </Grid.Column>
+                    {createIntervalButton("v3", `${t("minor")} ${t("third")}`)}
+                    {createIntervalButton("s3", `${t("major")} ${t("third")}`)}
                 </Grid.Row>
                 <Grid.Row columns={2}>
-                    <Grid.Column>
-
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Button color={getButtonColor("p4")} onClick={() => setAnswer("p4")} className={"exerciseBtn"}>{t("perfect")} {t("fourth")}</Button>
-                    </Grid.Column>
+                    <Grid.Column/>
+                    {createIntervalButton("p4", `${t("perfect")} ${t("fourth")}`)}
                 </Grid.Row>
                 <Grid.Row columns={2}>
-                    <Grid.Column>
-                        <Button color={getButtonColor("<5")} onClick={() => setAnswer("<5")} className={"exerciseBtn"}>{t("diminished")} {t("fifth")}</Button>
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Button color={getButtonColor("p5")} onClick={() => setAnswer("p5")} className={"exerciseBtn"}>{t("perfect")} {t("fifth")}</Button>
-                    </Grid.Column>
+                    {createIntervalButton("<5", `${t("diminished")} ${t("fifth")}`)}
+                    {createIntervalButton("p5", `${t("perfect")} ${t("fifth")}`)}
                 </Grid.Row>
                 <Grid.Row columns={2}>
-                    <Grid.Column>
-                        <Button color={getButtonColor("v6")} onClick={() => setAnswer("v6")} className={"exerciseBtn"}>{t("minor")} {t("sixth")}</Button>
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Button color={getButtonColor("s6")} onClick={() => setAnswer("s6")} className={"exerciseBtn"}>{t("major")} {t("sixth")}</Button>
-                    </Grid.Column>
+                    {createIntervalButton("v6", `${t("minor")} ${t("sixth")}`)}
+                    {createIntervalButton("s6", `${t("major")} ${t("sixth")}`)}
                 </Grid.Row>
                 <Grid.Row columns={2}>
-                    <Grid.Column>
-                        <Button color={getButtonColor("v7")} onClick={() => setAnswer("v7")} className={"exerciseBtn"}>{t("minor")} {t("seventh")}</Button>
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Button color={getButtonColor("s7")} onClick={() => setAnswer("s7")} className={"exerciseBtn"}>{t("major")} {t("seventh")}</Button>
-                    </Grid.Column>
+                    {createIntervalButton("v7", `${t("minor")} ${t("seventh")}`)}
+                    {createIntervalButton("s7", `${t("major")} ${t("seventh")}`)}
                 </Grid.Row>
                 <Grid.Row columns={2}>
-                    <Grid.Column>
-
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Button color={getButtonColor("p8")} onClick={() => setAnswer("p8")} className={"exerciseBtn"}>{t("octave")}</Button>
-                    </Grid.Column>
+                    <Grid.Column/>
+                    {createIntervalButton("p8", t("octave"))}
                 </Grid.Row>
                 <Grid.Row>
                     <Grid.Column>
@@ -284,7 +257,6 @@ const AskInterval = () => {
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
-            {/*Küllap nuppude genereerimist saab kuidagi ilusamaks teha, aga hetkel ei oska*/}
             <MIDISounds ref={midiSounds} appElementName="root" instruments={[3]} />
         </div>
     );
