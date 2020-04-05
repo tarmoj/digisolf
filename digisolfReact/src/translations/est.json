@@ -28,5 +28,10 @@
   "playNext": "Mängi järgmine",
   "changeKey": "Vaheta helistikku",
   "goBack": "Tagasi",
-  "repeat": "Korda"
+  "MmTriad": "Mažoorne ja minoorne kolmkõla",
+  "MmdaTriad": "M, m, >, < kolmkõla",
+  "majorTriad": "mažoorne kolmkõla",
+  "minorTriad": "minoorne kolmkõla",
+  "diminishedTriad": "vähendatud kolmkõla",
+  "augmentedTriad": "suurendatud kolmkõla"
 }

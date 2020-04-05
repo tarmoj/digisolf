@@ -15,6 +15,13 @@ const MainMenu = () => {
         dispatch(setComponent("AskInterval"));
     };
 
+    const startChord = (name) => {
+        // type: integer, 1 -  [M,m], 2- [M,m, >, <] etc
+        // switch type -> exercise name // possible chords
+        dispatch(setName(name));
+        dispatch(setComponent("AskChord"));
+    };
+
     return (
         <Grid columns={2}>
             <Grid.Row columns={2}>
@@ -27,6 +34,8 @@ const MainMenu = () => {
                 <Grid.Column>
                     <div>
                         <Header size='large'>{t("chords")}</Header>
+                        <Button className={"marginTopSmall mainMenuBtn"} onClick={() => startChord("MmTriad")}>{t("MmTriad")}</Button><br/>
+                        <Button className={"marginTopSmall mainMenuBtn"} onClick={() => startChord("MmdaTriad")}>{t("MmdaTriad")}</Button><br/>
                     </div>
                 </Grid.Column>
             </Grid.Row>
