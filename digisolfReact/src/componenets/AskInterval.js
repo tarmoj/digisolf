@@ -68,6 +68,7 @@ const AskInterval = () => {
         setTimeout(() => {
             midiSounds.current.playChordNow(3, [midiNote], duration);
         }, start)
+        // võibolla lihtsam vältida setTimeout ja: midiSound.current.playChordAt ?
     };
 
     const getNewInterval = (isMajor, selectedTonicNote, possibleNotes) => {

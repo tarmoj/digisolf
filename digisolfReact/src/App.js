@@ -3,6 +3,7 @@ import './App.css';
 import {useSelector} from "react-redux";
 import HeaderMessage from "./componenets/HeaderMessage";
 import AskInterval from "./componenets/AskInterval";
+import AskChord from "./componenets/AskChord";
 import MainMenu from "./componenets/MainMenu";
 import AppFooter from "./componenets/AppFooter";
 import LanguageSelect from "./componenets/LanguageSelect";
@@ -17,6 +18,8 @@ function App() {
         switch(component) {
             case "AskInterval":
                 return <AskInterval/>;
+            case "AskChord":
+                return <AskChord/>;
             default:
                 return <MainMenu/>;
         }
