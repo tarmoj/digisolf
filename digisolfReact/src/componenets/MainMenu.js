@@ -3,7 +3,7 @@ import {Button, Grid, Header} from 'semantic-ui-react'
 import {useDispatch} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {setComponent} from "../actions/component";
-import {setIsHarmonic, setIsTonic, setName} from "../actions/exercise";
+import {setIsHarmonic, setName} from "../actions/exercise";
 
 const MainMenu = () => {
     const { t, i18n } = useTranslation();
