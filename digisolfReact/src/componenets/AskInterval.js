@@ -73,16 +73,17 @@ const AskInterval = () => {
         } else {
             playNote(interval.note1.midiNote, 0, 2);
             // playNote(interval.note2.midiNote, 3, 2);
-            playNote(interval.note2.midiNote, 2000, 2);
+            playNote(interval.note2.midiNote, 2, 2); // start sekundites
         }
     };
 
-    const playNote = (midiNote, start, duration) => {
-        setTimeout(() => {
+    const playNote = (midiNote, start, duration) => { // start peaks olema sekundites
+        /*setTimeout(() => {
             midiSounds.current.playChordNow(3, [midiNote], duration);
-        }, start)
+        }, start)*/
+
         // võibolla lihtsam vältida setTimeout ja: midiSound.current.playChordAt ?
-        // midiSounds.current.playChordAt(start, 3, [midiNote], duration); // millegipärast ei tööta, kui korrata intervalli
+        midiSounds.current.playChordAt (midiSounds.current.contextTime()+start, 3, [midiNote], duration); // millegipärast ei tööta, kui korrata intervalli
     };
 
     const generateInterval = (isMajor, selectedTonicNote, possibleNotes) => {
