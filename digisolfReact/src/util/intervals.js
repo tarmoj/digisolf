@@ -18,15 +18,15 @@ const possibleIntervals = [
 // TODO: into English! check abbreviations and correct terms
 // also shortNames of intervals to English
 export const chordDefinitions = [
-    { shortName: "M", longName: "mažoorne kolmkõla", intervalsUp: ["s3", "p5"], intervalsDown: ["v3", "p5"],
+    { shortName: "M", longName: "majorTriad", intervalsUp: ["s3", "p5"], intervalsDown: ["v3", "p5"],
         midiIntervals: [0, 4, 7] }, // intervals from lower note
-    { shortName: "m", longName: "minoorne kolmkõla", intervalsUp: ["v3", "p5"], intervalsDown: ["s3", "p5"],
+    { shortName: "m", longName: "minorTriad", intervalsUp: ["v3", "p5"], intervalsDown: ["s3", "p5"],
         midiIntervals: [0, 3, 7] },
-    { shortName: "M7", longName: "väike mažoorseptakord", intervalsUp: ["s3", "p5", "v7"],
+    { shortName: "7", longName: "majorMinorSeventh", intervalsUp: ["s3", "p5", "v7"],
         intervalsDown: ["v3", "<5", "v7" ], midiIntervals: [0, 4, 7, 10]  },
-    { shortName: "<kk", longName: "vähendatud kolmkõla", intervalsUp: ["v3", "<5"], intervalsDown: ["v3", "<5"],
+    { shortName: "dim", longName: "diminishedTriad", intervalsUp: ["v3", "<5"], intervalsDown: ["v3", "<5"],
         midiIntervals: [0, 3, 6] },
-    { shortName: ">kk", longName: "suurendatud kolmkõla", intervalsUp: ["s3", ">5"], intervalsDown: ["s3", ">5"],
+    { shortName: "aug", longName: "augmentedTriad", intervalsUp: ["s3", ">5"], intervalsDown: ["s3", ">5"],
         midiIntervals: [0, 4, 8] }
 
 ];
