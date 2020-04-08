@@ -16,10 +16,13 @@ const MainMenu = () => {
     };
 
     const startChord = (name) => {
-        // type: integer, 1 -  [M,m], 2- [M,m, >, <] etc
-        // switch type -> exercise name // possible chords
         dispatch(setName(name));
         dispatch(setComponent("AskChord"));
+    };
+
+    const startIntonation = (name) => {
+        dispatch(setName(name));
+        dispatch(setComponent("AskIntonation"));
     };
 
     return (
@@ -46,6 +49,8 @@ const MainMenu = () => {
                 <Grid.Column>
                     <div>
                         <Header size='large'>{t("intonation")}</Header>
+                        <Button className={"marginTopSmall mainMenuBtn"} onClick={() => startIntonation("+-30")}>{t("+-30")}</Button><br/>
+
                     </div>
                 </Grid.Column>
             </Grid.Row>

@@ -8,8 +8,7 @@ import {getRandomElementFromArray, getRandomInt} from "../util/util";
 import {chordDefinitions} from "../util/intervals";
 import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
-import Vex from 'vexflow';
-import VexTabDiv  from 'vextab'
+import {Artist, VexTab, Flow} from 'vextab/releases/vextab-div'
 
 
 // tüüp 1: antakse ette noot ja suund, mängitakse akord
@@ -29,8 +28,6 @@ const AskChord = () => {
     const [answer, setAnswer] = useState(null);
     const [baseMidiNote, setBaseMidiNote] = useState(60);
 
-    const VF = Vex.Flow;
-    const VT = VexTabDiv;
 
     // EXERCISE LOGIC ======================================
 
@@ -65,10 +62,7 @@ const AskChord = () => {
 
         renew(possibleChords);
 
-        // VF test
-        vexFlowTest();  // renders OK
-        //vexTabTest(); // fails
-
+        vexTabTest();
 
     };
 
@@ -76,14 +70,15 @@ const AskChord = () => {
 
         const div = document.getElementById("vf")
 
-
-        const VexTab = VT.VexTab;
-        let Artist = VT.Artist;
-        const Renderer = VexTabDiv.Vex.Flow.Renderer;  //  Vex.Flow.Renderer -  no error;
-        // error: vextab__WEBPACK_IMPORTED_MODULE_11___default.a.Vex is undefined
+        console.log("Artist: ", typeof(Artist),typeof (VT));
+        //const VexTab = VT.VexTab;
+        //const Artist = VT.Artist;
+        console.log("Type of VexTabDiv", typeof (VexTabDiv), typeof (VexTab));
+        const Renderer =  Flow.Renderer;   //Vex.Flow.Renderer;
+        // = VexTabDiv.Vex.Flow.Renderer; - error: vextab__WEBPACK_IMPORTED_MODULE_11___default.a.Vex is undefined
 
 // Create VexFlow Renderer from canvas element with id #boo.
-        const renderer = new Renderer(div, Renderer.Backends.CANVAS);
+        const renderer = new Renderer(div, Renderer.Backends.SVG);
 
 // Initialize VexTab artist and parser.
         const artist = new Artist(10, 10, 600, {scale: 0.8}); // this seems not to work...
@@ -91,74 +86,15 @@ const AskChord = () => {
 
         try {
             // Parse VexTab music notation passed in as a string.
-            vextab.parse("tabstave notation=true\n notes :q 4/4\n")
+            vextab.parse("stave \n notes :q  D-E-F#-G/4\n")
 
             // Render notation onto canvas.
             artist.render(renderer);
         } catch (e) {
             console.log(e);
         }
-    }
-
-    const vexFlowTest = () => {
-        const div = document.getElementById("vf")
-
-        const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
-        renderer.resize(500, 200);
-        const context = renderer.getContext();
-        context.setFont("Arial", 10, "").setBackgroundFillStyle("#eed");
-
-// Create a stave of width 400 at position 10, 40 on the canvas.
-        const stave = new VF.Stave(10, 40, 400);
-
-// Add a clef and time signature.
-        stave.addClef("treble").addTimeSignature("4/4");
-
-// Connect it to the rendering context and draw!
-        stave.setContext(context).draw();
-
-        var notes = [
-            // A quarter-note C.
-            new VF.StaveNote({clef: "treble", keys: ["c/4"], duration: "q" }),
-            new VF.StaveNote({clef: "treble", keys: ["d/4"], duration: "q" }),
-            new VF.StaveNote({clef: "treble", keys: ["e/4"], duration: "q" }),
-            new VF.StaveNote({clef: "treble", keys: ["f/4"], duration: "q" }),
-        ];
-
-// Create a voice in 4/4 and add the notes from above
-        const voice = new VF.Voice({num_beats: 4,  beat_value: 4});
-        voice.addTickables(notes);
-
-// Format and justify the notes to 400 pixels.
-        const formatter = new VF.Formatter().joinVoices([voice]).format([voice], 400);
-
-// Render voice
-        voice.draw(context, stave);
-
-
-       /* vextab - ei saanud tööle
-        const vt = VT;
-        const VexTab = vt.VexTab;
-        const Artist = vt.Artist;
-        const Renderer = Vex.Flow.Renderer;
-        const renderer = new Renderer(div, Renderer.Backends.SVG);
-        renderer.resize(500, 200);
-        const artist = Artist;  //  new Artist(10, 10 , 600, {scale: 0.8});
-        const vextab = Vex.Flow.VexTab;
-
-
-        try {
-            // Parse VexTab music notation passed in as a string.
-
-            VT.VexTab.parse("tabstave notation=true\n notes :q 4/4\n")
-
-            // Render notation onto canvas.
-            artist.render(renderer);
-        } catch (e) {
-            console.log(e);
-        }
-*/
     };
+
 
 
     // renew generates answer and performs play/show
