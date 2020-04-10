@@ -72,10 +72,6 @@ const AskIntonation = () => {
             return;
         }
 
-        if (csound.get0dbfs() === 1 ) {
-            console.log("Orchestra seems to be already compiled.");
-            return;
-        }
 
         // does not make sense:
         // csound.on("ready", async () => {console.log("Csound is ready now."); });
@@ -118,9 +114,18 @@ instr Beep
 endin
 
     `;
-        csound.setOption("-m 0");
-        csound.setOption("-d");
-        csound.startRealtime();
+        csound.get0dbfs().then(
+            (value) => {
+                console.log("0dbfs value: ", value );
+                if (value>1) {  // clumsy way to check if orchestra is compiled
+                    console.log("START REALTIME");
+                    csound.setOption("-m 0");
+                    csound.setOption("-d");
+                    csound.startRealtime();
+                }
+            }
+        );
+
         csound.compileOrc(csoundOrchestra);
 
         console.log("dbfs2: ", csound.get0dbfs());
@@ -139,7 +144,7 @@ endin
         const random = Math.random()*3;
         let deviation, intonation;
         if (random < 1) {
-            deviation = -deviationAmount;
+            deviation = 0-deviationAmount;
             intonation = "low";
         } else if (random > 2) {
             deviation = deviationAmount;
@@ -148,6 +153,7 @@ endin
             deviation = 0;
             intonation = "inTune";
         }
+        console.log("Deviation: ", deviation, intonation, cents);
         setSelectedDeviation(deviation);
         setAnswer({intonation: intonation});
 
@@ -164,11 +170,8 @@ endin
         console.log("*** PLAY*** ");
         const duration = 4; // TODO: make configurable
         const csound = window.csound;
-        csoundStart();
+        csoundStart(); // somehow does not work without this...
         if (typeof(csound) !== "undefined") { // csound is in global space
-            if (csound.get0dbfs()>1) {  // clumsy way to check if orchestra is compiled
-                csoundStart();
-            }
             // csound instrument 1 (PlayInterval) parameters from p4 on:
             // amp, midinote, intervalRatio, cents, soundtype (1- sine, 2 - saw, 3- square), isMelodic (1|0)
             const volume = 0.3 ; // TODO: from parameters
@@ -215,7 +218,7 @@ endin
             return (
                 <Grid.Row  columns={2} centered={true}>
                     <Grid.Column>
-                        <Button color={"green"} onClick={() => renew(Math.abs(deviation))} className={"fullWidth marginTopSmall"} >{t("playNext")}</Button>
+                        <Button color={"green"} onClick={() => renew(0)} className={"fullWidth marginTopSmall"} >{t("playNext")}</Button>
                     </Grid.Column>
                     <Grid.Column>
                         <Button onClick={() => play(baseMidiNote, intervalRatio, selectedDeviation)} className={"fullWidth marginTopSmall"}  >{t("repeat")}</Button>
