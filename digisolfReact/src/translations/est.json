@@ -34,5 +34,6 @@
   "minorTriad": "minoorne kolmkõla",
   "diminishedTriad": "vähendatud kolmkõla",
   "augmentedTriad": "suurendatud kolmkõla",
-  "repeat": "Korda"
+  "repeat": "Korda",
+  "anyDeviation": "Juhuslik kõrvalekalle"
 }

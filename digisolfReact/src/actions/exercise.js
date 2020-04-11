@@ -11,3 +11,10 @@ export const setName = (name) => {
         payload: name
     }
 };
+
+export const setCents = (cents) => {
+    return {
+        type: "SET_CENTS",
+        payload: cents
+    }
+};

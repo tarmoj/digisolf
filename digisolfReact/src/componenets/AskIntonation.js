@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {Button, Grid, Header} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
@@ -19,7 +19,7 @@ const AskIntonation = () => {
 
     const name = useSelector(state => state.exerciseReducer.name);
     const isHarmonic = useSelector(state => state.exerciseReducer.isHarmonic);
-    // deviation in Cents -  get from state or exercise name...
+    const cents = useSelector(state => state.exerciseReducer.cents);
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [intervalRatio, setIntervalRatio] = useState(1.5);
@@ -30,33 +30,15 @@ const AskIntonation = () => {
     const possibleDeviations = [5, 10, 20, 30];
     const possibleIntervalRatios = [4/3, 3/2, 2];
 
-    let deviation;
 
     // EXERCISE LOGIC ======================================
 
     const startExercise = () => {
         setExerciseHasBegun(true);
 
-        // this does not work here. Should wait until csound script is loaded:
+        // csoundStart does not work here. Should wait until csound script is loaded:
         csoundStart();
-        let cents = 0;
-        // TODO: get deviation from exercise name
-        switch(name) {
-            case "a":
-                    cents = 30;
-                break;
-            case "b":
-                    cents = 20;
-                break;
-            case "c":
-                cents = 10;
-                break;
-            case "d":
-                cents = 5;
-                break;
-            default:
-                cents = 0;
-        }
+
         renew(cents);
     };
 
@@ -127,9 +109,7 @@ endin
         );
 
         csound.compileOrc(csoundOrchestra);
-
-        console.log("dbfs2: ", csound.get0dbfs());
-        const makeBeep = `i "Beep" 0 2 0.1 440 2`;
+        console.log("Compiled Csound code");
 
     };
 
