@@ -9,6 +9,7 @@ import {chordDefinitions} from "../util/intervals";
 import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import {Artist, VexTab, Flow} from 'vextab/releases/vextab-div'
+import Notation from "./Notation";
 
 
 // tüüp 1: antakse ette noot ja suund, mängitakse akord
@@ -62,40 +63,7 @@ const AskChord = () => {
 
         renew(possibleChords);
 
-        vexTabTest();
-
     };
-
-    const vexTabTest = () => {
-
-        const div = document.getElementById("vf")
-
-        console.log("Artist: ", typeof(Artist),typeof (VT));
-        //const VexTab = VT.VexTab;
-        //const Artist = VT.Artist;
-        console.log("Type of VexTabDiv", typeof (VexTabDiv), typeof (VexTab));
-        const Renderer =  Flow.Renderer;   //Vex.Flow.Renderer;
-        // = VexTabDiv.Vex.Flow.Renderer; - error: vextab__WEBPACK_IMPORTED_MODULE_11___default.a.Vex is undefined
-
-// Create VexFlow Renderer from canvas element with id #boo.
-        const renderer = new Renderer(div, Renderer.Backends.SVG);
-
-// Initialize VexTab artist and parser.
-        const artist = new Artist(10, 10, 600, {scale: 0.8}); // this seems not to work...
-        const vextab = new VexTab(artist);
-
-        try {
-            // Parse VexTab music notation passed in as a string.
-            vextab.parse("stave \n notes :q  D-E-F#-G/4\n")
-
-            // Render notation onto canvas.
-            artist.render(renderer);
-        } catch (e) {
-            console.log(e);
-        }
-    };
-
-
 
     // renew generates answer and performs play/show
     const renew = (possibleChords) =>  {
@@ -205,9 +173,8 @@ const AskChord = () => {
 
     return (
         <div>
-
             <Header size='large'>{`${t(name)} `}</Header>
-            <div id={"vf"}>SCORE</div>
+            <Notation notes={"stave \n notes :q  D-E-F#-G/4\n"}/>
             <Grid>
                 {createResponseButtons()}
 
