@@ -36,5 +36,6 @@
   "augmentedTriad": "suurendatud kolmkõla",
   "repeat": "Korda",
   "anyDeviation": "Juhuslik kõrvalekalle",
-  "reset": "Nulli"
+  "reset": "Nulli",
+  "loading": "Laen andmeid, palun oota..."
 }

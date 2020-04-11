@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {Button, Grid, Header} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
-import {setComponent} from "../actions/component";
+import {setComponent, setIsLoading} from "../actions/component";
 import MainMenu from "./MainMenu";
 import {getRandomElementFromArray, getRandomInt} from "../util/util";
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
@@ -26,6 +26,16 @@ const AskIntonation = () => {
     const [answer, setAnswer] = useState(null);
     const [baseMidiNote, setBaseMidiNote] = useState(60);
     const [selectedDeviation, setSelectedDeviation] = useState(0);
+
+    useEffect(() => {
+        dispatch(setIsLoading(true));
+        const script = document.createElement("script");
+        script.src = "https://github.com/hlolli/csound-wasm/releases/download/6.12.0-5/csound-wasm-browser.js";
+        script.async = true;
+        script.onload = () => dispatch(setIsLoading(false));
+
+        document.body.appendChild(script);
+    }, []);
 
     const possibleDeviations = [5, 10, 20, 30];
     const possibleIntervalRatios = [4/3, 3/2, 2];
@@ -252,9 +262,9 @@ endin
 
     return (
         <div>
-            <Helmet>
-                <script type="text/javascript" src="https://github.com/hlolli/csound-wasm/releases/download/6.12.0-5/csound-wasm-browser.js"></script>
-            </Helmet>
+            {/*<Helmet>*/}
+            {/*    <script type="text/javascript" src="https://github.com/hlolli/csound-wasm/releases/download/6.12.0-5/csound-wasm-browser.js"></script>*/}
+            {/*</Helmet>*/}
             <Header size='large'>{`${t(name)} `}</Header>
             <Grid>
                 {createResponseButtons()}

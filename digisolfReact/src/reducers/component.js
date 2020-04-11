@@ -1,6 +1,7 @@
 const initialState = {
     component: "Login",
-    previousComponent: ""
+    previousComponent: "",
+    isLoading: false
 };
 
 export const componentReducer = (state = initialState, action) => {
@@ -10,6 +11,11 @@ export const componentReducer = (state = initialState, action) => {
                 ...state,
                 component: action.payload,
                 previousComponent: state.component
+            };
+        case "SET_IS_LOADING":
+            return {
+                ...state,
+                isLoading: action.payload
             };
         default:
             return state;

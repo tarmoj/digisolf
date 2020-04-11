@@ -8,11 +8,13 @@ import AskIntonation from "./components/AskIntonation";
 import MainMenu from "./components/MainMenu";
 import AppFooter from "./components/AppFooter";
 import LanguageSelect from "./components/LanguageSelect";
-import {Header} from "semantic-ui-react";
+import {Dimmer, Header, Loader} from "semantic-ui-react";
 import {useTranslation} from "react-i18next";
 
 function App() {
     const component = useSelector(state => state.componentReducer.component);
+    const isLoading = useSelector(state => state.componentReducer.isLoading);
+
     const { t, i18n } = useTranslation();
 
     const renderComponent = () => {
@@ -28,6 +30,13 @@ function App() {
         }
     };
 
+    const showDimmer = () => {
+        if (isLoading) {
+            return <Dimmer active>
+                <Loader size='massive'>{t("loading")}</Loader>
+            </Dimmer>
+        }
+    };
 
     return (
         <div className="App">
@@ -41,6 +50,7 @@ function App() {
                     {renderComponent()}
                     <AppFooter/>
                 </div>
+                {showDimmer()}
             </div>
         </div>
     );
