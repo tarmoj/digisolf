@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import {Button, Grid, Header} from 'semantic-ui-react'
+import {Button, Divider, Grid, Header, Icon, Transition} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {setComponent} from "../actions/component";
@@ -24,6 +24,10 @@ const AskInterval = () => {
     const [selectedTonicNote, setSelectedTonicNote] = useState(null);
     const [intervalButtonsClicked, setIntervalButtonsClicked] = useState([]);
     const [greenIntervalButton, setGreenIntervalButton] = useState(null);
+    const [correctAnswers, setCorrectAnswers] = useState(0);
+    const [incorrectAnswers, setIncorrectAnswers] = useState(0);
+
+    const transitionTime = 600;
 
     const goBack = () => {
         dispatch(setComponent("MainMenu"));
@@ -147,8 +151,10 @@ const AskInterval = () => {
                 getNewInterval(isMajor, selectedTonicNote);
                 colorCorrectAnswerGreen(answer);
                 setIntervalButtonsClicked([]);
+                setCorrectAnswers(correctAnswers + 1);
             } else {
                 // dispatch(setNegativeMessage(`${t("correctAnswerIs")} ${correctInterval}`, 5000));
+                setIncorrectAnswers(incorrectAnswers + 1);
             }
         }
     };
@@ -216,43 +222,99 @@ const AskInterval = () => {
         )
     };
 
+    const getScore = () => {
+        return (
+            <div className={"score"}>
+                <Grid.Row className={"exerciseRow"} columns={2}>
+                    <Grid.Column>
+                        {getPositiveScore()}
+                        {getNegativeScore()}
+                    </Grid.Column>
+                    <Grid.Column/>
+                </Grid.Row>
+                {getResetScoreButton()}
+            </div>
+        )
+    };
+
+    const getPositiveScore = () => {
+        return (
+            <Transition visible={correctAnswers > 0} animation='slide down' duration={transitionTime}>
+                <div className={"floatLeft marginLeft green bold"}>
+                    <Icon color={"green"} name='thumbs up outline' />
+                    {correctAnswers}
+                </div>
+            </Transition>
+        )
+    };
+
+    const getNegativeScore = () => {
+        return (
+            <Transition visible={incorrectAnswers > 0} animation='slide down' duration={transitionTime}>
+                <div className={"floatLeft marginLeft red bold"}>
+                    <Icon color={"red"} name='thumbs down outline' />
+                    {incorrectAnswers}
+                </div>
+            </Transition>
+        )
+    };
+
+    const getResetScoreButton = () => {
+        return (
+            <Transition visible={correctAnswers > 0 || incorrectAnswers > 0} animation='slide down' duration={transitionTime}>
+                <Grid.Row className={"exerciseRow"} columns={2}>
+                    <Grid.Column>
+                        <Button size={"mini"} onClick={resetScore} className={"floatLeft marginLeft"}>{t("resetScore")}</Button>
+                    </Grid.Column>
+                    <Grid.Column/>
+                </Grid.Row>
+            </Transition>
+        )
+    };
+
+    const resetScore = () => {
+        setCorrectAnswers(0);
+        setIncorrectAnswers(0);
+    };
+
     return (
         <div>
             <Header size='large'>{`${t(name)} - ${getExerciseType()}`}</Header>
             <Grid>
-                <Grid.Row columns={2}>
+                {getScore()}
+                <Grid.Row className={"exerciseRow"} columns={2}>
                     <Grid.Column/>
                     {createIntervalButton("p1", t("unison"))}
                 </Grid.Row>
-                <Grid.Row columns={2}>
+                <Grid.Row className={"exerciseRow"} columns={2}>
                     {createIntervalButton("v2", `${t("minor")} ${t("second")}`)}
                     {createIntervalButton("s2", `${t("major")} ${t("second")}`)}
                 </Grid.Row>
-                <Grid.Row columns={2}>
+                <Grid.Row className={"exerciseRow"} columns={2}>
                     {createIntervalButton("v3", `${t("minor")} ${t("third")}`)}
                     {createIntervalButton("s3", `${t("major")} ${t("third")}`)}
                 </Grid.Row>
-                <Grid.Row columns={2}>
+                <Grid.Row className={"exerciseRow"} columns={2}>
                     <Grid.Column/>
                     {createIntervalButton("p4", `${t("perfect")} ${t("fourth")}`)}
                 </Grid.Row>
-                <Grid.Row columns={2}>
+                <Grid.Row className={"exerciseRow"} columns={2}>
                     {createIntervalButton("<5", `${t("diminished")} ${t("fifth")}`)}
                     {createIntervalButton("p5", `${t("perfect")} ${t("fifth")}`)}
                 </Grid.Row>
-                <Grid.Row columns={2}>
+                <Grid.Row className={"exerciseRow"} columns={2}>
                     {createIntervalButton("v6", `${t("minor")} ${t("sixth")}`)}
                     {createIntervalButton("s6", `${t("major")} ${t("sixth")}`)}
                 </Grid.Row>
-                <Grid.Row columns={2}>
+                <Grid.Row className={"exerciseRow"} columns={2}>
                     {createIntervalButton("v7", `${t("minor")} ${t("seventh")}`)}
                     {createIntervalButton("s7", `${t("major")} ${t("seventh")}`)}
                 </Grid.Row>
-                <Grid.Row columns={2}>
+                <Grid.Row className={"exerciseRow"} columns={2}>
                     <Grid.Column/>
                     {createIntervalButton("p8", t("octave"))}
                 </Grid.Row>
-                <Grid.Row>
+                <Grid.Row className={"exerciseRow"}>
                     <Grid.Column>
                         {createButtons()}
                     </Grid.Column>

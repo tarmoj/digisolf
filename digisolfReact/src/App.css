@@ -18,8 +18,21 @@ body {
     height: 65px;
 }
 
+.bold {
+    font-weight: bold;
+}
+
 .exerciseBtn {
     width: 200px;
+}
+
+.exerciseRow {
+    padding-bottom: 0 !important;
+    padding-top: 5px !important;
+}
+
+.floatLeft {
+    float: left;
 }
 
 .footerLogo {
@@ -30,6 +43,10 @@ body {
 
 .fullWidth {
     width: 100%;
+}
+
+.green {
+    color: green;
 }
 
 .headerMessage {
@@ -63,6 +80,14 @@ body {
     width: 90%;
 }
 
+.marginLeft {
+    margin-left: 20px !important;
+}
+
+.marginLeftLarge {
+    margin-left: 40px !important;
+}
+
 .marginTopSmall {
     margin-top: 10px !important;
 }
@@ -75,3 +100,10 @@ body {
     max-width: 630px !important;
 }
 
+.red {
+    color: red;
+}
+
+.score {
+    height: 60px;
+}
