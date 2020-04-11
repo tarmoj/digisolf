@@ -35,5 +35,6 @@
   "diminishedTriad": "vähendatud kolmkõla",
   "augmentedTriad": "suurendatud kolmkõla",
   "repeat": "Korda",
-  "anyDeviation": "Juhuslik kõrvalekalle"
+  "anyDeviation": "Juhuslik kõrvalekalle",
+  "reset": "Nulli"
 }
