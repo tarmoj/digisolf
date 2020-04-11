@@ -9,3 +9,14 @@ export const getRandomBoolean = () => {
 export const getRandomInt = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1) + min);
 };
+
+export const scriptIsLoaded = (url) => {
+    const scripts = document.getElementsByTagName('script');
+    for (let i = 0, n = scripts.length; i < n; i++) {
+        if (scripts[i].src === url) {
+            return true;
+        }
+    }
+
+    return false;
+};

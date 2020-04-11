@@ -4,7 +4,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {setComponent, setIsLoading} from "../actions/component";
 import MainMenu from "./MainMenu";
-import {getRandomElementFromArray, getRandomInt} from "../util/util";
+import {getRandomElementFromArray, getRandomInt, scriptIsLoaded} from "../util/util";
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 //import csound from "csound-wasm";
 //import CsoundObj from "csound"
@@ -28,17 +28,26 @@ const AskIntonation = () => {
     const [selectedDeviation, setSelectedDeviation] = useState(0);
 
     useEffect(() => {
-        dispatch(setIsLoading(true));
-        const script = document.createElement("script");
-        script.src = "https://github.com/hlolli/csound-wasm/releases/download/6.12.0-5/csound-wasm-browser.js";
-        script.async = true;
-        script.onload = () => dispatch(setIsLoading(false));
-
-        document.body.appendChild(script);
+        loadScript();
     }, []);
 
     const possibleDeviations = [5, 10, 20, 30];
     const possibleIntervalRatios = [4/3, 3/2, 2];
+
+    const loadScript = () => {
+        const scriptUrl = "https://github.com/hlolli/csound-wasm/releases/download/6.12.0-5/csound-wasm-browser.js";
+
+        if (!scriptIsLoaded(scriptUrl)) {
+            dispatch(setIsLoading(true));
+
+            const script = document.createElement("script");
+            script.src = scriptUrl;
+            script.async = true;
+            script.onload = () => dispatch(setIsLoading(false));
+
+            document.body.appendChild(script);
+        }
+    };
 
 
     // EXERCISE LOGIC ======================================
