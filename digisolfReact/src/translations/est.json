@@ -37,5 +37,18 @@
   "repeat": "Korda",
   "anyDeviation": "Juhuslik kõrvalekalle",
   "resetScore": "Nulli",
-  "loading": "Laen andmeid, palun oota..."
+  "loading": "Laen andmeid, palun oota...",
+  "narrow": "kitsas",
+  "inTune": "hääles",
+  "wide": "lai",
+  "intonationDescripton": "Kas intervall on kitsas, hääles või lai: ",
+  "cents": "senti",
+  "correct": "õige",
+  "wrong": "vale",
+  "interval": "intervall",
+  "upperNote": "ülemine noot",
+  "is": "on",
+  "was": "oli",
+  "repeatMelodically": "Korda meloodiliselt"
+
 }

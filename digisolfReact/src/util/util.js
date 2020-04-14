@@ -20,3 +20,5 @@ export const scriptIsLoaded = (url) => {
 
     return false;
 };
+
+export const capitalizeFirst = (str) => str.charAt(0).toUpperCase() + str.substring(1);

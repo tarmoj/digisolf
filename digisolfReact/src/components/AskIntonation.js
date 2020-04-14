@@ -4,12 +4,8 @@ import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {setComponent, setIsLoading} from "../actions/component";
 import MainMenu from "./MainMenu";
-import {getRandomElementFromArray, getRandomInt, scriptIsLoaded} from "../util/util";
+import {getRandomElementFromArray, getRandomInt, scriptIsLoaded, capitalizeFirst} from "../util/util";
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
-//import csound from "csound-wasm";
-//import CsoundObj from "csound"
-//import {Csound} from "csound-wasm-test/src/wasm/Csound"
-import {Helmet} from "react-helmet";
 
 
 
@@ -54,38 +50,35 @@ const AskIntonation = () => {
 
     const startExercise = () => {
         setExerciseHasBegun(true);
-
-        // csoundStart does not work here. Should wait until csound script is loaded:
         csoundStart();
-
         renew(cents);
     };
 
 
 
     const csoundStart = () => {
-        console.log("*** CSOUND START STARTED ***")
+        console.log("*** CSOUND STARTED ***")
         const csound = window.csound;
-        console.log("Csound types: ", typeof(csound), typeof(cs));
 
         if (typeof(csound) === "undefined") {
             console.log("Csound is not ready yet!");
             return;
         }
 
-
-        // does not make sense:
-        // csound.on("ready", async () => {console.log("Csound is ready now."); });
-
-
         const csoundOrchestra = `
+
+sr = 44100 
+ksmps = 32
+nchnls = 2
+0dbfs = 1
+        
 giSine ftgen 1,0, 16384, 10, 1 ; Sine
 giSawtooth ftgen 2,0,  16384, 10, 1, 0.5, 0.3, 0.25, 0.2, 0.167, 0.14, 0.125, .111   ; Sawtooth
 giSquare ftgen 3,  0, 16384, 10, 1, 0,   0.3, 0,    0.2, 0,     0.14, 0,     .111   ; Square
 
 ; parameters from p4 -  amp, midinote, intervalRatio, cents, soundtype (1- sine, 2 - saw, 3- square), isMelodic (1|0)
 instr PlayInterval
-	iAmp = (p4==0) ? 0.3 : p4
+	iAmp = (p4==0) ? 0.2 : p4
 	iFreq1 = cpsmidinn(p5) ; pich given as midi note
 	iIntervalRatio = p6 ; frequency ratio from base note 1.5 - perfect fifth etc
 	iCents = p7 ; deviation in cents, positive or negative 
@@ -144,10 +137,10 @@ endin
         let deviation, intonation;
         if (random < 1) {
             deviation = 0-deviationAmount;
-            intonation = "low";
+            intonation = "narrow";
         } else if (random > 2) {
             deviation = deviationAmount;
-            intonation = "high";
+            intonation = "wide";
         } else {
             deviation = 0;
             intonation = "inTune";
@@ -165,15 +158,14 @@ endin
     };
 
     // what is more generic name -  perform? execute? present?
-    const play = (midiNote=60, intervalRatio=1.5, deviation=0) => {
+    const play = (midiNote=60, intervalRatio=1.5, deviation=0, melodic = 0) => {
         console.log("*** PLAY*** ");
         const duration = 4; // TODO: make configurable
         const csound = window.csound;
-        csoundStart(); // somehow does not work without this...
         if (typeof(csound) !== "undefined") { // csound is in global space
             // csound instrument 1 (PlayInterval) parameters from p4 on:
             // amp, midinote, intervalRatio, cents, soundtype (1- sine, 2 - saw, 3- square), isMelodic (1|0)
-            const volume = 0.3 ; // TODO: from parameters
+            const volume = 0.1 ; // TODO: from parameters
             let csoundString = 'i 1 0 2 ';
             const soundType = 2;
             csoundString += volume + ' ';
@@ -181,9 +173,9 @@ endin
             csoundString += intervalRatio + ' ';
             csoundString += deviation + ' ';
             csoundString +=  soundType +  ' '; // soundtype: 1- sine, 2 - saw, 3- square
-            csoundString += isHarmonic ? ' 0 ' : ' 1 '; // melodic: 1- yes, 0 - harmonic
+            csoundString += melodic ? ' 1 ' : ' 0 '; // melodic: 1- yes, 0 - harmonic
             console.log(csoundString);
-            window.csound.readScore(csoundString);
+            csound.readScore(csoundString);
         }
 
     };
@@ -191,12 +183,18 @@ endin
     const checkResponse = (response) => { // response is an object {key: value [, key2: value, ...]}
         //console.log(response);
         //const correctChord = t(selectedChord.longName); // TODO: translation
-
-        if ( JSON.stringify(response) === JSON.stringify(answer)) {
-            dispatch(setPositiveMessage(`${t("correctAnswerIs")} ${"Mingi vastus"}`, 5000));
+        const correct = JSON.stringify(response) === JSON.stringify(answer);
+        let feedBackString = ` ${ capitalizeFirst( t("interval"))}  ${t("was")} `;
+        if (answer.intonation === "inTune") {
+            feedBackString += `${t("inTune")}.`;
         } else {
-            dispatch(setNegativeMessage(`${t("correctAnswerIs")} ${"Mingi vastus"
-            }`, 5000));
+            feedBackString += `${Math.abs(selectedDeviation)}  ${t("cents")} ${t(answer.intonation)}.`;
+        }
+
+        if ( correct ) {
+            dispatch(setPositiveMessage(`${ capitalizeFirst( t("correct") )}!  ${feedBackString}`, 5000));
+        } else {
+            dispatch(setNegativeMessage(`${ capitalizeFirst( t("wrong") )}!  ${feedBackString}`, 5000));
         }
     };
 
@@ -208,19 +206,18 @@ endin
     };
 
     const createPlaySoundButton = () => {
-        console.log("Begun: ", exerciseHasBegun);
-        // console.log("Begun: ", exerciseHasBegun());
-        // if (exerciseHasBegun()) {
 
-        // NB! MAth.abs(deviation) is wrong! should be cents -  put it to state
         if (exerciseHasBegun) {
             return (
-                <Grid.Row  columns={2} centered={true}>
+                <Grid.Row  columns={3} centered={true}>
                     <Grid.Column>
-                        <Button color={"green"} onClick={() => renew(0)} className={"fullWidth marginTopSmall"} >{t("playNext")}</Button>
+                        <Button color={"green"} onClick={() => renew(cents)} className={"fullWidth marginTopSmall"} >{t("playNext")}</Button>
                     </Grid.Column>
                     <Grid.Column>
-                        <Button onClick={() => play(baseMidiNote, intervalRatio, selectedDeviation)} className={"fullWidth marginTopSmall"}  >{t("repeat")}</Button>
+                        <Button onClick={() => play(baseMidiNote, intervalRatio, selectedDeviation, 0)} className={"fullWidth marginTopSmall"}  >{t("repeat")}</Button>
+                    </Grid.Column>
+                    <Grid.Column>
+                        <Button onClick={() => play(baseMidiNote, intervalRatio, selectedDeviation, 1)} className={"fullWidth marginTopSmall"}  >{t("repeatMelodically")}</Button>
                     </Grid.Column>
                 </Grid.Row>
 
@@ -241,40 +238,26 @@ endin
             <Grid.Row columns={3}>
                 <Grid.Column>
                     <Button className={"exerciseBtn"}
-                            onClick={() => checkResponse({intonation: "low"})}>{t("low")}
+                            onClick={() => checkResponse({intonation: "narrow"})}>{capitalizeFirst( t("narrow") )}
                     </Button>
                 </Grid.Column>
                 <Grid.Column>
                     <Button className={"exerciseBtn"}
-                            onClick={() => checkResponse({intonation: "inTune"})}>{t("inTune")}
+                            onClick={() => checkResponse({intonation: "inTune"})}>{capitalizeFirst( t("inTune") )}
                     </Button>
                 </Grid.Column>
                 <Grid.Column>
                     <Button className={"exerciseBtn"}
-                            onClick={() => checkResponse({intonation: "high"})}>{t("high")}
+                            onClick={() => checkResponse({intonation: "wide"})}>{capitalizeFirst( t("wide") )}
                     </Button>
                 </Grid.Column>
             </Grid.Row>
         )
     };
 
-    const createResponseButtonColumn = (chord) => {
-        return (
-            <Grid.Column>
-                <Button className={"exerciseBtn"}
-                        onClick={() => checkResponse({shortName: chord.shortName})}>{t(chord.longName)}</Button>
-            </Grid.Column>
-        )
-    };
-
-
-
     return (
         <div>
-            {/*<Helmet>*/}
-            {/*    <script type="text/javascript" src="https://github.com/hlolli/csound-wasm/releases/download/6.12.0-5/csound-wasm-browser.js"></script>*/}
-            {/*</Helmet>*/}
-            <Header size='large'>{`${t(name)} `}</Header>
+            <Header size='large'>{ `${t("intonationDescripton")} ${t(name)} ${t("cents")} ` }</Header>
             <Grid>
                 {createResponseButtons()}
 
