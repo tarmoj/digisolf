@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {Button, Grid, Header} from 'semantic-ui-react'
+import {Button, Grid, Header, Icon, Transition} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {setComponent, setIsLoading} from "../actions/component";
@@ -22,6 +22,11 @@ const AskIntonation = () => {
     const [answer, setAnswer] = useState(null);
     const [baseMidiNote, setBaseMidiNote] = useState(60);
     const [selectedDeviation, setSelectedDeviation] = useState(0);
+
+    // score
+    const [correctAnswers, setCorrectAnswers] = useState(0);
+    const [incorrectAnswers, setIncorrectAnswers] = useState(0);
+    const transitionTime = 600;
 
     useEffect(() => {
         loadScript();
@@ -193,13 +198,75 @@ endin
 
         if ( correct ) {
             dispatch(setPositiveMessage(`${ capitalizeFirst( t("correct") )}!  ${feedBackString}`, 5000));
+            setCorrectAnswers(correctAnswers + 1);
         } else {
             dispatch(setNegativeMessage(`${ capitalizeFirst( t("wrong") )}!  ${feedBackString}`, 5000));
+            setIncorrectAnswers(incorrectAnswers + 1);
         }
     };
 
 
+
     // UI ======================================================
+
+    // Score ---------
+    const getScore = () => {
+        return (
+            <div className={"score"}>
+                <Grid.Row className={"exerciseRow"} columns={2}>
+                    <Grid.Column>
+                        {getPositiveScore()}
+                        {getNegativeScore()}
+                    </Grid.Column>
+                    <Grid.Column/>
+                </Grid.Row>
+                {getResetScoreButton()}
+            </div>
+        )
+    };
+
+    const getPositiveScore = () => {
+        return (
+            <Transition visible={correctAnswers > 0} animation='slide down' duration={transitionTime}>
+                <div className={"floatLeft marginLeft green bold"}>
+                    <Icon color={"green"} name='thumbs up outline' />
+                    {correctAnswers}
+                </div>
+            </Transition>
+        )
+    };
+
+    const getNegativeScore = () => {
+        return (
+            <Transition visible={incorrectAnswers > 0} animation='slide down' duration={transitionTime}>
+                <div className={"floatLeft marginLeft red bold"}>
+                    <Icon color={"red"} name='thumbs down outline' />
+                    {incorrectAnswers}
+                </div>
+            </Transition>
+        )
+    };
+
+    const getResetScoreButton = () => {
+        return (
+            <Transition visible={correctAnswers > 0 || incorrectAnswers > 0} animation='slide down' duration={transitionTime}>
+                <Grid.Row className={"exerciseRow"} columns={2}>
+                    <Grid.Column>
+                        <Button size={"mini"} onClick={resetScore} className={"floatLeft marginLeft"}>{t("resetScore")}</Button>
+                    </Grid.Column>
+                    <Grid.Column/>
+                </Grid.Row>
+            </Transition>
+        )
+    };
+
+    const resetScore = () => {
+        setCorrectAnswers(0);
+        setIncorrectAnswers(0);
+    };
+
+    // --------------
+
 
     const goBack = () => {
         dispatch(setComponent("MainMenu"));
@@ -259,8 +326,8 @@ endin
         <div>
             <Header size='large'>{ `${t("intonationDescripton")} ${t(name)} ${t("cents")} ` }</Header>
             <Grid>
+                {getScore()}
                 {createResponseButtons()}
-
                 {createPlaySoundButton()}
                 <Grid.Row>
                     <Grid.Column>
