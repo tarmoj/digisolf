@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {Button, Grid, Header, Icon, Transition} from 'semantic-ui-react'
+import {Button, Grid, Header, Icon, Transition, Dropdown} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {setComponent, setIsLoading} from "../actions/component";
@@ -20,8 +20,10 @@ const AskIntonation = () => {
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [intervalRatio, setIntervalRatio] = useState(1.5);
     const [answer, setAnswer] = useState(null);
+    const [answered, setAnswered] = useState(false);
     const [baseMidiNote, setBaseMidiNote] = useState(60);
     const [selectedDeviation, setSelectedDeviation] = useState(0);
+    const [soundType, setSoundType] = useState(2);
 
     // score
     const [correctAnswers, setCorrectAnswers] = useState(0);
@@ -136,6 +138,8 @@ endin
     // renew generates answer and performs play/show
     const renew = (cents) =>  {
 
+        setAnswered(false);
+
         const deviationAmount =  (cents === 0) ? getRandomElementFromArray(possibleDeviations) : cents; // the number of cents the interval can be wrong
 
         const random = Math.random()*3;
@@ -172,7 +176,7 @@ endin
             // amp, midinote, intervalRatio, cents, soundtype (1- sine, 2 - saw, 3- square), isMelodic (1|0)
             const volume = 0.1 ; // TODO: from parameters
             let csoundString = 'i 1 0 2 ';
-            const soundType = 2;
+            //const soundType = 2;
             csoundString += volume + ' ';
             csoundString += midiNote + ' ';
             csoundString += intervalRatio + ' ';
@@ -188,6 +192,19 @@ endin
     const checkResponse = (response) => { // response is an object {key: value [, key2: value, ...]}
         //console.log(response);
         //const correctChord = t(selectedChord.longName); // TODO: translation
+        if (!exerciseHasBegun) {
+            alert(t("pressStartExsercise"));
+            return;
+        }
+
+        if (answered) {
+            alert(t("alreadyAnswered"));
+            return;
+        }
+
+
+
+        setAnswered(true);
         const correct = JSON.stringify(response) === JSON.stringify(answer);
         let feedBackString = ` ${ capitalizeFirst( t("interval"))}  ${t("was")} `;
         if (answer.intonation === "inTune") {
@@ -276,7 +293,7 @@ endin
 
         if (exerciseHasBegun) {
             return (
-                <Grid.Row  columns={3} centered={true}>
+            <Grid.Row  columns={3} centered={true}>
                     <Grid.Column>
                         <Button color={"green"} onClick={() => renew(cents)} className={"fullWidth marginTopSmall"} >{t("playNext")}</Button>
                     </Grid.Column>
@@ -322,12 +339,41 @@ endin
         )
     };
 
+    const onChangeFollower = (event, data) => {
+        console.log("on change follower", data.value);
+        setSoundType(data.value);
+
+    }
+
+    const createSoundTypeRow = () => {
+        const soundOptions = [
+            { text: capitalizeFirst(t("sine")), value: 1},
+            { text: capitalizeFirst(t("saw")), value: 2},
+            { text: capitalizeFirst(t("square")), value: 3},
+        ];
+        return (
+          <Grid.Row >
+              <Grid.Column> { `${capitalizeFirst(t("sound"))}: `} </Grid.Column>
+              <Grid.Column>
+                  <Dropdown
+                      placeholder={capitalizeFirst(t("sound"))}
+                      onChange={ onChangeFollower }
+                      options ={soundOptions}
+                      defaultValue={2}
+                  />
+              </Grid.Column>
+          </Grid.Row>
+        );
+    };
+
     return (
         <div>
             <Header size='large'>{ `${t("intonationDescripton")} ${t(name)} ${t("cents")} ` }</Header>
             <Grid>
                 {getScore()}
+                {createSoundTypeRow()}
                 {createResponseButtons()}
+
                 {createPlaySoundButton()}
                 <Grid.Row>
                     <Grid.Column>

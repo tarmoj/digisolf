@@ -49,6 +49,12 @@
   "upperNote": "ülemine noot",
   "is": "on",
   "was": "oli",
-  "repeatMelodically": "Korda meloodiliselt"
+  "repeatMelodically": "Korda meloodiliselt",
+  "sound": "heli",
+  "sine": "siinusheli",
+  "saw": "saehammas",
+  "square": "nelinurkheli",
+  "alreadyAnswered": "Te olete juba vastanud!",
+  "pressStartExsercise": "Vajutage \"Alusta Harjutust\""
 
 }
