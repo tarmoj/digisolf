@@ -10,6 +10,7 @@ import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import Notation from "./Notation";
 import {getNotesByMidiNote} from "../util/notes";
+import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 
 
 // tüüp 1: antakse ette noot ja suund, mängitakse akord
@@ -22,7 +23,6 @@ const AskChord = () => {
 
     const name = useSelector(state => state.exerciseReducer.name);
     const midiSounds = useRef(null);
-    const notation = useRef(null);
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [possibleChords, setPossibleChords] = useState([]);
@@ -116,10 +116,6 @@ const AskChord = () => {
 
     // UI ======================================================
 
-    const goBack = () => {
-        dispatch(setComponent("MainMenu"));
-    };
-
     const createPlaySoundButton = () => {
         console.log("Begun: ", exerciseHasBegun);
         // console.log("Begun: ", exerciseHasBegun());
@@ -188,7 +184,7 @@ const AskChord = () => {
                 <Grid.Row>
                     <Grid.Column>
 
-                        <Button onClick={goBack} className={"fullWidth marginTopSmall"}>{t("goBack")}</Button>
+                        <GoBackToMainMenuBtn/>
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
