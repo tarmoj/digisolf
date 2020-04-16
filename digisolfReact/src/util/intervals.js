@@ -50,3 +50,24 @@ export const getInterval = (note1, note2) => {
 const findIntervalBySemitones = (semitones) => {	// Return first interval found
     return possibleIntervals.find(interval => interval.semitones === semitones);
 };
+
+export const makeChord = (noteArray) => { // noteArray - array of type possibleNotes, to have midiNotes to sort those
+    // sort, return vtString (<note>.<note>.<et>)
+    if (noteArray.length<2) {
+        console.log("Not enough notes for chord");
+        return "";
+    }
+    let localArray = noteArray.slice(); // otherwise original array will be sorted
+    localArray.sort(function(a,b) { return a.midiNote - b.midiNote; }  );
+    let vtString = "("; // make vextab chord notation
+
+    for (let i=0; i<localArray.length; i++) {
+        if (i>0 && localArray[i] !== undefined) vtString += "."; // separator between chord notes
+        if (localArray[i] !== undefined) {
+            vtString += localArray[i].vtNote;
+        }
+    }
+    vtString += ")";
+    //console.log("Sorted chord: ", vtString);
+    return vtString;
+};

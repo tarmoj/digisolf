@@ -1,41 +1,91 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Artist, VexTab, Flow} from 'vextab/releases/vextab-div'
 
+
+
+
 const Notation = (props) => {
+
+    const { notes = ':4 C/4', clef = 'treble', time = null, keySignature = null,  ...restProps } = props;
+
     useEffect(() => {
-        vexTabTest();
-    }, []);
+        console.log("First run");
+        vexTabInit();
+        //vexTabTest();
+    }, []); // [] teise parameetrina tähendab, et kutsu välja ainult 1 kord
 
-    const vexTab = useRef(null);
+    useEffect(() => {
+        console.log("re-render");
+        if (vexTab) {
+            redraw();
+        }
+    });
 
-    const vexTabTest = () => {
-        console.log("Artist: ", typeof(Artist),typeof (VT));
-        //const VexTab = VT.VexTab;
-        //const Artist = VT.Artist;
-        console.log("Type of VexTabDiv", typeof (VexTabDiv), typeof (VexTab));
-        const Renderer =  Flow.Renderer;   //Vex.Flow.Renderer;
-        // = VexTabDiv.Vex.Flow.Renderer; - error: vextab__WEBPACK_IMPORTED_MODULE_11___default.a.Vex is undefined
+    const vtDiv = useRef(null);
+    const [artist, setArtist] = useState(null);
+    const [renderer, setRenderer] = useState(null);
+    const [vexTab, setVexTab] = useState(null);
 
-// Create VexFlow Renderer from canvas element with id #boo.
-        const renderer = new Renderer(vexTab.current, Renderer.Backends.SVG);
+    const vexTabInit = () => {
+        console.log("**** VexTab INIT ****");
+        if (!renderer) {
+            const renderer = new Flow.Renderer(vtDiv.current, Flow.Renderer.Backends.SVG);
+            setRenderer(renderer);
+        }
+        if (!artist) {
+            const artist = new Artist(10, 10, 600, {scale: 0.8});
+            setArtist(artist); // TODO: parameters from props
+            const vexTab = new VexTab(artist);
+            setVexTab(vexTab);
+        }
+    };
 
-// Initialize VexTab artist and parser.
-        const artist = new Artist(10, 10, 600, {scale: 0.8}); // this seems not to work...
-        const vextab = new VexTab(artist);
+    const  createVexTabString = () => {
+        const startString = "options space=20\n stave \n ";
+        const clefString = (props.clef) ? "clef="+props.clef+"\n" : "";
+        const keyString = (props.keySignature) ? "key="+props.keySignature+"\n" : "";
+        const timeString = (props.time) ?  "time="+props.time+"\n" : "";
+        const notesString = (props.notes) ? "\nnotes " + props.notes + "\n" : "";
+        const endString = "\noptions space=20\n";
+        const vtString = startString + clefString + keyString + timeString + notesString + endString;
+        console.log("Notes:", props.notes, notes);
+        console.log(vtString);
+        return vtString;
+    };
 
+    const redraw = () => {
+        if (!vexTab) {
+            console.log("vexTab not initialized!");
+            return;
+        }
         try {
             // Parse VexTab music notation passed in as a string.
-            vextab.parse(props.notes)
-
-            // Render notation onto canvas.
+            vexTab.reset();
+            artist.reset();
+            vexTab.parse( createVexTabString() );
             artist.render(renderer);
         } catch (e) {
             console.log(e);
         }
-    };
+    }
 
+/*
+            <div>
+                {"Noodid:"} <input id={"vtNotes"} type={"text"} size={12}/>
+                <input type={"button"} onClick={redraw}>Näita</input>
+            </div>
 
-    return <div ref={vexTab}>SCORE</div>;
+ */
+    return (
+        <div>
+
+            <div>
+
+                <div ref={vtDiv}></div>
+            </div>
+        </div>
+    )
 };
 
 export default Notation;
+

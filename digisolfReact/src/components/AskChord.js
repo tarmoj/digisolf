@@ -5,11 +5,11 @@ import {useTranslation} from "react-i18next";
 import {setComponent} from "../actions/component";
 import MainMenu from "./MainMenu";
 import {getRandomElementFromArray, getRandomInt} from "../util/util";
-import {chordDefinitions} from "../util/intervals";
+import {chordDefinitions, makeChord} from "../util/intervals";
 import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
-import {Artist, VexTab, Flow} from 'vextab/releases/vextab-div'
 import Notation from "./Notation";
+import {getNotesByMidiNote} from "../util/notes";
 
 
 // tüüp 1: antakse ette noot ja suund, mängitakse akord
@@ -22,12 +22,14 @@ const AskChord = () => {
 
     const name = useSelector(state => state.exerciseReducer.name);
     const midiSounds = useRef(null);
+    const notation = useRef(null);
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [possibleChords, setPossibleChords] = useState([]);
     const [selectedChord, setSelectedChord] = useState([]);
     const [answer, setAnswer] = useState(null);
     const [baseMidiNote, setBaseMidiNote] = useState(60);
+    const [chordNotes, setChordNotes] = useState(null);
 
 
     // EXERCISE LOGIC ======================================
@@ -75,17 +77,21 @@ const AskChord = () => {
         const answer = {shortName: selectedChord.shortName}; // may be different in different exercised, might need switch/case
         setAnswer(answer);
         play(selectedChord, midiNote);
+        // TODO: maybe later -  create Notation notes here first, then play it
     };
 
-    // what is more generic name -  perform? execute? present?
     const play = (selectedChord, baseMidiNote=60) => {
         const duration = 4; // TODO: make configurable
         const midiNotes = [];
+        const vtNotes = [];
         for (let midiInterval of selectedChord.midiIntervals) { // nootide kaupa basenote + interval
             midiNotes.push(baseMidiNote + midiInterval);
+            vtNotes.push(getNotesByMidiNote(baseMidiNote + midiInterval)); // see on vale, kuna võin anda mitu nooti. praegu las testiks olla
         }
         console.log("Midinotes played: ", midiNotes, baseMidiNote, selectedChord.shortName);
         midiSounds.current.playChordNow(3, midiNotes, duration);
+        // test notation: set notes to display
+        setChordNotes(makeChord(vtNotes));
     };
 
     const checkResponse = (response) => { // response is an object {key: value [, key2: value, ...]}
@@ -174,7 +180,7 @@ const AskChord = () => {
     return (
         <div>
             <Header size='large'>{`${t(name)} `}</Header>
-            <Notation notes={"stave \n notes :q  D-E-F#-G/4\n"}/>
+            <Notation notes={chordNotes} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
             <Grid>
                 {createResponseButtons()}
 
