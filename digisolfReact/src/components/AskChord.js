@@ -10,6 +10,7 @@ import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import {Artist, VexTab, Flow} from 'vextab/releases/vextab-div'
 import Notation from "./Notation";
+import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 
 
 // tüüp 1: antakse ette noot ja suund, mängitakse akord
@@ -110,10 +111,6 @@ const AskChord = () => {
 
     // UI ======================================================
 
-    const goBack = () => {
-        dispatch(setComponent("MainMenu"));
-    };
-
     const createPlaySoundButton = () => {
         console.log("Begun: ", exerciseHasBegun);
         // console.log("Begun: ", exerciseHasBegun());
@@ -182,7 +179,7 @@ const AskChord = () => {
                 <Grid.Row>
                     <Grid.Column>
 
-                        <Button onClick={goBack} className={"fullWidth marginTopSmall"}>{t("goBack")}</Button>
+                        <GoBackToMainMenuBtn/>
                     </Grid.Column>
                 </Grid.Row>
             </Grid>

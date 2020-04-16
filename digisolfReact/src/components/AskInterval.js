@@ -11,6 +11,7 @@ import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import Score from "./Score";
+import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 
 const AskInterval = () => {
     const { t, i18n } = useTranslation();
@@ -26,12 +27,6 @@ const AskInterval = () => {
     const [selectedTonicNote, setSelectedTonicNote] = useState(null);
     const [intervalButtonsClicked, setIntervalButtonsClicked] = useState([]);
     const [greenIntervalButton, setGreenIntervalButton] = useState(null);
-
-    const transitionTime = 600;
-
-    const goBack = () => {
-        dispatch(setComponent("MainMenu"));
-    };
 
     const startExercise = () => {
         switch(name) {
@@ -179,15 +174,13 @@ const AskInterval = () => {
         const playNextIntervalButton = <Button key={"playNext"} color={"olive"} onClick={() => getNewInterval(isMajor, selectedTonicNote)} className={"fullWidth marginTopSmall"}>{t("playNext")}</Button>;
         const repeatIntervalButton = <Button key={"repeat"} color={"green"} onClick={() => playInterval(interval)} className={"fullWidth marginTopSmall"}>{t("repeat")}</Button>;
 
-        const goBackButton = <Button key={"goBack"} onClick={goBack} className={"fullWidth marginTopSmall"}>{t("goBack")}</Button>;
-
         if (exerciseHasBegun()) {
             buttons.push(repeatIntervalButton, playNextIntervalButton, changeKeyButton);
         } else {
             buttons.push(startExerciseButton);
         }
 
-        buttons.push(goBackButton);
+        buttons.push(<GoBackToMainMenuBtn key={"goBack"}/>);
 
         return buttons;
     };

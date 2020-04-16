@@ -8,6 +8,7 @@ import {getRandomElementFromArray, getRandomInt, scriptIsLoaded, capitalizeFirst
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import Score from "./Score";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
+import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 
 
 
@@ -223,11 +224,6 @@ endin
 
     // UI ======================================================
 
-
-    const goBack = () => {
-        dispatch(setComponent("MainMenu"));
-    };
-
     const createPlaySoundButton = () => {
 
         if (exerciseHasBegun) {
@@ -317,7 +313,7 @@ endin
                 <Grid.Row>
                     <Grid.Column>
 
-                        <Button onClick={goBack} className={"fullWidth marginTopSmall"}>{t("goBack")}</Button>
+                        <GoBackToMainMenuBtn/>
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
