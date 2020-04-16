@@ -3,12 +3,14 @@ import {componentReducer} from "./component";
 import {languageReducer} from "./language";
 import {exerciseReducer} from "./exercise";
 import {headerMessageReducer} from "./headerMessage";
+import {scoreReducer} from "./score";
 
 const appReducer = combineReducers({
     componentReducer,
     languageReducer,
     exerciseReducer,
-    headerMessageReducer
+    headerMessageReducer,
+    scoreReducer
 });
 
 const rootReducer = (state, action) => {
