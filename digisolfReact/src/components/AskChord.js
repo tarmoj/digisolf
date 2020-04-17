@@ -2,10 +2,9 @@ import React, { useState, useRef } from 'react';
 import {Button, Grid, Header} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
-import {setComponent} from "../actions/component";
-import MainMenu from "./MainMenu";
 import {getRandomElementFromArray, getRandomInt} from "../util/util";
-import {chordDefinitions, makeChord} from "../util/intervals";
+import {chordDefinitions, makeVexTabChord, makeChord} from "../util/intervals";
+import {getNoteByVtNote} from "../util/notes";
 import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import Notation from "./Notation";
@@ -30,6 +29,11 @@ const AskChord = () => {
     const [answer, setAnswer] = useState(null);
     const [baseMidiNote, setBaseMidiNote] = useState(60);
     const [chordNotes, setChordNotes] = useState(null);
+
+    // siin pole kõik noodid, sest duubel-dieesid/bemollid pole veel kirjeldatud (va heses testiks)
+    // kui ehitada alla, siis peaks olema ilmselt teine valik
+    const possibleBaseVtNotes = ["C/4", "D/4",  "E@/4", "E/4", "F/4",
+        "G/4", "A/4", "B@/4", "C/5" ];
 
 
     // EXERCISE LOGIC ======================================
@@ -69,29 +73,33 @@ const AskChord = () => {
 
     // renew generates answer and performs play/show
     const renew = (possibleChords) =>  {
-        const midiNote = getRandomInt(53, 72); // TODO: make the range configurable
+        const baseNote = getNoteByVtNote( getRandomElementFromArray(possibleBaseVtNotes) );
+        if (baseNote === undefined) {
+            console.log("Failed finding basenote");
+            return;
+        }
+        const midiNote = baseNote.midiNote; // getRandomInt(53, 72); // TODO: make the range configurable
         setBaseMidiNote(midiNote);
         const selectedChord = getRandomElementFromArray(possibleChords);
         setSelectedChord(selectedChord);
         console.log("Selected chord: ", t(selectedChord.longName), baseMidiNote, midiNote );
         const answer = {shortName: selectedChord.shortName}; // may be different in different exercised, might need switch/case
         setAnswer(answer);
+
+        const chordNotes = makeChord( baseNote, selectedChord.shortName  );
+        console.log ("Selected chord is: ", chordNotes);
+        setChordNotes( makeVexTabChord(chordNotes) );
         play(selectedChord, midiNote);
-        // TODO: maybe later -  create Notation notes here first, then play it
     };
 
     const play = (selectedChord, baseMidiNote=60) => {
         const duration = 4; // TODO: make configurable
         const midiNotes = [];
-        const vtNotes = [];
         for (let midiInterval of selectedChord.midiIntervals) { // nootide kaupa basenote + interval
             midiNotes.push(baseMidiNote + midiInterval);
-            vtNotes.push(getNotesByMidiNote(baseMidiNote + midiInterval)); // see on vale, kuna võin anda mitu nooti. praegu las testiks olla
         }
         console.log("Midinotes played: ", midiNotes, baseMidiNote, selectedChord.shortName);
         midiSounds.current.playChordNow(3, midiNotes, duration);
-        // test notation: set notes to display
-        setChordNotes(makeChord(vtNotes));
     };
 
     const checkResponse = (response) => { // response is an object {key: value [, key2: value, ...]}
@@ -176,7 +184,7 @@ const AskChord = () => {
     return (
         <div>
             <Header size='large'>{`${t(name)} `}</Header>
-            <Notation notes={chordNotes} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
+            <Notation notes={chordNotes} width={200} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
             <Grid>
                 {createResponseButtons()}
 

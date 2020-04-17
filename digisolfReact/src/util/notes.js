@@ -23,6 +23,7 @@ export const violinClefNotes = [   // line - line number in staff: 0 upper, 4 - 
 	{vtNote:"A/4", name:"a1", syllable:"la1", line: 2.5, midiNote: 69, degree: 5},
 	{vtNote:"A#/4", name:"ais1", syllable:"la-diees1", midiNote: 70, degree: 5},
 
+	{vtNote:"B@@/4", name:"heses1", syllable:"si-duubelbemoll1", midiNote: 69, degree: 6}, // test duubelbemolliks
 	{vtNote:"B@/4", name:"b1", syllable:"si-bemoll1", midiNote: 70, degree: 6},
 	{vtNote:"B/4", name:"h1", syllable:"si1", line: 2, midiNote: 71, degree: 6},
 	{vtNote:"B#/4", name:"his1", syllable:"si-diees1", midiNote: 72, degree: 6},
@@ -128,4 +129,8 @@ export const trebleClefNotes = violinClefNotes; // convenience overload;
 
 export const getNotesByMidiNote = (midiNote, noteArray=trebleClefNotes) => { // return an array of note objects, i.e cis and des for 61
 	return noteArray.find(note => note.midiNote === midiNote);
-}
+};
+
+export const getNoteByVtNote = (vtNote, noteArray=trebleClefNotes) => {
+	return noteArray.find(note => note.vtNote === vtNote);
+};

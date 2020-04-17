@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import {Button, Grid, Header, Icon, Transition, Dropdown} from 'semantic-ui-react'
+import {Button, Grid, Header, Dropdown} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
-import {setComponent, setIsLoading} from "../actions/component";
-import MainMenu from "./MainMenu";
+import {setIsLoading} from "../actions/component";
 import {getRandomElementFromArray, getRandomInt, scriptIsLoaded, capitalizeFirst} from "../util/util";
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import Score from "./Score";

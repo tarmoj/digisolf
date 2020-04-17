@@ -1,4 +1,6 @@
-const possibleIntervals = [
+import * as notes from "./notes"
+
+const intervalDefinitions = [
     { shortName: "p1", longName: "unison", semitones: 0, degrees: 0 }, // degrees (astmeid) -  difference in scale degrees (Ces/C/Cis - 0,  Des/D/Dis - 1 etc)
     { shortName: "v2", longName: "minor second", semitones: 1, degrees: 1 },
     { shortName: "s2", longName: "major second", semitones: 2, degrees: 1 },
@@ -8,6 +10,7 @@ const possibleIntervals = [
     { shortName: ">4", longName: "augmented fourth", semitones: 6, degrees: 3 }, // vähendatud kvint?
     { shortName: "<5", longName: "diminished fifth", semitones: 6, degrees: 4 },
     { shortName: "p5", longName: "perfect fifth", semitones: 7, degrees: 4 },
+    { shortName: ">5", longName: "augmented fifth", semitones: 8, degrees: 4 },
     { shortName: "v6", longName: "minor sixth", semitones: 8, degrees: 5 },
     { shortName: "s6", longName: "major sixth", semitones: 9, degrees: 5 },
     { shortName: "v7", longName: "minor seventh", semitones: 10, degrees: 6 },
@@ -43,15 +46,70 @@ export const getInterval = (note1, note2) => {
         direction = "down";
     }
 
-    const interval = findIntervalBySemitones(Math.abs(semitones));
+    const interval = getIntervalBySemitones(Math.abs(semitones));
     return {note1: note1, note2: note2, interval: interval, direction: direction};
 };
 
-const findIntervalBySemitones = (semitones) => {	// Return first interval found
-    return possibleIntervals.find(interval => interval.semitones === semitones);
+const getIntervalBySemitones = (semitones) => {	// Return first interval found
+    return intervalDefinitions.find(interval => interval.semitones === semitones);
 };
 
-export const makeChord = (noteArray) => { // noteArray - array of type possibleNotes, to have midiNotes to sort those
+const getIntervalByShortName = (shortName) => intervalDefinitions.find(interval => interval.shortName === shortName);
+
+const makeInterval = (baseNote, shortName, direction="up", possibleNotes= notes.trebleClefNotes) => { // possibleNotes -  array of note objects
+    // return found note as object or undefined otherwise
+
+    const interval = getIntervalByShortName(shortName);
+    if (interval === undefined) { // not found
+        console.log(shortName," not found");
+        return;
+    }
+
+    let semitones = interval.semitones;
+    let degrees = interval.degrees;
+
+    if (direction==="down") {
+        semitones = -semitones;
+        degrees = -degrees;
+    }
+
+    const oct1 = parseInt(baseNote.vtNote.split("/")[1]); // 4 for first octava etc
+    const degree1 = baseNote.degree + oct1*7 ; // take also octave into account to get correct difference
+    //console.log("note: ", note.midiNote, oct1, degree1);
+
+    // find note by midiNote
+    for (let note of possibleNotes) {
+        const oct2 = parseInt(note.vtNote.split("/")[1]);
+        const degree2 = note.degree + oct2*7;
+        if ( (note.midiNote === baseNote.midiNote + semitones) &&  (degree2 === (degree1 + degrees)) ) {
+            return note;
+        }
+    }
+
+    return undefined;// otherwise return undefined
+};
+
+//makeChord -  build given chord from given note up/down
+// return array of notes (objects)
+export const makeChord = (baseNote, shortName, direction="up", possibleNotes = notes.trebleClefNotes) => {
+    const chord = chordDefinitions.find(chord => chord.shortName === shortName);
+    const intervals = (direction === "up") ? chord.intervalsUp : chord.intervalsDown; // these are shortnames of itnervals
+    console.log("chord is: ", chord.shortName, intervals);
+    let noteArray = [];
+    noteArray.push(baseNote);
+    for (let intervalShortName of intervals) {
+        const note = makeInterval(baseNote, intervalShortName, direction, possibleNotes);
+        if (note !== undefined) {
+            noteArray.push(note);
+        } else {
+            console.log("Could not make interval from:", intervalShortName, baseNote.vtNote);
+        }
+    }
+    return noteArray;
+};
+
+// makeVexTabChord -  sorts given noteArray and return chord in vextab notation
+export const makeVexTabChord = (noteArray) => { // noteArray - array of type possibleNotes, to have midiNotes to sort those
     // sort, return vtString (<note>.<note>.<et>)
     if (noteArray.length<2) {
         console.log("Not enough notes for chord");

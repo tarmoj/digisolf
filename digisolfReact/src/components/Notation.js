@@ -6,19 +6,17 @@ import {Artist, VexTab, Flow} from 'vextab/releases/vextab-div'
 
 const Notation = (props) => {
 
-    const { notes = ':4 C/4', clef = 'treble', time = null, keySignature = null,  ...restProps } = props;
+
+    const { width = 600, scale = 0.8, notes = '', clef = '', time = '', keySignature = '' } = props;
 
     useEffect(() => {
         console.log("First run");
         vexTabInit();
-        //vexTabTest();
     }, []); // [] teise parameetrina tähendab, et kutsu välja ainult 1 kord
 
     useEffect(() => {
         console.log("re-render");
-        if (vexTab) {
-            redraw();
-        }
+        redraw();
     });
 
     const vtDiv = useRef(null);
@@ -33,8 +31,10 @@ const Notation = (props) => {
             setRenderer(renderer);
         }
         if (!artist) {
-            const artist = new Artist(10, 10, 600, {scale: 0.8});
-            setArtist(artist); // TODO: parameters from props
+            const width = (props.width) ? props.width : 600;
+            const scale = (props.scale) ? props.scale : 0.8;
+            const artist = new Artist(10, 10, width, {scale: scale}); // x and y hardcoded for now...
+            setArtist(artist);
             const vexTab = new VexTab(artist);
             setVexTab(vexTab);
         }
@@ -48,8 +48,6 @@ const Notation = (props) => {
         const notesString = (props.notes) ? "\nnotes " + props.notes + "\n" : "";
         const endString = "\noptions space=20\n";
         const vtString = startString + clefString + keyString + timeString + notesString + endString;
-        console.log("Notes:", props.notes, notes);
-        console.log(vtString);
         return vtString;
     };
 
