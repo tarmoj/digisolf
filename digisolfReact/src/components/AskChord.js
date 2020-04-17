@@ -8,7 +8,6 @@ import {getNoteByVtNote} from "../util/notes";
 import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import Notation from "./Notation";
-import {getNotesByMidiNote} from "../util/notes";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 
 
@@ -29,6 +28,7 @@ const AskChord = () => {
     const [answer, setAnswer] = useState(null);
     const [baseMidiNote, setBaseMidiNote] = useState(60);
     const [chordNotes, setChordNotes] = useState(null);
+    const [notationVisible, setNotationVisible] = useState(false);
 
     // siin pole kõik noodid, sest duubel-dieesid/bemollid pole veel kirjeldatud (va heses testiks)
     // kui ehitada alla, siis peaks olema ilmselt teine valik
@@ -73,6 +73,7 @@ const AskChord = () => {
 
     // renew generates answer and performs play/show
     const renew = (possibleChords) =>  {
+        setNotationVisible(false);
         const baseNote = getNoteByVtNote( getRandomElementFromArray(possibleBaseVtNotes) );
         if (baseNote === undefined) {
             console.log("Failed finding basenote");
@@ -104,6 +105,7 @@ const AskChord = () => {
 
     const checkResponse = (response) => { // response is an object {key: value [, key2: value, ...]}
         //console.log(response);
+        setNotationVisible(true);
         const correctChord = t(selectedChord.longName); // TODO: translation
 
         if ( JSON.stringify(response) === JSON.stringify(answer)) {
@@ -184,7 +186,7 @@ const AskChord = () => {
     return (
         <div>
             <Header size='large'>{`${t(name)} `}</Header>
-            <Notation notes={chordNotes} width={200} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
+            <Notation notes={chordNotes} width={200} visible={notationVisible} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
             <Grid>
                 {createResponseButtons()}
 

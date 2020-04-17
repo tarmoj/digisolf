@@ -78,8 +78,7 @@ const Notation = (props) => {
         <div>
 
             <div>
-
-                <div ref={vtDiv}></div>
+                <div ref={vtDiv} hidden={ props.visible ? 0 : 1}></div>
             </div>
         </div>
     )
