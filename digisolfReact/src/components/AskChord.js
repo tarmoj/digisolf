@@ -186,7 +186,7 @@ const AskChord = () => {
     return (
         <div>
             <Header size='large'>{`${t(name)} `}</Header>
-            <Notation notes={chordNotes} width={200} visible={notationVisible} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
+            <Notation notes={chordNotes} width={200} visible={ true  /*notationVisible*/} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
             <Grid>
                 {createResponseButtons()}
 
