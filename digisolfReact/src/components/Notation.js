@@ -16,20 +16,15 @@ const Notation = (props) => {
     }, []); // [] teise parameetrina tähendab, et kutsu välja ainult 1 kord
 
     useEffect(() => {
-        console.log("re-render");
-        // kas siin kanda props.notes -> vtNotes, et redraw() saaks need kätte?
-        if (props.notes) {
-            setVtNotes(props.notes);
-        }
-        redraw();
-    });
+        console.log("props.notes change");
+        redraw(props.notes);
+    }, [props.notes]);
 
     const vtDiv = useRef(null);
-    const noteInput = useRef("");
     const [artist, setArtist] = useState(null);
     const [renderer, setRenderer] = useState(null);
     const [vexTab, setVexTab] = useState(null);
-    const [vtNotes, setVtNotes] = useState(null);
+    const [notesEnteredByUser, setNotesEnteredByUser] = useState("");
 
     const vexTabInit = () => {
         console.log("**** VexTab INIT ****");
@@ -47,19 +42,19 @@ const Notation = (props) => {
         }
     };
 
-    const  createVexTabString = () => {
+    const  createVexTabString = (notes) => {
         const startString = "options space=20\n stave \n ";
         const clefString = (props.clef) ? "clef="+props.clef+"\n" : "";
         const keyString = (props.keySignature) ? "key="+props.keySignature+"\n" : "";
         const timeString = (props.time) ?  "time="+props.time+"\n" : "";
-        const notesString = (vtNotes) ? "\nnotes " + vtNotes + "\n" : "";
+        const notesString = (notes) ? "\nnotes " + notes + "\n" : "";
         const endString = "\noptions space=20\n";
         const vtString = startString + clefString + keyString + timeString + notesString + endString;
         console.log(vtString);
         return vtString;
     };
 
-    const redraw = () => {
+    const redraw = (notes) => {
         if (!vexTab) {
             console.log("vexTab not initialized!");
             return;
@@ -68,7 +63,7 @@ const Notation = (props) => {
             // Parse VexTab music notation passed in as a string.
             vexTab.reset();
             artist.reset();
-            vexTab.parse( createVexTabString() );
+            vexTab.parse( createVexTabString(notes) );
             artist.render(renderer);
         } catch (e) {
             console.log(e);
@@ -76,20 +71,16 @@ const Notation = (props) => {
     }
 
 
-    const setNotesFromInput = () => {
-      const vtNotes = noteInput.current.value;
-      console.log("Input: ", vtNotes);
-      //props.notes = vtNotes; // props readonly. Kas kasutada state'i vtNotes? Mis punktis kanda props vtNotes'i?
-      setVtNotes(vtNotes);
-      redraw();
+    const renderNotes = () => {
+      redraw(notesEnteredByUser);
     };
 
 
     return (
         <div>
             <div>
-                <input ref={noteInput} placeholder='VexTab notes' value={":2 C-E-G/4"}/>
-                <Button onClick={setNotesFromInput}>Render</Button>
+                <Input onChange={e => setNotesEnteredByUser(e.target.value)} placeholder='VexTab notes' value={notesEnteredByUser}/>
+                <Button onClick={renderNotes}>Render</Button>
             </div>
             <div>
                 <div ref={vtDiv} hidden={ props.visible ? 0 : 1}></div>

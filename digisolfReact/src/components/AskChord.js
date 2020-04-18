@@ -27,7 +27,7 @@ const AskChord = () => {
     const [selectedChord, setSelectedChord] = useState([]);
     const [answer, setAnswer] = useState(null);
     const [baseMidiNote, setBaseMidiNote] = useState(60);
-    const [chordNotes, setChordNotes] = useState(null);
+    const [chordNotes, setChordNotes] = useState("");
     const [notationVisible, setNotationVisible] = useState(false);
 
     // siin pole kõik noodid, sest duubel-dieesid/bemollid pole veel kirjeldatud (va heses testiks)
