@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@babel/compat-data": "^7.8.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
@@ -15,12 +16,16 @@
     "react-helmet": "^5.2.1",
     "react-i18next": "^11.3.3",
     "react-redux": "^7.2.0",
-    "react-scripts": "3.4.0",
+    "react-scripts": "3.4.1",
     "redux": "^4.0.5",
     "redux-devtools-extension": "^2.13.8",
     "semantic-ui-react": "^0.88.2",
     "vexflow": "^1.2.93",
     "vextab": "^2.0.13"
+  },
+  "homepage": "https://tarmo.uuu.ee/digisolf",
+  "resolutions": {
+    "@babel/preset-env": "7.8.0"
   },
   "scripts": {
     "start": "react-scripts start",
