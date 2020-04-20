@@ -7,7 +7,9 @@ import {chordDefinitions, makeVexTabChord, makeChord} from "../util/intervals";
 import {getNoteByVtNote} from "../util/notes";
 import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
+import Score from "./Score";
 import Notation from "./Notation";
+import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 
 
@@ -26,7 +28,9 @@ const AskChord = () => {
     const [possibleChords, setPossibleChords] = useState([]);
     const [selectedChord, setSelectedChord] = useState([]);
     const [answer, setAnswer] = useState(null);
-    const [baseMidiNote, setBaseMidiNote] = useState(60);
+    const [answered, setAnswered] = useState(false);
+    const [baseMidiNote, setBaseMidiNote] = useState(60); // selle võib peale testi eemaldada.
+    const [baseNote, setBaseNote] = useState(null);
     const [chordNotes, setChordNotes] = useState("");
     const [notationVisible, setNotationVisible] = useState(false);
 
@@ -73,24 +77,27 @@ const AskChord = () => {
 
     // renew generates answer and performs play/show
     const renew = (possibleChords) =>  {
-        setNotationVisible(false);
         const baseNote = getNoteByVtNote( getRandomElementFromArray(possibleBaseVtNotes) );
         if (baseNote === undefined) {
             console.log("Failed finding basenote");
             return;
+        } else {
+            setBaseNote(baseNote);
         }
         const midiNote = baseNote.midiNote; // getRandomInt(53, 72); // TODO: make the range configurable
-        setBaseMidiNote(midiNote);
+        setBaseMidiNote(midiNote); // eemalda
+
         const selectedChord = getRandomElementFromArray(possibleChords);
         setSelectedChord(selectedChord);
         console.log("Selected chord: ", t(selectedChord.longName), baseMidiNote, midiNote );
         const answer = {shortName: selectedChord.shortName}; // may be different in different exercised, might need switch/case
         setAnswer(answer);
 
-        const chordNotes = makeChord( baseNote, selectedChord.shortName  );
-        console.log ("Selected chord is: ", chordNotes);
-        setChordNotes( makeVexTabChord(chordNotes) );
         play(selectedChord, midiNote);
+
+        setChordNotes(""); // empty staff
+        setNotationVisible(true);
+
     };
 
     const play = (selectedChord, baseMidiNote=60) => {
@@ -105,13 +112,20 @@ const AskChord = () => {
 
     const checkResponse = (response) => { // response is an object {key: value [, key2: value, ...]}
         //console.log(response);
-        setNotationVisible(true);
         const correctChord = t(selectedChord.longName); // TODO: translation
+
+        // show correct notation
+        setNotationVisible(true);
+        const chordNotes = makeChord( baseNote, selectedChord.shortName  ); // kas baseNote on siin õige?
+        console.log ("Basenote, Selected chord is: ", baseMidiNote, chordNotes);
+        setChordNotes( makeVexTabChord(chordNotes) );
 
         if ( JSON.stringify(response) === JSON.stringify(answer)) {
             dispatch(setPositiveMessage(`${t("correctAnswerIs")} ${correctChord}`, 5000));
+            dispatch(incrementCorrectAnswers());
         } else {
             dispatch(setNegativeMessage(`${t("correctAnswerIs")} ${correctChord}`, 5000));
+            dispatch(incrementIncorrectAnswers());
         }
     };
 
@@ -186,10 +200,10 @@ const AskChord = () => {
     return (
         <div>
             <Header size='large'>{`${t(name)} `}</Header>
-            <Notation notes={chordNotes} width={200} visible={ true  /*notationVisible*/} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
+            <Notation  notes={chordNotes} width={200} visible={notationVisible} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
             <Grid>
+                <Score/>
                 {createResponseButtons()}
-
                 {createPlaySoundButton()}
                 <Grid.Row>
                     <Grid.Column>

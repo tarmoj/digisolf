@@ -77,13 +77,13 @@ const Notation = (props) => {
 
 
     return (
-        <div>
+        <div hidden={ props.visible ? 0 : 1}>
             <div>
-                <Input onChange={e => setNotesEnteredByUser(e.target.value)} placeholder='VexTab notes' value={notesEnteredByUser}/>
+                <Input onChange={e => setNotesEnteredByUser(e.target.value)} placeholder={props.notes /*':2 (D/4.F#/4.A@/4)'*/} value={notesEnteredByUser}/>
                 <Button onClick={renderNotes}>Render</Button>
             </div>
             <div>
-                <div ref={vtDiv} hidden={ props.visible ? 0 : 1}></div>
+                <div ref={vtDiv} ></div>
             </div>
         </div>
     )
