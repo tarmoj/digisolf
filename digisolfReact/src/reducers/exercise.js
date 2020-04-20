@@ -1,7 +1,8 @@
 const initialState = {
     isHarmonic: true,
     name: "",
-    cents: 0 // TEST for intonation exercise
+    cents: 0, // TEST for intonation exercise,
+    userEnteredNotes: ""
 };
 
 export const exerciseReducer = (state = initialState, action) => {
@@ -20,6 +21,11 @@ export const exerciseReducer = (state = initialState, action) => {
             return {
                 ...state,
                 cents: action.payload
+            };
+        case "SET_USER_ENTERED_NOTES":
+            return {
+                ...state,
+                userEnteredNotes: action.payload
             };
         default:
             return state;

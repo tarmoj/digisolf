@@ -18,3 +18,10 @@ export const setCents = (cents) => {
         payload: cents
     }
 };
+
+export const setUserEnteredNotes = (notes) => {
+    return {
+        type: "SET_USER_ENTERED_NOTES",
+        payload: notes
+    }
+};

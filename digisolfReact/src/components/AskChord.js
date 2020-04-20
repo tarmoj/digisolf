@@ -34,6 +34,8 @@ const AskChord = () => {
     const [chordNotes, setChordNotes] = useState("");
     const [notationVisible, setNotationVisible] = useState(false);
 
+    const userEnteredNotes = useSelector(state => state.exerciseReducer.userEnteredNotes);
+
     // siin pole kõik noodid, sest duubel-dieesid/bemollid pole veel kirjeldatud (va heses testiks)
     // kui ehitada alla, siis peaks olema ilmselt teine valik
     const possibleBaseVtNotes = ["C/4", "D/4",  "E@/4", "E/4", "F/4",

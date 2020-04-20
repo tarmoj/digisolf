@@ -1,11 +1,14 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Artist, VexTab, Flow} from 'vextab/releases/vextab-div'
-import {Input, Button} from "semantic-ui-react"; // Inputit ei osanud kasutada -  et saada tema value kätte...
+import {Input, Button} from "semantic-ui-react";
+import {useDispatch} from "react-redux";
+import {setUserEnteredNotes} from "../actions/exercise";
 
 
 
 
 const Notation = (props) => {
+    const dispatch = useDispatch();
 
     // sellel siin vist pole mõtet... Püüdsin props-dele panna vaikeväärtusi, aga ilmselt mitte nii.
     let { width = 600, scale = 0.8, notes = '', clef = '', time = '', keySignature = '' } = props;
@@ -73,6 +76,7 @@ const Notation = (props) => {
 
     const renderNotes = () => {
       redraw(notesEnteredByUser);
+      dispatch(setUserEnteredNotes(notesEnteredByUser));
     };
 
 
