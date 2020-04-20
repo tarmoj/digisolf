@@ -5,6 +5,7 @@ import {setComponent} from "../actions/component";
 import MainMenu from "./MainMenu";
 import {resetScore} from "../actions/score";
 import {useTranslation} from "react-i18next";
+import {setUserEnteredNotes} from "../actions/exercise";
 
 const GoBackToMainMenuBtn = () => {
     const { t, i18n } = useTranslation();
@@ -13,6 +14,7 @@ const GoBackToMainMenuBtn = () => {
     const goBack = () => {
         dispatch(setComponent("MainMenu"));
         dispatch(resetScore());
+        dispatch(setUserEnteredNotes(""));
     };
 
     return <Button onClick={goBack} className={"fullWidth marginTopSmall"}>{t("goBack")}</Button>;
