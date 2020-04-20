@@ -16,7 +16,6 @@ const AskIntonation = () => {
     const dispatch = useDispatch();
 
     const name = useSelector(state => state.exerciseReducer.name);
-    const isHarmonic = useSelector(state => state.exerciseReducer.isHarmonic);
     const cents = useSelector(state => state.exerciseReducer.cents);
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
