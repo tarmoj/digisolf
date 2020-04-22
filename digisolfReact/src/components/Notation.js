@@ -1,14 +1,17 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Artist, VexTab, Flow} from 'vextab/releases/vextab-div'
+import {useTranslation} from "react-i18next"
 import {Input, Button} from "semantic-ui-react";
 import {useDispatch} from "react-redux";
 import {setUserEnteredNotes} from "../actions/exercise";
-
-
+import {makeVexTabChord} from "../util/intervals";
+import {getNoteByName} from "../util/notes";
+import {capitalizeFirst} from "../util/util";
 
 
 const Notation = (props) => {
     const dispatch = useDispatch();
+    const { t, i18n } = useTranslation();
 
     // sellel siin vist pole mõtet... Püüdsin props-dele panna vaikeväärtusi, aga ilmselt mitte nii.
     let { width = 600, scale = 0.8, notes = '', clef = '', time = '', keySignature = '' } = props;
@@ -57,6 +60,29 @@ const Notation = (props) => {
         return vtString;
     };
 
+    // TEMPORARY -  need rewrite (clef, proper parsing etc)
+    const noteStringToVexTab =  (noteString) => { // input as c1 es1 ci2 -  will be converted to vextab chord for now
+        const noteNames = noteString.trim().split(" ");
+        const chordNotes = [];
+        for (let name of noteNames) {
+            const lastChar = name.charAt(name.length-1);
+            if ( !(lastChar >= '0' && lastChar <= '9' ) ) { // if octave number is not set, add 1 for 1st octave ( octave 4 in English system)
+                name += '1';
+            }
+            const note = getNoteByName(name);
+            if (note !== undefined) {
+                chordNotes.push(note);
+            } else {
+                console.log("Could not find note according to: ", name)
+            }
+        }
+        if (chordNotes.length>0) {
+            return makeVexTabChord(chordNotes);
+        } else {
+            return "";
+        }
+    };
+
     const redraw = (notes) => {
         if (!vexTab) {
             console.log("vexTab not initialized!");
@@ -75,16 +101,24 @@ const Notation = (props) => {
 
 
     const renderNotes = () => {
-      redraw(notesEnteredByUser);
-      dispatch(setUserEnteredNotes(notesEnteredByUser));
+      const vexTabString = noteStringToVexTab(notesEnteredByUser);
+      redraw(vexTabString);
+      dispatch(setUserEnteredNotes(vexTabString));
+      // redraw(notesEnteredByUser);
+      // dispatch(setUserEnteredNotes(notesEnteredByUser));
     };
 
 
     return (
         <div hidden={ props.visible ? 0 : 1}>
             <div>
-                <Input onChange={e => setNotesEnteredByUser(e.target.value)} placeholder={props.notes /*':2 (D/4.F#/4.A@/4)'*/} value={notesEnteredByUser}/>
-                <Button onClick={renderNotes}>Render</Button>
+                <Input
+                    onChange={e => {setNotesEnteredByUser(e.target.value)}}
+                    onKeyPress={ e=> { if (e.key === 'Enter') renderNotes()  }}
+                    placeholder={'nt: a c2 es2'}
+                    value={notesEnteredByUser}
+                />
+                <Button onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
             </div>
             <div>
                 <div ref={vtDiv} ></div>

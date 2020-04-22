@@ -127,6 +127,8 @@ export const bassClefNotes = [   // line - line number in staff: 0 upper, 4 - lo
 	
 export const trebleClefNotes = violinClefNotes; // convenience overload;
 
+export const getNoteByName = (name, noteArray=trebleClefNotes) =>  noteArray.find(note => note.name === name);
+
 export const getNotesByMidiNote = (midiNote, noteArray=trebleClefNotes) => { // return an array of note objects, i.e cis and des for 61
 	return noteArray.find(note => note.midiNote === midiNote);
 };
@@ -134,3 +136,4 @@ export const getNotesByMidiNote = (midiNote, noteArray=trebleClefNotes) => { // 
 export const getNoteByVtNote = (vtNote, noteArray=trebleClefNotes) => {
 	return noteArray.find(note => note.vtNote === vtNote);
 };
+

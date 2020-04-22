@@ -55,6 +55,9 @@
   "saw": "saehammas",
   "square": "nelinurkheli",
   "alreadyAnswered": "Te olete juba vastanud!",
-  "pressStartExsercise": "Vajutage \"Alusta Harjutust\""
+  "pressStartExsercise": "Vajutage \"Alusta Harjutust\"",
+  "up": "üles",
+  "down": "alla",
+  "render": "kuva"
 
 }

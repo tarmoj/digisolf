@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import {Button, Grid, Header} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
-import {getRandomElementFromArray, getRandomInt} from "../util/util";
+import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst} from "../util/util";
 import {chordDefinitions, makeVexTabChord, makeChord} from "../util/intervals";
 import {getNoteByVtNote} from "../util/notes";
 import MIDISounds from 'midi-sounds-react';
@@ -11,6 +11,7 @@ import Score from "./Score";
 import Notation from "./Notation";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
+import {setUserEnteredNotes} from "../actions/exercise";
 
 
 // tüüp 1: antakse ette noot ja suund, mängitakse akord
@@ -29,9 +30,9 @@ const AskChord = () => {
     const [selectedChord, setSelectedChord] = useState([]);
     const [answer, setAnswer] = useState(null);
     const [answered, setAnswered] = useState(false);
-    const [baseMidiNote, setBaseMidiNote] = useState(60); // selle võib peale testi eemaldada.
-    const [baseNote, setBaseNote] = useState(null);
-    const [chordNotes, setChordNotes] = useState("");
+    const [baseNote, setBaseNote] = useState(null); // asenda see chordNotes[0]
+    const [vexTabChord, setVexTabChord] = useState("");
+    const [chordNotes, setChordNotes] = useState([]);
     const [notationVisible, setNotationVisible] = useState(false);
 
     const userEnteredNotes = useSelector(state => state.exerciseReducer.userEnteredNotes);
@@ -79,6 +80,9 @@ const AskChord = () => {
 
     // renew generates answer and performs play/show
     const renew = (possibleChords) =>  {
+
+        setAnswered(false);
+
         const baseNote = getNoteByVtNote( getRandomElementFromArray(possibleBaseVtNotes) );
         if (baseNote === undefined) {
             console.log("Failed finding basenote");
@@ -87,18 +91,28 @@ const AskChord = () => {
             setBaseNote(baseNote);
         }
         const midiNote = baseNote.midiNote; // getRandomInt(53, 72); // TODO: make the range configurable
-        setBaseMidiNote(midiNote); // eemalda
-
         const selectedChord = getRandomElementFromArray(possibleChords);
         setSelectedChord(selectedChord);
-        console.log("Selected chord: ", t(selectedChord.longName), baseMidiNote, midiNote );
+        console.log("Selected chord: ", t(selectedChord.longName), baseNote.midiNote );
         const answer = {shortName: selectedChord.shortName}; // may be different in different exercised, might need switch/case
         setAnswer(answer);
 
+        const chordNotes = makeChord( baseNote, selectedChord.shortName  );
+        setChordNotes(chordNotes);
+        const up = getRandomBoolean();
+        if ( up ) {
+            setVexTabChord(":4 (" + baseNote.vtNote + ")$.top." + capitalizeFirst(t("up")) + "$");
+        } else {
+            setVexTabChord(":4 (" + chordNotes[chordNotes.length-1].vtNote + ")$.top." + capitalizeFirst(t("down")) + "$"); // upper note, last one in the array
+        }
+        setUserEnteredNotes("");
+        setNotationVisible(true);
+
+
+
         play(selectedChord, midiNote);
 
-        setChordNotes(""); // empty staff
-        setNotationVisible(true);
+
 
     };
 
@@ -108,25 +122,74 @@ const AskChord = () => {
         for (let midiInterval of selectedChord.midiIntervals) { // nootide kaupa basenote + interval
             midiNotes.push(baseMidiNote + midiInterval);
         }
-        console.log("Midinotes played: ", midiNotes, baseMidiNote, selectedChord.shortName);
+        //console.log("Midinotes played: ", midiNotes, baseMidiNote, selectedChord.shortName);
         midiSounds.current.playChordNow(3, midiNotes, duration);
     };
 
+    const checkNotation = () => {
+
+        // show correct notation next to entered notation
+        if (!notationVisible) {
+            setNotationVisible(true);
+        }
+
+        let correct = false;
+        console.log("User eneter notes: ", userEnteredNotes, chordNotes)
+
+        if (userEnteredNotes === makeVexTabChord(chordNotes) ) {
+            console.log("Notes are correct");
+            correct = true;
+        } else {
+            console.log("Notes are wrong");
+            correct = false;
+        }
+
+        setVexTabChord( userEnteredNotes  +  " =|| " + makeVexTabChord(chordNotes) ); // double bar in between
+        return correct;
+    }
+
     const checkResponse = (response) => { // response is an object {key: value [, key2: value, ...]}
+
+        if (!exerciseHasBegun) {
+            alert(t("pressStartExsercise"));
+            return;
+        }
+
+        if (answered) {
+            alert(t("alreadyAnswered"));
+            return;
+        }
+
+        setAnswered(true);
+        let feedBack = "";
+        let correct = true;
+
         //console.log(response);
-        const correctChord = t(selectedChord.longName); // TODO: translation
+        const correctChord = t(selectedChord.longName);
 
-        // show correct notation
-        setNotationVisible(true);
-        const chordNotes = makeChord( baseNote, selectedChord.shortName  ); // kas baseNote on siin õige?
-        console.log ("Basenote, Selected chord is: ", baseMidiNote, chordNotes);
-        setChordNotes( makeVexTabChord(chordNotes) );
 
-        if ( JSON.stringify(response) === JSON.stringify(answer)) {
-            dispatch(setPositiveMessage(`${t("correctAnswerIs")} ${correctChord}`, 5000));
+
+        if (checkNotation()) {
+            feedBack += "Noodistus õige. ";  //TODO: translate
+            correct = correct && true;
+        } else {
+            feedBack += "Noodistus vale. ";
+            correct = false;
+        }
+
+        if (JSON.stringify(response) === JSON.stringify(answer)) {
+            feedBack += "Akord õige. See on " + correctChord;
+            correct = correct && true;
+        } else {
+            feedBack += "Akord vale. Õige on: " + correctChord;
+            correct = correct && true;
+        }
+
+        if ( correct ) {
+            dispatch(setPositiveMessage(feedBack, 5000));
             dispatch(incrementCorrectAnswers());
         } else {
-            dispatch(setNegativeMessage(`${t("correctAnswerIs")} ${correctChord}`, 5000));
+            dispatch(setNegativeMessage(feedBack, 5000));
             dispatch(incrementIncorrectAnswers());
         }
     };
@@ -153,7 +216,7 @@ const AskChord = () => {
                         <Button color={"green"} onClick={() => renew(possibleChords)} className={"fullWidth marginTopSmall"} >{t("playNext")}</Button>
                     </Grid.Column>
                     <Grid.Column>
-                        <Button onClick={() => play(selectedChord, baseMidiNote)} className={"fullWidth marginTopSmall"}  >{t("repeat")}</Button>
+                        <Button onClick={() => play(selectedChord, baseNote.midiNote)} className={"fullWidth marginTopSmall"}  >{t("repeat")}</Button>
                     </Grid.Column>
                 </Grid.Row>
 
@@ -193,7 +256,7 @@ const AskChord = () => {
         return (
             <Grid.Column>
                 <Button className={"exerciseBtn"}
-                        onClick={() => checkResponse({shortName: chord.shortName})}>{t(chord.longName)}</Button>
+                        onClick={() => checkResponse({shortName: chord.shortName})}>{ capitalizeFirst( t(chord.longName) )}</Button>
             </Grid.Column>
         )
     };
@@ -202,7 +265,8 @@ const AskChord = () => {
     return (
         <div>
             <Header size='large'>{`${t(name)} `}</Header>
-            <Notation  notes={chordNotes} width={200} visible={notationVisible} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
+            <div>TEST JUHIS: Sisesta noodid (nt. a c2 e2) ning klõpsa seejärel vasta akordi nupule</div>
+            <Notation  notes={vexTabChord} width={200} visible={notationVisible} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
             <Grid>
                 <Score/>
                 {createResponseButtons()}
