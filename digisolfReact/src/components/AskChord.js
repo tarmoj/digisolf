@@ -176,8 +176,8 @@ const AskChord = () => {
             feedBack += capitalizeFirst(t("chord")) + " "  + t("correct") + ": " + correctChord;
             correct = correct && true;
         } else {
-            feedBack += capitalizeFirst(t("chord")) + " "  + t("wrong") + capitalizeFirst(t("correct")) + t("is") + " " + correctChord;
-            correct = correct && true;
+            feedBack += capitalizeFirst(t("chord")) + " "  + t("wrong") + ". " + capitalizeFirst(t("correct")) + t("is") + " " + correctChord;
+            correct = false;
         }
 
         if ( correct ) {
