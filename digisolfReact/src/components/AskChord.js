@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import {Button, Grid, Header} from 'semantic-ui-react'
+import {Button, Checkbox, Grid, Header} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst} from "../util/util";
@@ -33,7 +33,8 @@ const AskChord = () => {
     const [baseNote, setBaseNote] = useState(null); // asenda see chordNotes[0]
     const [vexTabChord, setVexTabChord] = useState("");
     const [chordNotes, setChordNotes] = useState([]);
-    const [notationVisible, setNotationVisible] = useState(false);
+    //const [notationVisible, setNotationVisible] = useState(false);
+    const [useNotation, setUseNotation] = useState(true);
 
     const userEnteredNotes = useSelector(state => state.exerciseReducer.userEnteredNotes);
 
@@ -106,9 +107,6 @@ const AskChord = () => {
             setVexTabChord(":4 (" + chordNotes[chordNotes.length-1].vtNote + ")$.top." + capitalizeFirst(t("down")) + "$"); // upper note, last one in the array
         }
         setUserEnteredNotes("");
-        setNotationVisible(true);
-
-
 
         play(selectedChord, midiNote);
 
@@ -127,11 +125,7 @@ const AskChord = () => {
     };
 
     const checkNotation = () => {
-
         // show correct notation next to entered notation
-        if (!notationVisible) {
-            setNotationVisible(true);
-        }
 
         let correct = false;
         console.log("User eneter notes: ", userEnteredNotes, chordNotes)
@@ -168,20 +162,21 @@ const AskChord = () => {
         const correctChord = t(selectedChord.longName);
 
 
-
-        if (checkNotation()) {
-            feedBack += "Noodistus õige. ";  //TODO: translate
-            correct = correct && true;
-        } else {
-            feedBack += "Noodistus vale. ";
-            correct = false;
+        if (useNotation) {
+            if (checkNotation()) {
+                feedBack += capitalizeFirst(t("notation")) + " "  + t("correct") + ". ";  //kas siin annaks ka ${` `} sorti stringi kasutada ja vätlida + " "?
+                correct = correct && true;
+            } else {
+                feedBack += capitalizeFirst(t("notation")) + " "  + t("wrong") + ". ";
+                correct = false;
+            }
         }
 
         if (JSON.stringify(response) === JSON.stringify(answer)) {
-            feedBack += "Akord õige. See on " + correctChord;
+            feedBack += capitalizeFirst(t("chord")) + " "  + t("correct") + ": " + correctChord;
             correct = correct && true;
         } else {
-            feedBack += "Akord vale. Õige on: " + correctChord;
+            feedBack += capitalizeFirst(t("chord")) + " "  + t("wrong") + capitalizeFirst(t("correct")) + t("is") + " " + correctChord;
             correct = correct && true;
         }
 
@@ -255,7 +250,7 @@ const AskChord = () => {
     const createResponseButtonColumn = (chord) => {
         return (
             <Grid.Column>
-                <Button className={"exerciseBtn"}
+                <Button className={"fullWidth marginTopSmall" /*<- kuvab ok. oli: "exerciseBtn"*/}
                         onClick={() => checkResponse({shortName: chord.shortName})}>{ capitalizeFirst( t(chord.longName) )}</Button>
             </Grid.Column>
         )
@@ -265,10 +260,19 @@ const AskChord = () => {
     return (
         <div>
             <Header size='large'>{`${t(name)} `}</Header>
-            <div>TEST JUHIS: Sisesta noodid (nt. a c2 e2) ning klõpsa seejärel vasta akordi nupule</div>
-            <Notation  notes={vexTabChord} width={200} visible={notationVisible} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
+            {/*Vaja rida juhiseks (exerciseDescriptio). div selleks ilmselt kehv, sest kattub teistega...*/}
+            <div className={"marginTop"}>TEST JUHIS: Sisesta noodid (nt. a c2 e2) ning klõpsa seejärel vasta akordi nupule</div>
+
+            <Notation  className={"marginTopSmall"} notes={vexTabChord} width={200} visible={useNotation} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
             <Grid>
+                <Checkbox toggle
+                          label={"Noteeri"}
+                          defaultChecked={true}
+                          className={"/*floatLeft */marginTop"}
+                          onChange={ (e, {checked}) => setUseNotation(checked) }
+                />
                 <Score/>
+
                 {createResponseButtons()}
                 {createPlaySoundButton()}
                 <Grid.Row>

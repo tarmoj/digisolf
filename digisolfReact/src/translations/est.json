@@ -58,6 +58,8 @@
   "pressStartExsercise": "Vajutage \"Alusta Harjutust\"",
   "up": "üles",
   "down": "alla",
-  "render": "kuva"
+  "render": "kuva",
+  "notation": "noodistus",
+  "chord": "akord"
 
 }
