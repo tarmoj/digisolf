@@ -164,7 +164,8 @@ const AskChord = () => {
 
         if (useNotation) {
             if (checkNotation()) {
-                feedBack += capitalizeFirst(t("notation")) + " "  + t("correct") + ". ";  //kas siin annaks ka ${` `} sorti stringi kasutada ja vätlida + " "?
+                // feedBack += capitalizeFirst(t("notation")) + " "  + t("correct") + ". ";  //kas siin annaks ka ${` `} sorti stringi kasutada ja vätlida + " "?
+                feedBack += `${capitalizeFirst(t("notation"))} ${t("correct")}. `;
                 correct = correct && true;
             } else {
                 feedBack += capitalizeFirst(t("notation")) + " "  + t("wrong") + ". ";
