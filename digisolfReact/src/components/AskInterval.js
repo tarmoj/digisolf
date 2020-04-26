@@ -27,15 +27,19 @@ const AskInterval = () => {
     const [selectedTonicNote, setSelectedTonicNote] = useState(null);
     const [intervalButtonsClicked, setIntervalButtonsClicked] = useState([]);
     const [greenIntervalButton, setGreenIntervalButton] = useState(null);
+    const [exerciseHasBegun, setExerciseHasBegun] = useState(null);
 
     const startExercise = () => {
-        switch(name) {
-            case "askIntervalTonicTriad":
-                askIntervalTonicTriad();
-                break;
-            default:
-                console.log("no exercise found");
-        }
+        setExerciseHasBegun(true);
+        setTimeout(() => {
+            switch(name) {
+                case "askIntervalTonicTriad":
+                    askIntervalTonicTriad();
+                    break;
+                default:
+                    console.log("no exercise found");
+            }
+        }, 500)  // Short user-friendly delay before start
     };
 
     const askIntervalTonicTriad = () => {
@@ -60,6 +64,7 @@ const AskInterval = () => {
         setSelectedTonicNote(selectedTonicNote);
 
         const newInterval = generateInterval(isMajor, selectedTonicNote, violinClefNotes);
+        console.log("PLAYED INTERVAL:", newInterval.interval.shortName);
         setInterval(newInterval);
 
         playInterval(newInterval);
@@ -137,13 +142,14 @@ const AskInterval = () => {
     };
 
     const setAnswer = (answer) => {
-        if (exerciseHasBegun()) {
+        if (exerciseHasBegun) {
             // const correctInterval = getIntervalTranslation(interval.interval.longName);
             setIntervalButtonsClicked(intervalButtonsClicked.concat([answer]));
 
             if (answer === interval.interval.shortName) {
                 // dispatch(setPositiveMessage(`${t("correctAnswerIs")} ${correctInterval}`, 5000));
-                getNewInterval(isMajor, selectedTonicNote);
+                startExercise();
+
                 colorCorrectAnswerGreen(answer);
                 setIntervalButtonsClicked([]);
                 dispatch(incrementCorrectAnswers());
@@ -174,7 +180,7 @@ const AskInterval = () => {
         const playNextIntervalButton = <Button key={"playNext"} color={"olive"} onClick={() => getNewInterval(isMajor, selectedTonicNote)} className={"fullWidth marginTopSmall"}>{t("playNext")}</Button>;
         const repeatIntervalButton = <Button key={"repeat"} color={"green"} onClick={() => playInterval(interval)} className={"fullWidth marginTopSmall"}>{t("repeat")}</Button>;
 
-        if (exerciseHasBegun()) {
+        if (exerciseHasBegun) {
             buttons.push(repeatIntervalButton, playNextIntervalButton, changeKeyButton);
         } else {
             buttons.push(startExerciseButton);
@@ -185,9 +191,9 @@ const AskInterval = () => {
         return buttons;
     };
 
-    const exerciseHasBegun = () => {
-        return selectedTonicNote !== null;
-    };
+    // const exerciseHasBegun = () => {
+    //     return selectedTonicNote !== null;
+    // };
 
     const getExerciseType = () => {
         return isHarmonic ? t("harmonic") : t("melodic");
