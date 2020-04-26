@@ -66,12 +66,12 @@ const AskInterval = () => {
     const playInterval = (interval) => {
         setTimeout(() => {
             if (isHarmonic) {
-                playNote(interval.note1.midiNote, 0, 4);
-                playNote(interval.note2.midiNote, 0, 4);
-            } else {
                 playNote(interval.note1.midiNote, 0, 2);
+                playNote(interval.note2.midiNote, 0, 2);
+            } else {
+                playNote(interval.note1.midiNote, 0, 1);
                 // playNote(interval.note2.midiNote, 3, 2);
-                playNote(interval.note2.midiNote, 2, 2); // start sekundites
+                playNote(interval.note2.midiNote, 1, 1); // start sekundites
             }
         }, 300);    // Short user-friendly delay before start
     };
@@ -145,7 +145,7 @@ const AskInterval = () => {
 
             if (answer === interval.interval.shortName) {
                 // dispatch(setPositiveMessage(`${t("correctAnswerIs")} ${correctInterval}`, 5000));
-                startExercise();
+                getNewInterval(isMajor, selectedTonicNote);
 
                 colorCorrectAnswerGreen(answer);
                 setIntervalButtonsClicked([]);
