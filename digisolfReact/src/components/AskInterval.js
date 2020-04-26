@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import {Button, Divider, Grid, Header, Icon, Transition} from 'semantic-ui-react'
+import {Button, Divider, Grid, Header, Icon, Radio, Transition} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {setComponent} from "../actions/component";
@@ -10,7 +10,7 @@ import {getInterval} from "../util/intervals";
 import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
-import Score from "./Score";
+import ScoreRow from "./ScoreRow";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 
 const AskInterval = () => {
@@ -31,16 +31,14 @@ const AskInterval = () => {
 
     const startExercise = () => {
         setExerciseHasBegun(true);
-        
-        setTimeout(() => {
-            switch(name) {
-                case "askIntervalTonicTriad":
-                    askIntervalTonicTriad();
-                    break;
-                default:
-                    console.log("no exercise found");
-            }
-        }, 500)  // Short user-friendly delay before start
+
+        switch(name) {
+            case "askIntervalTonicTriad":
+                askIntervalTonicTriad();
+                break;
+            default:
+                console.log("no exercise found");
+        }
     };
 
     const askIntervalTonicTriad = () => {
@@ -67,21 +65,24 @@ const AskInterval = () => {
         setSelectedTonicNote(selectedTonicNote);
 
         const newInterval = generateInterval(isMajor, selectedTonicNote, violinClefNotes);
-        console.log("PLAYED INTERVAL:", newInterval.interval.shortName);
+        console.log("Played interval short name:", newInterval.interval.shortName);
+        console.log("Played interval:", newInterval.interval);
         setInterval(newInterval);
 
         playInterval(newInterval);
     };
 
     const playInterval = (interval) => {
-        if (isHarmonic) {
-            playNote(interval.note1.midiNote, 0, 4);
-            playNote(interval.note2.midiNote, 0, 4);
-        } else {
-            playNote(interval.note1.midiNote, 0, 2);
-            // playNote(interval.note2.midiNote, 3, 2);
-            playNote(interval.note2.midiNote, 2, 2); // start sekundites
-        }
+        setTimeout(() => {
+            if (isHarmonic) {
+                playNote(interval.note1.midiNote, 0, 4);
+                playNote(interval.note2.midiNote, 0, 4);
+            } else {
+                playNote(interval.note1.midiNote, 0, 2);
+                // playNote(interval.note2.midiNote, 3, 2);
+                playNote(interval.note2.midiNote, 2, 2); // start sekundites
+            }
+        }, 300);    // Short user-friendly delay before start
     };
 
     const playNote = (midiNote, start, duration) => { // start peaks olema sekundites
@@ -228,11 +229,11 @@ const AskInterval = () => {
         <div>
             <Header size='large'>{`${t(name)} - ${getExerciseType()}`}</Header>
             <Grid>
-                <Score/>
-                <Grid.Row className={"exerciseRow"} columns={2}>
-                    <Grid.Column/>
-                    {createIntervalButton("p1", t("unison"))}
-                </Grid.Row>
+                <ScoreRow showRadioButtons={true}/>
+                {/*<Grid.Row className={"exerciseRow"} columns={2}>*/}
+                {/*    <Grid.Column/>*/}
+                {/*    {createIntervalButton("p1", t("unison"))}*/}
+                {/*</Grid.Row>*/}
                 <Grid.Row className={"exerciseRow"} columns={2}>
                     {createIntervalButton("v2", `${t("minor")} ${t("second")}`)}
                     {createIntervalButton("s2", `${t("major")} ${t("second")}`)}
@@ -257,10 +258,10 @@ const AskInterval = () => {
                     {createIntervalButton("v7", `${t("minor")} ${t("seventh")}`)}
                     {createIntervalButton("s7", `${t("major")} ${t("seventh")}`)}
                 </Grid.Row>
-                <Grid.Row className={"exerciseRow"} columns={2}>
-                    <Grid.Column/>
-                    {createIntervalButton("p8", t("octave"))}
-                </Grid.Row>
+                {/*<Grid.Row className={"exerciseRow"} columns={2}>*/}
+                {/*    <Grid.Column/>*/}
+                {/*    {createIntervalButton("p8", t("octave"))}*/}
+                {/*</Grid.Row>*/}
                 <Grid.Row className={"exerciseRow"}>
                     <Grid.Column>
                         {createButtons()}

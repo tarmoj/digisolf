@@ -10,7 +10,7 @@ const MainMenu = () => {
     const dispatch = useDispatch();
 
     const startTonicTriad = (isHarmonic) => {
-        dispatch(setIsHarmonic(isHarmonic));
+        // dispatch(setIsHarmonic(isHarmonic));
         dispatch(setName("askIntervalTonicTriad"));
         dispatch(setComponent("AskInterval"));
     };

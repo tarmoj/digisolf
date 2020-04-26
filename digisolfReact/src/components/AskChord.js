@@ -7,7 +7,7 @@ import {chordDefinitions, makeVexTabChord, makeChord} from "../util/intervals";
 import {getNoteByVtNote} from "../util/notes";
 import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
-import Score from "./Score";
+import ScoreRow from "./ScoreRow";
 import Notation from "./Notation";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
@@ -272,7 +272,7 @@ const AskChord = () => {
                           className={"/*floatLeft */marginTop"}
                           onChange={ (e, {checked}) => setUseNotation(checked) }
                 />
-                <Score/>
+                <ScoreRow/>
 
                 {createResponseButtons()}
                 {createPlaySoundButton()}
