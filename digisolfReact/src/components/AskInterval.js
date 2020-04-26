@@ -27,10 +27,11 @@ const AskInterval = () => {
     const [selectedTonicNote, setSelectedTonicNote] = useState(null);
     const [intervalButtonsClicked, setIntervalButtonsClicked] = useState([]);
     const [greenIntervalButton, setGreenIntervalButton] = useState(null);
-    const [exerciseHasBegun, setExerciseHasBegun] = useState(null);
+    const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
 
     const startExercise = () => {
         setExerciseHasBegun(true);
+        
         setTimeout(() => {
             switch(name) {
                 case "askIntervalTonicTriad":
@@ -54,6 +55,8 @@ const AskInterval = () => {
         while (changeKey && newSelectedTonicNote === selectedTonicNote) {
             newSelectedTonicNote = getRandomElementFromArray(tonicNotes);
         }
+
+        console.log("Tonic note", tonicNote)
 
         midiSounds.current.setMasterVolume(0.4); // not too loud TODO: add control slider
         getNewInterval(isMajor, newSelectedTonicNote);
