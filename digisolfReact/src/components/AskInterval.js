@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import {Button, Divider, Grid, Header, Icon, Transition} from 'semantic-ui-react'
+import {Button, Divider, Grid, Header, Icon, Radio, Transition} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {setComponent} from "../actions/component";
@@ -10,7 +10,7 @@ import {getInterval} from "../util/intervals";
 import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
-import Score from "./Score";
+import ScoreRow from "./ScoreRow";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 
 const AskInterval = () => {
@@ -27,18 +27,11 @@ const AskInterval = () => {
     const [selectedTonicNote, setSelectedTonicNote] = useState(null);
     const [intervalButtonsClicked, setIntervalButtonsClicked] = useState([]);
     const [greenIntervalButton, setGreenIntervalButton] = useState(null);
+    const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
 
     const startExercise = () => {
-        switch(name) {
-            case "askIntervalTonicTriad":
-                askIntervalTonicTriad();
-                break;
-            default:
-                console.log("no exercise found");
-        }
-    };
+        setExerciseHasBegun(true);
 
-    const askIntervalTonicTriad = () => {
         const octaveNotes = violinClefNotes.slice(0, 21);	// First octave
         const tonicNote =  getRandomElementFromArray(octaveNotes);	// Select random note from octave as tonic note
         const tonicNotes = getAllNotesWithSameName(tonicNote, violinClefNotes);	// Get all tonic notes
@@ -51,6 +44,8 @@ const AskInterval = () => {
             newSelectedTonicNote = getRandomElementFromArray(tonicNotes);
         }
 
+        console.log("Tonic note", tonicNote)
+
         midiSounds.current.setMasterVolume(0.4); // not too loud TODO: add control slider
         getNewInterval(isMajor, newSelectedTonicNote);
     };
@@ -59,21 +54,26 @@ const AskInterval = () => {
         setIsMajor(isMajor);
         setSelectedTonicNote(selectedTonicNote);
 
-        const newInterval = generateInterval(isMajor, selectedTonicNote, violinClefNotes);
+        const secondNote = getSecondNote(selectedTonicNote, violinClefNotes);
+        const newInterval = getInterval(selectedTonicNote, secondNote);
+        console.log("Played interval short name:", newInterval.interval.shortName);
+        console.log("Played interval:", newInterval.interval);
         setInterval(newInterval);
 
         playInterval(newInterval);
     };
 
     const playInterval = (interval) => {
-        if (isHarmonic) {
-            playNote(interval.note1.midiNote, 0, 4);
-            playNote(interval.note2.midiNote, 0, 4);
-        } else {
-            playNote(interval.note1.midiNote, 0, 2);
-            // playNote(interval.note2.midiNote, 3, 2);
-            playNote(interval.note2.midiNote, 2, 2); // start sekundites
-        }
+        setTimeout(() => {
+            if (isHarmonic) {
+                playNote(interval.note1.midiNote, 0, 2);
+                playNote(interval.note2.midiNote, 0, 2);
+            } else {
+                playNote(interval.note1.midiNote, 0, 1);
+                // playNote(interval.note2.midiNote, 3, 2);
+                playNote(interval.note2.midiNote, 1, 1); // start sekundites
+            }
+        }, 300);    // Short user-friendly delay before start
     };
 
     const playNote = (midiNote, start, duration) => { // start peaks olema sekundites
@@ -85,17 +85,12 @@ const AskInterval = () => {
         midiSounds.current.playChordAt (midiSounds.current.contextTime()+start, 3, [midiNote], duration); // millegipärast ei tööta, kui korrata intervalli
     };
 
-    const generateInterval = (isMajor, selectedTonicNote, possibleNotes) => {
-        const triadNote = getTriadNote(isMajor, selectedTonicNote, possibleNotes);
-        return getInterval(selectedTonicNote, triadNote);
-    };
-
-    const getTriadNote = (isMajor, tonicNote, possibleNotes) => {
+    const getSecondNote = (tonicNote, possibleNotes) => {
         let newNote;
         let newNoteDiffersFromPrevious = false;
 
         while (newNote === undefined || !newNoteDiffersFromPrevious) {
-            const newNoteMidiDifference = getRandomTriadNoteMidiDifference(isMajor);
+            const newNoteMidiDifference = getRandomMidiDifference();
             const newNoteMidiValue = tonicNote.midiNote + newNoteMidiDifference;
             newNote = possibleNotes.find(note => note.midiNote === newNoteMidiValue);
 
@@ -112,16 +107,23 @@ const AskInterval = () => {
         return newNote;
     };
 
-    const getRandomTriadNoteMidiDifference = (isMajor) => {
+    const getRandomMidiDifference = () => {
         let possibleDifferences;
-
-        if (isMajor) {
-            possibleDifferences = [4, 7, -5, -8];
-        } else {
-            possibleDifferences = [3, 7, -5, -9];
+        if (name === "tonicTriad") {
+            possibleDifferences = getPossibleTriadNoteMidiDifferences();
+        } else if (name === "tonicAllScaleDegrees") {
+            possibleDifferences = getPossibleScaleNoteMidiDifferences();
         }
 
         return getRandomElementFromArray(possibleDifferences);
+    };
+
+    const getPossibleTriadNoteMidiDifferences = () => {
+        return isMajor ? [4, 7, -5, -8] : [3, 7, -5, -9];
+    };
+
+    const getPossibleScaleNoteMidiDifferences = () => {
+        return isMajor ? [2, 4, 5, 7, 9, 11, -1, -3, -5, -7, -8, -10] : [2, 3, 5, 7, 8, 11, -1, -4, -5, -7, -9, -10]; // Kõrge 7. aste minoori puhul
     };
 
     const getAllNotesWithSameName = (note, noteArray) => {
@@ -137,13 +139,14 @@ const AskInterval = () => {
     };
 
     const setAnswer = (answer) => {
-        if (exerciseHasBegun()) {
+        if (exerciseHasBegun) {
             // const correctInterval = getIntervalTranslation(interval.interval.longName);
             setIntervalButtonsClicked(intervalButtonsClicked.concat([answer]));
 
             if (answer === interval.interval.shortName) {
                 // dispatch(setPositiveMessage(`${t("correctAnswerIs")} ${correctInterval}`, 5000));
                 getNewInterval(isMajor, selectedTonicNote);
+
                 colorCorrectAnswerGreen(answer);
                 setIntervalButtonsClicked([]);
                 dispatch(incrementCorrectAnswers());
@@ -174,7 +177,7 @@ const AskInterval = () => {
         const playNextIntervalButton = <Button key={"playNext"} color={"olive"} onClick={() => getNewInterval(isMajor, selectedTonicNote)} className={"fullWidth marginTopSmall"}>{t("playNext")}</Button>;
         const repeatIntervalButton = <Button key={"repeat"} color={"green"} onClick={() => playInterval(interval)} className={"fullWidth marginTopSmall"}>{t("repeat")}</Button>;
 
-        if (exerciseHasBegun()) {
+        if (exerciseHasBegun) {
             buttons.push(repeatIntervalButton, playNextIntervalButton, changeKeyButton);
         } else {
             buttons.push(startExerciseButton);
@@ -183,10 +186,6 @@ const AskInterval = () => {
         buttons.push(<GoBackToMainMenuBtn key={"goBack"}/>);
 
         return buttons;
-    };
-
-    const exerciseHasBegun = () => {
-        return selectedTonicNote !== null;
     };
 
     const getExerciseType = () => {
@@ -217,13 +216,13 @@ const AskInterval = () => {
 
     return (
         <div>
-            <Header size='large'>{`${t(name)} - ${getExerciseType()}`}</Header>
+            <Header size='large'>{`${t("setInterval")} ${t(name)} - ${getExerciseType()}`}</Header>
             <Grid>
-                <Score/>
-                <Grid.Row className={"exerciseRow"} columns={2}>
-                    <Grid.Column/>
-                    {createIntervalButton("p1", t("unison"))}
-                </Grid.Row>
+                <ScoreRow showRadioButtons={true}/>
+                {/*<Grid.Row className={"exerciseRow"} columns={2}>*/}
+                {/*    <Grid.Column/>*/}
+                {/*    {createIntervalButton("p1", t("unison"))}*/}
+                {/*</Grid.Row>*/}
                 <Grid.Row className={"exerciseRow"} columns={2}>
                     {createIntervalButton("v2", `${t("minor")} ${t("second")}`)}
                     {createIntervalButton("s2", `${t("major")} ${t("second")}`)}
@@ -248,10 +247,10 @@ const AskInterval = () => {
                     {createIntervalButton("v7", `${t("minor")} ${t("seventh")}`)}
                     {createIntervalButton("s7", `${t("major")} ${t("seventh")}`)}
                 </Grid.Row>
-                <Grid.Row className={"exerciseRow"} columns={2}>
-                    <Grid.Column/>
-                    {createIntervalButton("p8", t("octave"))}
-                </Grid.Row>
+                {/*<Grid.Row className={"exerciseRow"} columns={2}>*/}
+                {/*    <Grid.Column/>*/}
+                {/*    {createIntervalButton("p8", t("octave"))}*/}
+                {/*</Grid.Row>*/}
                 <Grid.Row className={"exerciseRow"}>
                     <Grid.Column>
                         {createButtons()}

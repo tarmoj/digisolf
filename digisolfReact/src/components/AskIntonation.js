@@ -5,7 +5,7 @@ import {useTranslation} from "react-i18next";
 import {setIsLoading} from "../actions/component";
 import {getRandomElementFromArray, getRandomInt, scriptIsLoaded, capitalizeFirst} from "../util/util";
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
-import Score from "./Score";
+import ScoreRow from "./ScoreRow";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 
@@ -303,7 +303,7 @@ endin
         <div>
             <Header size='large'>{ `${t("intonationDescripton")} ${t(name)} ${t("cents")} ` }</Header>
             <Grid>
-                <Score/>
+                <ScoreRow/>
                 {createSoundTypeRow()}
                 {createResponseButtons()}
 

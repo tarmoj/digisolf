@@ -35,6 +35,15 @@ body {
     float: left;
 }
 
+.score {
+    height: 2rem;
+    width: 100%;
+}
+
+.scoreRadioField {
+    text-align: left;
+}
+
 .footerLogo {
     width: 156px !important;
     height: 83px !important;
@@ -80,8 +89,8 @@ body {
     width: 90%;
 }
 
-.marginLeft {
-    margin-left: 20px !important;
+.marginRight {
+    margin-right: 20px !important;
 }
 
 .marginLeftLarge {
@@ -102,8 +111,4 @@ body {
 
 .red {
     color: red;
-}
-
-.score {
-    height: 60px;
 }

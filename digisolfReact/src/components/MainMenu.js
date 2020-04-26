@@ -4,14 +4,14 @@ import {useDispatch} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {setComponent} from "../actions/component";
 import {setIsHarmonic, setName, setCents} from "../actions/exercise";
+import {capitalizeFirst} from "../util/util";
 
 const MainMenu = () => {
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
 
-    const startTonicTriad = (isHarmonic) => {
-        dispatch(setIsHarmonic(isHarmonic));
-        dispatch(setName("askIntervalTonicTriad"));
+    const startIntervalExercise = (name) => {
+        dispatch(setName(name));
         dispatch(setComponent("AskInterval"));
     };
 
@@ -32,9 +32,8 @@ const MainMenu = () => {
             <Grid.Row columns={2}>
                 <Grid.Column>
                     <Header size='large'>{t("intervals")}</Header>
-                    <Button className={"mainMenuBtn"} onClick={() => startTonicTriad(true)}>{t("tonicTriad")} - {t("harmonic")}</Button><br/>
-                    <Button className={"marginTopSmall mainMenuBtn"} onClick={() => startTonicTriad(false)}>{t("tonicTriad")} - {t("melodic")}</Button><br/>
-                    <Button className={"marginTopSmall mainMenuBtn"}>{t("severalIntervals")} - {t("harmonic")}</Button><br/>
+                    <Button className={"mainMenuBtn"} onClick={() => startIntervalExercise("tonicTriad")}>{capitalizeFirst(t("tonicTriad"))}</Button><br/>
+                    <Button className={"marginTopSmall mainMenuBtn"} onClick={() => startIntervalExercise("tonicAllScaleDegrees")}>{capitalizeFirst(t("tonicAllScaleDegrees"))}</Button><br/>
                 </Grid.Column>
                 <Grid.Column>
                     <div>
