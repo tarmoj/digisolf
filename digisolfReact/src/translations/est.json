@@ -5,11 +5,10 @@
   "chords": "Akordid",
   "dictations": "Diktaadid",
   "intonation": "Häälestus",
-  "tonicTriad": "Toonika kolmkõla",
+  "tonicTriad": "toonika kolmkõla helide vahel",
   "harmonic": "harmooniline",
   "melodic": "meloodiline",
   "severalIntervals": "Mitu intervalli",
-  "askIntervalTonicTriad": "Intervalli määramine toonika kolmkõla helide vahel",
   "unison": "unisoon",
   "second": "sekund",
   "third": "terts",
@@ -60,6 +59,7 @@
   "down": "alla",
   "render": "kuva",
   "notation": "noodistus",
-  "chord": "akord"
-
+  "chord": "akord",
+  "tonicAllScaleDegrees": "põhihelilt kõikidele astmetele",
+  "setInterval": "Intervalli määramine"
 }

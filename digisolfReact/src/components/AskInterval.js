@@ -32,16 +32,6 @@ const AskInterval = () => {
     const startExercise = () => {
         setExerciseHasBegun(true);
 
-        switch(name) {
-            case "askIntervalTonicTriad":
-                askIntervalTonicTriad();
-                break;
-            default:
-                console.log("no exercise found");
-        }
-    };
-
-    const askIntervalTonicTriad = () => {
         const octaveNotes = violinClefNotes.slice(0, 21);	// First octave
         const tonicNote =  getRandomElementFromArray(octaveNotes);	// Select random note from octave as tonic note
         const tonicNotes = getAllNotesWithSameName(tonicNote, violinClefNotes);	// Get all tonic notes
@@ -64,7 +54,8 @@ const AskInterval = () => {
         setIsMajor(isMajor);
         setSelectedTonicNote(selectedTonicNote);
 
-        const newInterval = generateInterval(isMajor, selectedTonicNote, violinClefNotes);
+        const secondNote = getSecondNote(selectedTonicNote, violinClefNotes);
+        const newInterval = getInterval(selectedTonicNote, secondNote);
         console.log("Played interval short name:", newInterval.interval.shortName);
         console.log("Played interval:", newInterval.interval);
         setInterval(newInterval);
@@ -94,17 +85,12 @@ const AskInterval = () => {
         midiSounds.current.playChordAt (midiSounds.current.contextTime()+start, 3, [midiNote], duration); // millegipärast ei tööta, kui korrata intervalli
     };
 
-    const generateInterval = (isMajor, selectedTonicNote, possibleNotes) => {
-        const triadNote = getTriadNote(isMajor, selectedTonicNote, possibleNotes);
-        return getInterval(selectedTonicNote, triadNote);
-    };
-
-    const getTriadNote = (isMajor, tonicNote, possibleNotes) => {
+    const getSecondNote = (tonicNote, possibleNotes) => {
         let newNote;
         let newNoteDiffersFromPrevious = false;
 
         while (newNote === undefined || !newNoteDiffersFromPrevious) {
-            const newNoteMidiDifference = getRandomTriadNoteMidiDifference(isMajor);
+            const newNoteMidiDifference = getRandomMidiDifference();
             const newNoteMidiValue = tonicNote.midiNote + newNoteMidiDifference;
             newNote = possibleNotes.find(note => note.midiNote === newNoteMidiValue);
 
@@ -121,16 +107,23 @@ const AskInterval = () => {
         return newNote;
     };
 
-    const getRandomTriadNoteMidiDifference = (isMajor) => {
+    const getRandomMidiDifference = () => {
         let possibleDifferences;
-
-        if (isMajor) {
-            possibleDifferences = [4, 7, -5, -8];
-        } else {
-            possibleDifferences = [3, 7, -5, -9];
+        if (name === "tonicTriad") {
+            possibleDifferences = getPossibleTriadNoteMidiDifferences();
+        } else if (name === "tonicAllScaleDegrees") {
+            possibleDifferences = getPossibleScaleNoteMidiDifferences();
         }
 
         return getRandomElementFromArray(possibleDifferences);
+    };
+
+    const getPossibleTriadNoteMidiDifferences = () => {
+        return isMajor ? [4, 7, -5, -8] : [3, 7, -5, -9];
+    };
+
+    const getPossibleScaleNoteMidiDifferences = () => {
+        return isMajor ? [2, 4, 5, 7, 9, 11, -1, -3, -5, -7, -8, -10] : [2, 3, 5, 7, 8, 11, -1, -4, -5, -7, -9, -10]; // Kõrge 7. aste minoori puhul
     };
 
     const getAllNotesWithSameName = (note, noteArray) => {
@@ -195,10 +188,6 @@ const AskInterval = () => {
         return buttons;
     };
 
-    // const exerciseHasBegun = () => {
-    //     return selectedTonicNote !== null;
-    // };
-
     const getExerciseType = () => {
         return isHarmonic ? t("harmonic") : t("melodic");
     };
@@ -227,7 +216,7 @@ const AskInterval = () => {
 
     return (
         <div>
-            <Header size='large'>{`${t(name)} - ${getExerciseType()}`}</Header>
+            <Header size='large'>{`${t("setInterval")} ${t(name)} - ${getExerciseType()}`}</Header>
             <Grid>
                 <ScoreRow showRadioButtons={true}/>
                 {/*<Grid.Row className={"exerciseRow"} columns={2}>*/}
