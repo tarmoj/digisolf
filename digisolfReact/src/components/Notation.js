@@ -5,7 +5,7 @@ import {Input, Button} from "semantic-ui-react";
 import {useDispatch} from "react-redux";
 import {setUserEnteredNotes} from "../actions/exercise";
 import {makeVexTabChord} from "../util/intervals";
-import {getNoteByName} from "../util/notes";
+import {getNoteByName, trebleClefNotes, violinClefNotes} from "../util/notes";
 import {capitalizeFirst} from "../util/util";
 
 
@@ -31,21 +31,56 @@ const Notation = (props) => {
     const [renderer, setRenderer] = useState(null);
     const [vexTab, setVexTab] = useState(null);
     const [notesEnteredByUser, setNotesEnteredByUser] = useState("");
+    let artist2 = null;
+
 
     const vexTabInit = () => {
         console.log("**** VexTab INIT ****");
-        if (!renderer) {
+        if (!vexTab) {
             const renderer = new Flow.Renderer(vtDiv.current, Flow.Renderer.Backends.SVG);
-            setRenderer(renderer);
-        }
-        if (!artist) {
             const width = (props.width) ? props.width : 600;
             const scale = (props.scale) ? props.scale : 0.8;
             const artist = new Artist(10, 10, width, {scale: scale}); // x and y hardcoded for now...
-            setArtist(artist);
+            artist2 = artist;
+
+            // try handling click on canvas:
+            renderer.getContext().svg.addEventListener('click', handleClick, false);
+
             const vexTab = new VexTab(artist);
+            setRenderer(renderer);
+            setArtist(artist);
             setVexTab(vexTab);
         }
+
+    };
+
+    const handleClick = (event) => {
+        const x = event.layerX / scale; // võibolla siin ka: (event.layerX - vtDiv.current.offsetLeft / X) vms
+        const y =  (event.layerY - vtDiv.current.offsetTop) / scale; // was: clientX, clientY
+        console.log("Click coordinates: ",x,y, event);
+
+
+        // AJUTINE! testi noodi sisestust:
+        if (artist2) {
+            let line = artist2.staves[0].note.getLineForY(y);
+            // find note by line
+            line = Math.round(line * 2) / 2; // round to nearest 0.5
+            for (let i = 0; i < trebleClefNotes.length; i++) { // TODO: use more general note set, can be also bass clef
+                if (trebleClefNotes[i].hasOwnProperty("line")) {
+                    //console.log(i, possibleNotes[i].line, line)
+                    if (trebleClefNotes[i].line === line) {
+                        console.log("FOUND ", i, trebleClefNotes[i].vtNote);
+                        const vexTabString = ":4 " + trebleClefNotes[i].vtNote;
+                        //setNotesEnteredByUser(vexTabString);
+                        redraw(vexTabString);
+                        break;
+                    }
+                }
+            }
+        } else {
+            console.log ("Artist is null");
+        }
+
     };
 
     const  createVexTabString = (notes) => {
