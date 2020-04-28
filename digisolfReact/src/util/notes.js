@@ -1,3 +1,21 @@
+// Think about different conventions: classical german - b,h, classical scandinavian (bes, b), syllabic (do, re mi), syllabic russian
+// See lilypond definitions https://lilypond.org/doc/v2.18/Documentation/notation/writing-pitches#note-names-in-other-languages
+export const noteNames = [
+	"ceses", "ces", "c", "cis", "cisis",
+	"deses", "des", "d", "dis", "disis",
+	"eses", "es", "e", "eis", "eisis",
+	"feses", "fes", "f", "fis", "fisis",
+	"geses", "ges", "g", "gis", "gisis",
+	"ases", "as", "a", "ais", "aisis",
+	"heses", "b", "h", "his", "hisis"
+];
+
+// võibolla vaja ka export const alterations = [{VT:"@@", normal:"eses"}]
+
+// võibolla on mõtetu defineerida kõik -isid ja -esid eraldi, migem ainult noodinimed ning funktsioon
+// isNoteName (noteName) => / on, kui esimene täht kuulub nootide hulka, ülejäänud /
+
+
 export const violinClefNotes = [   // line - line number in staff: 0 upper, 4 - lower, 5 - lower ledger line. Used to draw the note
 	{vtNote:"C@/4", name:"ces1", syllable:"do-bemoll1", midiNote: 59, degree: 0 }, // degrees (astmed) -  scale degrees (Ces/C/Cis - 0,  Des/D/Dis - 1 etc)
 	{vtNote:"C/4", name:"c1", syllable:"do1", line: 5, midiNote: 60, degree: 0},
