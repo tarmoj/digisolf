@@ -5,7 +5,7 @@ import {useTranslation} from "react-i18next";
 import {setComponent} from "../actions/component";
 import MainMenu from "./MainMenu";
 import {violinClefNotes} from "../util/notes";
-import {getRandomElementFromArray, getRandomBoolean} from "../util/util";
+import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst} from "../util/util";
 import {getInterval} from "../util/intervals";
 import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
@@ -44,7 +44,7 @@ const AskInterval = () => {
             newSelectedTonicNote = getRandomElementFromArray(tonicNotes);
         }
 
-        console.log("Tonic note", tonicNote)
+        console.log(tonicNote, isMajor ? "major" : "minor");
 
         midiSounds.current.setMasterVolume(0.4); // not too loud TODO: add control slider
         getNewInterval(isMajor, newSelectedTonicNote);
@@ -77,11 +77,6 @@ const AskInterval = () => {
     };
 
     const playNote = (midiNote, start, duration) => { // start peaks olema sekundites
-        /*setTimeout(() => {
-            midiSounds.current.playChordNow(3, [midiNote], duration);
-        }, start)*/
-
-        // võibolla lihtsam vältida setTimeout ja: midiSound.current.playChordAt ?
         midiSounds.current.playChordAt (midiSounds.current.contextTime()+start, 3, [midiNote], duration); // millegipärast ei tööta, kui korrata intervalli
     };
 
@@ -172,7 +167,7 @@ const AskInterval = () => {
     const createButtons = () => {
         let buttons = [];
 
-        const startExerciseButton = <Button key={"startExercise"} primary onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>;
+        const startExerciseButton = <Button key={"startExercise"} color={"green"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>;
         const changeKeyButton = <Button key={"changeKey"} primary onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("changeKey")}</Button>;
         const playNextIntervalButton = <Button key={"playNext"} color={"olive"} onClick={() => getNewInterval(isMajor, selectedTonicNote)} className={"fullWidth marginTopSmall"}>{t("playNext")}</Button>;
         const repeatIntervalButton = <Button key={"repeat"} color={"green"} onClick={() => playInterval(interval)} className={"fullWidth marginTopSmall"}>{t("repeat")}</Button>;
@@ -224,28 +219,28 @@ const AskInterval = () => {
                 {/*    {createIntervalButton("p1", t("unison"))}*/}
                 {/*</Grid.Row>*/}
                 <Grid.Row className={"exerciseRow"} columns={2}>
-                    {createIntervalButton("v2", `${t("minor")} ${t("second")}`)}
-                    {createIntervalButton("s2", `${t("major")} ${t("second")}`)}
+                    {createIntervalButton("v2", `${capitalizeFirst(t("minor"))} ${t("second")}`)}
+                    {createIntervalButton("s2", `${capitalizeFirst(t("major"))} ${t("second")}`)}
                 </Grid.Row>
                 <Grid.Row className={"exerciseRow"} columns={2}>
-                    {createIntervalButton("v3", `${t("minor")} ${t("third")}`)}
-                    {createIntervalButton("s3", `${t("major")} ${t("third")}`)}
+                    {createIntervalButton("v3", `${capitalizeFirst(t("minor"))} ${t("third")}`)}
+                    {createIntervalButton("s3", `${capitalizeFirst(t("major"))} ${t("third")}`)}
                 </Grid.Row>
                 <Grid.Row className={"exerciseRow"} columns={2}>
                     <Grid.Column/>
-                    {createIntervalButton("p4", `${t("perfect")} ${t("fourth")}`)}
+                    {createIntervalButton("p4", `${capitalizeFirst(t("perfect"))} ${t("fourth")}`)}
                 </Grid.Row>
                 <Grid.Row className={"exerciseRow"} columns={2}>
-                    {createIntervalButton("<5", `${t("diminished")} ${t("fifth")}`)}
-                    {createIntervalButton("p5", `${t("perfect")} ${t("fifth")}`)}
+                    {createIntervalButton("<5", `${capitalizeFirst(t("diminished"))} ${t("fifth")}`)}
+                    {createIntervalButton("p5", `${capitalizeFirst(t("perfect"))} ${t("fifth")}`)}
                 </Grid.Row>
                 <Grid.Row className={"exerciseRow"} columns={2}>
-                    {createIntervalButton("v6", `${t("minor")} ${t("sixth")}`)}
-                    {createIntervalButton("s6", `${t("major")} ${t("sixth")}`)}
+                    {createIntervalButton("v6", `${capitalizeFirst(t("minor"))} ${t("sixth")}`)}
+                    {createIntervalButton("s6", `${capitalizeFirst(t("major"))} ${t("sixth")}`)}
                 </Grid.Row>
                 <Grid.Row className={"exerciseRow"} columns={2}>
-                    {createIntervalButton("v7", `${t("minor")} ${t("seventh")}`)}
-                    {createIntervalButton("s7", `${t("major")} ${t("seventh")}`)}
+                    {createIntervalButton("v7", `${capitalizeFirst(t("minor"))} ${t("seventh")}`)}
+                    {createIntervalButton("s7", `${capitalizeFirst(t("major"))} ${t("seventh")}`)}
                 </Grid.Row>
                 {/*<Grid.Row className={"exerciseRow"} columns={2}>*/}
                 {/*    <Grid.Column/>*/}

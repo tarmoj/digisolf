@@ -44,6 +44,7 @@ const Notation = (props) => {
             artist2 = artist;
 
             // try handling click on canvas:
+            renderer.getContext().svg.artist = artist;
             renderer.getContext().svg.addEventListener('click', handleClick, false);
 
             const vexTab = new VexTab(artist);
@@ -58,6 +59,7 @@ const Notation = (props) => {
         const x = event.layerX / scale; // võibolla siin ka: (event.layerX - vtDiv.current.offsetLeft / X) vms
         const y =  (event.layerY - vtDiv.current.offsetTop) / scale; // was: clientX, clientY
         console.log("Click coordinates: ",x,y, event);
+        console.log("artist: ", event.currentTarget.artist);
 
 
         // AJUTINE! testi noodi sisestust:
