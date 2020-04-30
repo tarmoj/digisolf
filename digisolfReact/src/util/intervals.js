@@ -10,7 +10,7 @@ const intervalDefinitions = [
     // { shortName: ">4", longName: "augmented fourth", semitones: 6, degrees: 3 }, // vähendatud kvint?    Intervalliharjutus ei tööta nendega
     { shortName: "<5", longName: "diminished fifth", semitones: 6, degrees: 4 },
     { shortName: "p5", longName: "perfect fifth", semitones: 7, degrees: 4 },
-    // { shortName: ">5", longName: "augmented fifth", semitones: 8, degrees: 4 },  // Intervalliharjutus ei tööta nendega
+    { shortName: ">5", longName: "augmented fifth", semitones: 8, degrees: 4 },  // Intervalliharjutus ei tööta nendega - aga suurendatud kolmkõlas on vätkimatult vaja...
     { shortName: "v6", longName: "minor sixth", semitones: 8, degrees: 5 },
     { shortName: "s6", longName: "major sixth", semitones: 9, degrees: 5 },
     { shortName: "v7", longName: "minor seventh", semitones: 10, degrees: 6 },

@@ -22,7 +22,7 @@ const Notation = (props) => {
     }, []); // [] teise parameetrina tähendab, et kutsu välja ainult 1 kord
 
     useEffect(() => {
-        console.log("props.notes change");
+        console.log("props.notes change ", props.notes);
         redraw(props.notes);
     }, [props.notes]);
 
@@ -30,7 +30,7 @@ const Notation = (props) => {
     const [artist, setArtist] = useState(null);
     const [renderer, setRenderer] = useState(null);
     const [vexTab, setVexTab] = useState(null);
-    const [notesEnteredByUser, setNotesEnteredByUser] = useState("");
+    //const [notesEnteredByUser, setNotesEnteredByUser] = useState("");
     let artist2 = null;
 
 
@@ -59,12 +59,13 @@ const Notation = (props) => {
         const x = event.layerX / scale; // võibolla siin ka: (event.layerX - vtDiv.current.offsetLeft / X) vms
         const y =  (event.layerY - vtDiv.current.offsetTop) / scale; // was: clientX, clientY
         console.log("Click coordinates: ",x,y, event);
-        console.log("artist: ", event.currentTarget.artist);
+        //console.log("artist: ", event.currentTarget.artist);
+        const artist = event.currentTarget.artist;
 
 
         // AJUTINE! testi noodi sisestust:
-        if (artist2) {
-            let line = artist2.staves[0].note.getLineForY(y);
+        if (artist) {
+            let line = artist.staves[0].note.getLineForY(y);
             // find note by line
             line = Math.round(line * 2) / 2; // round to nearest 0.5
             for (let i = 0; i < trebleClefNotes.length; i++) { // TODO: use more general note set, can be also bass clef
@@ -90,129 +91,12 @@ const Notation = (props) => {
         const clefString = (props.clef) ? "clef="+props.clef+"\n" : "";
         const keyString = (props.keySignature) ? "key="+props.keySignature+"\n" : "";
         const timeString = (props.time) ?  "time="+props.time+"\n" : "";
-        const notesString = (notes) ? "\nnotes " + notes + "\n" : "";
+        const notesString = (props.notes) ? "\nnotes " + props.notes + "\n" : "";
         const endString = "\noptions space=20\n";
         const vtString = startString + clefString + keyString + timeString + notesString + endString;
-        console.log(vtString);
+        console.log("notes: ", props.notes);
         return vtString;
     };
-
-    // TEMPORARY -  need rewrite (clef, proper parsing etc)
-    const noteStringToVexTab =  (noteString) => { // input as c1 es1 ci2 -  will be converted to vextab chord for now
-        const noteNames = noteString.trim().split(" ");
-        const chordNotes = [];
-        for (let name of noteNames) {
-            const lastChar = name.charAt(name.length-1);
-            if ( !(lastChar >= '0' && lastChar <= '9' ) ) { // if octave number is not set, add 1 for 1st octave ( octave 4 in English system)
-                name += '1';
-            }
-            const note = getNoteByName(name);
-            if (note !== undefined) {
-                chordNotes.push(note);
-            } else {
-                console.log("Could not find note according to: ", name)
-            }
-        }
-        if (chordNotes.length>0) {
-            return makeVexTabChord(chordNotes);
-        } else {
-            return "";
-        }
-    };
-
-    const parseLilypondString = (lyString) => {
-        const chunks = lyString.trim().split(" ");
-        let vtNotes = "";
-        for (let i = 0; i<chunks.length; i++) {
-            if (chunks[i].trim() === "\\key" && chunks.length >= i+1 ) { // must be like "\key a \major\minor
-                console.log("key: ", chunks[i+1], chunks[i+2]);
-                //TODO: VT-s peab märkima mažoori kui minoor, leia vastav mažoor
-                // kirjaviis VT-s key=Ab, key=F#
-                i += 2;
-            } else if (chunks[i].trim() === "\\time" && chunks.length >= i+1) { // must be like "\key a \major
-                console.log("time: ", chunks[i + 1]);
-                i += 1;
-                // VT nt: time=2/4
-            } else if (chunks[i].trim() === "\\clef" && chunks.length >= i+1) {
-                console.log("clef: ", chunks[i + 1]);
-                i += 1;
-                // VT nt: clef=treble
-                //} else if  (chunks[i].trim() === "\\bar" && chunks.length >= i+1) <- handle different barlines
-            } else if     (chunks[i].trim() === "|") {
-                console.log("Barline");
-                 vtNotes += " | ";
-            } else  { // might be a note or error
-                const index = chunks[i].search(/[,'\\\d\s]/); // in lylypond one of those may follow th note: , ' digit \ whitespace or nothing
-                let noteName;
-                if (index>=0) {
-                    noteName = chunks[i].slice(0, index);
-                } else {
-                    noteName = chunks[i];
-                }
-                let vtNote = "";
-
-                if (noteName === "r") { // rest
-                    vtNote = "##";
-                } else {
-
-                    if (! noteNames.includes(noteName)) { // ERROR
-                        console.log(noteName, " is not a recognized note or keyword.");
-                        //TODO: error message for user on screen
-                        break;
-                    }
-                    console.log("noteName is: ", noteName);
-                    vtNote = noteName[0].toUpperCase();
-                    if (vtNote === "H") {
-                        vtNote = "B"; // german to Scandinavian/English B
-                    }
-
-                    if (noteName.length > 1) {
-                        let ending;
-
-                        if (["as", "es", "eses"].includes(noteName)) { // handle exceptions of the vowel notenames
-                            ending = "es";
-                        } else if ( ["ases", "eses"].includes(noteName)) {
-                            ending = "eses";
-                        } else {
-                            ending = noteName.slice(1);
-                        }
-
-                        switch (ending) {
-                            case "eses":
-                                vtNote += "@@";
-                                break;
-                            case "es":
-                                vtNote += "@";
-                                break;
-                            case "is":
-                                vtNote += "#";
-                                break;
-                            case "isis":
-                                vtNote += "##";
-                                break;
-                        }
-                    }
-
-                    //TODO: octave from relative writing
-                    let octave = "4"; // võibolla praegu: kui ' - 2. oktav, ilma -1, ,   väike... ?
-                    vtNote += "/" + octave;
-                }
-
-                // duration
-                const re = /\d+/;
-                const duration = re.exec(chunks[i]);
-                if (duration) {
-                    vtNote = ":" + duration + " " + vtNote + " ";  //` :${duration} ${vtNote}. `; // in VT duration is before note(s)
-                }
-                console.log("vtNote: ", vtNote);
-                vtNotes += vtNote;
-
-            }
-        }
-        redraw(vtNotes);
-        console.log("Parsed notes: ", vtNotes);
-    };
-
 
     const redraw = (notes) => {
         if (!vexTab) {
@@ -231,34 +115,8 @@ const Notation = (props) => {
     }
 
 
-    const renderNotes = () => {
-        //test
-        parseLilypondString(notesEnteredByUser);
-        return;
-
-        const vexTabString = noteStringToVexTab(notesEnteredByUser);
-        redraw(vexTabString);
-        dispatch(setUserEnteredNotes(vexTabString));
-        // redraw(notesEnteredByUser);
-        // dispatch(setUserEnteredNotes(notesEnteredByUser));
-    };
-
-
     return (
-        <div hidden={ props.visible ? 0 : 1}>
-            <div>
-                <Input
-                    onChange={e => {setNotesEnteredByUser(e.target.value)}}
-                    onKeyPress={ e=> { if (e.key === 'Enter') renderNotes()  }}
-                    placeholder={'nt: a c2 es2'}
-                    value={notesEnteredByUser}
-                />
-                <Button onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
-            </div>
-            <div>
-                <div ref={vtDiv} ></div>
-            </div>
-        </div>
+        <div hidden={ props.visible ? 0 : 1}  ref={vtDiv} />
     )
 };
 

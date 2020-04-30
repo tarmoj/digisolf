@@ -155,3 +155,96 @@ export const getNoteByVtNote = (vtNote, noteArray=trebleClefNotes) => {
 	return noteArray.find(note => note.vtNote === vtNote);
 };
 
+export const parseLilypondString = (lyString) => { // returns vexTabString of the notation
+	const chunks = lyString.trim().split(" ");
+	let vtNotes = "";
+	for (let i = 0; i<chunks.length; i++) {
+		if (chunks[i].trim() === "\\key" && chunks.length >= i+1 ) { // must be like "\key a \major\minor
+			console.log("key: ", chunks[i+1], chunks[i+2]);
+			//TODO: VT-s peab märkima mažoori kui minoor, leia vastav mažoor
+			// kirjaviis VT-s key=Ab, key=F#
+			i += 2;
+		} else if (chunks[i].trim() === "\\time" && chunks.length >= i+1) { // must be like "\key a \major
+			console.log("time: ", chunks[i + 1]);
+			i += 1;
+			// VT nt: time=2/4
+		} else if (chunks[i].trim() === "\\clef" && chunks.length >= i+1) {
+			console.log("clef: ", chunks[i + 1]);
+			i += 1;
+			// VT nt: clef=treble
+			//} else if  (chunks[i].trim() === "\\bar" && chunks.length >= i+1) <- handle different barlines
+		} else if     (chunks[i].trim() === "|") {
+			console.log("Barline");
+			vtNotes += " | ";
+		} else  { // might be a note or error
+			const index = chunks[i].search(/[,'\\\d\s]/); // in lylypond one of those may follow th note: , ' digit \ whitespace or nothing
+			let noteName;
+			if (index>=0) {
+				noteName = chunks[i].slice(0, index);
+			} else {
+				noteName = chunks[i];
+			}
+			let vtNote = "";
+
+			if (noteName === "r") { // rest
+				vtNote = "##";
+			} else {
+
+				if (! noteNames.includes(noteName)) { // ERROR
+					console.log(noteName, " is not a recognized note or keyword.");
+					//TODO: error message for user on screen
+					break;
+				}
+				console.log("noteName is: ", noteName);
+				vtNote = noteName[0].toUpperCase();
+				if (vtNote === "H") {
+					vtNote = "B"; // german to Scandinavian/English B
+				}
+
+				if (noteName.length > 1) {
+					let ending;
+
+					if (["as", "es", "eses"].includes(noteName)) { // handle exceptions of the vowel notenames
+						ending = "es";
+					} else if ( ["ases", "eses"].includes(noteName)) {
+						ending = "eses";
+					} else {
+						ending = noteName.slice(1);
+					}
+
+					switch (ending) {
+						case "eses":
+							vtNote += "@@";
+							break;
+						case "es":
+							vtNote += "@";
+							break;
+						case "is":
+							vtNote += "#";
+							break;
+						case "isis":
+							vtNote += "##";
+							break;
+					}
+				}
+
+				//TODO: octave from relative writing
+				let octave = "4"; // võibolla praegu: kui ' - 2. oktav, ilma -1, ,   väike... ?
+				vtNote += "/" + octave;
+			}
+
+			// duration
+			const re = /\d+/;
+			const duration = re.exec(chunks[i]);
+			if (duration) {
+				vtNote = ":" + duration + " " + vtNote + " ";  //` :${duration} ${vtNote}. `; // in VT duration is before note(s)
+			}
+			console.log("vtNote: ", vtNote);
+			vtNotes += vtNote;
+
+		}
+	}
+	console.log("Parsed notes: ", vtNotes);
+	return vtNotes;
+};
+

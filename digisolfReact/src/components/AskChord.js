@@ -1,17 +1,18 @@
 import React, { useState, useRef } from 'react';
-import {Button, Checkbox, Grid, Header} from 'semantic-ui-react'
+import {Button, Checkbox, Grid, Header, Input} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst} from "../util/util";
 import {chordDefinitions, makeVexTabChord, makeChord} from "../util/intervals";
-import {getNoteByVtNote} from "../util/notes";
+import {getNoteByName, getNoteByVtNote} from "../util/notes";
 import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import ScoreRow from "./ScoreRow";
 import Notation from "./Notation";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
-import {setUserEnteredNotes} from "../actions/exercise";
+//import {setUserEnteredNotes} from "../actions/exercise";
+
 
 
 // tüüp 1: antakse ette noot ja suund, mängitakse akord
@@ -36,7 +37,9 @@ const AskChord = () => {
     //const [notationVisible, setNotationVisible] = useState(false);
     const [useNotation, setUseNotation] = useState(true);
 
-    const userEnteredNotes = useSelector(state => state.exerciseReducer.userEnteredNotes);
+    const [notesEnteredByUser, setNotesEnteredByUser] = useState(""); // test
+
+    //const userEnteredNotes = useSelector(state => state.exerciseReducer.userEnteredNotes);
 
     // siin pole kõik noodid, sest duubel-dieesid/bemollid pole veel kirjeldatud (va heses testiks)
     // kui ehitada alla, siis peaks olema ilmselt teine valik
@@ -106,7 +109,7 @@ const AskChord = () => {
         } else {
             setVexTabChord(":4 (" + chordNotes[chordNotes.length-1].vtNote + ")$.top." + capitalizeFirst(t("down")) + "$"); // upper note, last one in the array
         }
-        setUserEnteredNotes("");
+        //setUserEnteredNotes("");
 
         play(selectedChord, midiNote);
 
@@ -128,9 +131,9 @@ const AskChord = () => {
         // show correct notation next to entered notation
 
         let correct = false;
-        console.log("User eneter notes: ", userEnteredNotes, chordNotes)
+        console.log("User eneter notes: ", vexTabChord, chordNotes)
 
-        if (userEnteredNotes === makeVexTabChord(chordNotes) ) {
+        if (vexTabChord === makeVexTabChord(chordNotes) ) {
             console.log("Notes are correct");
             correct = true;
         } else {
@@ -138,7 +141,7 @@ const AskChord = () => {
             correct = false;
         }
 
-        setVexTabChord( userEnteredNotes  +  " =|| " + makeVexTabChord(chordNotes) ); // double bar in between
+        setVexTabChord( vexTabChord  +  " =|| " + makeVexTabChord(chordNotes) ); // double bar in between
         return correct;
     }
 
@@ -257,14 +260,51 @@ const AskChord = () => {
         )
     };
 
+    // TEMPORARY -  need rewrite (clef, proper parsing etc)
+    const noteStringToVexTabChord =  (noteString) => { // input as c1 es1 ci2 -  will be converted to vextab chord for now
+        const noteNames = noteString.trim().split(" ");
+        const chordNotes = [];
+        for (let name of noteNames) {
+            const lastChar = name.charAt(name.length-1);
+            if ( !(lastChar >= '0' && lastChar <= '9' ) ) { // if octave number is not set, add 1 for 1st octave ( octave 4 in English system)
+                name += '1';
+            }
+            const note = getNoteByName(name);
+            if (note !== undefined) {
+                chordNotes.push(note);
+            } else {
+                console.log("Could not find note according to: ", name)
+            }
+        }
+        if (chordNotes.length>0) {
+            return makeVexTabChord(chordNotes);
+        } else {
+            return "";
+        }
+    };
+
+    const renderNotes = () => {
+         const vexTabString = noteStringToVexTabChord(notesEnteredByUser);
+        //dispatch(setUserEnteredNotes(vexTabString));
+        setVexTabChord(vexTabString);
+    };
+
 
     return (
         <div>
             <Header size='large'>{`${t(name)} `}</Header>
             {/*Vaja rida juhiseks (exerciseDescriptio). div selleks ilmselt kehv, sest kattub teistega...*/}
-            <div className={"marginTop"}>TEST JUHIS: Sisesta noodid (nt. a c2 e2) ning klõpsa seejärel vasta akordi nupule</div>
-
-            <Notation  className={"marginTopSmall"} notes={vexTabChord} width={200} visible={useNotation} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
+            <div hidden={!useNotation}>
+                <div className={"marginTop"}>TEST JUHIS: Sisesta noodid (nt. a c2 e2) ning klõpsa seejärel vasta akordi nupule</div>
+                <Input
+                    onChange={e => {setNotesEnteredByUser(e.target.value)}}
+                    onKeyPress={ e=> { if (e.key === 'Enter') renderNotes()  }}
+                    placeholder={'nt: a c2 es2'}
+                    value={notesEnteredByUser}
+                />
+                <Button onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
+                <Notation  className={"marginTopSmall"} notes={vexTabChord} width={200} visible={useNotation} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
+            </div>
             <Grid>
                 <Checkbox toggle
                           label={"Noteeri"}
