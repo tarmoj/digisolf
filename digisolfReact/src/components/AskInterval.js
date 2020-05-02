@@ -6,7 +6,7 @@ import {setComponent} from "../actions/component";
 import MainMenu from "./MainMenu";
 import {violinClefNotes} from "../util/notes";
 import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst} from "../util/util";
-import {getInterval} from "../util/intervals";
+import {getInterval, simplifyIfAugmentedIntervals} from "../util/intervals";
 import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
@@ -138,7 +138,7 @@ const AskInterval = () => {
             // const correctInterval = getIntervalTranslation(interval.interval.longName);
             setIntervalButtonsClicked(intervalButtonsClicked.concat([answer]));
 
-            if (answer === interval.interval.shortName) {
+            if (answer === simplifyIfAugmentedIntervals(interval.interval.shortName)) {
                 // dispatch(setPositiveMessage(`${t("correctAnswerIs")} ${correctInterval}`, 5000));
                 getNewInterval(isMajor, selectedTonicNote);
 
