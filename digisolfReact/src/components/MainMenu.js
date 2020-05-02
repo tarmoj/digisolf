@@ -3,7 +3,7 @@ import {Button, Grid, Header} from 'semantic-ui-react'
 import {useDispatch} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {setComponent} from "../actions/component";
-import {setIsHarmonic, setName, setCents} from "../actions/exercise";
+import {setName, setCents} from "../actions/exercise";
 import {capitalizeFirst} from "../util/util";
 
 const MainMenu = () => {
@@ -34,6 +34,7 @@ const MainMenu = () => {
                     <Header size='large'>{t("intervals")}</Header>
                     <Button className={"mainMenuBtn"} onClick={() => startIntervalExercise("tonicTriad")}>{capitalizeFirst(t("tonicTriad"))}</Button><br/>
                     <Button className={"marginTopSmall mainMenuBtn"} onClick={() => startIntervalExercise("tonicAllScaleDegrees")}>{capitalizeFirst(t("tonicAllScaleDegrees"))}</Button><br/>
+                    <Button className={"marginTopSmall mainMenuBtn"} onClick={() => startIntervalExercise("allScaleDegrees")}>{capitalizeFirst(t("allScaleDegrees"))}</Button><br/>
                 </Grid.Column>
                 <Grid.Column>
                     <div>

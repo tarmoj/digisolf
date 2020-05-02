@@ -131,12 +131,10 @@ export const makeVexTabChord = (noteArray) => { // noteArray - array of type pos
 };
 
 export const simplifyIfAugmentedIntervals = (interval) => {
-    if (interval.semitones === 6) {
-        const diminishedFifth = intervalDefinitions.find(interval => interval.shortName === "<5");
-        return diminishedFifth;
-    } else if (interval.semitones === 8) {
-        const minorSixth = intervalDefinitions.find(interval => interval.shortName === "v6");
-        return minorSixth;
+    if (interval === ">4") {
+        return "<5";
+    } else if (interval === ">5") {
+        return "v6";
     }
 
     return interval;

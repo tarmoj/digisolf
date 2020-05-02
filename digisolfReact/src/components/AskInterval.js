@@ -18,7 +18,7 @@ const AskInterval = () => {
     const dispatch = useDispatch();
 
     const isHarmonic = useSelector(state => state.exerciseReducer.isHarmonic);
-    const name = useSelector(state => state.exerciseReducer.name);
+    const exerciseName = useSelector(state => state.exerciseReducer.name);
 
     const midiSounds = useRef(null);
 
@@ -44,8 +44,6 @@ const AskInterval = () => {
             newSelectedTonicNote = getRandomElementFromArray(tonicNotes);
         }
 
-        console.log(tonicNote, isMajor ? "major" : "minor");
-
         midiSounds.current.setMasterVolume(0.4); // not too loud TODO: add control slider
         getNewInterval(isMajor, newSelectedTonicNote);
     };
@@ -54,10 +52,25 @@ const AskInterval = () => {
         setIsMajor(isMajor);
         setSelectedTonicNote(selectedTonicNote);
 
-        const secondNote = getSecondNote(selectedTonicNote, violinClefNotes);
-        const newInterval = getInterval(selectedTonicNote, secondNote);
-        console.log("Played interval short name:", newInterval.interval.shortName);
-        console.log("Played interval:", newInterval.interval);
+        let firstNote;
+        let possibleSecondNotes;
+        if (exerciseName === "allScaleDegrees") {
+            firstNote = getRandomNoteInKey(selectedTonicNote);
+            possibleSecondNotes = violinClefNotes.filter(note =>
+                Math.abs(note.midiNote - firstNote.midiNote) < 12 &&    // Interval is less than octave
+                note.midiNote !== firstNote.midiNote)                      // Interval is not unison
+        } else {
+            firstNote = selectedTonicNote;
+            possibleSecondNotes = violinClefNotes;
+        }
+
+        const secondNote = getSecondNote(selectedTonicNote, possibleSecondNotes);
+        const newInterval = getInterval(firstNote, secondNote);
+
+        console.log("Key:", selectedTonicNote.vtNote, isMajor ? "major" : "minor");
+        console.log("Note1", firstNote.vtNote);
+        console.log("Note2", secondNote.vtNote);
+        console.log("Played interval:", newInterval.interval.shortName);
         setInterval(newInterval);
 
         playInterval(newInterval);
@@ -70,7 +83,6 @@ const AskInterval = () => {
                 playNote(interval.note2.midiNote, 0, 2);
             } else {
                 playNote(interval.note1.midiNote, 0, 1);
-                // playNote(interval.note2.midiNote, 3, 2);
                 playNote(interval.note2.midiNote, 1, 1); // start sekundites
             }
         }, 300);    // Short user-friendly delay before start
@@ -104,14 +116,35 @@ const AskInterval = () => {
 
     const getRandomMidiDifference = () => {
         let possibleDifferences;
-        if (name === "tonicTriad") {
+        if (exerciseName === "tonicTriad") {
             possibleDifferences = getPossibleTriadNoteMidiDifferences();
-        } else if (name === "tonicAllScaleDegrees") {
+        } else if (exerciseName === "tonicAllScaleDegrees" || exerciseName === "allScaleDegrees") {
             possibleDifferences = getPossibleScaleNoteMidiDifferences();
         }
 
         return getRandomElementFromArray(possibleDifferences);
     };
+
+    const getRandomNoteInKey = (tonicNote) => {
+        let note;
+        while (note === undefined) {
+            const possibleSemitoneDifferences = getPossibleScaleNoteMidiDifferences().concat([0]);   // Include tonic note
+            const semiToneDifferenceFromTonicNote = getRandomElementFromArray(possibleSemitoneDifferences);
+            const noteMidiValue = tonicNote.midiNote + semiToneDifferenceFromTonicNote;
+            note = violinClefNotes.find(note => note.midiNote === noteMidiValue);
+        }
+
+        return note;
+    };
+
+    // const getRandomSemitoneDifference = (maxDifference, includeNegative = true) => {
+    //     let differenceInSemitones = Math.floor(Math.random() * maxDifference) + 1;
+    //     if (includeNegative) {
+    //         differenceInSemitones *= Math.floor(Math.random() * 2) === 1 ? 1 : -1;
+    //     }
+    //
+    //     return differenceInSemitones;
+    // };
 
     const getPossibleTriadNoteMidiDifferences = () => {
         return isMajor ? [4, 7, -5, -8] : [3, 7, -5, -9];
@@ -211,7 +244,7 @@ const AskInterval = () => {
 
     return (
         <div>
-            <Header size='large'>{`${t("setInterval")} ${t(name)} - ${getExerciseType()}`}</Header>
+            <Header size='large'>{`${t("setInterval")} ${t(exerciseName)} - ${getExerciseType()}`}</Header>
             <Grid>
                 <ScoreRow showRadioButtons={true}/>
                 {/*<Grid.Row className={"exerciseRow"} columns={2}>*/}
