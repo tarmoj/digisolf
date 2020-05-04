@@ -42,7 +42,6 @@ const Notation = (props) => {
         if (renderer !== null) {
             redraw();
         }
-        console.log("props.notes change ", props.notes);
     }, [renderer]);
 
 
