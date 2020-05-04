@@ -5,6 +5,7 @@ import HeaderMessage from "./components/HeaderMessage";
 import AskInterval from "./components/AskInterval";
 import AskChord from "./components/AskChord";
 import AskIntonation from "./components/AskIntonation";
+import AskDictation from "./components/AskDictation";
 import MainMenu from "./components/MainMenu";
 import AppFooter from "./components/AppFooter";
 import LanguageSelect from "./components/LanguageSelect";
@@ -23,6 +24,8 @@ function App() {
                 return <AskInterval/>;
             case "AskChord":
                 return <AskChord/>;
+            case "AskDictation":
+                return <AskDictation/>;
             case "AskIntonation":
                 return <AskIntonation/>;
             default:

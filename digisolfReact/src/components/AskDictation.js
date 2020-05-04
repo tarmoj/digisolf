@@ -3,8 +3,8 @@ import {Button, Checkbox, Grid, Header, Input} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst} from "../util/util";
-import {chordDefinitions, makeVexTabChord, makeChord} from "../util/intervals";
-import {getNoteByName, getNoteByVtNote} from "../util/notes";
+//import {makeVexTabChord} from "../util/intervals";
+import {getNoteByName, parseLilypondString} from "../util/notes";
 //import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import ScoreRow from "./ScoreRow";
@@ -26,6 +26,7 @@ const AskDictation = () => {
     const [answered, setAnswered] = useState(false);
 
     const [notesEnteredByUser, setNotesEnteredByUser] = useState(""); // test
+    const [vexTabNotes, setVexTabNotes] = useState(":4 C/4");
 
     // diktaatide definitsioonid võibolla eraldi failis.
     // kas notatsioon Lilypond või VT? pigem lilypond sest import musicXML-st lihtsam
@@ -78,7 +79,7 @@ const AskDictation = () => {
         const answer = {notation: selectedDictation.notation};  // võibolla mõtekas vaja võti, helistik ja taktimõõt eralid väljadena
         setAnswer(answer);
 
-        playSoundFile(dictation.)
+        playSoundFile(dictation.soundFile);
 
     };
 
@@ -146,7 +147,7 @@ const AskDictation = () => {
                         <Button color={"green"} onClick={() => renew(0)} className={"fullWidth marginTopSmall"} >{t("playNext")}</Button>
                     </Grid.Column>
                     <Grid.Column>
-                        <Button onClick={() => play(selectedDictation.soundFile)} className={"fullWidth marginTopSmall"}  >{t("repeat")}</Button>
+                        <Button onClick={() => playSoundFile(selectedDictation.soundFile)} className={"fullWidth marginTopSmall"}  >{t("repeat")}</Button>
                     </Grid.Column>
                 </Grid.Row>
 
@@ -162,51 +163,19 @@ const AskDictation = () => {
         }
     };
 
-    const createResponseButtonColumn = (chord) => {
-        return (
-            <Grid.Column>
-                <Button className={"fullWidth marginTopSmall" /*<- kuvab ok. oli: "exerciseBtn"*/}
-                        onClick={() => checkResponse({shortName: chord.shortName})}>{ capitalizeFirst( t(chord.longName) )}</Button>
-            </Grid.Column>
-        )
-    };
 
-    // TEMPORARY -  need rewrite (clef, proper parsing etc)
-    const noteStringToVexTabChord =  (noteString) => { // input as c1 es1 ci2 -  will be converted to vextab chord for now
-        const noteNames = noteString.trim().split(" ");
-        const chordNotes = [];
-        for (let name of noteNames) {
-            const lastChar = name.charAt(name.length-1);
-            if ( !(lastChar >= '0' && lastChar <= '9' ) ) { // if octave number is not set, add 1 for 1st octave ( octave 4 in English system)
-                name += '1';
-            }
-            const note = getNoteByName(name);
-            if (note !== undefined) {
-                chordNotes.push(note);
-            } else {
-                console.log("Could not find note according to: ", name)
-            }
-        }
-        if (chordNotes.length>0) {
-            return makeVexTabChord(chordNotes);
-        } else {
-            return "";
-        }
-    };
+
 
     const renderNotes = () => {
-         const vexTabString = noteStringToVexTabChord(notesEnteredByUser);
-        //dispatch(setUserEnteredNotes(vexTabString));
-        setVexTabChord(vexTabString);
+        const vexTabString = parseLilypondString(notesEnteredByUser);//  noteStringToVexTabChord(notesEnteredByUser);
+        setVexTabNotes(vexTabString);
     };
 
 
     return (
         <div>
             <Header size='large'>{`${t(name)} `}</Header>
-            {/*Vaja rida juhiseks (exerciseDescriptio). div selleks ilmselt kehv, sest kattub teistega...*/}
-            <div hidden={!useNotation}>
-                <div className={"marginTop"}>TEST JUHIS: Sisesta noodid (nt. a c2 e2) ning klõpsa seejärel vasta akordi nupule</div>
+            <div>
                 <Input
                     onChange={e => {setNotesEnteredByUser(e.target.value)}}
                     onKeyPress={ e=> { if (e.key === 'Enter') renderNotes()  }}
@@ -214,33 +183,26 @@ const AskDictation = () => {
                     value={notesEnteredByUser}
                 />
                 <Button onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
-                <Notation  className={"marginTopSmall"} notes={vexTabChord} width={200} visible={useNotation} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
+                <Notation  className={"marginTopSmall"} notes={vexTabNotes} width={600} scale={1} visible={true}/*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
+                <Button className={"fullWidth marginTopSmall" /*<- kuvab ok. oli: "exerciseBtn"*/}
+                        onClick={() => checkResponse({userInput:"c d e" })}>{ "Valmis"}</Button>
             </div>
             <Grid>
-                <Checkbox toggle
-                          label={"Noteeri"}
-                          defaultChecked={true}
-                          className={"/*floatLeft */marginTop"}
-                          onChange={ (e, {checked}) => setUseNotation(checked) }
-                />
                 <ScoreRow/>
 
                 {createPlaySoundButton()}
                 <Grid.Column>
-                    <Button className={"fullWidth marginTopSmall" /*<- kuvab ok. oli: "exerciseBtn"*/}
-                            onClick={() => checkResponse({shortName: chord.shortName})}>{ "Valmis)"}</Button>
+
                 </Grid.Column>
                 <Grid.Row>
                     <Grid.Column>
-
                         <GoBackToMainMenuBtn/>
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
-            <MIDISounds ref={midiSounds} appElementName="root" instruments={[3]} />
         </div>
 
     );
 };
 
-export default AskChord;
+export default AskDictation;

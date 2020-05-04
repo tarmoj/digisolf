@@ -1,20 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Artist, VexTab, Flow} from 'vextab/releases/vextab-div'
-import {useTranslation} from "react-i18next"
-import {Input, Button} from "semantic-ui-react";
-import {useDispatch} from "react-redux";
-import {setUserEnteredNotes} from "../actions/exercise";
-import {makeVexTabChord} from "../util/intervals";
-import {getNoteByName, trebleClefNotes, noteNames} from "../util/notes";
-import {capitalizeFirst} from "../util/util";
+import {trebleClefNotes} from "../util/notes";
 
 
 const Notation = (props) => {
-    const dispatch = useDispatch();
-    const { t, i18n } = useTranslation();
-
-    // sellel siin vist pole mõtet... Püüdsin props-dele panna vaikeväärtusi, aga ilmselt mitte nii.
-    let { width = 600, scale = 0.8, notes = '', clef = '', time = '', keySignature = '' } = props;
+   // sellel siin vist pole mõtet... Püüdsin props-dele panna vaikeväärtusi, aga ilmselt mitte nii.
+    let { width = 600, scale = 0.8, notes = ':4 C/4', clef = 'treble', time = '', keySignature = '', visible = true } = props;
 
     useEffect(() => {
         console.log("First run");
@@ -23,15 +14,20 @@ const Notation = (props) => {
 
     useEffect(() => {
         console.log("props.notes change ", props.notes);
-        redraw(props.notes);
+        if (vexTab) {
+            redraw(props.notes);
+        } else {
+            console.log("VexTab not created!");
+        }
     }, [props.notes]);
 
     const vtDiv = useRef(null);
     const [artist, setArtist] = useState(null);
     const [renderer, setRenderer] = useState(null);
     const [vexTab, setVexTab] = useState(null);
-    //const [notesEnteredByUser, setNotesEnteredByUser] = useState("");
-    let artist2 = null;
+    // let artist2 = null;
+    // let vextab2 = null;
+    // let renderer2 = null;
 
 
     const vexTabInit = () => {
@@ -41,11 +37,10 @@ const Notation = (props) => {
             const width = (props.width) ? props.width : 600;
             const scale = (props.scale) ? props.scale : 0.8;
             const artist = new Artist(10, 10, width, {scale: scale}); // x and y hardcoded for now...
-            artist2 = artist;
 
             // try handling click on canvas:
-            renderer.getContext().svg.artist = artist;
-            renderer.getContext().svg.addEventListener('click', handleClick, false);
+            // renderer.getContext().svg.artist = artist;
+            // renderer.getContext().svg.addEventListener('click', handleClick, false);
 
             const vexTab = new VexTab(artist);
             setRenderer(renderer);
@@ -91,10 +86,10 @@ const Notation = (props) => {
         const clefString = (props.clef) ? "clef="+props.clef+"\n" : "";
         const keyString = (props.keySignature) ? "key="+props.keySignature+"\n" : "";
         const timeString = (props.time) ?  "time="+props.time+"\n" : "";
-        const notesString = (props.notes) ? "\nnotes " + props.notes + "\n" : "";
+        const notesString =  (notes) ? "\nnotes " + notes + "\n" : "";
         const endString = "\noptions space=20\n";
         const vtString = startString + clefString + keyString + timeString + notesString + endString;
-        console.log("notes: ", props.notes);
+        //console.log (vtString);
         return vtString;
     };
 
@@ -110,14 +105,14 @@ const Notation = (props) => {
             vexTab.parse( createVexTabString(notes) );
             artist.render(renderer);
         } catch (e) {
-            console.log(e);
+            console.log("Error in rendering VT score: ", e);
         }
-    }
+    };
 
-
+    // div hidden does not work, find a way to hide other way, since vtDiv must be accessible
     return (
-        <div hidden={ props.visible ? 0 : 1}  ref={vtDiv} />
-    )
+        <div hidden={visible ? 0 : 1} ref={vtDiv} /*onClick={handleClick}*/ />
+    );
 };
 
 export default Notation;

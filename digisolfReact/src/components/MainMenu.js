@@ -20,6 +20,12 @@ const MainMenu = () => {
         dispatch(setComponent("AskChord"));
     };
 
+    const startDictation = (name) => {
+        dispatch(setName(name));
+        dispatch(setComponent("AskDictation"));
+        console.log("Start dictation");
+    };
+
     const startIntonation = (name, cents) => {
         dispatch(setName(name));
         dispatch(setCents(cents));
@@ -46,6 +52,9 @@ const MainMenu = () => {
             <Grid.Row columns={2}>
                 <Grid.Column>
                     <Header size='large'>{t("dictations")}</Header>
+                    {/*siia oleks vaja teha tegelikult Dropdown sorti menüü*/}
+                    <Button className={"marginTopSmall mainMenuBtn"} onClick={() => startDictation("1")}>{t("1")}</Button><br/>
+
                 </Grid.Column>
                 <Grid.Column>
                     <div>
