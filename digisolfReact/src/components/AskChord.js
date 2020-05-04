@@ -35,7 +35,7 @@ const AskChord = () => {
     const [vexTabChord, setVexTabChord] = useState("");
     const [chordNotes, setChordNotes] = useState([]);
     //const [notationVisible, setNotationVisible] = useState(false);
-    const [useNotation, setUseNotation] = useState(true);
+    const [useNotation, setUseNotation] = useState(false);
 
     const [notesEnteredByUser, setNotesEnteredByUser] = useState(""); // test
 
@@ -260,13 +260,36 @@ const AskChord = () => {
         )
     };
 
+    const createNotationBlock = () => {
+        if (useNotation) {
+            return (
+            <div hidden={!useNotation && !exerciseHasBegun}>
+                <div className={"marginTop"}>Sisesta noodid (nt. a c' es') ning klõpsa seejärel vasta akordi nupule</div>
+                <Input
+                    onChange={e => {setNotesEnteredByUser(e.target.value)}}
+                    onKeyPress={ e=> { if (e.key === 'Enter') renderNotes()  }}
+                    placeholder={'nt: a c\' es\''}
+                    value={notesEnteredByUser}
+                />
+                <Button onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
+                <Notation  className={"marginTopSmall"} notes={vexTabChord} width={200} visible={true} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
+            </div>
+            );
+        } else {
+            return null;
+        }
+    }
+
     // TEMPORARY -  need rewrite (clef, proper parsing etc)
     const noteStringToVexTabChord =  (noteString) => { // input as c1 es1 ci2 -  will be converted to vextab chord for now
         const noteNames = noteString.trim().split(" ");
         const chordNotes = [];
         for (let name of noteNames) {
             const lastChar = name.charAt(name.length-1);
-            if ( !(lastChar >= '0' && lastChar <= '9' ) ) { // if octave number is not set, add 1 for 1st octave ( octave 4 in English system)
+            // better use regexp in future
+            if (lastChar === "\'") { // sign for 2nd octava for now add 2 to notename
+                name = name.slice(0, -1) + "2";
+            } else if  ( !(lastChar >= '0' && lastChar <= '9' ) ) { // if octave number is not set, add 1 for 1st octave ( octave 4 in English system)
                 name += '1';
             }
             const note = getNoteByName(name);
@@ -293,27 +316,17 @@ const AskChord = () => {
     return (
         <div>
             <Header size='large'>{`${t(name)} `}</Header>
-            {/*Vaja rida juhiseks (exerciseDescriptio). div selleks ilmselt kehv, sest kattub teistega...*/}
-            <div hidden={!useNotation}>
-                <div className={"marginTop"}>TEST JUHIS: Sisesta noodid (nt. a c2 e2) ning klõpsa seejärel vasta akordi nupule</div>
-                <Input
-                    onChange={e => {setNotesEnteredByUser(e.target.value)}}
-                    onKeyPress={ e=> { if (e.key === 'Enter') renderNotes()  }}
-                    placeholder={'nt: a c2 es2'}
-                    value={notesEnteredByUser}
-                />
-                <Button onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
-                <Notation  className={"marginTopSmall"} notes={vexTabChord} width={200} visible={useNotation} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
-            </div>
+
             <Grid>
                 <Checkbox toggle
                           label={"Noteeri"}
-                          defaultChecked={true}
+                          defaultChecked={false}
                           className={"/*floatLeft */marginTop"}
                           onChange={ (e, {checked}) => setUseNotation(checked) }
                 />
                 <ScoreRow/>
-
+                {/*Vaja rida juhiseks (exerciseDescriptio). div selleks ilmselt kehv, sest kattub teistega...*/}
+                {createNotationBlock()}
                 {createResponseButtons()}
                 {createPlaySoundButton()}
                 <Grid.Row>

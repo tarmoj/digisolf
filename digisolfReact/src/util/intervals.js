@@ -111,7 +111,7 @@ export const makeChord = (baseNote, shortName, direction="up", possibleNotes = n
 // makeVexTabChord -  sorts given noteArray and return chord in vextab notation
 export const makeVexTabChord = (noteArray) => { // noteArray - array of type possibleNotes, to have midiNotes to sort those
     // sort, return vtString (<note>.<note>.<et>)
-    if (noteArray.length<2) {
+    if (noteArray.length<1) {
         console.log("Not enough notes for chord");
         return "";
     }

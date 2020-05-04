@@ -111,7 +111,7 @@ const Notation = (props) => {
 
     // div hidden does not work, find a way to hide other way, since vtDiv must be accessible
     return (
-        <div hidden={visible ? 0 : 1} ref={vtDiv} /*onClick={handleClick}*/ />
+        <div /*hidden={visible ? 0 : 1}*/ ref={vtDiv} /*onClick={handleClick}*/ />
     );
 };
 
