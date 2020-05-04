@@ -61,5 +61,6 @@
   "notation": "noodistus",
   "chord": "akord",
   "tonicAllScaleDegrees": "põhihelilt kõikidele astmetele",
-  "setInterval": "Intervalli määramine"
+  "setInterval": "Intervalli määramine",
+  "allScaleDegrees": "Helistikus kõikide astmete vahel"
 }

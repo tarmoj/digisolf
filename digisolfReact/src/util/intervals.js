@@ -7,10 +7,10 @@ const intervalDefinitions = [
     { shortName: "v3", longName: "minor third", semitones: 3, degrees: 2 },
     { shortName: "s3", longName: "major third", semitones: 4, degrees: 2 },
     { shortName: "p4", longName: "perfect fourth", semitones: 5, degrees: 3 },
-    // { shortName: ">4", longName: "augmented fourth", semitones: 6, degrees: 3 }, // vähendatud kvint?    Intervalliharjutus ei tööta nendega
+    { shortName: ">4", longName: "augmented fourth", semitones: 6, degrees: 3 },
     { shortName: "<5", longName: "diminished fifth", semitones: 6, degrees: 4 },
     { shortName: "p5", longName: "perfect fifth", semitones: 7, degrees: 4 },
-    { shortName: ">5", longName: "augmented fifth", semitones: 8, degrees: 4 },  // Intervalliharjutus ei tööta nendega - aga suurendatud kolmkõlas on vätkimatult vaja...
+    { shortName: ">5", longName: "augmented fifth", semitones: 8, degrees: 4 },
     { shortName: "v6", longName: "minor sixth", semitones: 8, degrees: 5 },
     { shortName: "s6", longName: "major sixth", semitones: 9, degrees: 5 },
     { shortName: "v7", longName: "minor seventh", semitones: 10, degrees: 6 },
@@ -128,4 +128,14 @@ export const makeVexTabChord = (noteArray) => { // noteArray - array of type pos
     vtString += ")";
     //console.log("Sorted chord: ", vtString);
     return vtString;
+};
+
+export const simplifyIfAugmentedIntervals = (interval) => {
+    if (interval === ">4") {
+        return "<5";
+    } else if (interval === ">5") {
+        return "v6";
+    }
+
+    return interval;
 };
