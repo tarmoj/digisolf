@@ -78,7 +78,7 @@ const AskDictation = () => {
         const answer = {notation: selectedDictation.notation};  // võibolla mõtekas vaja võti, helistik ja taktimõõt eralid väljadena
         setAnswer(answer);
 
-        playSoundFile(dictation.)
+        playSoundFile(dictation)
 
     };
 

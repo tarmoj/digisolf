@@ -14,7 +14,17 @@ const Notation = (props) => {
     const { t, i18n } = useTranslation();
 
     // sellel siin vist pole mõtet... Püüdsin props-dele panna vaikeväärtusi, aga ilmselt mitte nii.
-    let { width = 600, scale = 0.8, notes = '', clef = '', time = '', keySignature = '' } = props;
+    // let { width = 600, scale = 0.8, notes = '', clef = '', time = '', keySignature = '' } = props;
+
+    const width = (props.width) ? props.width : 600;
+    const scale = (props.scale) ? props.scale : 0.8;
+
+    const vtDiv = useRef(null);
+    const [artist, setArtist] = useState(new Artist(10, 10, width, {scale: scale}));
+    const [renderer, setRenderer] = useState(null);
+    const [vexTab, setVexTab] = useState(new VexTab(artist));
+    //const [notesEnteredByUser, setNotesEnteredByUser] = useState("");
+    let artist2 = null;
 
     useEffect(() => {
         console.log("First run");
@@ -22,36 +32,31 @@ const Notation = (props) => {
     }, []); // [] teise parameetrina tähendab, et kutsu välja ainult 1 kord
 
     useEffect(() => {
+        if (props.notes !== "") {
+            redraw(props.notes);
+        }
         console.log("props.notes change ", props.notes);
-        redraw(props.notes);
     }, [props.notes]);
 
-    const vtDiv = useRef(null);
-    const [artist, setArtist] = useState(null);
-    const [renderer, setRenderer] = useState(null);
-    const [vexTab, setVexTab] = useState(null);
-    //const [notesEnteredByUser, setNotesEnteredByUser] = useState("");
-    let artist2 = null;
+    useEffect(() => {
+        if (renderer !== null) {
+            redraw();
+        }
+        console.log("props.notes change ", props.notes);
+    }, [renderer]);
 
 
     const vexTabInit = () => {
         console.log("**** VexTab INIT ****");
-        if (!vexTab) {
+        // if (!vexTab) {
             const renderer = new Flow.Renderer(vtDiv.current, Flow.Renderer.Backends.SVG);
-            const width = (props.width) ? props.width : 600;
-            const scale = (props.scale) ? props.scale : 0.8;
-            const artist = new Artist(10, 10, width, {scale: scale}); // x and y hardcoded for now...
-            artist2 = artist;
-
             // try handling click on canvas:
             renderer.getContext().svg.artist = artist;
             renderer.getContext().svg.addEventListener('click', handleClick, false);
 
-            const vexTab = new VexTab(artist);
             setRenderer(renderer);
-            setArtist(artist);
-            setVexTab(vexTab);
-        }
+            artist2 = artist;
+        // }
 
     };
 
@@ -112,7 +117,7 @@ const Notation = (props) => {
         } catch (e) {
             console.log(e);
         }
-    }
+    };
 
 
     return (
