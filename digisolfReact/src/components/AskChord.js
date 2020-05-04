@@ -263,7 +263,7 @@ const AskChord = () => {
     const createNotationBlock = () => {
         if (useNotation) {
             return (
-            <div hidden={!useNotation && !exerciseHasBegun}>
+            <div>
                 <div className={"marginTop"}>Sisesta noodid (nt. a c' es') ning klõpsa seejärel vasta akordi nupule</div>
                 <Input
                     onChange={e => {setNotesEnteredByUser(e.target.value)}}

@@ -11,6 +11,7 @@ import ScoreRow from "./ScoreRow";
 import Notation from "./Notation";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
+import Sound from 'react-sound';
 
 
 const AskDictation = () => {
@@ -27,6 +28,7 @@ const AskDictation = () => {
 
     const [notesEnteredByUser, setNotesEnteredByUser] = useState(""); // test
     const [vexTabNotes, setVexTabNotes] = useState(":4 C/4");
+
 
     // diktaatide definitsioonid võibolla eraldi failis.
     // kas notatsioon Lilypond või VT? pigem lilypond sest import musicXML-st lihtsam
@@ -64,6 +66,7 @@ const AskDictation = () => {
         // võibolla: setDictationType?
         //const dictationIndex = -1;
         //renew(dictationIndex);
+        renderNotes();
 
     };
 
@@ -171,7 +174,6 @@ const AskDictation = () => {
         setVexTabNotes(vexTabString);
     };
 
-
     return (
         <div>
             <Header size='large'>{`${t(name)} `}</Header>
@@ -183,7 +185,7 @@ const AskDictation = () => {
                     value={notesEnteredByUser}
                 />
                 <Button onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
-                <Notation  className={"marginTopSmall"} notes={vexTabNotes} width={600} scale={1} visible={true}/*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
+                <Notation  className={"marginTopSmall"} notes={vexTabNotes} width={600} scale={1} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
                 <Button className={"fullWidth marginTopSmall" /*<- kuvab ok. oli: "exerciseBtn"*/}
                         onClick={() => checkResponse({userInput:"c d e" })}>{ "Valmis"}</Button>
             </div>
@@ -191,6 +193,11 @@ const AskDictation = () => {
                 <ScoreRow/>
 
                 {createPlaySoundButton()}
+                <Sound
+                    url="../sounds/dictations/1a.mp3"
+                    playStatus={Sound.status.PLAYING}
+                    playFromPosition={300 /* in milliseconds */}
+                />
                 <Grid.Column>
 
                 </Grid.Column>

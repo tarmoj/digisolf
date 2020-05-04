@@ -21,6 +21,7 @@ const Notation = (props) => {
         }
     }, [props.notes]);
 
+
     const vtDiv = useRef(null);
     const [artist, setArtist] = useState(null);
     const [renderer, setRenderer] = useState(null);
