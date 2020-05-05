@@ -4,8 +4,17 @@ import {trebleClefNotes} from "../util/notes";
 
 
 const Notation = (props) => {
-   // sellel siin vist pole mõtet... Püüdsin props-dele panna vaikeväärtusi, aga ilmselt mitte nii.
-    let { width = 600, scale = 0.8, notes = ':4 C/4', clef = 'treble', time = '', keySignature = '', visible = true } = props;
+    // sellel siin vist pole mõtet... Püüdsin props-dele panna vaikeväärtusi, aga ilmselt mitte nii.
+    // let { width = 600, scale = 0.8, notes = '', clef = '', time = '', keySignature = '' } = props;
+
+    const width = (props.width) ? props.width : 600;
+    const scale = (props.scale) ? props.scale : 0.8;
+
+    const vtDiv = useRef(null);
+    const artist = new Artist(10, 10, width, {scale: scale});
+    const [renderer, setRenderer] = useState(null);
+    //let renderer = null;
+    const vexTab = new VexTab(artist);
 
     useEffect(() => {
         console.log("First run");
@@ -13,41 +22,30 @@ const Notation = (props) => {
     }, []); // [] teise parameetrina tähendab, et kutsu välja ainult 1 kord
 
     useEffect(() => {
-        console.log("props.notes change ", props.notes);
-        if (vexTab) {
+        if (props.notes !== "") {
             redraw(props.notes);
-        } else {
-            console.log("VexTab not created!");
         }
+        console.log("props.notes change ", props.notes);
     }, [props.notes]);
 
-
-    const vtDiv = useRef(null);
-    const [artist, setArtist] = useState(null);
-    const [renderer, setRenderer] = useState(null);
-    const [vexTab, setVexTab] = useState(null);
-    // let artist2 = null;
-    // let vextab2 = null;
-    // let renderer2 = null;
+    useEffect(() => {
+        if (renderer !== null) {
+            redraw();
+        }
+    }, [renderer]);
 
 
     const vexTabInit = () => {
         console.log("**** VexTab INIT ****");
-        if (!vexTab) {
-            const renderer = new Flow.Renderer(vtDiv.current, Flow.Renderer.Backends.SVG);
-            const width = (props.width) ? props.width : 600;
-            const scale = (props.scale) ? props.scale : 0.8;
-            const artist = new Artist(10, 10, width, {scale: scale}); // x and y hardcoded for now...
 
-            // try handling click on canvas:
-            // renderer.getContext().svg.artist = artist;
-            // renderer.getContext().svg.addEventListener('click', handleClick, false);
+        const renderer = new Flow.Renderer(vtDiv.current, Flow.Renderer.Backends.SVG);
+        setRenderer(renderer);
+        //renderer = new Flow.Renderer(vtDiv.current, Flow.Renderer.Backends.SVG);
 
-            const vexTab = new VexTab(artist);
-            setRenderer(renderer);
-            setArtist(artist);
-            setVexTab(vexTab);
-        }
+
+        // try handling click on canvas:
+        renderer.getContext().svg.artist = artist;
+        renderer.getContext().svg.addEventListener('click', handleClick, false);
 
     };
 
@@ -106,11 +104,11 @@ const Notation = (props) => {
             vexTab.parse( createVexTabString(notes) );
             artist.render(renderer);
         } catch (e) {
-            console.log("Error in rendering VT score: ", e);
+            console.log(e);
         }
     };
 
-    // div hidden does not work, find a way to hide other way, since vtDiv must be accessible
+
     return (
         <div /*hidden={visible ? 0 : 1}*/ ref={vtDiv} /*onClick={handleClick}*/ />
     );
