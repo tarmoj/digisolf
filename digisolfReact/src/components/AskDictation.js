@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import {Button, Checkbox, Grid, Header, Input} from 'semantic-ui-react'
+import {Button, Checkbox, DropdownMenu, Grid, Header, Input} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst} from "../util/util";
@@ -12,6 +12,7 @@ import Notation from "./Notation";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import Sound from 'react-sound';
+import Select from "semantic-ui-react/dist/commonjs/addons/Select";
 
 
 const AskDictation = () => {
@@ -22,12 +23,13 @@ const AskDictation = () => {
     //const midiSounds = useRef(null);
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
-    const [selectedDictation, setSelectedDictation] = useState(null);
+    const [selectedDictation, setSelectedDictation] = useState({title:"1a", soundFile:"http://localhost/1a.mp3"});
     const [answer, setAnswer] = useState(null);
     const [answered, setAnswered] = useState(false);
 
     const [notesEnteredByUser, setNotesEnteredByUser] = useState(""); // test
     const [vexTabNotes, setVexTabNotes] = useState(":4 C/4");
+    const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED)
 
 
     // diktaatide definitsioonid võibolla eraldi failis.
@@ -35,10 +37,22 @@ const AskDictation = () => {
     // vaja mõelda, milliline oleks diktaadifailide struktuur
     // midagi sellist nagu:
     const dictations = [
-        {title: "1", soundFile: "dictations/1.mp3", notation:
-        ` \key d \major \time 2/4 
+        {title: "1a", soundFile: "http://localhost/1a.mp3", notation:
+        ` \\key d \\major \\time 2/4 
         a8 fis a fis | a4 a |
         g8 fis g a | e2 | 
+        `
+        },
+        {title: "2a", soundFile: "http://localhost/2a.mp3", notation:
+                `  
+        `
+        },
+        {title: "3c", soundFile: "http://localhost/3c.mp3", notation:
+                `  
+        `
+        },
+        {title: "4b", soundFile: "http://localhost/4ba.mp3", notation:
+                `  
         `
         }
     ];
@@ -66,7 +80,7 @@ const AskDictation = () => {
         // võibolla: setDictationType?
         //const dictationIndex = -1;
         //renew(dictationIndex);
-        renderNotes();
+        //renderNotes();
 
     };
 
@@ -75,7 +89,7 @@ const AskDictation = () => {
     const renew = (dictationIndex) =>  {
 
         setAnswered(false);
-        const dictation = dictations[dictationIndex];
+        const dictation = dictations[0];
 
         setSelectedDictation(dictation);
 //        console.log("Selected chord: ", t(selectedChord.longName), baseNote.midiNote );
@@ -87,7 +101,13 @@ const AskDictation = () => {
     };
 
     const playSoundFile = (url) => {
-        return;
+        console.log("Play soundfile", url);
+        setPlayStatus(Sound.status.PLAYING);
+    };
+
+    const stop = () => {
+        console.log("Stop");
+        setPlayStatus(Sound.status.STOPPED);
     };
 
     const checkNotation = () => {
@@ -147,10 +167,12 @@ const AskDictation = () => {
             return (
                 <Grid.Row  columns={2} centered={true}>
                     <Grid.Column>
-                        <Button color={"green"} onClick={() => renew(0)} className={"fullWidth marginTopSmall"} >{t("playNext")}</Button>
+                        <Button color={"green"} onClick={() => playSoundFile(selectedDictation.soundFile)} className={"fullWidth marginTopSmall"} >
+                            { capitalizeFirst( t("play")) }
+                        </Button>
                     </Grid.Column>
                     <Grid.Column>
-                        <Button onClick={() => playSoundFile(selectedDictation.soundFile)} className={"fullWidth marginTopSmall"}  >{t("repeat")}</Button>
+                        <Button onClick={() => stop()} className={"fullWidth marginTopSmall"}  >{ capitalizeFirst( t("stop") )}</Button>
                     </Grid.Column>
                 </Grid.Row>
 
@@ -166,7 +188,42 @@ const AskDictation = () => {
         }
     };
 
+    const createNotationBlock = () => {
+        return (
+        <div>
+            <Input
+                onChange={e => {setNotesEnteredByUser(e.target.value)}}
+                onKeyPress={ e=> { if (e.key === 'Enter') renderNotes()  }}
+                placeholder={'nt: a c2 es2'}
+                value={notesEnteredByUser}
+            />
+            <Button onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
+            <Notation  className={"marginTopSmall"} notes={vexTabNotes} width={600} scale={1} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
+        </div>
+        );
+    };
 
+    const createSelectionMenu = () => {
+        const options = []; //"[";
+        for (let i=0; i< dictations.length; i++) {
+            options.push( { value: i, text: dictations[i].title  } );
+        }
+
+        return (
+            <Grid.Row>
+                <Grid.Column>
+            <Select
+                className={"marginTopSmall fullwidth"}
+                placeholder={"Please choose a dictation"}
+                options={options}
+                defaultValue={options[0].soundFile}
+                onChange={ (e, {value}) => setSelectedDictation(dictations[value]) }
+            />
+                </Grid.Column>
+            </Grid.Row>
+        );
+
+    } ;
 
 
     const renderNotes = () => {
@@ -176,30 +233,21 @@ const AskDictation = () => {
 
     return (
         <div>
-            <Header size='large'>{`${t(name)} `}</Header>
-            <div>
-                <Input
-                    onChange={e => {setNotesEnteredByUser(e.target.value)}}
-                    onKeyPress={ e=> { if (e.key === 'Enter') renderNotes()  }}
-                    placeholder={'nt: a c2 es2'}
-                    value={notesEnteredByUser}
-                />
-                <Button onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
-                <Notation  className={"marginTopSmall"} notes={vexTabNotes} width={600} scale={1} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
-                <Button className={"fullWidth marginTopSmall" /*<- kuvab ok. oli: "exerciseBtn"*/}
-                        onClick={() => checkResponse({userInput:"c d e" })}>{ "Valmis"}</Button>
-            </div>
+            <Header size='large'>{ selectedDictation.title }</Header>
+
+            <Sound
+                url={selectedDictation.soundFile}
+                playStatus={playStatus}
+            />
             <Grid>
                 <ScoreRow/>
-
+                {createSelectionMenu()}
+                {createNotationBlock()}
                 {createPlaySoundButton()}
-                <Sound
-                    url="../sounds/dictations/1a.mp3"
-                    playStatus={Sound.status.PLAYING}
-                    playFromPosition={300 /* in milliseconds */}
-                />
                 <Grid.Column>
-
+                    <Button className={"fullwidth marginTopSmall"}
+                            onClick={() => checkResponse({userInput:"c d e" })}>{ "Valmis"}
+                    </Button>
                 </Grid.Column>
                 <Grid.Row>
                     <Grid.Column>
