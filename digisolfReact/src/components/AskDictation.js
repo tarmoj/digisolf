@@ -29,6 +29,7 @@ const AskDictation = () => {
 
     const [notesEnteredByUser, setNotesEnteredByUser] = useState(""); // test
     const [vexTabNotes, setVexTabNotes] = useState(":4 C/4");
+    const [notationInfo, setNotationInfo] = useState({  clef:"treble", time: "4/4", vtNotes: ":4 C/4" });
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED)
 
 
@@ -37,24 +38,28 @@ const AskDictation = () => {
     // vaja mõelda, milliline oleks diktaadifailide struktuur
     // midagi sellist nagu:
     const dictations = [
-        {title: "1a", soundFile: "http://localhost/1a.mp3", notation:
+        {title: "1a", soundFile: "../digisolf/sounds/dictations/1a.mp3", notation:
         ` \\key d \\major \\time 2/4 
         a8 fis a fis | a4 a |
         g8 fis g a | e2 | 
         `
         },
-        {title: "2a", soundFile: "http://localhost/2a.mp3", notation:
+        {title: "2a", soundFile: "../digisolf/sounds/dictations/2a.mp3", notation:
                 `  
         `
         },
-        {title: "3c", soundFile: "http://localhost/3c.mp3", notation:
+        {title: "3c", soundFile: "../digisolf/sounds/dictations//3c.mp3", notation:
                 `  
         `
         },
-        {title: "4b", soundFile: "http://localhost/4ba.mp3", notation:
+        {title: "4b", soundFile: "../digisolf/sounds/dictations/4b.mp3", notation:
                 `  
         `
-        }
+        },
+        {title: "5a", soundFile: "../digisolf/sounds/dictations/5a.mp3", notation:
+                `  
+        `
+        },
     ];
 
 
@@ -198,7 +203,11 @@ const AskDictation = () => {
                 value={notesEnteredByUser}
             />
             <Button onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
-            <Notation  className={"marginTopSmall"} notes={vexTabNotes} width={600} scale={1} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
+            <Notation  className={"marginTopSmall"} width={600} scale={1}
+                       notes={notationInfo.vtNotes}
+                       time={notationInfo.time}
+                       clef={notationInfo.clef}
+                       keySignature={notationInfo.keySignature}/>
         </div>
         );
     };
@@ -227,8 +236,9 @@ const AskDictation = () => {
 
 
     const renderNotes = () => {
-        const vexTabString = parseLilypondString(notesEnteredByUser);//  noteStringToVexTabChord(notesEnteredByUser);
-        setVexTabNotes(vexTabString);
+        const notationInfo = parseLilypondString(notesEnteredByUser);//  noteStringToVexTabChord(notesEnteredByUser);
+        setNotationInfo(notationInfo);
+        //setVexTabNotes(notationInfo.vtNotes);
     };
 
     return (
@@ -237,6 +247,7 @@ const AskDictation = () => {
 
             <Sound
                 url={selectedDictation.soundFile}
+                loop={false}
                 playStatus={playStatus}
             />
             <Grid>

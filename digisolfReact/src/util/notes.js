@@ -156,20 +156,25 @@ export const getNoteByVtNote = (vtNote, noteArray=trebleClefNotes) => {
 };
 
 export const parseLilypondString = (lyString) => { // returns vexTabString of the notation
-	const chunks = lyString.trim().split(" ");
+	const chunks = lyString.trim().replace(/\s\s+/g, ' ').split(" "); // simplify string
 	let vtNotes = "";
+	let notationInfo = { clef: "", keySignature: "", time: "", vtNotes: "" };
 	for (let i = 0; i<chunks.length; i++) {
 		if (chunks[i].trim() === "\\key" && chunks.length >= i+1 ) { // must be like "\key a \major\minor
 			console.log("key: ", chunks[i+1], chunks[i+2]);
 			//TODO: VT-s peab märkima mažoori kui minoor, leia vastav mažoor
 			// kirjaviis VT-s key=Ab, key=F#
+			// notationInfo.keySignature = ... <- needs more work, maybe separate function lyNoteToVtNote(note, isForKeySignature=false)
+			notationInfo.key = chunks[i+1].toUpperCase(); // NB! praegu ei ole konverteerimist, so es asemel peab andma Eb
 			i += 2;
 		} else if (chunks[i].trim() === "\\time" && chunks.length >= i+1) { // must be like "\key a \major
 			console.log("time: ", chunks[i + 1]);
+			notationInfo.time = chunks[i + 1];
 			i += 1;
 			// VT nt: time=2/4
 		} else if (chunks[i].trim() === "\\clef" && chunks.length >= i+1) {
 			console.log("clef: ", chunks[i + 1]);
+			notationInfo.clef = chunks[i + 1];
 			i += 1;
 			// VT nt: clef=treble
 			//} else if  (chunks[i].trim() === "\\bar" && chunks.length >= i+1) <- handle different barlines
@@ -191,8 +196,7 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 			} else {
 
 				if (! noteNames.includes(noteName)) { // ERROR
-					console.log(noteName, " is not a recognized note or keyword.");
-					//TODO: error message for user on screen
+					alert(noteName +  " is not a recognized note or keyword."); // TODO: translate!
 					break;
 				}
 				console.log("noteName is: ", noteName);
@@ -229,8 +233,17 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 				}
 
 				//TODO: octave from relative writing
-				let octave = "4"; // võibolla praegu: kui ' - 2. oktav, ilma -1, ,   väike... ?
-				vtNote += "/" + octave;
+				let octave;
+				// use better regexp and test for '' ,, etc
+				if (chunks[i].search("\'")>=0) {
+					octave = "5";
+				} else if (chunks[i].search(",")>=0) {
+					octave ="3";
+				} else {
+					octave = "4";
+				}
+
+				vtNote += "/" + octave + " ";
 			}
 
 			// duration
@@ -245,6 +258,7 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 		}
 	}
 	console.log("Parsed notes: ", vtNotes);
-	return vtNotes;
+	notationInfo.vtNotes = vtNotes;
+	return notationInfo;
 };
 

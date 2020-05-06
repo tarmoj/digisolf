@@ -25,8 +25,8 @@ const Notation = (props) => {
         if (props.notes !== "") {
             redraw(props.notes);
         }
-        console.log("props.notes change ", props.notes);
-    }, [props.notes]);
+        console.log("props.notes change ", props.notes, props.time);
+    }, [props]);
 
     useEffect(() => {
         if (renderer !== null) {
