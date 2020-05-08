@@ -81,12 +81,12 @@ const Notation = (props) => {
     };
 
     const  createVexTabString = (notes) => {
-        const startString = "options space=20\n stave \n ";
+        const startString = "stave "; //"options space=20\n stave \n ";
         const clefString = (props.clef) ? "clef="+props.clef+"\n" : "";
         const keyString = (props.keySignature) ? "key="+props.keySignature+"\n" : "";
         const timeString = (props.time) ?  "time="+props.time+"\n" : "";
         const notesString =  (notes) ? "\nnotes " + notes + "\n" : "";
-        const endString = "\noptions space=20\n";
+        const endString = ""; //"\noptions space=20\n";
         const vtString = startString + clefString + keyString + timeString + notesString + endString;
         //console.log (vtString);
         return vtString;
