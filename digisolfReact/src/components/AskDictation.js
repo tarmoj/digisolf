@@ -103,7 +103,8 @@ const AskDictation = () => {
         setAnswered(false);
         setNotesEnteredByUser("");
         setNotationInfo({vtNotes: ""});
-        setCorrectNotation({vtNotes: ""}); // and hide the line
+        hideAnswer();
+        // setCorrectNotation({vtNotes: ""}); // and hide the line
         const dictation = dictations[dictationIndex];
 
         setSelectedDictation(dictation);
@@ -113,6 +114,10 @@ const AskDictation = () => {
 
         playSoundFile(dictation.soundFile);
 
+    };
+
+    const hideAnswer = () => {
+        setCorrectNotation({vtNotes: null});
     };
 
     const playSoundFile = (url) => {
@@ -125,11 +130,19 @@ const AskDictation = () => {
         setPlayStatus(Sound.status.STOPPED);
     };
 
+    const answerIsHidden = () => {
+        return correctNotation.vtNotes === null || correctNotation.vtNotes === "";
+    };
+
     const showDictation = () => {
-        const notationInfo = parseLilypondString(selectedDictation.notation);
-        console.log("Õiged noodid: ", notationInfo.vtNotes);
-        if (notationInfo.vtNotes) {
-            setCorrectNotation(notationInfo);
+        if (!answerIsHidden()) {
+            hideAnswer()
+        } else {
+            const notationInfo = parseLilypondString(selectedDictation.notation);
+            console.log("Õiged noodid: ", notationInfo.vtNotes);
+            if (notationInfo.vtNotes) {
+                setCorrectNotation(notationInfo);
+            }
         }
     };
 
@@ -211,6 +224,8 @@ const AskDictation = () => {
     };
 
     const createNotationBlock = () => {
+        const answerDisplay = answerIsHidden() ? "none" : "inline";
+
         return (
         <div>
             <Input
@@ -225,12 +240,13 @@ const AskDictation = () => {
                        time={notationInfo.time}
                        clef={notationInfo.clef}
                        keySignature={notationInfo.keySignature}/>
-            <Notation className={"marginTopSmall"} width={600} scale={1}
-                      notes={correctNotation.vtNotes}
-                      time={correctNotation.time}
-                      clef={correctNotation.clef}
-                      keySignature={correctNotation.keySignature}
-            />
+            <div style={{display: answerDisplay}}>
+               <Notation className={"marginTopSmall"} width={600} scale={1}
+                         notes={correctNotation.vtNotes}
+                         time={correctNotation.time}
+                         clef={correctNotation.clef}
+                         keySignature={correctNotation.keySignature}/>
+            </div>
         </div>
         );
     };
@@ -257,6 +273,9 @@ const AskDictation = () => {
 
     } ;
 
+    const handleDictationFinishedPlaying = () => {
+        setPlayStatus(Sound.status.STOPPED);
+    };
 
     return (
         <div>
@@ -266,6 +285,7 @@ const AskDictation = () => {
                 url={selectedDictation.soundFile}
                 loop={false}
                 playStatus={playStatus}
+                onFinishedPlaying={handleDictationFinishedPlaying}
             />
             <Grid>
                 <ScoreRow/>
