@@ -54,7 +54,7 @@ const MainMenu = () => {
                 <Grid.Column>
                     <Header size='large'>{t("dictations")}</Header>
                     {/*siia oleks vaja teha tegelikult Dropdown sorti menüü*/}
-                    <Button className={"marginTopSmall mainMenuBtn"} onClick={() => startDictation("1")}>{t("1")}</Button><br/>
+                    <Button className={"marginTopSmall mainMenuBtn"} onClick={() => startDictation("simple")}>{capitalizeFirst(t("simple"))}</Button><br/>
 
                 </Grid.Column>
                 <Grid.Column>

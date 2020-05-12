@@ -22,10 +22,10 @@ const Notation = (props) => {
     }, []); // [] teise parameetrina tähendab, et kutsu välja ainult 1 kord
 
     useEffect(() => {
-        if (props.notes !== "") {
+        if (props.notes) {
             redraw(props.notes);
         }
-        console.log("props.notes change ", props.notes, props.time);
+        console.log("props.notes change ", props.notes);
     }, [props]);
 
     useEffect(() => {
@@ -44,8 +44,8 @@ const Notation = (props) => {
 
 
         // try handling click on canvas:
-        renderer.getContext().svg.artist = artist;
-        renderer.getContext().svg.addEventListener('click', handleClick, false);
+        //renderer.getContext().svg.artist = artist;
+        //renderer.getContext().svg.addEventListener('click', handleClick, false);
 
     };
 
@@ -110,7 +110,7 @@ const Notation = (props) => {
 
 
     return (
-        <div /*hidden={visible ? 0 : 1}*/ ref={vtDiv} /*onClick={handleClick}*/ />
+        <div ref={vtDiv} />
     );
 };
 

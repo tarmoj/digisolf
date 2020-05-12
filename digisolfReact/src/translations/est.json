@@ -62,5 +62,10 @@
   "chord": "akord",
   "tonicAllScaleDegrees": "põhihelilt kõikidele astmetele",
   "setInterval": "Intervalli määramine",
-  "allScaleDegrees": "Helistikus kõikide astmete vahel"
+  "allScaleDegrees": "Helistikus kõikide astmete vahel",
+  "simple": "lihtsad",
+  "play":  "mängi",
+  "stop":   "stopp",
+  "show": "näita",
+  "chooseDictation": "Valige diktaat"
 }

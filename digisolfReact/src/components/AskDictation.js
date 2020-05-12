@@ -22,7 +22,7 @@ const AskDictation = () => {
     //const midiSounds = useRef(null);
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
-    const [selectedDictation, setSelectedDictation] = useState({title:"1a", soundFile:"http://localhost/1a.mp3"});
+    const [selectedDictation, setSelectedDictation] = useState({title:"", soundFile:""});
     const [answer, setAnswer] = useState(null);
     const [answered, setAnswered] = useState(false);
 
@@ -67,6 +67,13 @@ const AskDictation = () => {
                 a, c e gis, | h, e  a, r |  
         `
         },
+
+        {title: "14a", soundFile: "../digisolf/sounds/dictations/14a.mp3", notation:
+                `
+                \\time 3/4
+                a,8 h, c c h, c | a,4 a, r | a,8 g, c h, c d | e4 e r |   
+        `
+        },
     ];
 
 
@@ -89,11 +96,6 @@ const AskDictation = () => {
                 return;
         }
 
-        // võibolla: setDictationType?
-        //const dictationIndex = -1;
-        //renew(dictationIndex);
-        //renderNotes();
-
     };
 
     // ilmselt selles tüübis ei võta juhuslikult vaid mingi menüü, kust kasutaja saab valida
@@ -102,17 +104,32 @@ const AskDictation = () => {
 
         setAnswered(false);
         setNotesEnteredByUser("");
-        setNotationInfo({vtNotes: ""});
+
+        //const notationInfo =
+        //setNotationInfo( {vtNotes: null});
+        showFirstNote(dictationIndex);
         hideAnswer();
-        // setCorrectNotation({vtNotes: ""}); // and hide the line
         const dictation = dictations[dictationIndex];
 
         setSelectedDictation(dictation);
 //        console.log("Selected chord: ", t(selectedChord.longName), baseNote.midiNote );
         const answer = {notation: selectedDictation.notation};  // võibolla mõtekas vaja võti, helistik ja taktimõõt eralid väljadena
         setAnswer(answer);
+        if (exerciseHasBegun) {
+            playSoundFile(dictation.soundFile);
+        }
 
-        playSoundFile(dictation.soundFile);
+    };
+
+    const showFirstNote= (dictationIndex) => {
+
+        const notation =  parseLilypondString(dictations[dictationIndex].notation);
+        const vtNotes = notation.vtNotes;
+        const firstNote = vtNotes.slice(0, vtNotes.indexOf("/")+2);
+        console.log("First note: ", firstNote );
+        notation.vtNotes = firstNote;
+        setNotationInfo(notation);
+        //TODO: peaks sisestama ka taktimõõdu, helistiku ja esimese noodi sisestus-Inputi tekstiks ( notesEnteredByUser )
 
     };
 
@@ -200,7 +217,7 @@ const AskDictation = () => {
 
         if (exerciseHasBegun) {
             return (
-                <Grid.Row  columns={2} centered={true}>
+                <Grid.Row  columns={3} centered={true}>
                     <Grid.Column>
                         <Button color={"green"} onClick={() => playSoundFile(selectedDictation.soundFile)} className={"fullWidth marginTopSmall"} >
                             { capitalizeFirst( t("play")) }
@@ -208,6 +225,11 @@ const AskDictation = () => {
                     </Grid.Column>
                     <Grid.Column>
                         <Button onClick={() => stop()} className={"fullWidth marginTopSmall"}  >{ capitalizeFirst( t("stop") )}</Button>
+                    </Grid.Column>
+                    <Grid.Column>
+                        <Button className={"fullWidth marginTopSmall"}
+                                onClick={() => showDictation()  /*checkResponse({userInput:"c d e" })*/}>{capitalizeFirst(t("show"))}
+                        </Button>
                     </Grid.Column>
                 </Grid.Row>
 
@@ -226,12 +248,13 @@ const AskDictation = () => {
     const createNotationBlock = () => {
         const answerDisplay = answerIsHidden() ? "none" : "inline";
 
-        return (
-        <div>
+        return exerciseHasBegun ? (
+        <div >
             <Input
+                className={"marginRight"}
                 onChange={e => {setNotesEnteredByUser(e.target.value)}}
                 onKeyPress={ e=> { if (e.key === 'Enter') renderNotes()  }}
-                placeholder={'nt: a c2 es2'}
+                placeholder={'nt: \\time 3/4 a,8 h, c4 gis | a a\'2'}
                 value={notesEnteredByUser}
             />
             <Button onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
@@ -248,7 +271,7 @@ const AskDictation = () => {
                          keySignature={correctNotation.keySignature}/>
             </div>
         </div>
-        );
+        ) : null;
     };
 
     const createSelectionMenu = () => {
@@ -262,10 +285,16 @@ const AskDictation = () => {
                 <Grid.Column>
             <Select
                 className={"marginTopSmall fullwidth"}
-                placeholder={"Please choose a dictation"}
+                placeholder={t("chooseDictation")}
                 options={options}
                 defaultValue={options[0].soundFile}
-                onChange={ (e, {value}) => renew(value) }
+                onChange={(e, {value}) => {
+                    if (!exerciseHasBegun) {
+                        startExercise();
+                    }
+                    renew(value);
+                }
+                }
             />
                 </Grid.Column>
             </Grid.Row>
@@ -279,7 +308,7 @@ const AskDictation = () => {
 
     return (
         <div>
-            <Header size='large'>{ selectedDictation.title }</Header>
+            <Header size='large'>{`${capitalizeFirst( t(name) )} ${selectedDictation.title} `}</Header>
 
             <Sound
                 url={selectedDictation.soundFile}
@@ -292,11 +321,6 @@ const AskDictation = () => {
                 {createSelectionMenu()}
                 {createNotationBlock()}
                 {createPlaySoundButton()}
-                <Grid.Column>
-                    <Button className={"fullwidth marginTopSmall"}
-                            onClick={() => showDictation()  /*checkResponse({userInput:"c d e" })*/}>{ capitalizeFirst(  t("show") )}
-                    </Button>
-                </Grid.Column>
                 <Grid.Row>
                     <Grid.Column>
                         <GoBackToMainMenuBtn/>
