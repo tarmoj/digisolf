@@ -46,6 +46,8 @@ const AskIntonation = () => {
             script.onload = () => {
                 // siin oleks kuidagi vaja kontrollida, millal csound on reaalselt valmis -  see võib juhtuda hiljem, kui skript on laetud
                 console.log("Csound now loaded");
+                // const csound = window.csound;
+                // csound.on( "?started?loaded vms", () => dispatch(setIsLoading(false)));
                 dispatch(setIsLoading(false));
             }
 
