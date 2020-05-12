@@ -25,6 +25,7 @@ const AskIntonation = () => {
     const [baseMidiNote, setBaseMidiNote] = useState(60);
     const [selectedDeviation, setSelectedDeviation] = useState(0);
     const [soundType, setSoundType] = useState(2);
+    let csoundStarted = false;
 
     useEffect(() => {
         loadScript();
@@ -42,7 +43,11 @@ const AskIntonation = () => {
             const script = document.createElement("script");
             script.src = scriptUrl;
             script.async = true;
-            script.onload = () => dispatch(setIsLoading(false));
+            script.onload = () => {
+                // siin oleks kuidagi vaja kontrollida, millal csound on reaalselt valmis -  see võib juhtuda hiljem, kui skript on laetud
+                console.log("Csound now loaded");
+                dispatch(setIsLoading(false));
+            }
 
             document.body.appendChild(script);
         }
@@ -60,7 +65,7 @@ const AskIntonation = () => {
 
 
     const csoundStart = () => {
-        console.log("*** CSOUND STARTED ***")
+        console.log("*** CSOUND STARTED ***", csoundStarted);
         const csound = window.csound;
 
         if (typeof(csound) === "undefined") {
@@ -111,20 +116,13 @@ instr Beep
 endin
 
     `;
-        csound.get0dbfs().then(
-            (value) => {
-                console.log("0dbfs value: ", value );
-                if (value>1) {  // clumsy way to check if orchestra is compiled
-                    console.log("START REALTIME");
-                    csound.setOption("-m 0");
-                    csound.setOption("-d");
-                    csound.startRealtime();
-                }
-            }
-        );
+        if (!csoundStarted) {
+            csound.startRealtime();
+        }
 
-        csound.compileOrc(csoundOrchestra);
+        csound.compileOrc(csoundOrchestra); // kui siin, siis plärised esimesel käivitusel Chrome'is
         console.log("Compiled Csound code");
+        csoundStarted = true;
 
     };
 
@@ -165,7 +163,7 @@ endin
     // what is more generic name -  perform? execute? present?
     const play = (midiNote=60, intervalRatio=1.5, deviation=0, melodic = 0) => {
         console.log("*** PLAY*** ");
-        const duration = 4; // TODO: make configurable
+        //const duration = 4; // TODO: make configurable
         const csound = window.csound;
         if (typeof(csound) !== "undefined") { // csound is in global space
             // csound instrument 1 (PlayInterval) parameters from p4 on:
