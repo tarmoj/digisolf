@@ -25,7 +25,6 @@ const AskIntonation = () => {
     const [baseMidiNote, setBaseMidiNote] = useState(60);
     const [selectedDeviation, setSelectedDeviation] = useState(0);
     const [soundType, setSoundType] = useState(2);
-    let csoundStarted = false;
 
     useEffect(() => {
         loadScript();
@@ -44,11 +43,14 @@ const AskIntonation = () => {
             script.src = scriptUrl;
             script.async = true;
             script.onload = () => {
-                // siin oleks kuidagi vaja kontrollida, millal csound on reaalselt valmis -  see võib juhtuda hiljem, kui skript on laetud
-                console.log("Csound now loaded");
-                // const csound = window.csound;
-                // csound.on( "?started?loaded vms", () => dispatch(setIsLoading(false)));
-                dispatch(setIsLoading(false));
+                console.log("Script loaded");
+                const csound = window.csound;
+                csound.startRealtime(); // waits until it is ready
+                csound.on( "ready", () => {
+                    console.log("Csound Ready");
+                    dispatch(setIsLoading(false));
+                    compileOrchestra();
+                } );
             }
 
             document.body.appendChild(script);
@@ -60,14 +62,11 @@ const AskIntonation = () => {
 
     const startExercise = () => {
         setExerciseHasBegun(true);
-        csoundStart();
         renew(cents);
     };
 
-
-
-    const csoundStart = () => {
-        console.log("*** CSOUND STARTED ***", csoundStarted);
+    const compileOrchestra = () => {
+        console.log("*** CSOUND STARTED ***");
         const csound = window.csound;
 
         if (typeof(csound) === "undefined") {
@@ -118,14 +117,8 @@ instr Beep
 endin
 
     `;
-        if (!csoundStarted) {
-            csound.startRealtime();
-        }
-
-        csound.compileOrc(csoundOrchestra); // kui siin, siis plärised esimesel käivitusel Chrome'is
+        csound.compileOrc(csoundOrchestra);
         console.log("Compiled Csound code");
-        csoundStarted = true;
-
     };
 
 
