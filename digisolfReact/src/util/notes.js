@@ -203,6 +203,8 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 				vtNote = noteName[0].toUpperCase();
 				if (vtNote === "H") {
 					vtNote = "B"; // german to Scandinavian/English B
+				} else if (vtNote === "B") {
+					vtNote = "B@"; // german to Scandinavian/English BES
 				}
 
 				if (noteName.length > 1) {

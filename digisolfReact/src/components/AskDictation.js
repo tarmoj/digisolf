@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import {Button, Checkbox, DropdownMenu, Grid, Header, Input} from 'semantic-ui-react'
+import {Button, Grid, Header, Input, Popup} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../util/util";
@@ -258,6 +258,22 @@ const AskDictation = () => {
                 value={notesEnteredByUser}
             />
             <Button onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
+            {/*AJUTINE INFO kast:*/}
+            <Popup on='click' position='bottom right' trigger={<Button content='Juhised' />} >
+                <h3>Noteerimine teksti abil</h3>
+                <p>Noodinimed: b, h, c, cis, es, fisis jne.</p>
+                <p>Oktav (ajutine) noodinime järel: , - väike oktav, ' - teine oktav, Ilma märgita -  1. oktav </p>
+                <p>Vältused noodinime (ja oktavi) järel: 4 -  veerad, 4. -  veerand punktida, 8 - kaheksandik jne.
+                    Vaikimisi -  veerand. Kui vätlus kordub, pole vaja seda kirjutada</p>
+                <p>Paus: r </p>
+                <p>Taktijoon: | </p>
+                <p>Võti: nt. <i>{'\\clef treble'}</i> või <i>{'\\clef bass'}</i></p>
+                <p>Taktimõõt: <i>nt. {'\\time 2/4 \\time 4/4 \\time 3/8'}</i> </p>
+                <p>Helistik: hetkel toetamata</p>
+                <p>Näide: Rongisõit B-duuris:</p>
+                <p> { '\\time 2/4 b,8 c d es | f f f4  ' }  </p>
+
+            </Popup>
             <Notation  className={"marginTopSmall"} width={600} scale={1}
                        notes={notationInfo.vtNotes}
                        time={notationInfo.time}
