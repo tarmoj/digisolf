@@ -12,6 +12,7 @@ import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/sco
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import Sound from 'react-sound';
 import Select from "semantic-ui-react/dist/commonjs/addons/Select";
+import dictation1a from "../sounds/dictations/1a.mp3";
 
 
 const AskDictation = () => {
@@ -38,7 +39,8 @@ const AskDictation = () => {
     // vaja mõelda, milliline oleks diktaadifailide struktuur
     // midagi sellist nagu:
     const dictations = [
-        {title: "1a", soundFile: "../digisolf/sounds/dictations/1a.mp3", notation:
+        {title: "1a", soundFile: dictation1a, notation:
+        // {title: "1a", soundFile: "../digisolf/sounds/dictations/1a.mp3", notation:
         ` \\time 4/4 
         c d c e | c g e r |
         `
