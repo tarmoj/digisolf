@@ -11,8 +11,8 @@ import ScoreRow from "./ScoreRow";
 import Notation from "./Notation";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
-//import {setUserEnteredNotes} from "../actions/exercise";
-
+import keymap from "../keymap";
+import { ShortcutManager, Shortcuts } from 'react-shortcuts';
 
 
 // tüüp 1: antakse ette noot ja suund, mängitakse akord
@@ -40,6 +40,8 @@ const AskChord = () => {
     const [notesEnteredByUser, setNotesEnteredByUser] = useState(""); // test
 
     //const userEnteredNotes = useSelector(state => state.exerciseReducer.userEnteredNotes);
+
+    const shortcutManager = new ShortcutManager(keymap);
 
     // siin pole kõik noodid, sest duubel-dieesid/bemollid pole veel kirjeldatud (va heses testiks)
     // kui ehitada alla, siis peaks olema ilmselt teine valik
@@ -200,6 +202,25 @@ const AskChord = () => {
     // harjutuse objekt nt: { answer: "T T D", notation: VexTabString, sound: "playFromVF"|soundFile  }
     // helifailide kataloog vastavalt harjutste struktuurile
 
+    // SHORTCUTS =============================================
+
+    const handleShortcuts = (action, event) => {
+        switch (action) {
+            case 'CHORD1':
+                console.log('CHORD1 call according button');
+                checkResponse({shortName: possibleChords[0].shortName})
+                break;
+            case 'CHORD2':
+                console.log('CHORD2')
+                checkResponse({shortName: possibleChords[1].shortName})
+                break;
+            case 'NEW':
+                console.log('play next');
+                renew(possibleChords);
+                break;
+        }
+    }
+
 
 
     // UI ======================================================
@@ -315,6 +336,10 @@ const AskChord = () => {
 
     return (
         <div>
+            {/*<Shortcuts
+                name='AskChord'
+                handler={handleShortcuts}
+            />*/}
             <Header size='large'>{`${t(name)} `}</Header>
 
             <Grid>
