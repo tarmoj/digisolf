@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {Button, Grid, Header, Input, Popup} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
@@ -13,13 +13,17 @@ import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import Sound from 'react-sound';
 import Select from "semantic-ui-react/dist/commonjs/addons/Select";
 import dictation1a from "../sounds/dictations/1a.mp3";
+import {useParams} from "react-router-dom";
 
 
 const AskDictation = () => {
+    const { name } = useParams();
+
+
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
 
-    const name = useSelector(state => state.exerciseReducer.name);
+    // const name = useSelector(state => state.exerciseReducer.name);
     //const midiSounds = useRef(null);
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);

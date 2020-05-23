@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {Button, Divider, Grid, Header, Icon, Radio, Transition} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
@@ -12,13 +12,17 @@ import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import ScoreRow from "./ScoreRow";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
+import { useParams } from "react-router-dom";
 
 const AskInterval = () => {
+    const { exerciseName } = useParams();
+
+
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
 
     const isHarmonic = useSelector(state => state.exerciseReducer.isHarmonic);
-    const exerciseName = useSelector(state => state.exerciseReducer.name);
+    // const exerciseName = useSelector(state => state.exerciseReducer.name);
 
     const midiSounds = useRef(null);
 
