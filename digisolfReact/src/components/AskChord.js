@@ -11,8 +11,8 @@ import ScoreRow from "./ScoreRow";
 import Notation from "./Notation";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
-import keymap from "../keymap";
-import { ShortcutManager, Shortcuts } from 'react-shortcuts';
+// import keymap from "../keymap";
+// import { ShortcutManager, Shortcuts } from 'react-shortcuts';
 
 
 // tüüp 1: antakse ette noot ja suund, mängitakse akord
@@ -41,7 +41,7 @@ const AskChord = () => {
 
     //const userEnteredNotes = useSelector(state => state.exerciseReducer.userEnteredNotes);
 
-    const shortcutManager = new ShortcutManager(keymap);
+    // const shortcutManager = new ShortcutManager(keymap);
 
     // siin pole kõik noodid, sest duubel-dieesid/bemollid pole veel kirjeldatud (va heses testiks)
     // kui ehitada alla, siis peaks olema ilmselt teine valik

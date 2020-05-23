@@ -5,24 +5,29 @@ import {useTranslation} from "react-i18next";
 import {setComponent} from "../actions/component";
 import {setName, setCents} from "../actions/exercise";
 import {capitalizeFirst} from "../util/util";
+import {BrowserRouter as Router, useHistory} from "react-router-dom";
 
 const MainMenu = () => {
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
+    const history = useHistory();
 
     const startIntervalExercise = (name) => {
         dispatch(setName(name));
         dispatch(setComponent("AskInterval"));
+        history.push("/digisolf/askinterval");
     };
 
     const startChord = (name) => {
         dispatch(setName(name));
         dispatch(setComponent("AskChord"));
+        history.push("/digisolf/askchord");
     };
 
     const startDictation = (name) => {
         dispatch(setName(name));
         dispatch(setComponent("AskDictation"));
+        history.push("/digisolf/askchord");
         console.log("Start dictation");
     };
 
@@ -30,10 +35,12 @@ const MainMenu = () => {
         dispatch(setName(name));
         dispatch(setCents(cents));
         dispatch(setComponent("AskIntonation"));
+        history.push("/digisolf/askintonation");
 
     };
 
     return (
+        <Router>
         <Grid columns={2}>
             <Grid.Row columns={2}>
                 <Grid.Column>
@@ -70,6 +77,7 @@ const MainMenu = () => {
                 </Grid.Column>
             </Grid.Row>
         </Grid>
+        </Router>
     );
 };
 
