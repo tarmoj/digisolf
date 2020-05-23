@@ -11,6 +11,7 @@ import AppFooter from "./components/AppFooter";
 import LanguageSelect from "./components/LanguageSelect";
 import {Dimmer, Header, Loader} from "semantic-ui-react";
 import {useTranslation} from "react-i18next";
+import { BrowserRouter as Router, Switch, Route, } from 'react-router-dom';
 
 function App() {
     const component = useSelector(state => state.componentReducer.component);
@@ -19,18 +20,29 @@ function App() {
     const { t, i18n } = useTranslation();
 
     const renderComponent = () => {
-        switch(component) {
-            case "AskInterval":
-                return <AskInterval/>;
-            case "AskChord":
-                return <AskChord/>;
-            case "AskDictation":
-                return <AskDictation/>;
-            case "AskIntonation":
-                return <AskIntonation/>;
-            default:
-                return <MainMenu/>;
-        }
+        // switch(component) {
+        //     case "AskInterval":
+        //         return <AskInterval/>;
+        //     case "AskChord":
+        //         return <AskChord/>;
+        //     case "AskDictation":
+        //         return <AskDictation/>;
+        //     case "AskIntonation":
+        //         return <AskIntonation/>;
+        //     default:
+        //         return <MainMenu/>;
+        // }
+        return (
+            <Router>
+                <Switch>
+                    <Route exact path='/digisolf' render={() => <MainMenu/>}/>
+                    <Route exact path='/digisolf/askinterval' render={() => <AskInterval/>}/>
+                    <Route exact path='/digisolf/askchord' render={() => <AskChord/>}/>
+                    <Route exact path='/digisolf/askdictation' render={() => <AskDictation/>}/>
+                    <Route exact path='/digisolf/askintonation' render={() => <AskIntonation/>}/>
+                </Switch>
+            </Router>
+        )
     };
 
     const showDimmer = () => {
