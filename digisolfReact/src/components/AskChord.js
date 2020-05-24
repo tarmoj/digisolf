@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {Button, Checkbox, Grid, Header, Input} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
@@ -11,6 +11,7 @@ import ScoreRow from "./ScoreRow";
 import Notation from "./Notation";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
+import {useParams} from "react-router-dom";
 // import keymap from "../keymap";
 // import { ShortcutManager, Shortcuts } from 'react-shortcuts';
 
@@ -20,10 +21,13 @@ import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 // lihtsaim variant: mängib akordi, vasta, kas maz või min
 // tüüp 2: antakse akordijärgnevus, tuvasta, mis funtsioonid (T, D, S, M)
 const AskChord = () => {
+    const { name } = useParams();
+
+
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
 
-    const name = useSelector(state => state.exerciseReducer.name);
+    // const name = useSelector(state => state.exerciseReducer.name);
     const midiSounds = useRef(null);
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);

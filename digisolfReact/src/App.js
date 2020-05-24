@@ -12,6 +12,8 @@ import LanguageSelect from "./components/LanguageSelect";
 import {Dimmer, Header, Loader} from "semantic-ui-react";
 import {useTranslation} from "react-i18next";
 import { BrowserRouter as Router, Switch, Route, } from 'react-router-dom';
+import {setName} from "./actions/exercise";
+import {setComponent} from "./actions/component";
 
 function App() {
     const component = useSelector(state => state.componentReducer.component);
@@ -35,11 +37,11 @@ function App() {
         return (
             <Router>
                 <Switch>
-                    <Route exact path='/digisolf' render={() => <MainMenu/>}/>
-                    <Route exact path='/digisolf/askinterval' render={() => <AskInterval/>}/>
-                    <Route exact path='/digisolf/askchord' render={() => <AskChord/>}/>
-                    <Route exact path='/digisolf/askdictation' render={() => <AskDictation/>}/>
-                    <Route exact path='/digisolf/askintonation' render={() => <AskIntonation/>}/>
+                    <Route exact path='/digisolf' component={MainMenu}/>
+                    <Route path='/digisolf/askinterval/:exerciseName' component={AskInterval} />}/>
+                    <Route path='/digisolf/askchord/:name' component={AskChord}/>
+                    <Route path='/digisolf/askdictation/:name' component={AskDictation}/>
+                    <Route path='/digisolf/askintonation/:name/:cents' component={AskIntonation}/>
                 </Switch>
             </Router>
         )

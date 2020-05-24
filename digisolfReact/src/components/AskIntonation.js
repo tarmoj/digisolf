@@ -8,15 +8,19 @@ import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import ScoreRow from "./ScoreRow";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
+import {useParams} from "react-router-dom";
 
 
 
 const AskIntonation = () => {
+    const { name, cents } = useParams();
+
+
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
 
-    const name = useSelector(state => state.exerciseReducer.name);
-    const cents = useSelector(state => state.exerciseReducer.cents);
+    // const name = useSelector(state => state.exerciseReducer.name);
+    // const cents = useSelector(state => state.exerciseReducer.cents);
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [intervalRatio, setIntervalRatio] = useState(1.5);
