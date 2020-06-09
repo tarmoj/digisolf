@@ -63,6 +63,8 @@ const MainMenu = () => {
                     <Header size='large'>{t("dictations")}</Header>
                     {/*siia oleks vaja teha tegelikult Dropdown sorti menüü*/}
                     <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/simple")}>{capitalizeFirst(t("simple"))}</Button><br/>
+                    <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/RM_simple")}>{capitalizeFirst(t("RM_simple"))}</Button><br/>
+
                     {/*<Button className={"marginTopSmall mainMenuBtn"} onClick={() => startDictation("simple")}>{capitalizeFirst(t("simple"))}</Button><br/>*/}
 
                 </Grid.Column>

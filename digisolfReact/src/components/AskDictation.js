@@ -30,6 +30,7 @@ const AskDictation = () => {
     const [selectedDictation, setSelectedDictation] = useState({title:"", soundFile:""});
     const [answer, setAnswer] = useState(null);
     const [answered, setAnswered] = useState(false);
+    const [currentCategory, setCurrentCategory] = useState("C_simple");
 
     const [notesEnteredByUser, setNotesEnteredByUser] = useState(""); // test
     const [notationInfo, setNotationInfo] = useState({  clef:"treble", time: "4/4", vtNotes: "" });
@@ -42,47 +43,70 @@ const AskDictation = () => {
     // kas notatsioon Lilypond või VT? pigem lilypond sest import musicXML-st lihtsam
     // vaja mõelda, milliline oleks diktaadifailide struktuur
     // midagi sellist nagu:
+    // category: C-  classical, RM - rhythm music (pop-jazz) NB! categorys will most likely change!
+    const categories = ["C_simple", "RM_simple"];
+
     const dictations = [
-        {title: "1a",
+        {category: "C_simple", title: "1a",
             soundFile: dictation1a,
             //soundFile: "../digisolf/sounds/dictations/1a.mp3",
             notation:
-        // {title: "1a", soundFile: "../digisolf/sounds/dictations/1a.mp3", notation:
         ` \\time 4/4 
         c d c e | c g e r |
         `
         },
-        {title: "2a", soundFile: "../digisolf/sounds/dictations/2a.mp3", notation:
+        {   category: "C_simple",
+            title: "2a", soundFile: "../sounds/dictations/2a.mp3", notation: // url was: ../digisolf/sounds/
                 `
                 \\time 4/4
                 c e g c | h, c g, r |  
         `
         },
-        {title: "3c", soundFile: "../digisolf/sounds/dictations//3c.mp3", notation:
+        { category: "C_simple", title: "3c", soundFile: "../sounds/dictations//3c.mp3", notation:
                 `
                 \\time 4/4
                 c' e' d' c' | g f e  r |  
         `
         },
-        {title: "4b", soundFile: "../digisolf/sounds/dictations/4b.mp3", notation:
+        { category: "C_simple", title: "4b", soundFile: "../sounds/dictations/4b.mp3", notation:
                 `  
                 \\time 4/4
                 a, h, c e | f a gis r |
         `
         },
-        {title: "5a", soundFile: "../digisolf/sounds/dictations/5a.mp3", notation:
+        { category: "C_simple", title: "5a", soundFile: "../sounds/dictations/5a.mp3", notation:
                 `
                 \\time 4/4
                 a, c e gis, | h, e  a, r |  
         `
         },
 
-        {title: "14a", soundFile: "../digisolf/sounds/dictations/14a.mp3", notation:
+        { category: "C_simple", title: "14a", soundFile: "../sounds/dictations/14a.mp3", notation:
                 `
                 \\time 3/4
                 a,8 h, c c h, c | a,4 a, r | a,8 g, c h, c d | e4 e r |   
         `
         },
+
+        // RM Tõnu näide
+        {category: "RM_simple", title: "Smilers", soundFile: "../sounds/dictations/Smilers.mp3",
+            credits: "Hendriks Sal-Saller \"Käime katuseid mööda\"",
+            notation:
+                `
+                \\time 4/4 \\key g \major
+                r8 h16 h  h a g a~  a8 h r4 |
+                r8 h16 h  h16 h h8 d'16 d'8 d'16~ d'16 d e8~ |
+                e4 r4 r r |  
+        `,
+            chords: [
+                {bar: 1, beat: 1, chord: "G"},
+                {bar: 3, beat: 1, chord: "C"}
+            ],
+            melody: ",33,3212_,23/33,333,555_,556_/1,,,", // miks lõpus 1, pekas ju 6 olema
+            rhythm: "34,1234_,13,/34,123,124_,123_/1,,,/"
+
+        },
+
     ];
 
 
@@ -91,20 +115,16 @@ const AskDictation = () => {
 
     const startExercise = () => {
         setExerciseHasBegun(true);
-        renew(0);
 
-
-        switch(name) {
-            case "simple":
-                break;
-            case "twoVoiced":
-
-                break;
-            default:
-                console.log("no exercise found");
-                return;
+        // the initial category comes with the exercise name, maybe later user can change it
+        if (categories.includes(name)) {
+            setCurrentCategory(name);
+        } else {
+            console.log("Unknown dictation category: ", name);
+            return;
         }
-
+        //const firstInCategory = dictations.findIndex(  dict =>  dict.category=== name);
+        //renew(firstInCategory);
     };
 
     // ilmselt selles tüübis ei võta juhuslikult vaid mingi menüü, kust kasutaja saab valida
@@ -122,7 +142,7 @@ const AskDictation = () => {
 
         setSelectedDictation(dictation);
 //        console.log("Selected chord: ", t(selectedChord.longName), baseNote.midiNote );
-        const answer = {notation: selectedDictation.notation};  // võibolla mõtekas vaja võti, helistik ja taktimõõt eralid väljadena
+        const answer = {notation: selectedDictation.notation};
         setAnswer(answer);
         if (exerciseHasBegun) {
             playSoundFile(dictation.soundFile);
@@ -301,7 +321,9 @@ const AskDictation = () => {
 
     const createSelectionMenu = () => {
         const options = []; //"[";
+        //const dictationsByCategory =  dictations.filter(dict =>  dict.category=== currentCategory);
         for (let i=0; i< dictations.length; i++) {
+            if (dictations[i].category === currentCategory) // NB! on first rendering it is not correct yet...
             options.push( { value: i, text: dictations[i].title  } );
         }
 

@@ -67,5 +67,6 @@
   "play":  "mängi",
   "stop":   "stopp",
   "show": "näita",
-  "chooseDictation": "Valige diktaat"
+  "chooseDictation": "Valige diktaat",
+  "RM_simple": "RM lihtsad"
 }

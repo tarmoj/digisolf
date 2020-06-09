@@ -159,6 +159,7 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 	const chunks = lyString.trim().replace(/\s\s+/g, ' ').split(" "); // simplify string
 	let vtNotes = "";
 	let notationInfo = { clef: "", keySignature: "", time: "", vtNotes: "" };
+	let useTie = false;
 	for (let i = 0; i<chunks.length; i++) {
 		if (chunks[i].trim() === "\\key" && chunks.length >= i+1 ) { // must be like "\key a \major\minor
 			console.log("key: ", chunks[i+1], chunks[i+2]);
@@ -182,7 +183,7 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 			console.log("Barline");
 			vtNotes += " | ";
 		} else  { // might be a note or error
-			const index = chunks[i].search(/[,'\\\d\s]/); // in lylypond one of those may follow th note: , ' digit \ whitespace or nothing
+			const index = chunks[i].search(/[~,'\\\d\s]/); // in lylypond one of those may follow th note: , ' digit \ whitespace or nothing
 			let noteName;
 			if (index>=0) {
 				noteName = chunks[i].slice(0, index);
@@ -248,12 +249,31 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 				vtNote += "/" + octave + " ";
 			}
 
+
+			// tie - in lilypond ~ is on first note, in VT h after the duration of next one
+			if (useTie) {
+				vtNote = " h " + vtNote; // for held note/legato
+				useTie = false;
+			}
+
+			// check for tie to apply it to next note:
+			if (chunks[i].includes("~")) {
+				useTie = true;
+			} else {
+				useTie = false;
+			}
+
 			// duration
 			const re = /\d+/;
 			const duration = re.exec(chunks[i]);
+
+
 			if (duration) {
 				vtNote = ":" + duration + " " + vtNote + " ";  //` :${duration} ${vtNote}. `; // in VT duration is before note(s)
+			} else if (useTie) {
+
 			}
+
 			console.log("vtNote: ", vtNote);
 			vtNotes += vtNote;
 
