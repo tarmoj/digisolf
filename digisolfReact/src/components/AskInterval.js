@@ -13,6 +13,7 @@ import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/sco
 import ScoreRow from "./ScoreRow";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import { useParams } from "react-router-dom";
+import { useHotkeys } from 'react-hotkeys-hook';
 
 const AskInterval = () => {
     const { exerciseName } = useParams();
@@ -32,6 +33,12 @@ const AskInterval = () => {
     const [intervalButtonsClicked, setIntervalButtonsClicked] = useState([]);
     const [greenIntervalButton, setGreenIntervalButton] = useState(null);
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
+
+    // keyboard shorcuts
+    useHotkeys('shift+ctrl+1', () => console.log("CTRL+1")); // how is it on Mac?
+    useHotkeys('shift+ctrl+2', () => console.log("CTRL+2"));
+    // probleem on, et kui siit kutsuda setAnswer, siis exerciseHasBegun on tema jaoks alati false
+    useHotkeys('shift+ctrl+3', () => { console.log("Trying s3"); setAnswer("s3"); }, [exerciseHasBegun]);
 
     const startExercise = () => {
         setExerciseHasBegun(true);
@@ -171,6 +178,7 @@ const AskInterval = () => {
     };
 
     const setAnswer = (answer) => {
+        console.log("setAnswer: ", answer, exerciseHasBegun);
         if (exerciseHasBegun) {
             // const correctInterval = getIntervalTranslation(interval.interval.longName);
             setIntervalButtonsClicked(intervalButtonsClicked.concat([answer]));
@@ -266,12 +274,12 @@ const AskInterval = () => {
                 </Grid.Row>
                 <Grid.Row className={"exerciseRow"} columns={3}>
                     {createIntervalButton("v6", "v6")}
-                    {createIntervalButton("p8", "p8")}
+                    {createIntervalButton(">5", "Trit. (>5/<4)")}
                     {createIntervalButton("s6", "s6")}
                 </Grid.Row>
                 <Grid.Row className={"exerciseRow"} columns={3}>
                     {createIntervalButton("v7", "v7")}
-                    {createIntervalButton(">5", "Trit. (>5/<4)")}
+                    {createIntervalButton("p8", "p8")}
                     {createIntervalButton("s7", "s7")}
                 </Grid.Row>
                 <Grid.Row className={"exerciseRow"}>
