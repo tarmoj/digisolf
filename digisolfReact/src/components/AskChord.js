@@ -12,8 +12,7 @@ import Notation from "./Notation";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import {useParams} from "react-router-dom";
-// import keymap from "../keymap";
-// import { ShortcutManager, Shortcuts } from 'react-shortcuts';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 
 // tüüp 1: antakse ette noot ja suund, mängitakse akord
@@ -23,6 +22,10 @@ import {useParams} from "react-router-dom";
 const AskChord = () => {
     const { name } = useParams();
 
+    useHotkeys('shift+ctrl+1', () => console.log("CTRL+1")); // how is it on Mac?
+    useHotkeys('shift+ctrl+2', () => console.log("CTRL+2"));
+    useHotkeys('shift+ctrl+3', () => console.log("CTRL+3"));
+    useHotkeys('shift+ctrl+space', () => { console.log("SPACE"); renew(possibleChords);  });
 
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();

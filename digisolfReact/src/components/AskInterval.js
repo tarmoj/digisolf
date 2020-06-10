@@ -251,38 +251,29 @@ const AskInterval = () => {
             <Header size='large'>{`${t("setInterval")} ${t(exerciseName)} - ${getExerciseType()}`}</Header>
             <Grid>
                 <ScoreRow showRadioButtons={true}/>
-                {/*<Grid.Row className={"exerciseRow"} columns={2}>*/}
-                {/*    <Grid.Column/>*/}
-                {/*    {createIntervalButton("p1", t("unison"))}*/}
-                {/*</Grid.Row>*/}
-                <Grid.Row className={"exerciseRow"} columns={2}>
-                    {createIntervalButton("v2", `${capitalizeFirst(t("minor"))} ${t("second")}`)}
-                    {createIntervalButton("s2", `${capitalizeFirst(t("major"))} ${t("second")}`)}
+                <Grid.Row className={"exerciseRow"} columns={3}>
+                    {/*TODO: support translation*/}
+                    {createIntervalButton("v2", "v2")} {/*was: ${capitalizeFirst(t("minor"))} ${t("second")}*/}
+                    {createIntervalButton("p4", "p4")}
+                    {createIntervalButton("s2", "s2")}
+
                 </Grid.Row>
-                <Grid.Row className={"exerciseRow"} columns={2}>
-                    {createIntervalButton("v3", `${capitalizeFirst(t("minor"))} ${t("third")}`)}
-                    {createIntervalButton("s3", `${capitalizeFirst(t("major"))} ${t("third")}`)}
+                <Grid.Row className={"exerciseRow"} columns={3}>
+                    {createIntervalButton("v3", "v3")}
+                    {createIntervalButton("p5", "p5")}
+                    {createIntervalButton("s3", "s3")}
+
                 </Grid.Row>
-                <Grid.Row className={"exerciseRow"} columns={2}>
-                    <Grid.Column/>
-                    {createIntervalButton("p4", `${capitalizeFirst(t("perfect"))} ${t("fourth")}`)}
+                <Grid.Row className={"exerciseRow"} columns={3}>
+                    {createIntervalButton("v6", "v6")}
+                    {createIntervalButton("p8", "p8")}
+                    {createIntervalButton("s6", "s6")}
                 </Grid.Row>
-                <Grid.Row className={"exerciseRow"} columns={2}>
-                    {createIntervalButton("<5", `${capitalizeFirst(t("diminished"))} ${t("fifth")}`)}
-                    {createIntervalButton("p5", `${capitalizeFirst(t("perfect"))} ${t("fifth")}`)}
+                <Grid.Row className={"exerciseRow"} columns={3}>
+                    {createIntervalButton("v7", "v7")}
+                    {createIntervalButton(">5", "Trit. (>5/<4)")}
+                    {createIntervalButton("s7", "s7")}
                 </Grid.Row>
-                <Grid.Row className={"exerciseRow"} columns={2}>
-                    {createIntervalButton("v6", `${capitalizeFirst(t("minor"))} ${t("sixth")}`)}
-                    {createIntervalButton("s6", `${capitalizeFirst(t("major"))} ${t("sixth")}`)}
-                </Grid.Row>
-                <Grid.Row className={"exerciseRow"} columns={2}>
-                    {createIntervalButton("v7", `${capitalizeFirst(t("minor"))} ${t("seventh")}`)}
-                    {createIntervalButton("s7", `${capitalizeFirst(t("major"))} ${t("seventh")}`)}
-                </Grid.Row>
-                {/*<Grid.Row className={"exerciseRow"} columns={2}>*/}
-                {/*    <Grid.Column/>*/}
-                {/*    {createIntervalButton("p8", t("octave"))}*/}
-                {/*</Grid.Row>*/}
                 <Grid.Row className={"exerciseRow"}>
                     <Grid.Column>
                         {createButtons()}

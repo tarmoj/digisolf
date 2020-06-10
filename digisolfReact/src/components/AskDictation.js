@@ -321,10 +321,12 @@ const AskDictation = () => {
 
     const createSelectionMenu = () => {
         const options = []; //"[";
+        console.log("createSelectionMenu for: ", currentCategory, name);
         //const dictationsByCategory =  dictations.filter(dict =>  dict.category=== currentCategory);
         for (let i=0; i< dictations.length; i++) {
-            if (dictations[i].category === currentCategory) // NB! on first rendering it is not correct yet...
-            options.push( { value: i, text: dictations[i].title  } );
+            if (dictations[i].category === name) { // exercise's name contains also the category; later support changing the category
+                options.push( { value: i, text: dictations[i].title  } );
+            }
         }
 
         return (
@@ -334,7 +336,7 @@ const AskDictation = () => {
                 className={"marginTopSmall fullwidth"}
                 placeholder={t("chooseDictation")}
                 options={options}
-                defaultValue={options[0].soundFile}
+                /*defaultValue={options[0].soundFile}*/
                 onChange={(e, {value}) => {
                     if (!exerciseHasBegun) {
                         startExercise();
