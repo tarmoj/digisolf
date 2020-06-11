@@ -34,8 +34,27 @@ const AskInterval = () => {
     const [greenIntervalButton, setGreenIntervalButton] = useState(null);
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
 
+    // TODO: for blind support -  result with voice in setAnswer
+    //TODO: bug -  kõik endised valed märgitakse punaseks (klaviatuuri puhul)
     // keyboard shorcuts
-    useHotkeys('shift+ctrl+1', () => console.log("CTRL+1")); // how is it on Mac?
+    // TODO: support for other languages
+    useHotkeys('s+2', () => setAnswer("s2"), [exerciseHasBegun, interval]); // letter's case does not matter
+    useHotkeys('s+2', () => setAnswer("s2"), [exerciseHasBegun, interval]);
+    useHotkeys('v+3', () => setAnswer("v3"), [exerciseHasBegun, interval]);
+    useHotkeys('s+3', () => setAnswer("s3"), [exerciseHasBegun, interval]);
+    useHotkeys('p+4', () => setAnswer("p4"), [exerciseHasBegun, interval]);
+    //useHotkeys('<+4', () => setAnswer("<4"), [exerciseHasBegun, interval]);
+    useHotkeys('d+5', () => setAnswer(">5"), [exerciseHasBegun, interval]); // NB! d+5 (diminshed
+    useHotkeys('p+5', () => setAnswer("p5"), [exerciseHasBegun, interval]);
+    useHotkeys('v+6', () => setAnswer("v6"), [exerciseHasBegun, interval]);
+    useHotkeys('s+6', () => setAnswer("s6"), [exerciseHasBegun, interval]);
+    useHotkeys('v+7', () => setAnswer("v7"), [exerciseHasBegun, interval]);
+    useHotkeys('s+7', () => setAnswer("s7"), [exerciseHasBegun, interval]);
+    useHotkeys('p+8', () => setAnswer("p8"), [exerciseHasBegun, interval]);
+
+
+
+
     useHotkeys('shift+ctrl+2', () => console.log("CTRL+2"));
     // probleem on, et kui siit kutsuda setAnswer, siis exerciseHasBegun on tema jaoks alati false
     useHotkeys('shift+ctrl+3', () => { console.log("Trying s3"); setAnswer("s3"); }, [exerciseHasBegun]);
