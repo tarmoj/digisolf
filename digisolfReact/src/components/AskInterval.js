@@ -103,11 +103,31 @@ const AskInterval = () => {
         console.log("Played interval:", newInterval.interval.shortName);
         setInterval(newInterval);
 
-        playInterval(newInterval);
+        setIntervalButtonsClicked([]); // reset clicked buttons
+        const chordDuration = 1.5; // duration in second
+        const smallWait = 300; // delay in ms
+        setTimeout(() => {
+            playTonicTriad(selectedTonicNote.midiNote, isMajor, chordDuration); // are they set properly in the sate or they are still old...
+        }, smallWait);
+
+        setTimeout( () => playInterval(newInterval), 4 * smallWait + chordDuration*1000 );
+
     };
 
+    const playTonicTriad = (rootMidiNote, isMajor, duration) => {
+        const third =  rootMidiNote + ((isMajor) ? 4 : 3);
+        const fifth = rootMidiNote + 7;
+        // playing melodically (or rather as slow arpeggio)
+        const timeInterval = 0.25;
+        playNote(rootMidiNote, 0, duration);
+        playNote(third, timeInterval, duration - timeInterval);
+        playNote(fifth, timeInterval*2, duration - 2*timeInterval);
+        console.log("Tonic notes: ", rootMidiNote, third, fifth);
+    }
+
     const playInterval = (interval) => {
-        setTimeout(() => {
+
+        //setTimeout(() => {
             if (isHarmonic) {
                 playNote(interval.note1.midiNote, 0, 2);
                 playNote(interval.note2.midiNote, 0, 2);
@@ -115,8 +135,10 @@ const AskInterval = () => {
                 playNote(interval.note1.midiNote, 0, 1);
                 playNote(interval.note2.midiNote, 1, 1); // start sekundites
             }
-        }, 300);    // Short user-friendly delay before start
+        //}, 300);    // Short user-friendly delay before start
     };
+
+
 
     const playNote = (midiNote, start, duration) => { // start peaks olema sekundites
         midiSounds.current.playChordAt (midiSounds.current.contextTime()+start, 3, [midiNote], duration); // millegipärast ei tööta, kui korrata intervalli
