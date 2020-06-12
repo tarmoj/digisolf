@@ -14,6 +14,9 @@ import ScoreRow from "./ScoreRow";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import { useParams } from "react-router-dom";
 import { useHotkeys } from 'react-hotkeys-hook';
+import Sound from 'react-sound';
+import correctSound from "../sounds/varia/correct.mp3"
+import wrongSound from "../sounds/varia/wrong.mp3"
 
 const AskInterval = () => {
     const { exerciseName } = useParams();
@@ -33,6 +36,8 @@ const AskInterval = () => {
     const [intervalButtonsClicked, setIntervalButtonsClicked] = useState([]);
     const [greenIntervalButton, setGreenIntervalButton] = useState(null);
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
+    const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
+    const [soundFile, setSoundFile] = useState("");
 
     // TODO: for blind support -  result with voice in setAnswer
     // keyboard shorcuts
@@ -229,7 +234,6 @@ const AskInterval = () => {
     };
 
     const setAnswer = (answer) => {
-        console.log("setAnswer: ", answer, exerciseHasBegun);
         if (exerciseHasBegun) {
             // const correctInterval = getIntervalTranslation(interval.interval.longName);
             setIntervalButtonsClicked(intervalButtonsClicked.concat([answer]));
@@ -241,9 +245,14 @@ const AskInterval = () => {
                 colorCorrectAnswerGreen(answer);
                 setIntervalButtonsClicked([]);
                 dispatch(incrementCorrectAnswers());
+                // maybe it is better to move the sound part to ScoreRow component
+                setSoundFile(correctSound);
+                setPlayStatus(Sound.status.PLAYING);
             } else {
                 // dispatch(setNegativeMessage(`${t("correctAnswerIs")} ${correctInterval}`, 5000));
                 dispatch(incrementIncorrectAnswers());
+                setSoundFile(wrongSound);
+                setPlayStatus(Sound.status.PLAYING);
             }
         }
     };
@@ -307,6 +316,13 @@ const AskInterval = () => {
 
     return (
         <div>
+            {/*Sound for giving feedback on anwers (for visually impaired support)*/}
+            <Sound
+                url={soundFile}
+                loop={false}
+                playStatus={playStatus}
+                onFinishedPlaying={ () => setSoundFile("") }
+            />
             <Header size='large'>{`${t("setInterval")} ${t(exerciseName)} - ${getExerciseType()}`}</Header>
             <Grid>
                 <ScoreRow showRadioButtons={true}/>
