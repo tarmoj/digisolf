@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {Button, Divider, Grid, Header, Icon, Radio, Transition} from 'semantic-ui-react'
+import {Button, Divider, Grid, Header, Icon, Popup, Radio, Transition} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {setComponent} from "../actions/component";
@@ -35,10 +35,9 @@ const AskInterval = () => {
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
 
     // TODO: for blind support -  result with voice in setAnswer
-    //TODO: bug -  kõik endised valed märgitakse punaseks (klaviatuuri puhul)
     // keyboard shorcuts
     // TODO: support for other languages
-    useHotkeys('s+2', () => setAnswer("s2"), [exerciseHasBegun, interval]); // letter's case does not matter
+    useHotkeys('v+2', () => setAnswer("v2"), [exerciseHasBegun, interval]); // letter's case does not matter
     useHotkeys('s+2', () => setAnswer("s2"), [exerciseHasBegun, interval]);
     useHotkeys('v+3', () => setAnswer("v3"), [exerciseHasBegun, interval]);
     useHotkeys('s+3', () => setAnswer("s3"), [exerciseHasBegun, interval]);
@@ -52,8 +51,19 @@ const AskInterval = () => {
     useHotkeys('s+7', () => setAnswer("s7"), [exerciseHasBegun, interval]);
     useHotkeys('p+8', () => setAnswer("p8"), [exerciseHasBegun, interval]);
 
-
-
+    useHotkeys('shift+left', () => {console.log("Back"); /* how to call goBack() from GoBackMnu Button? */}, [exerciseHasBegun, interval]); // call somehow GoBackBtn onClick function
+    useHotkeys('shift+right', () => {
+        console.log("Next", exerciseHasBegun);
+        if (exerciseHasBegun) {
+            getNewInterval(isMajor, selectedTonicNote);
+        }
+    }, [, exerciseHasBegun, interval, isMajor, selectedTonicNote]);
+    useHotkeys('shift+up', () => {console.log("Change key/Start exercise"); startExercise() }, [exerciseHasBegun, interval]);
+    useHotkeys('shift+down', () => {  // repeat
+        if (exerciseHasBegun) {
+            playInterval(interval);
+        }
+        }, [exerciseHasBegun, interval]);
 
     useHotkeys('shift+ctrl+2', () => console.log("CTRL+2"));
     // probleem on, et kui siit kutsuda setAnswer, siis exerciseHasBegun on tema jaoks alati false
@@ -104,7 +114,7 @@ const AskInterval = () => {
         setInterval(newInterval);
 
         setIntervalButtonsClicked([]); // reset clicked buttons
-        const chordDuration = 1.5; // duration in second
+        const chordDuration = 1; // duration in second
         const smallWait = 300; // delay in ms
         setTimeout(() => {
             playTonicTriad(selectedTonicNote.midiNote, isMajor, chordDuration); // are they set properly in the sate or they are still old...
@@ -118,7 +128,7 @@ const AskInterval = () => {
         const third =  rootMidiNote + ((isMajor) ? 4 : 3);
         const fifth = rootMidiNote + 7;
         // playing melodically (or rather as slow arpeggio)
-        const timeInterval = 0.25;
+        const timeInterval = 0.15;
         playNote(rootMidiNote, 0, duration);
         playNote(third, timeInterval, duration - timeInterval);
         playNote(fifth, timeInterval*2, duration - 2*timeInterval);
@@ -300,6 +310,20 @@ const AskInterval = () => {
             <Header size='large'>{`${t("setInterval")} ${t(exerciseName)} - ${getExerciseType()}`}</Header>
             <Grid>
                 <ScoreRow showRadioButtons={true}/>
+                <Grid.Row>
+                    <Grid.Column></Grid.Column>
+                    <Grid.Column className={"marginRight"}  floated='right' > {/*Võiks olla joondatud nuppude parema servaga */}
+                        <Popup on='click' position='bottom right' trigger={<Button content='?'/>}>
+                            <h3>Klahvikombinatsioonid</h3>
+                            <p>Intervallid: v+2, s+2, jne (täht enne, siis number, hoida samaaegselt). </p>
+                            <p>NB! Tritoon (vähendatud kvint) - d+5 (diminished)</p>
+                            <p>Mängi järgmine: shift+paremale</p>
+                            <p>Korda: shift+alla</p>
+                            <p>Alusta harjutust/Muuda helistikku: shift+üles</p>
+                            <p>Tagasi peamenüüsse - veel pole</p>
+                        </Popup>
+                    </Grid.Column>
+                </Grid.Row>
                 <Grid.Row className={"exerciseRow"} columns={3}>
                     {/*TODO: support translation*/}
                     {createIntervalButton("v2", "v2")} {/*was: ${capitalizeFirst(t("minor"))} ${t("second")}*/}
