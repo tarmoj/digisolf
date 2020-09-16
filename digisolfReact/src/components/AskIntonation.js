@@ -9,6 +9,7 @@ import ScoreRow from "./ScoreRow";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import {useParams} from "react-router-dom";
+import CsoundObj from "@kunstmusik/csound";
 
 
 
@@ -30,55 +31,51 @@ const AskIntonation = () => {
     const [selectedDeviation, setSelectedDeviation] = useState(0);
     const [soundType, setSoundType] = useState(2);
 
+    //const [started, setStarted] = useState(false);
+
+    const [csound, setCsound] = useState(null);
     useEffect(() => {
-        loadScript();
-    }, []);
+        if (csound == null) {
+            let audioContext = CsoundObj.CSOUND_AUDIO_CONTEXT;
+            if ( typeof (audioContext) == "undefined") {
+                CsoundObj.initialize(CsoundObj.CSOUND_AUDIO_CONTEXT).then(() => { // the error happens here with initialize...
+                    console.log("Csound EFFECT PROMISE CALLED");
+                    const cs = new CsoundObj();
+                    setCsound(cs);
+                });
+            } else { // do not initialize if audio context is already created
+                const cs = new CsoundObj();
+                setCsound(cs);
+            }
+        } else {
+            console.log("Csound RESET");
+            csound.reset();
+        }
+    }, [csound]);
+
+
+    const startCsound = () => {
+        csound.compileOrc(orc);
+        csound.start();
+        csound.audioContext.resume();
+        //setStarted(true);
+    };
+
 
     const possibleDeviations = [5, 10, 20, 30];
     const possibleIntervalRatios = [4/3, 3/2, 2];
 
-    const loadScript = () => {
-        const scriptUrl = "https://github.com/hlolli/csound-wasm/releases/download/6.12.0-5/csound-wasm-browser.js";
-
-        if (!scriptIsLoaded(scriptUrl)) {
-            dispatch(setIsLoading(true));
-
-            const script = document.createElement("script");
-            script.src = scriptUrl;
-            script.async = true;
-            script.onload = () => {
-                console.log("Script loaded");
-                const csound = window.csound;
-                csound.startRealtime(); // waits until it is ready
-                csound.on( "ready", () => {
-                    console.log("Csound Ready");
-                    dispatch(setIsLoading(false));
-                    compileOrchestra();
-                } );
-            }
-
-            document.body.appendChild(script);
-        }
-    };
 
 
     // EXERCISE LOGIC ======================================
 
-    const startExercise = () => {
+    const startExercise = () => { // this is probably the same as setStarted
+        startCsound();
         setExerciseHasBegun(true);
-        renew(cents);
+        //renew(cents);
     };
 
-    const compileOrchestra = () => {
-        console.log("*** CSOUND STARTED ***");
-        const csound = window.csound;
-
-        if (typeof(csound) === "undefined") {
-            console.log("Csound is not ready yet!");
-            return;
-        }
-
-        const csoundOrchestra = `
+    const orc = `
 
 sr = 44100 
 ksmps = 32
@@ -121,10 +118,6 @@ instr Beep
 endin
 
     `;
-        csound.compileOrc(csoundOrchestra);
-        console.log("Compiled Csound code");
-    };
-
 
 
 
@@ -163,13 +156,11 @@ endin
     const play = (midiNote=60, intervalRatio=1.5, deviation=0, melodic = 0) => {
         console.log("*** PLAY*** ");
         //const duration = 4; // TODO: make configurable
-        const csound = window.csound;
         if (typeof(csound) !== "undefined") { // csound is in global space
             // csound instrument 1 (PlayInterval) parameters from p4 on:
             // amp, midinote, intervalRatio, cents, soundtype (1- sine, 2 - saw, 3- square), isMelodic (1|0)
             const volume = 0.1 ; // TODO: from parameters
             let csoundString = 'i 1 0 2 ';
-            //const soundType = 2;
             csoundString += volume + ' ';
             csoundString += midiNote + ' ';
             csoundString += intervalRatio + ' ';
@@ -299,6 +290,13 @@ endin
     return (
         <div>
             <Header size='large'>{ `${t("intonationDescripton")} ${t(name)} ${t("cents")} ` }</Header>
+
+            { csound == null ? (
+                <header className="App-header">
+                    <p>Loading...</p> {/*Sometimes gets stuck here when you go back to main menu and open intonation again*/}
+                </header>
+            ) : (
+
             <Grid>
                 <ScoreRow/>
                 {createSoundTypeRow()}
@@ -312,6 +310,7 @@ endin
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
+                )}
         </div>
 
     );

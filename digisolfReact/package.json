@@ -4,11 +4,13 @@
   "private": true,
   "dependencies": {
     "@babel/compat-data": "^7.8.0",
+    "@kunstmusik/csound": "^6.15.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "csound": "^1.0.0",
     "i18next": "^19.3.2",
+    "import": "0.0.6",
     "midi-sounds-react": "^1.2.54",
     "postinstall": "^0.7.0",
     "react": "^16.13.0",
