@@ -1,0 +1,57 @@
+DigiSolfedžo projekt sügis 2020
+
+
+## Tegevus -  Harjutuste loomine 1 (materjal, programmeerimine): diktaadid, häälestusharjutused (1.09.20-31.12.20)
+
+## Ametlikud eesmärgid
+Valminud diktaadiharjutused (vähemalt) 50
+Valminud häälestusharjutuste tüübid (isegenereeruvad) - 2
+
+---
+
+### Häälestusharjutused (Tarmo)
+- uuri äppe "Train Microtuning" & sarnane mitmehäälne, võibolla midagi sarnast
+- süsteem mängib akordi, mängija peab laulma/mängima
+- katseta pillisämplitega (csound mincer opkood, ilmselt)
+
+### Diktaadid
+
+## Koostamine
+
+- Struktuur (ilmselt klassika/rütmimuusika erald). 
+		
+- Iga diktaadi kohta vajalikud info, võibolla hea, kui kohe JS objektina:
+* pealkiri (title)
+* kategooria (category) (nt "lihtsad ühehäälsed")
+* helifail (soundFile)
+* allikas/viide (credits), kui vaja (nt loo või albumi nimi, teos, kust katke pärit vms )
+[ RM puhul akordid (chords)  kujul nagu {bar: 1, beat: 1, chord: "G"}, ]
+* notasioon MusicXML failis
+
+# Vaja arutada, kuidas toimub hindamine -  kas loetakse vigasid, kas mõõdtakse aega jms
+
+
+## Programmeerimine
+
+// TARMO:
+- mis kujul on on diktaadi notatsioon ('notation') diktaadi vastuse juures? Praegu Lilypond, aga parem ilmselt ja otstarbekam VexTab
+- vaja MusicXML -> VexTab konverteerijat. Ilmselt musicxml2ly (python) baasil
+- teksti sisestus (pimedad) lilypondis, konverteerida VexTabi (notes.js parseLilypondString) -  vaja täiustada ja lisada relative sisestus
+
+
+// EDGAR:
+- nootide sisestus
+* klaveriklaviatuuri-vidina + abinuppude (nt rütm, legatod jms) abil
+* hiire ja tavaklaviatuuri abil
+
+// ÜLD:
+- vastuste kontrollimine, õige kuvamine ja tagaside andmine/hindamine
+- mõelda struktuuri peale, et diktaatide lisamine oleks edaspidi võimalik ilma koodi muutmata (ühtlasi hea e-koolikoti ja H5P jaoks)
+
+
+### Kui jõuab (mis eelmisest poolaastast jäi planeeritust välja)
+- H5P testmoodul ja proovida laadida e-koolikorri
+- katsetada intervalle ja akorde salvestatud pillisämplitega (võibolla vaja salvestada mingit materjali)
+
+
+
