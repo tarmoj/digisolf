@@ -198,7 +198,20 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 			notationInfo.clef = chunks[i + 1];
 			i += 1;
 			// VT nt: clef=treble
-			//} else if  (chunks[i].trim() === "\\bar" && chunks.length >= i+1) <- handle different barlines
+		} else if  (chunks[i].trim() === "\\bar" && chunks.length >= i+1)  { // handle different barlines
+			const barLine = chunks[i + 1].trim().replace(/[\"]+/g, ''); // remove quoates \"
+
+			console.log("Found barline: ", barLine)
+			switch (barLine) {
+				case '|' : console.log("Normal bar"); vtNotes += " | "; break;
+				case '|.' : console.log("End bar"); vtNotes += " =|= "; break;
+				case '||' : console.log("Double bar"); vtNotes += " =|| "; break;
+				case '.|:' : console.log("Repeat begins"); vtNotes += " =|: "; break;
+				case ':|.' : console.log("Repeat ends"); vtNotes += " =:|| "; break;
+				case ':|.|:' : console.log("Double repeat"); vtNotes += " =:: "; break;
+
+			}
+			i += 1;
 		} else if     (chunks[i].trim() === "|") {
 			console.log("Barline");
 			vtNotes += " | ";
