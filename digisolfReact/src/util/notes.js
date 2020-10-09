@@ -1,6 +1,19 @@
 // Think about different conventions: classical german - b,h, classical scandinavian (bes, b), syllabic (do, re mi), syllabic russian
 // See lilypond definitions https://lilypond.org/doc/v2.18/Documentation/notation/writing-pitches#note-names-in-other-languages
-export const noteNames = [
+// define as map where key is (lilypond) noteName, value VexTab note
+export const noteNames = new Map([
+	["ceses","C@@"], ["ces","C@"], ["c","C"], ["cis","C#"], ["cisis","C##"],
+	["deses","D@@"], ["des", "D@"], ["d", "D"], ["dis","D#"], ["disis","D##"],
+	["eses","E@@"], ["es","E@"], ["e","E"], ["eis","E#"], ["eisis","E##"],
+	["feses","F@@"], ["fes","F@"], ["f","F"], ["fis","F#"], ["fisis","F##"],
+	["geses","G@@"], ["ges","G@"], ["g","G"], ["gis","G#"], ["gisis","G##"],
+	["ases","A@@"], ["as","A@"], ["a","A"], ["ais","A#"], ["aisis","A##"],
+	["heses","B@@"], ["b","B@"], ["h","B"], ["his","B#"], ["hisis","B##"]
+]);
+
+
+// orig:
+/*export const noteNames = [
 	"ceses", "ces", "c", "cis", "cisis",
 	"deses", "des", "d", "dis", "disis",
 	"eses", "es", "e", "eis", "eisis",
@@ -8,7 +21,7 @@ export const noteNames = [
 	"geses", "ges", "g", "gis", "gisis",
 	"ases", "as", "a", "ais", "aisis",
 	"heses", "b", "h", "his", "hisis"
-];
+];*/
 
 // võibolla vaja ka export const alterations = [{VT:"@@", normal:"eses"}]
 
@@ -163,10 +176,17 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 	for (let i = 0; i<chunks.length; i++) {
 		if (chunks[i].trim() === "\\key" && chunks.length >= i+1 ) { // must be like "\key a \major\minor
 			console.log("key: ", chunks[i+1], chunks[i+2]);
-			//TODO: VT-s peab märkima mažoori kui minoor, leia vastav mažoor
-			// kirjaviis VT-s key=Ab, key=F#
-			// notationInfo.keySignature = ... <- needs more work, maybe separate function lyNoteToVtNote(note, isForKeySignature=false)
-			notationInfo.key = chunks[i+1].toUpperCase(); // NB! praegu ei ole konverteerimist, so es asemel peab andma Eb
+			let vtKey = noteNames.get(chunks[i+1].toLowerCase());
+			if (vtKey) {
+				vtKey.replace("@","b"); // key siganture does not want @ but b for flat
+				if (chunks[i+2]=="\\minor") {
+					vtKey += "m"
+				}
+				notationInfo.keySignature = vtKey;
+				console.log("Converted key:", vtKey)
+			} else {
+				console.log("Could not find notename for: ", chunks[i+1])
+			}
 			i += 2;
 		} else if (chunks[i].trim() === "\\time" && chunks.length >= i+1) { // must be like "\key a \major
 			console.log("time: ", chunks[i + 1]);
@@ -188,7 +208,7 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 			if (index>=0) {
 				noteName = chunks[i].slice(0, index);
 			} else {
-				noteName = chunks[i];
+				noteName = chunks[i].toLowerCase();
 			}
 			let vtNote = "";
 
@@ -196,44 +216,12 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 				vtNote = "##";
 			} else {
 
-				if (! noteNames.includes(noteName)) { // ERROR
+				if (! noteNames.has(noteName)) { // ERROR
 					alert(noteName +  " is not a recognized note or keyword."); // TODO: translate!
 					break;
 				}
 				console.log("noteName is: ", noteName);
-				vtNote = noteName[0].toUpperCase();
-				if (vtNote === "H") {
-					vtNote = "B"; // german to Scandinavian/English B
-				} else if (vtNote === "B") {
-					vtNote = "B@"; // german to Scandinavian/English BES
-				}
-
-				if (noteName.length > 1) {
-					let ending;
-
-					if (["as", "es", "eses"].includes(noteName)) { // handle exceptions of the vowel notenames
-						ending = "es";
-					} else if ( ["ases", "eses"].includes(noteName)) {
-						ending = "eses";
-					} else {
-						ending = noteName.slice(1);
-					}
-
-					switch (ending) {
-						case "eses":
-							vtNote += "@@";
-							break;
-						case "es":
-							vtNote += "@";
-							break;
-						case "is":
-							vtNote += "#";
-							break;
-						case "isis":
-							vtNote += "##";
-							break;
-					}
-				}
+				vtNote = noteNames.get(noteName);
 
 				//TODO: octave from relative writing
 				let octave;
@@ -283,4 +271,7 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 	notationInfo.vtNotes = vtNotes;
 	return notationInfo;
 };
+
+
+
 

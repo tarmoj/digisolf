@@ -35,8 +35,22 @@ Valminud häälestusharjutuste tüübid (isegenereeruvad) - 2
 
 // TARMO:
 - mis kujul on on diktaadi notatsioon ('notation') diktaadi vastuse juures? Praegu Lilypond, aga parem ilmselt ja otstarbekam VexTab
+--- pigem siiski inimesele loetav lilypondis (musicxml2ly väljund või käsitsi sisestud)
+
+
+
 - vaja MusicXML -> VexTab konverteerijat. Ilmselt musicxml2ly (python) baasil
 - teksti sisestus (pimedad) lilypondis, konverteerida VexTabi (notes.js parseLilypondString) -  vaja täiustada ja lisada relative sisestus
+
+1) helistiku sisestus (key) 
+2) relative -> absolute
+vt ka https://python-ly.readthedocs.io/en/latest/_modules/ly/pitch.html
+VexTab tutorial:
+http://vexflow.com/vextab/tutorial.html
+3) Akordide tugi (Lilypond->VexTab)
+
+3) vastuse kontrollimine (artist.staves[x].note_notes kaudu)
+4) hahehäälsed diktaadid (stave-[voice]-notes + stave-notes ) -  akvaladdiga ühedamiseks vt vexFLow StaveConnector
 
 
 // EDGAR:

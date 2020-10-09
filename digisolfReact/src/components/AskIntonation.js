@@ -39,7 +39,6 @@ const AskIntonation = () => {
             let audioContext = CsoundObj.CSOUND_AUDIO_CONTEXT;
             if ( typeof (audioContext) == "undefined") {
                 CsoundObj.initialize(CsoundObj.CSOUND_AUDIO_CONTEXT).then(() => { // the error happens here with initialize...
-                    console.log("Csound EFFECT PROMISE CALLED");
                     const cs = new CsoundObj();
                     setCsound(cs);
                 });

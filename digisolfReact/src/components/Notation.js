@@ -88,7 +88,7 @@ const Notation = (props) => {
         const notesString =  (notes) ? "\nnotes " + notes + "\n" : "";
         const endString = ""; //"\noptions space=20\n";
         const vtString = startString + clefString + keyString + timeString + notesString + endString;
-        //console.log (vtString);
+        console.log (vtString);
         return vtString;
     };
 
