@@ -92,6 +92,7 @@ const Notation = (props) => {
         return vtString;
     };
 
+    // notes can be yct also a full vextab string, then it must begin with keyword 'stave'
     const redraw = (notes) => {
         if (!vexTab) {
             console.log("vexTab not initialized!");
@@ -101,7 +102,11 @@ const Notation = (props) => {
             // Parse VexTab music notation passed in as a string.
             vexTab.reset();
             artist.reset();
-            vexTab.parse( createVexTabString(notes) );
+            if (notes.toString().trim().startsWith("stave") ) { // already full vextab string
+                vexTab.parse( notes );
+            } else {
+                vexTab.parse(createVexTabString(notes));
+            }
             artist.render(renderer);
         } catch (e) {
             console.log(e);

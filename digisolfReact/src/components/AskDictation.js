@@ -27,7 +27,7 @@ const AskDictation = () => {
     //const midiSounds = useRef(null);
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
-    const [selectedDictation, setSelectedDictation] = useState({title:"", soundFile:""});
+    const [selectedDictation, setSelectedDictation] = useState({title:"", soundFile:"", notation:""});
     const [answer, setAnswer] = useState(null);
     const [answered, setAnswered] = useState(false);
     const [currentCategory, setCurrentCategory] = useState("C_simple");
@@ -88,6 +88,23 @@ const AskDictation = () => {
         `
         },
 
+        // TEST: kahehäälne ühel süsteemil. Notatsioon praegu VexTab
+        //NB! helifal praegu vale!
+        { category: "C_simple",
+            title: "2v 1a",
+            soundFile: "../sounds/dictations/14a.mp3",
+            notationType: "vextab", // vextab VT or lilypond
+            notation:
+                `
+stave time=4/4
+voice
+notes :4 E/4 F/4 G/4 A/4 | G/4 F/4 :2 G/4 
+
+voice 
+notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4    
+        `
+        },
+
         // RM Tõnu näide
         {category: "RM_simple", title: "Smilers", soundFile: "../sounds/dictations/Smilers.mp3",
             credits: "Hendriks Sal-Saller \"Käime katuseid mööda\"",
@@ -136,7 +153,9 @@ const AskDictation = () => {
 
         //const notationInfo =
         //setNotationInfo( {vtNotes: null});
-        showFirstNote(dictationIndex);
+
+        // uncommented for testing:
+        //showFirstNote(dictationIndex);
         hideAnswer();
         const dictation = dictations[dictationIndex];
 
@@ -184,7 +203,14 @@ const AskDictation = () => {
         if (!answerIsHidden()) {
             hideAnswer()
         } else {
-            const notationInfo = parseLilypondString(selectedDictation.notation);
+            let notationInfo =  {vtNotes: ""};
+            // see on paha struktuur, oleks vaja, et oleks võimalik anda kogu vexTab String tervikuna, kui nt mitmehäälne muusika
+            if (selectedDictation.notation.trim().startsWith("stave") ) {
+                notationInfo.vtNotes = selectedDictation.notation;
+            } else {
+                notationInfo = parseLilypondString(selectedDictation.notation);
+            }
+            //
             console.log("Õiged noodid: ", notationInfo.vtNotes);
             if (notationInfo.vtNotes) {
                 setCorrectNotation(notationInfo);

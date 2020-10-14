@@ -37,17 +37,28 @@ Valminud häälestusharjutuste tüübid (isegenereeruvad) - 2
 - mis kujul on on diktaadi notatsioon ('notation') diktaadi vastuse juures? Praegu Lilypond, aga parem ilmselt ja otstarbekam VexTab
 --- pigem siiski inimesele loetav lilypondis (musicxml2ly väljund või käsitsi sisestud)
 
+TODO: uuri, äkki notatsioon samuti failidena (MusicXML), kasuta opensheetmusicdisplay näitamiseks?
+Sel juhul, kuidas lilypond -> VexFlow? (ilmselt ikka Notation sees...)
+
+Uuri, kas music21 suudab seda teha (ning music21j)
+https://web.mit.edu/music21/doc/usersGuide/usersGuide_08_installingMusicXML.html
+
+ABC->VT:
+https://github.com/newlandsvalley/elm-abc2vextab
+
 
 
 - vaja MusicXML -> VexTab konverteerijat. Ilmselt musicxml2ly (python) baasil
 - teksti sisestus (pimedad) lilypondis, konverteerida VexTabi (notes.js parseLilypondString) -  vaja täiustada ja lisada relative sisestus
 
-1) helistiku sisestus (key) 
+1) helistiku sisestus (key) ok
+1a) taktijoonte tugi ok
 2) relative -> absolute
 vt ka https://python-ly.readthedocs.io/en/latest/_modules/ly/pitch.html
 VexTab tutorial:
 http://vexflow.com/vextab/tutorial.html
-3) Akordide tugi (Lilypond->VexTab)
+3) Akordide tugi (\chords) vt  https://lilypond.org/doc/v2.19/Documentation/notation/displaying-chords
+- uuri, kuidas see musicxml->Lilypond kajastug
 
 3) vastuse kontrollimine (artist.staves[x].note_notes kaudu)
 4) hahehäälsed diktaadid (stave-[voice]-notes + stave-notes ) -  akvaladdiga ühedamiseks vt vexFLow StaveConnector
@@ -66,6 +77,38 @@ http://vexflow.com/vextab/tutorial.html
 ### Kui jõuab (mis eelmisest poolaastast jäi planeeritust välja)
 - H5P testmoodul ja proovida laadida e-koolikorri
 - katsetada intervalle ja akorde salvestatud pillisämplitega (võibolla vaja salvestada mingit materjali)
+
+
+
+### TARMO märkmed
+
+VT noodid kättesaadavad:
+VT.artist.staves[n].note -  kõik seotud noodijoonestikuga (ühtlasi addNote etc)
+
+artist.staves[0].note.getYForNote(-1) -  noodijoonte kohad jne
+
+vt
+artist.getNoteForABC()
+artist.addNote, .addBar etc
+
+artist.staves[0].note_notes[0]-> duration, glyph, keyProps{octave, octave, line, accidental, stroke} , noteType, playNote, render_options
+
+veel
+.renderer.resize(400, 400)
+
+
+
+
+### KÜSIMUSED (Diktaadid)
+? Kuidas saab lisada noote Notation komponendis (addNote vm)- kas lisades string vm strukuuri? Parem vist otse artist.staves peale
+? Kuidas käib vastuste kontrollimine? Ilmselt kahe Notation elemendi artist.staves võrdlsemisel? Kuidas need kätte saab?
+? Kuidas jõuab MusicXML VeFlown?
+? Milline on otstarbekas props (andmete struktuur), mida edasi anda emakomponendilt Notationile? - vahel hea, kui tervik VT_String plokk (moodusta string nt notes.js all makeVexTabString all) => kirjuta ümber AskDiktation
+? kuidas muuta mitmehäälset Lilypondi VexTabiks?
+? kuidas käib märkide peitmine (nit fis D-duuris)
+? kuidas ühendada noodiread süsteemiks (vtVexFlow addStaffConnection vms, oli ka tesitde juures).
+
+? Kuidas teha, et diktaadid oleks defineeritud eraldi failina/failidena, neid oleks lihtne lisada (H5P kaudu). 
 
 
 
