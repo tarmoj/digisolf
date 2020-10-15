@@ -18,6 +18,35 @@ const Notation = (props) => {
     const vexTab = new VexTab(artist);
     Artist.NOLOGO = true;
 
+    // this is basic structure to keep all the score
+    // score includes staves,  staves include voices, voices include notes
+    let notationInfo = {
+        staves: [
+            {
+                options: "", // scale, width, space etc, if needed
+                clef:"treble",
+                key:"C",
+                time: "4/4",
+                voices: [
+                    {
+                        notes: [
+                            {
+                                keys: [""], // like ["C/4", "Eb/4", "G/4"] for chord
+                                duration: "4", // quarter note is the default
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    };
+    let currentStave = 0, currentVoice = 0, lastNote = -1;
+
+    // use like: scoreInfo.staves[0].voices[0].notes[0] = {keys:["C/4"], duration: "2."}
+    // TODO: insertNote(staff, voice, index), getNote(staff, voice, index), removeNote(staff, voice, index)
+    // TODO: rework createVexTabString
+
+
     useEffect(() => {
         console.log("First run");
         vexTabInit();
