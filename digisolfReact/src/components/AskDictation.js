@@ -33,7 +33,7 @@ const AskDictation = () => {
     const [currentCategory, setCurrentCategory] = useState("C_simple");
 
     const [notesEnteredByUser, setNotesEnteredByUser] = useState(""); // test
-    const [notationInfo, setNotationInfo] = useState({  clef:"treble", time: "4/4", vtNotes: "" });
+    const [notationInfo, setNotationInfo] = useState({  clef:"treble", time: "4/4" });
     const [correctNotation, setCorrectNotation] = useState({  clef:"treble", time: "4/4", vtNotes: "" });
 
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED)
@@ -155,7 +155,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
         //setNotationInfo( {vtNotes: null});
 
         // uncommented for testing:
-        //showFirstNote(dictationIndex);
+        showFirstNote(dictationIndex);
         hideAnswer();
         const dictation = dictations[dictationIndex];
 
@@ -171,11 +171,13 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
 
     const showFirstNote= (dictationIndex) => {
 
-        const notation =  parseLilypondString(dictations[dictationIndex].notation);
+        // must be rewritten -  sometimes notation is Ly, sometimes VT
+        /*const notation =  parseLilypondString(dictations[dictationIndex].notation);
         const vtNotes = notation.vtNotes;
         const firstNote = vtNotes.slice(0, vtNotes.indexOf("/")+2);
         console.log("First note: ", firstNote );
-        notation.vtNotes = firstNote;
+        notation.vtNotes = firstNote;*/
+        const notation = { vtNotes:"" }
         setNotationInfo(notation);
         //TODO: peaks sisestama ka taktimõõdu, helistiku ja esimese noodi sisestus-Inputi tekstiks ( notesEnteredByUser )
 

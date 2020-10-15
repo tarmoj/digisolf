@@ -108,7 +108,28 @@ veel
 ? kuidas käib märkide peitmine (nit fis D-duuris)
 ? kuidas ühendada noodiread süsteemiks (vtVexFlow addStaffConnection vms, oli ka tesitde juures).
 
-? Kuidas teha, et diktaadid oleks defineeritud eraldi failina/failidena, neid oleks lihtne lisada (H5P kaudu). 
+? kuidas teha, et näiab midagi ette, kui nt fullVexTab String? Eraldi väli: show: "g4"; see oleks võibolla hea lilypondis? ning sisestada ka tekstisisestuse reale?
+Laiuse kohta vt: artist.stave[n].note.end_x (jja width, start_x etc)
 
 
+? Kuidas teha, et diktaadid oleks defineeritud eraldi failina/failidena, neid oleks lihtne lisada (H5P kaudu).
+
+? Kuidas teha laiusega, kui on pikem diktaat/kitsam ekraan? Lihtsaim, kui keritav, mitme rea peale vist hästi ei saa...
+
+SEE TÖÖTAB:
+artist.setDuration("8",".")
+artist.addStaveNote({spec:["C#/4"], accidentals:"#", play_note:"C#/4"})
+- see paneb lõppu, kui vaja asetada vahele, proovi luua Vex.StaveNote vms (vt addStaveNote) ning lükka see stave[0].note_notes õigesse kohta:
+arr.splice(index, 0, item)
+
+
+
+artist.coffee seest:
+if tab? and score?
+        (new Vex.Flow.StaveConnector(score.stave, tab.stave))
+          .setType(Vex.Flow.StaveConnector.type.BRACKET)
+          .setContext(ctx).draw()
+
+
+Logo võib ära saada: Artist.NOLOGO = true
 

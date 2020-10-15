@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Artist, VexTab, Flow} from 'vextab/releases/vextab-div'
 import {trebleClefNotes} from "../util/notes";
+import {getRandomElementFromArray} from "../util/util";
 
 
 const Notation = (props) => {
@@ -15,6 +16,7 @@ const Notation = (props) => {
     const [renderer, setRenderer] = useState(null);
     //let renderer = null;
     const vexTab = new VexTab(artist);
+    Artist.NOLOGO = true;
 
     useEffect(() => {
         console.log("First run");
@@ -30,7 +32,7 @@ const Notation = (props) => {
 
     useEffect(() => {
         if (renderer !== null) {
-            redraw();
+            redraw("");
         }
     }, [renderer]);
 
@@ -80,6 +82,56 @@ const Notation = (props) => {
 
     };
 
+    // DYNAMIC NOTE INPUT  ----------------------------
+
+    // just for testing, does not support chords, different voices etc
+    const addRandomNote = () => {
+        const noteNames =  ["C", "D", "E", "F", "G", "A", "B"];
+        const accidentals = ["","#","b"];
+        const durations = ["8", "4", "2", "4.", "2."]
+        const note = getRandomElementFromArray(noteNames)+getRandomElementFromArray(accidentals) + "/4"; // middle octave
+        const duration =  getRandomElementFromArray(durations);
+
+        addNote(note, duration);
+    };
+
+
+    const deleteLastNote = (staveNo = 0) => {
+        if (artist.staves[0]) {
+            if (artist.staves[0].note_notes.length>0) {
+                artist.staves[0].note_notes.pop();
+            }
+        }
+
+          artist.draw(renderer);
+
+    }
+
+    // the note is added to the end of current stave
+    const addNote = (note, durationString, showAccidental=true) => { // like addNote("C#/4", "8.", false))
+        let durationValue, dotted;
+        if (durationString.endsWith(".") || durationString.endsWith("d") ) {
+            durationValue = durationString.slice(0, -1);
+            dotted = true;
+        } else {
+            durationValue = durationString;
+            dotted = false;
+        }
+        artist.setDuration(durationValue, dotted);
+        let accidentals = "";
+        if (note[1] in ["#", "b"] && showAccidental) {
+            accidentals = note[1];
+        }
+
+        //artist.addStaveNote({ spec:[`${note}`], accidentals:[`${accidentals}`] });
+        artist.addStaveNote({ spec:[`${note}`], accidentals:"" });
+
+        artist.render(renderer);
+    };
+
+
+
+
     const  createVexTabString = (notes) => {
         const startString = "stave "; //"options space=20\n stave \n ";
         const clefString = (props.clef) ? "clef="+props.clef+"\n" : "";
@@ -98,6 +150,10 @@ const Notation = (props) => {
             console.log("vexTab not initialized!");
             return;
         }
+        if (typeof(note)==="undefined") { // draw an empty staff if no notes set
+            console.log("Jälle undefined!");
+            //notes = "stave";
+        }
         try {
             // Parse VexTab music notation passed in as a string.
             vexTab.reset();
@@ -107,6 +163,7 @@ const Notation = (props) => {
             } else {
                 vexTab.parse(createVexTabString(notes));
             }
+
             artist.render(renderer);
         } catch (e) {
             console.log(e);
@@ -115,7 +172,11 @@ const Notation = (props) => {
 
 
     return (
-        <div ref={vtDiv} />
+        <div>
+            <div ref={vtDiv} />
+            <button onClick={addRandomNote}>Test: Lisa noot</button>
+            <button onClick={deleteLastNote}>Kustuta viimane</button>
+        </div>
     );
 };
 
