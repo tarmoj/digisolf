@@ -14,6 +14,83 @@ import Sound from 'react-sound';
 import Select from "semantic-ui-react/dist/commonjs/addons/Select";
 import dictation1a from "../sounds/dictations/1a.mp3";
 import {useParams} from "react-router-dom";
+import CsoundObj from "@kunstmusik/csound";
+import {makeInterval,  scaleDefinitions} from "../util/intervals";
+import * as notes from "../util/notes";
+
+// move the csound orchestra to separate file and import
+
+const orc = `
+sr=48000
+ksmps=128
+0dbfs=1
+nchnls=2
+gkMayPlay init 0
+
+giNotes[] array 60, 65, 67, 62, 60
+gaSignal[] init 2
+
+;schedule "PlaySequence", 0, 0, 1
+
+; TODO: call instruments in real time, metro, that takes the tempo
+; then Stop turns off PlaySequence
+instr PlaySequence ; plays the notes (MIDI NN) from array giNotes
+
+gkMayPlay init 1
+
+
+iBeatDuration = (p4==0) ? 1 : p4
+index = 0
+iStart = 0
+while (index < lenarray(giNotes) ) do
+schedule "PlayNote", iStart, iBeatDuration, giNotes[index]
+iStart += iBeatDuration
+index += 1 
+od
+endin
+
+
+instr PlayNote ; p4 - notenumber
+; TODO: volume
+iNote = p4
+
+if (gkMayPlay==0) then
+    turnoff 
+endif
+
+Sfile sprintf "%d.ogg", iNote
+prints Sfile
+iDuration filelen Sfile
+print iDuration
+aSignal[] diskin2 Sfile
+
+;aSignal[] init 2
+;aSignal[0] = poscil:a(0.3, cpsmidinn(iNote))
+;aSignal[1] = aSignal[0]
+gaSignal = aSignal
+;TODO: check for channels
+; TODO declick
+out aSignal*linen:a(1, 0.05, p3, 0.3)
+endin
+
+instr Stop
+    gkMayPlay init 0
+endin
+
+
+schedule "Reverb", 0, -1
+instr Reverb
+iReverbLevel = 0.2
+iSize = 0.6
+aRvbL, aRvbR reverbsc gaSignal[0]*iReverbLevel , gaSignal[1]*iReverbLevel, iSize, 12000
+out aRvbL, aRvbR
+gaSignal[0] = 0
+gaSignal[1] = 0
+endin
+
+
+`;
+
 
 
 const AskDictation = () => {
@@ -33,10 +110,11 @@ const AskDictation = () => {
     const [currentCategory, setCurrentCategory] = useState("C_simple");
 
     const [notesEnteredByUser, setNotesEnteredByUser] = useState(""); // test
-    const [notationInfo, setNotationInfo] = useState({  clef:"treble", time: "4/4" });
+    const [notationInfo, setNotationInfo] = useState({  clef:"treble", time: "4/4", vtNotes: "" });
     const [correctNotation, setCorrectNotation] = useState({  clef:"treble", time: "4/4", vtNotes: "" });
 
-    const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED)
+    const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
+
 
 
     // diktaatide definitsioonid võibolla eraldi failis.
@@ -44,7 +122,7 @@ const AskDictation = () => {
     // vaja mõelda, milliline oleks diktaadifailide struktuur
     // midagi sellist nagu:
     // category: C-  classical, RM - rhythm music (pop-jazz) NB! categorys will most likely change!
-    const categories = ["C_simple", "RM_simple"];
+    const categories = ["1voice", "2voice", "classical", "popJazz", "functional", "C_simple", "RM_simple", "degrees"];
 
     const dictations = [
         {category: "C_simple", title: "1a",
@@ -124,6 +202,24 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
 
         },
 
+        // degree dictations
+        {category: "degrees_level1", title: "1",
+            //soundFile: "",
+            //notation: "", // vist ikka vaja et oleks notatsioon ja selle järgi leiab MIDI noodid
+            degrees: "1 2 3 2 1 -7 1 ",
+            tonicVtNote: "C/5", // kas vaja
+            scale: "major", // need for corret ynames: major, minor, ionia, locria, lydia, etc
+        },
+        {category: "degrees_level1", title: "2",
+            //soundFile: "",
+            //notation: "",
+            tonicVtNote: "C/5",
+            degrees: "1 2 1 -7   -6 -5 1 ",
+            scale: "major", // need for corret ynames: major, minor, ionia, locria, lydia, etc
+        },
+
+
+
     ];
 
 
@@ -133,8 +229,13 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
     const startExercise = () => {
         setExerciseHasBegun(true);
 
+        if (name.toString().startsWith("degrees") ) {
+            console.log("Trying to start Csound");
+            startCsound();
+        }
+
         // the initial category comes with the exercise name, maybe later user can change it
-        if (categories.includes(name)) {
+        if (categories.includes(name.split("_")[0])) {
             setCurrentCategory(name);
         } else {
             console.log("Unknown dictation category: ", name);
@@ -147,26 +248,81 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
     // ilmselt selles tüübis ei võta juhuslikult vaid mingi menüü, kust kasutaja saab valida
     // võib mõelda ka juhuslikult moodustamise tüübi peale, aga siis ei saa kasutada vist päris pille
     const renew = (dictationIndex) =>  {
-
+        console.log("Renew: ", dictationIndex);
         setAnswered(false);
         setNotesEnteredByUser("");
+        const dictation = dictations[dictationIndex];
 
-        //const notationInfo =
-        //setNotationInfo( {vtNotes: null});
+
+       if (dictation.category.startsWith("degrees")) { // degree dictations -  generate notation from dictation.degrees
+           // leia noodid vastavalt laadi astmete intervallidele
+           // TODO: take tonicVtNote form given array major: [C, G, F ], minor: [a, e, d] etc
+           const melodyNotes =  degreesToNotes(dictation.degrees, dictation.scale, dictation.tonicVtNote );
+           let notation = "stave time=4/4\nnotes :4 "; // TODO: key
+           let midiNotes = [];
+           let i=0;
+           // maybe it is better to form the notationString also in degreesToNotes and return 3 arrays -
+           // midiNotes[], vtNotationString
+           const melodyDegrees = dictation.degrees.trim().split(/[ ,]+/); // split by comma or white space
+           for (let note of melodyNotes) {
+               // TODO: construct notation of the dictation here
+               console.log("Melody: ", note.vtNote);
+               notation += ` ${note.vtNote}  $ ${Math.abs(melodyDegrees[i++]) } $ `;
+               midiNotes.push(note.midiNote);
+               //setNotationInfo({time: "4/4", vtNotes: vtNotes});
+               //
+           }
+           console.log("Constructed notation: ", notation);
+           dictation.notation = notation;
+           dictation.midiNotes = midiNotes;
+           // see ei tööta nii, vt showDictation
+           // ssetCorrectNotation({vtNotes: selectedNotes.join(" ") });
+
+       }
+
+        setSelectedDictation(dictation);
 
         // uncommented for testing:
         showFirstNote(dictationIndex);
         hideAnswer();
-        const dictation = dictations[dictationIndex];
 
-        setSelectedDictation(dictation);
 //        console.log("Selected chord: ", t(selectedChord.longName), baseNote.midiNote );
         const answer = {notation: selectedDictation.notation};
         setAnswer(answer);
         if (exerciseHasBegun) {
-            playSoundFile(dictation.soundFile);
+            play();
+            //playSoundFile(dictation.soundFile);
         }
 
+    };
+
+    const degreesToNotes = ( degreeString, scale, tonicVtNote) => { // returns array of note objects according to the degree-melody
+        if (scaleDefinitions.hasOwnProperty(scale) ) {
+            let melodyNotes = [];
+            const baseNote = notes.getNoteByVtNote(tonicVtNote);
+            const melodyDegrees = degreeString.trim().split(/[ ,]+/); // split by comma or white space
+            for (let degree of melodyDegrees) {
+                if (degree < -7 || degree > 7  ) {
+                    console.log("Wrong degree: ", degree);
+                    break;
+                }
+                const interval = scaleDefinitions[scale][Math.abs(degree)-1];
+                if (interval) {
+                    let degreeNote =  makeInterval(baseNote, interval, "up"); // what if bass clef?
+                    if (degree<0) { // below tonic
+                        degreeNote =  makeInterval(degreeNote, "p8", "down");
+                    }
+                    console.log("Tonic, Interval, note: ", tonicVtNote, interval, degreeNote.vtNote );
+                    melodyNotes.push(degreeNote);
+                } else {
+                    console.log("Could not find interval for scale, degree: ", scale, degree);
+                }
+            }
+            return melodyNotes;
+        } else {
+            console.log("Could not find scale: ", scale );
+            return [];
+        }
     };
 
     const showFirstNote= (dictationIndex) => {
@@ -187,14 +343,49 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
         setCorrectNotation({vtNotes: null});
     };
 
-    const playSoundFile = (url) => {
+    // võibolla -  ka helifailide mängimine Csoundiga?
+    const play = () => {
+        if (name.startsWith("degrees")) {
+            playCsoundSequence();
+        } else {
+            playSoundFile(selectedDictation.soundFile);
+        }
+    };
+
+    const playSoundFile = (url) => { // why is here url? Sound.url is probably already set somewhere...
         console.log("Play soundfile", url);
         setPlayStatus(Sound.status.PLAYING);
     };
 
+    const playTonic = (tonicMidiNote, duration=1) => {
+        const scoreLine = `i 2 0 ${duration} ${tonicMidiNote}`;
+        console.log("Play tonic in Csound: ", scoreLine);
+        if (csound) {
+            csound.readScore(scoreLine);
+        } else {
+            console.log("csound is null");
+        }
+    }
+
+    const playCsoundSequence = (startTime = 0, beatLength=1) => {
+        const dictation = selectedDictation; //dictations[dictationIndex];
+        if ( dictation.hasOwnProperty("midiNotes") ) {
+            const compileString = `giNotes[] fillarray ${dictation.midiNotes.join(",")}`;
+            console.log("Compile: ", compileString);
+            csound.compileOrc(compileString);
+            csound.readScore(`i 1 ${startTime} 0 ${beatLength} `);
+        }
+    };
+
     const stop = () => {
         console.log("Stop");
-        setPlayStatus(Sound.status.STOPPED);
+        if (name.toString().startsWith("degrees")) {
+            if (csound) {
+                csound.readScore("i \"Stop\" 0  0.1");
+            }
+        } else {
+            setPlayStatus(Sound.status.STOPPED);
+        }
     };
 
     const answerIsHidden = () => {
@@ -263,7 +454,56 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
         }
     };
 
+    // Csound functions =============================================
 
+    //const [csoundStarted, setCsoundStarted] = useState(false);
+    const [csound, setCsound] = useState(null);
+
+    useEffect(() => {
+        if (csound == null) {
+            CsoundObj.initialize().then(() => {
+                const cs = new CsoundObj();
+                const data = [1,2,3];
+                setCsound(cs);
+            });
+        }
+    }, [csound]);
+
+    useEffect(() => {
+        return () => {
+            if (csound) {
+                csound.reset();
+            }
+        }
+    }, [csound]);
+
+    async function loadResources(csound,  startinNote=60, endingNote=84, instrument="flute") {
+        if (!csound) {
+            return false;
+        }
+        for (let i = startinNote; i <= endingNote; i++) {
+            const fileUrl = "sounds/instruments/" + instrument + "/" + i + ".ogg";
+            const serverUrl = `${process.env.PUBLIC_URL}/${fileUrl}`;
+            console.log("Trying to load URL ",serverUrl);
+            const f = await fetch(serverUrl);
+            const fName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+            // const path = `/${dirToSave}/${fName}`;
+            const path = `${fName}`;
+            const buffer = await f.arrayBuffer();
+            // console.log(path, buffer);
+            await csound.writeToFS(path, buffer);
+        }
+        return true;
+    }
+
+    const startCsound = async () => {
+        await loadResources(csound, 60, 84, "flute");
+
+        csound.compileOrc(orc);
+        csound.start();
+        csound.audioContext.resume();
+        //setCsoundStarted(true);
+    };
 
 
 
@@ -276,7 +516,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
             return (
                 <Grid.Row  columns={3} centered={true}>
                     <Grid.Column>
-                        <Button color={"green"} onClick={() => playSoundFile(selectedDictation.soundFile)} className={"fullWidth marginTopSmall"} >
+                        <Button color={"green"} onClick={() => play()} className={"fullWidth marginTopSmall"} >
                             { capitalizeFirst( t("play")) }
                         </Button>
                     </Grid.Column>
@@ -304,6 +544,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
 
     const createNotationBlock = () => {
         const answerDisplay = answerIsHidden() ? "none" : "inline";
+        const notationDisplay = true; //name.startsWith("degrees") ? "none" : "inline";
 
         return exerciseHasBegun ? (
         <div >
@@ -331,11 +572,13 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                 <p> { '\\time 2/4 b,8 c d es | f f f4  ' }  </p>
 
             </Popup>
+            <div style={{display: notationDisplay}}>
             <Notation  className={"marginTopSmall"} width={600} scale={1}
                        notes={notationInfo.vtNotes}
                        time={notationInfo.time}
                        clef={notationInfo.clef}
                        keySignature={notationInfo.keySignature}/>
+            </div>
             <div style={{display: answerDisplay}}>
                <Notation className={"marginTopSmall"} width={600} scale={1}
                          notes={correctNotation.vtNotes}
@@ -393,6 +636,19 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                 playStatus={playStatus}
                 onFinishedPlaying={handleDictationFinishedPlaying}
             />
+
+            {/*{ csound == null ? (
+                <div>
+                    <p>Loading...</p>
+                </div>
+            ) : (
+                csoundStarted ? (
+                    <button onClick={renew(1)}>NEW</button>
+                ) : (
+                    <button onClick={startCsound}>START Csound</button>
+                )
+            )}*/}
+
             <Grid>
                 <ScoreRow/>
                 {createSelectionMenu()}

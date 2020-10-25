@@ -69,5 +69,7 @@
   "show": "näita",
   "chooseDictation": "Valige diktaat",
   "C_simple": "Lihtsad",
-  "RM_simple": "RM lihtsad"
+  "RM_simple": "RM lihtsad",
+  "degreeDictation": "astmediktaat",
+  "level": "tase"
 }

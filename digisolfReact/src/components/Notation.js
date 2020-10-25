@@ -21,9 +21,9 @@ const Notation = (props) => {
     // this is basic structure to keep all the score
     // score includes staves,  staves include voices, voices include notes
     let notationInfo = {
+        options: "", // scale, width, space etc, if needed
         staves: [
             {
-                options: "", // scale, width, space etc, if needed
                 clef:"treble",
                 key:"C",
                 time: "4/4",
@@ -45,6 +45,7 @@ const Notation = (props) => {
     // use like: scoreInfo.staves[0].voices[0].notes[0] = {keys:["C/4"], duration: "2."}
     // TODO: insertNote(staff, voice, index), getNote(staff, voice, index), removeNote(staff, voice, index)
     // TODO: rework createVexTabString
+
 
 
     useEffect(() => {
@@ -109,6 +110,26 @@ const Notation = (props) => {
             console.log ("Artist is null");
         }
 
+    };
+
+    // notationInfo functions ------------------------
+
+    const vtStringToNotationInfo  =  (vtString) => {
+        // quite complex.
+        // see vextab.coffee function parse and parser.parse (vextab.jison)
+
+    };
+
+    const notationInfoToVtString = () => {
+        let vtString = "";
+        // TODO: options
+        for (let stave of notationInfo.staves) {
+            vtString += `stave clef=${stave.clef} key=${stave.key} time=${stave.time} \n`;
+            for (let voice of stave.voices) {
+                // notation
+                // test if chord -  ( . .  ) notation -  or single note
+            }
+        }
     };
 
     // DYNAMIC NOTE INPUT  ----------------------------

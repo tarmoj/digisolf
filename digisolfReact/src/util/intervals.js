@@ -34,6 +34,30 @@ export const chordDefinitions = [
 
 ];
 
+export const scaleDefinitions = { // defined by intervals from tonic
+    major : ["p1", "s2", "s3", "p4", "p5", "s6", "s7", "p8"],
+    minorNatural : ["p1", "s2", "v3", "p4", "p5", "v6", "v7", "p8"],
+    minorHarmonic : ["p1", "s2", "v3", "p4", "p5", "v6", "v7", "p8"],
+};
+
+export const makeScale = (tonicVtNote, scale) => { // returns array of vtNotes
+    if (scaleDefinitions.hasOwnProperty(scale) ) {
+        let vtNotes = [];
+        const baseNote = notes.getNoteByVtNote(tonicVtNote);
+        for (let interval of scaleDefinitions[scale]) {
+            const degreeNote = makeInterval(baseNote, interval, "up"); // what if bass clef?
+            console.log("Tonic, Interval, note: ", tonicVtNote, interval, degreeNote.vtNote );
+            vtNotes.push(degreeNote.vtNote);
+        }
+        return vtNotes;
+
+    } else {
+        console.log("Could not find scale: ", scale );
+        return [];
+    }
+
+};
+
 export const getInterval = (note1, note2) => {
     const semitones = note2.midiNote - note1.midiNote;
 
@@ -50,13 +74,13 @@ export const getInterval = (note1, note2) => {
     return {note1: note1, note2: note2, interval: interval, direction: direction};
 };
 
-const getIntervalBySemitones = (semitones) => {	// Return first interval found
+export const getIntervalBySemitones = (semitones) => {	// Return first interval found
     return intervalDefinitions.find(interval => interval.semitones === semitones);
 };
 
-const getIntervalByShortName = (shortName) => intervalDefinitions.find(interval => interval.shortName === shortName);
+export const getIntervalByShortName = (shortName) => intervalDefinitions.find(interval => interval.shortName === shortName);
 
-const makeInterval = (baseNote, shortName, direction="up", possibleNotes= notes.trebleClefNotes) => { // possibleNotes -  array of note objects
+export const makeInterval = (baseNote, shortName, direction="up", possibleNotes= notes.trebleClefNotes) => { // possibleNotes -  array of note objects
     // return found note as object or undefined otherwise
 
     const interval = getIntervalByShortName(shortName);

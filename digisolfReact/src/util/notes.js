@@ -209,6 +209,7 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 				case '.|:' : console.log("Repeat begins"); vtNotes += " =|: "; break;
 				case ':|.' : console.log("Repeat ends"); vtNotes += " =:|| "; break;
 				case ':|.|:' : console.log("Double repeat"); vtNotes += " =:: "; break;
+				default : console.log("Normal bar"); vtNotes += " | "; break;
 
 			}
 			i += 1;
