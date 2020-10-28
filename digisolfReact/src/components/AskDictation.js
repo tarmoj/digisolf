@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {Button, Grid, Header, Input, Popup} from 'semantic-ui-react'
+import {Button, Grid, Header, Input, Label, Popup} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../util/util";
@@ -109,7 +109,9 @@ const AskDictation = () => {
     const [answered, setAnswered] = useState(false);
     const [currentCategory, setCurrentCategory] = useState("C_simple");
 
-    const [notesEnteredByUser, setNotesEnteredByUser] = useState(""); // test
+    const [notesEnteredByUser, setNotesEnteredByUser] = useState("");
+    const [degreesEnteredByUser, setDegreesEnteredByUser] = useState("");
+
     const [notationInfo, setNotationInfo] = useState({  clef:"treble", time: "4/4", vtNotes: "" });
     const [correctNotation, setCorrectNotation] = useState({  clef:"treble", time: "4/4", vtNotes: "" });
 
@@ -123,6 +125,8 @@ const AskDictation = () => {
     // midagi sellist nagu:
     // category: C-  classical, RM - rhythm music (pop-jazz) NB! categorys will most likely change!
     const categories = ["1voice", "2voice", "classical", "popJazz", "functional", "C_simple", "RM_simple", "degrees"];
+
+    const dictationType = name.toString().split("_")[0]; // categories come in as 1voice_level1 etc
 
     const dictations = [
         {category: "C_simple", title: "1a",
@@ -229,18 +233,18 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
     const startExercise = () => {
         setExerciseHasBegun(true);
 
-        if (name.toString().startsWith("degrees") ) {
-            console.log("Trying to start Csound");
+        if ( dictationType === "degrees" ) {
             startCsound();
         }
 
         // the initial category comes with the exercise name, maybe later user can change it
-        if (categories.includes(name.split("_")[0])) {
-            setCurrentCategory(name);
-        } else {
-            console.log("Unknown dictation category: ", name);
-            return;
-        }
+        // if (categories.includes(name.split("_")[0])) {
+        //     setCurrentCategory(name);
+        // } else {
+        //     console.log("Unknown dictation category: ", name);
+        //     return;
+        // }
+
         //const firstInCategory = dictations.findIndex(  dict =>  dict.category=== name);
         //renew(firstInCategory);
     };
@@ -253,52 +257,36 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
         setNotesEnteredByUser("");
         const dictation = dictations[dictationIndex];
 
+        let answer = null;
 
-       if (dictation.category.startsWith("degrees")) { // degree dictations -  generate notation from dictation.degrees
-           // leia noodid vastavalt laadi astmete intervallidele
+       if (dictationType === "degrees") { // degree dictations -  generate notation from dictation.degrees
            // TODO: take tonicVtNote form given array major: [C, G, F ], minor: [a, e, d] etc
-           const melodyNotes =  degreesToNotes(dictation.degrees, dictation.scale, dictation.tonicVtNote );
-           let notation = "stave time=4/4\nnotes :4 "; // TODO: key
-           let midiNotes = [];
-           let i=0;
-           // maybe it is better to form the notationString also in degreesToNotes and return 3 arrays -
-           // midiNotes[], vtNotationString
-           const melodyDegrees = dictation.degrees.trim().split(/[ ,]+/); // split by comma or white space
-           for (let note of melodyNotes) {
-               // TODO: construct notation of the dictation here
-               console.log("Melody: ", note.vtNote);
-               notation += ` ${note.vtNote}  $ ${Math.abs(melodyDegrees[i++]) } $ `;
-               midiNotes.push(note.midiNote);
-               //setNotationInfo({time: "4/4", vtNotes: vtNotes});
-               //
-           }
-           console.log("Constructed notation: ", notation);
-           dictation.notation = notation;
+           const {vtString, midiNotes } =  degreesToNotes(dictation.degrees, dictation.scale, dictation.tonicVtNote );
+           console.log("Constructed notation: ", vtString);
+           dictation.notation = vtString;
            dictation.midiNotes = midiNotes;
-           // see ei tööta nii, vt showDictation
-           // ssetCorrectNotation({vtNotes: selectedNotes.join(" ") });
-
+           answer = {degrees: dictation.degrees};
+       } else { // other, notation oriented dictations
+           // uncommented for testing:
+           showFirstNote(dictationIndex);
+           hideAnswer();
+           answer = {notation: selectedDictation.notation};
        }
 
         setSelectedDictation(dictation);
-
-        // uncommented for testing:
-        showFirstNote(dictationIndex);
-        hideAnswer();
-
-//        console.log("Selected chord: ", t(selectedChord.longName), baseNote.midiNote );
-        const answer = {notation: selectedDictation.notation};
         setAnswer(answer);
+
         if (exerciseHasBegun) {
-            play();
+            play(dictation);
             //playSoundFile(dictation.soundFile);
         }
 
     };
 
-    const degreesToNotes = ( degreeString, scale, tonicVtNote) => { // returns array of note objects according to the degree-melody
+    const degreesToNotes = ( degreeString, scale, tonicVtNote) => { // returns object {vtString: <string>, midiNotes: [] }
         if (scaleDefinitions.hasOwnProperty(scale) ) {
-            let melodyNotes = [];
+            const midiNotes = [];
+            let vtString = "stave time=4/4\nnotes :4 "; // TODO: key
             const baseNote = notes.getNoteByVtNote(tonicVtNote);
             const melodyDegrees = degreeString.trim().split(/[ ,]+/); // split by comma or white space
             for (let degree of melodyDegrees) {
@@ -308,20 +296,21 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                 }
                 const interval = scaleDefinitions[scale][Math.abs(degree)-1];
                 if (interval) {
-                    let degreeNote =  makeInterval(baseNote, interval, "up"); // what if bass clef?
+                    let note =  makeInterval(baseNote, interval, "up"); // what if bass clef?
                     if (degree<0) { // below tonic
-                        degreeNote =  makeInterval(degreeNote, "p8", "down");
+                        note =  makeInterval(note, "p8", "down");
                     }
-                    console.log("Tonic, Interval, note: ", tonicVtNote, interval, degreeNote.vtNote );
-                    melodyNotes.push(degreeNote);
+                    console.log("Tonic, Interval, note: ", tonicVtNote, interval, note.vtNote );
+                    vtString += ` ${note.vtNote}  $ ${Math.abs(degree) } $ `; // add the
+                    midiNotes.push(note.midiNote);
                 } else {
                     console.log("Could not find interval for scale, degree: ", scale, degree);
                 }
             }
-            return melodyNotes;
+            return {vtString: vtString, midiNotes: midiNotes};
         } else {
             console.log("Could not find scale: ", scale );
-            return [];
+            return null;
         }
     };
 
@@ -344,11 +333,11 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
     };
 
     // võibolla -  ka helifailide mängimine Csoundiga?
-    const play = () => {
-        if (name.startsWith("degrees")) {
-            playCsoundSequence();
+    const play = (dictation) => {
+        if (dictationType === "degrees") {
+            playCsoundSequence(dictation);
         } else {
-            playSoundFile(selectedDictation.soundFile);
+            playSoundFile(dictation.soundFile);
         }
     };
 
@@ -367,8 +356,8 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
         }
     }
 
-    const playCsoundSequence = (startTime = 0, beatLength=1) => {
-        const dictation = selectedDictation; //dictations[dictationIndex];
+    const playCsoundSequence = (dictation, startTime = 0, beatLength=1) => {
+        //const dictation = selectedDictation; //dictations[dictationIndex];
         if ( dictation.hasOwnProperty("midiNotes") ) {
             const compileString = `giNotes[] fillarray ${dictation.midiNotes.join(",")}`;
             console.log("Compile: ", compileString);
@@ -516,7 +505,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
             return (
                 <Grid.Row  columns={3} centered={true}>
                     <Grid.Column>
-                        <Button color={"green"} onClick={() => play()} className={"fullWidth marginTopSmall"} >
+                        <Button color={"green"} onClick={() => play(selectedDictation)} className={"fullWidth marginTopSmall"} >
                             { capitalizeFirst( t("play")) }
                         </Button>
                     </Grid.Column>
@@ -542,43 +531,72 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
         }
     };
 
-    const createNotationBlock = () => {
+    const checkDegrees = () => checkResponse( {degrees: degreesEnteredByUser} );
+
+
+    const createDegreeDictationInput = () => { // if degreedictation, Input for  degrees (text), otherwise lilypondINpute + Notation
+        return (exerciseHasBegun && dictationType==="degrees") ? (
+            <div>
+                <label className={"marginRight"}>Sisesta astmed: </label>
+                <Input
+                    className={"marginRight"}
+                    onChange={e => {  setDegreesEnteredByUser(e.target.value) } }
+                    onKeyPress={ e=> { if (e.key === 'Enter') checkDegrees()  } }
+                    placeholder={'nt: 1 3 2 4 7 1'}
+                    value={degreesEnteredByUser}
+                />
+
+                <Button onClick={ checkDegrees }>{ capitalizeFirst( t("answer") )}</Button>
+
+            </div>
+        ) : null;
+
+    };
+
+    const createNotationInputBlock =  () => {
+        return (exerciseHasBegun && dictationType!=="degrees") ? (
+            <div>
+                <Input
+                    className={"marginRight"}
+                    onChange={e => {setNotesEnteredByUser(e.target.value)}}
+                    onKeyPress={ e=> { if (e.key === 'Enter') renderNotes()  }}
+                    placeholder={'nt: \\time 3/4 a,8 h, c4 gis | a a\'2'}
+                    value={notesEnteredByUser}
+                />
+                <Button onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
+                {/*AJUTINE INFO kast:*/}
+                <Popup on='click' position='bottom right' trigger={<Button content='Juhised' />} >
+                    <h3>Noteerimine teksti abil</h3>
+                    <p>Noodinimed: b, h, c, cis, es, fisis jne.</p>
+                    <p>Oktav (ajutine) noodinime järel: , - väike oktav, ' - teine oktav, Ilma märgita -  1. oktav </p>
+                    <p>Vältused noodinime (ja oktavi) järel: 4 -  veerad, 4. -  veerand punktida, 8 - kaheksandik jne.
+                        Vaikimisi -  veerand. Kui vätlus kordub, pole vaja seda kirjutada</p>
+                    <p>Paus: r </p>
+                    <p>Taktijoon: | </p>
+                    <p>Võti: nt. <i>{'\\clef treble'}</i> või <i>{'\\clef bass'}</i></p>
+                    <p>Taktimõõt: <i>nt. {'\\time 2/4 \\time 4/4 \\time 3/8'}</i> </p>
+                    <p>Helistik: hetkel toetamata</p>
+                    <p>Näide: Rongisõit B-duuris:</p>
+                    <p> { '\\time 2/4 b,8 c d es | f f f4  ' }  </p>
+
+                </Popup>
+
+                <Notation  className={"marginTopSmall"} width={600} scale={1}
+                           notes={notationInfo.vtNotes}
+                           time={notationInfo.time}
+                           clef={notationInfo.clef}
+                           keySignature={notationInfo.keySignature}/>
+
+            </div>
+        ) : null;
+    };
+
+
+    const createCorrectNotationBlock = () => {
         const answerDisplay = answerIsHidden() ? "none" : "inline";
-        const notationDisplay = true; //name.startsWith("degrees") ? "none" : "inline";
 
         return exerciseHasBegun ? (
-        <div >
-            <Input
-                className={"marginRight"}
-                onChange={e => {setNotesEnteredByUser(e.target.value)}}
-                onKeyPress={ e=> { if (e.key === 'Enter') renderNotes()  }}
-                placeholder={'nt: \\time 3/4 a,8 h, c4 gis | a a\'2'}
-                value={notesEnteredByUser}
-            />
-            <Button onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
-            {/*AJUTINE INFO kast:*/}
-            <Popup on='click' position='bottom right' trigger={<Button content='Juhised' />} >
-                <h3>Noteerimine teksti abil</h3>
-                <p>Noodinimed: b, h, c, cis, es, fisis jne.</p>
-                <p>Oktav (ajutine) noodinime järel: , - väike oktav, ' - teine oktav, Ilma märgita -  1. oktav </p>
-                <p>Vältused noodinime (ja oktavi) järel: 4 -  veerad, 4. -  veerand punktida, 8 - kaheksandik jne.
-                    Vaikimisi -  veerand. Kui vätlus kordub, pole vaja seda kirjutada</p>
-                <p>Paus: r </p>
-                <p>Taktijoon: | </p>
-                <p>Võti: nt. <i>{'\\clef treble'}</i> või <i>{'\\clef bass'}</i></p>
-                <p>Taktimõõt: <i>nt. {'\\time 2/4 \\time 4/4 \\time 3/8'}</i> </p>
-                <p>Helistik: hetkel toetamata</p>
-                <p>Näide: Rongisõit B-duuris:</p>
-                <p> { '\\time 2/4 b,8 c d es | f f f4  ' }  </p>
 
-            </Popup>
-            <div style={{display: notationDisplay}}>
-            <Notation  className={"marginTopSmall"} width={600} scale={1}
-                       notes={notationInfo.vtNotes}
-                       time={notationInfo.time}
-                       clef={notationInfo.clef}
-                       keySignature={notationInfo.keySignature}/>
-            </div>
             <div style={{display: answerDisplay}}>
                <Notation className={"marginTopSmall"} width={600} scale={1}
                          notes={correctNotation.vtNotes}
@@ -586,7 +604,6 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                          clef={correctNotation.clef}
                          keySignature={correctNotation.keySignature}/>
             </div>
-        </div>
         ) : null;
     };
 
@@ -652,7 +669,9 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
             <Grid>
                 <ScoreRow/>
                 {createSelectionMenu()}
-                {createNotationBlock()}
+                {createDegreeDictationInput()}
+                {createNotationInputBlock()}
+                {createCorrectNotationBlock()}
                 {createPlaySoundButton()}
                 <Grid.Row>
                     <Grid.Column>
