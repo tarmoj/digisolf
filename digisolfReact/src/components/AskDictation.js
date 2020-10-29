@@ -17,6 +17,7 @@ import {useParams} from "react-router-dom";
 import CsoundObj from "@kunstmusik/csound";
 import {makeInterval,  scaleDefinitions} from "../util/intervals";
 import * as notes from "../util/notes";
+import { stringToIntArray } from "../util/util.js"
 
 // move the csound orchestra to separate file and import
 
@@ -25,58 +26,57 @@ sr=48000
 ksmps=128
 0dbfs=1
 nchnls=2
-gkMayPlay init 0
 
 giNotes[] array 60, 65, 67, 62, 60
 gaSignal[] init 2
 
-;schedule "PlaySequence", 0, 0, 1
+gkBeatLength chnexport "beatLength", 1
+gkVolume chnexport "volume", 1
 
-; TODO: call instruments in real time, metro, that takes the tempo
-; then Stop turns off PlaySequence
+gkBeatLength init 1
+gkVolume init 0.8
+
+;schedule "PlaySequence", 0, 10
+
 instr PlaySequence ; plays the notes (MIDI NN) from array giNotes
-
 gkMayPlay init 1
+kMetroRate =1/gkBeatLength
+kCounter init 0
 
+if (metro:k(kMetroRate)==1) then
+schedulek "PlayNote", 0, 1, giNotes[kCounter]
+kCounter += 1
+printk2 kCounter
+if (kCounter==lenarray(giNotes) ) then
+turnoff
+endif 
+endif
 
-iBeatDuration = (p4==0) ? 1 : p4
-index = 0
-iStart = 0
-while (index < lenarray(giNotes) ) do
-schedule "PlayNote", iStart, iBeatDuration, giNotes[index]
-iStart += iBeatDuration
-index += 1 
-od
 endin
 
 
 instr PlayNote ; p4 - notenumber
-; TODO: volume
 iNote = p4
-
-if (gkMayPlay==0) then
-    turnoff 
-endif
-
 Sfile sprintf "%d.ogg", iNote
 prints Sfile
-iDuration filelen Sfile
-print iDuration
+p3 filelen Sfile
 aSignal[] diskin2 Sfile
-
+aSignal *= gkVolume*linenr:a(1, 0.05,0.1, 0.001)
 ;aSignal[] init 2
+;a1 poscil 0.3, cpsmidinn(iNote)
 ;aSignal[0] = poscil:a(0.3, cpsmidinn(iNote))
 ;aSignal[1] = aSignal[0]
 gaSignal = aSignal
 ;TODO: check for channels
 ; TODO declick
-out aSignal*linen:a(1, 0.05, p3, 0.3)
+out aSignal
 endin
 
 instr Stop
-    gkMayPlay init 0
+turnoff2 "PlaySequence", 0, 1
+turnoff2 "PlayNote", 0, 1
+turnoff
 endin
-
 
 schedule "Reverb", 0, -1
 instr Reverb
@@ -84,10 +84,10 @@ iReverbLevel = 0.2
 iSize = 0.6
 aRvbL, aRvbR reverbsc gaSignal[0]*iReverbLevel , gaSignal[1]*iReverbLevel, iSize, 12000
 out aRvbL, aRvbR
+;clear gaSignal[0], gaSignal[1] 
 gaSignal[0] = 0
-gaSignal[1] = 0
+gaSignal[1] = 0 
 endin
-
 
 `;
 
@@ -133,39 +133,39 @@ const AskDictation = () => {
             soundFile: dictation1a,
             //soundFile: "../digisolf/sounds/dictations/1a.mp3",
             notation:
-        ` \\time 4/4 
+        ` \ime 4/4 
         c d c e | c g e r \\bar "|."
         `
         },
         {   category: "C_simple",
             title: "2a", soundFile: "../sounds/dictations/2a.mp3", notation: // url was: ../digisolf/sounds/
                 `
-                \\time 4/4
+                \ime 4/4
                 c e g c | h, c g, r \\bar "|."  
         `
         },
         { category: "C_simple", title: "3c", soundFile: "../sounds/dictations//3c.mp3", notation:
                 `
-                \\time 4/4
+                \ime 4/4
                 c' e' d' c' | g f e  r \\bar "|."  
         `
         },
         { category: "C_simple", title: "4b", soundFile: "../sounds/dictations/4b.mp3", notation:
                 `  
-                \\time 4/4
+                \ime 4/4
                 a, h, c e | f a gis r \\bar "|."
         `
         },
         { category: "C_simple", title: "5a", soundFile: "../sounds/dictations/5a.mp3", notation:
                 `
-                \\time 4/4
+                \ime 4/4
                 a, c e gis, | h, e  a, r \\bar "|."  
         `
         },
 
         { category: "C_simple", title: "14a", soundFile: "../sounds/dictations/14a.mp3", notation:
                 `
-                \\time 3/4
+                \ime 3/4
                 a,8 h, c c h, c | a,4 a, r | a,8 g, c h, c d | e4 e r \\bar "|."   
         `
         },
@@ -192,7 +192,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
             credits: "Hendriks Sal-Saller \"Käime katuseid mööda\"",
             notation:
                 `
-                \\time 4/4 \\key g \major
+                \ime 4/4 \\key g \major
                 r8 h16 h  h a g a~  a8 h r4 |
                 r8 h16 h  h16 h h8 d'16 d'8 d'16~ d'16 d e8~ |
                 e4 r4 r r \\bar "|."  
@@ -206,21 +206,61 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
 
         },
 
-        // degree dictations
+        // degree dictations ===============================================
         {category: "degrees_level1", title: "1",
             //soundFile: "",
             //notation: "", // vist ikka vaja et oleks notatsioon ja selle järgi leiab MIDI noodid
             degrees: "1 2 3 2 1 -7 1 ",
             tonicVtNote: "C/5", // kas vaja
-            scale: "major", // need for corret ynames: major, minor, ionia, locria, lydia, etc
+            scale: "major",
         },
         {category: "degrees_level1", title: "2",
-            //soundFile: "",
-            //notation: "",
             tonicVtNote: "C/5",
             degrees: "1 2 1 -7   -6 -5 1 ",
-            scale: "major", // need for corret ynames: major, minor, ionia, locria, lydia, etc
+            scale: "major",
         },
+        {category: "degrees_level1", title: "3",
+            tonicVtNote: "C/4",
+            degrees: "1 2 3 4 5 6 5 ",
+            scale: "major",
+        },
+        {category: "degrees_level1", title: "4",
+            tonicVtNote: "C/5",
+            degrees: "1 2 3 4 3 2 3 ",
+            scale: "major",
+        },
+        {category: "degrees_level1", title: "5",
+            tonicVtNote: "G/4",
+            degrees: "1 -7   -6 -5 1 2 3 ",
+            scale: "major",
+        },
+
+        {category: "degrees_level1", title: "6",
+            tonicVtNote: "G/4",
+            degrees: "1 -7 1 2  3 4 3 ",
+            scale: "major",
+        },
+        {category: "degrees_level1", title: "7",
+            tonicVtNote: "G/4",
+            degrees: "1 2 3 4 5 1 -7 ",
+            scale: "major",
+        },
+        {category: "degrees_level1", title: "8",
+            tonicVtNote: "G/4",
+            degrees: "1 2 3 1 3 4 5 ",
+            scale: "major",
+        },
+        {category: "degrees_level1", title: "9",
+            tonicVtNote: "F/4",
+            degrees: "1 2 3 5 4 2 3  ",
+            scale: "major",
+        },
+        {category: "degrees_level1", title: "10",
+            tonicVtNote: "/4",
+            degrees: "1 3 5 4 3 5 1 ",
+            scale: "major",
+        },
+
 
 
 
@@ -251,27 +291,30 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
 
     // ilmselt selles tüübis ei võta juhuslikult vaid mingi menüü, kust kasutaja saab valida
     // võib mõelda ka juhuslikult moodustamise tüübi peale, aga siis ei saa kasutada vist päris pille
-    const renew = (dictationIndex) =>  {
+    const renew = (dictationIndex) => {
         console.log("Renew: ", dictationIndex);
         setAnswered(false);
         setNotesEnteredByUser("");
+        setDegreesEnteredByUser("");
+        hideAnswer();
+
         const dictation = dictations[dictationIndex];
 
         let answer = null;
 
-       if (dictationType === "degrees") { // degree dictations -  generate notation from dictation.degrees
-           // TODO: take tonicVtNote form given array major: [C, G, F ], minor: [a, e, d] etc
-           const {vtString, midiNotes } =  degreesToNotes(dictation.degrees, dictation.scale, dictation.tonicVtNote );
-           console.log("Constructed notation: ", vtString);
-           dictation.notation = vtString;
-           dictation.midiNotes = midiNotes;
-           answer = {degrees: dictation.degrees};
-       } else { // other, notation oriented dictations
-           // uncommented for testing:
-           showFirstNote(dictationIndex);
-           hideAnswer();
-           answer = {notation: selectedDictation.notation};
-       }
+        if (dictationType === "degrees") { // degree dictations -  generate notation from dictation.degrees
+            // TODO: take tonicVtNote form given array major: [C, G, F ], minor: [a, e, d] etc
+            const {vtString, midiNotes} = degreesToNotes(dictation.degrees, dictation.scale, dictation.tonicVtNote);
+            console.log("Constructed notation: ", vtString);
+            dictation.notation = vtString;
+            dictation.midiNotes = midiNotes;
+            answer = {degrees: stringToIntArray(dictation.degrees) };
+        } else { // other, notation oriented dictations
+            // uncommented for testing:
+            showFirstNote(dictationIndex);
+            hideAnswer();
+            answer = {notation: selectedDictation.notation};
+        }
 
         setSelectedDictation(dictation);
         setAnswer(answer);
@@ -288,7 +331,8 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
             const midiNotes = [];
             let vtString = "stave time=4/4\nnotes :4 "; // TODO: key
             const baseNote = notes.getNoteByVtNote(tonicVtNote);
-            const melodyDegrees = degreeString.trim().split(/[ ,]+/); // split by comma or white space
+            const melodyDegrees = stringToIntArray(degreeString); // split by comma or white space
+            let counter = 1;
             for (let degree of melodyDegrees) {
                 if (degree < -7 || degree > 7  ) {
                     console.log("Wrong degree: ", degree);
@@ -302,11 +346,18 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                     }
                     console.log("Tonic, Interval, note: ", tonicVtNote, interval, note.vtNote );
                     vtString += ` ${note.vtNote}  $ ${Math.abs(degree) } $ `; // add the
+                    if (counter%4 == 0) {
+                        vtString += " | ";
+                    }
+                    counter += 1;
                     midiNotes.push(note.midiNote);
                 } else {
                     console.log("Could not find interval for scale, degree: ", scale, degree);
                 }
             }
+            // add rest end bar -  now all dictations have 7 notes. If it changes, this here will not make sense...
+            // for H5P maybe add rule that degreeDictations must have exactly 7 notes.. (or less)
+            vtString += " ## =|= "
             return {vtString: vtString, midiNotes: midiNotes};
         } else {
             console.log("Could not find scale: ", scale );
@@ -346,8 +397,9 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
         setPlayStatus(Sound.status.PLAYING);
     };
 
-    const playTonic = (tonicMidiNote, duration=1) => {
-        const scoreLine = `i 2 0 ${duration} ${tonicMidiNote}`;
+    const playTonic = (tonicVtNote=0, duration=1) => {
+        const midiNote = notes.getNoteByVtNote(tonicVtNote).midiNote;
+        const scoreLine = `i 2 0 ${duration} ${midiNote}`;
         console.log("Play tonic in Csound: ", scoreLine);
         if (csound) {
             csound.readScore(scoreLine);
@@ -362,7 +414,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
             const compileString = `giNotes[] fillarray ${dictation.midiNotes.join(",")}`;
             console.log("Compile: ", compileString);
             csound.compileOrc(compileString);
-            csound.readScore(`i 1 ${startTime} 0 ${beatLength} `);
+            csound.readScore(`i 1 ${startTime} -1 ${beatLength} `);
         }
     };
 
@@ -426,6 +478,21 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
 
         //console.log(response);
 
+        if (dictationType === "degrees" ) {
+            const responseArray = response.degrees;
+            const correctArray = answer.degrees;
+
+            for (let i=0; i<correctArray.length; i++ ) {
+                if (Math.abs(responseArray[i]) !== Math.abs(correctArray[i]) ) { // ignore minus signs
+                    // TODO: form feedBack string, colour wrong degrees
+                    console.log("Wrong degree: ", i, responseArray[i]);
+                    correct = false;
+                }
+            }
+
+            showDictation();
+        }
+
         /*if (checkNotation()) {
             feedBack += `${capitalizeFirst(t("notation"))} ${t("correct")}. `;
             correct = true;
@@ -486,12 +553,16 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
     }
 
     const startCsound = async () => {
-        await loadResources(csound, 60, 84, "flute");
+        if (csound) {
+            await loadResources(csound, 60, 84, "flute");
 
-        csound.compileOrc(orc);
-        csound.start();
-        csound.audioContext.resume();
-        //setCsoundStarted(true);
+            csound.compileOrc(orc);
+            csound.start();
+            csound.audioContext.resume();
+            //setCsoundStarted(true);
+        } else {
+            console.log("StartCsound: csound is null.");
+        }
     };
 
 
@@ -517,6 +588,8 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                                 onClick={() => showDictation()  /*checkResponse({userInput:"c d e" })*/}>{capitalizeFirst(t("show"))}
                         </Button>
                     </Grid.Column>
+                    {/*Järgnev nupp peaks olema nähtav ainult diktaadiharjutuste puhul: */}
+                    {createTonicButton()}
                 </Grid.Row>
 
             );
@@ -531,13 +604,13 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
         }
     };
 
-    const checkDegrees = () => checkResponse( {degrees: degreesEnteredByUser} );
+    const checkDegrees = () => checkResponse( {degrees: stringToIntArray(degreesEnteredByUser) } );
 
 
     const createDegreeDictationInput = () => { // if degreedictation, Input for  degrees (text), otherwise lilypondINpute + Notation
         return (exerciseHasBegun && dictationType==="degrees") ? (
             <div>
-                <label className={"marginRight"}>Sisesta astmed: </label>
+                <label className={"marginRight"}>{  capitalizeFirst( t("enterDegrees") ) }: </label>
                 <Input
                     className={"marginRight"}
                     onChange={e => {  setDegreesEnteredByUser(e.target.value) } }
@@ -553,6 +626,16 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
 
     };
 
+    const createTonicButton = () => {
+        return (exerciseHasBegun && dictationType==="degrees") ? (
+            <Grid.Column>
+                <Button className={"fullWidth marginTopSmall"}
+                        onClick={() => playTonic(selectedDictation.tonicVtNote)}>{capitalizeFirst(t("tonic"))}
+                </Button>
+            </Grid.Column>
+        ) : null;
+    };
+
     const createNotationInputBlock =  () => {
         return (exerciseHasBegun && dictationType!=="degrees") ? (
             <div>
@@ -560,7 +643,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                     className={"marginRight"}
                     onChange={e => {setNotesEnteredByUser(e.target.value)}}
                     onKeyPress={ e=> { if (e.key === 'Enter') renderNotes()  }}
-                    placeholder={'nt: \\time 3/4 a,8 h, c4 gis | a a\'2'}
+                    placeholder={'nt: \ime 3/4 a,8 h, c4 gis | a a\'2'}
                     value={notesEnteredByUser}
                 />
                 <Button onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
@@ -574,10 +657,10 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                     <p>Paus: r </p>
                     <p>Taktijoon: | </p>
                     <p>Võti: nt. <i>{'\\clef treble'}</i> või <i>{'\\clef bass'}</i></p>
-                    <p>Taktimõõt: <i>nt. {'\\time 2/4 \\time 4/4 \\time 3/8'}</i> </p>
+                    <p>Taktimõõt: <i>nt. {'\ime 2/4 \ime 4/4 \ime 3/8'}</i> </p>
                     <p>Helistik: hetkel toetamata</p>
                     <p>Näide: Rongisõit B-duuris:</p>
-                    <p> { '\\time 2/4 b,8 c d es | f f f4  ' }  </p>
+                    <p> { '\ime 2/4 b,8 c d es | f f f4  ' }  </p>
 
                 </Popup>
 

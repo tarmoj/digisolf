@@ -22,3 +22,14 @@ export const scriptIsLoaded = (url) => {
 };
 
 export const capitalizeFirst = (str) => str.charAt(0).toUpperCase() + str.substring(1);
+
+export const stringToIntArray = (str) => { // string  must include numbers separated by spaces or commas
+    const numArray = [];
+    for (let element of str.trim().split(/[ ,]+/) ) { // split by comma or white spac
+        const number = parseInt(element);
+        if (number) {
+            numArray.push(number);
+        }
+    }
+    return numArray;
+}

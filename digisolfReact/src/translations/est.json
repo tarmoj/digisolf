@@ -70,6 +70,9 @@
   "chooseDictation": "Valige diktaat",
   "C_simple": "Lihtsad",
   "RM_simple": "RM lihtsad",
-  "degreeDictation": "astmediktaat",
-  "level": "tase"
+  "degreeDictations": "astmediktaadid",
+  "level": "tase",
+  "answer": "vasta",
+  "enterDegrees": "sisesta astmed",
+  "tonic": "toonika"
 }
