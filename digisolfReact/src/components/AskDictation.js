@@ -22,7 +22,7 @@ import { stringToIntArray } from "../util/util.js"
 // move the csound orchestra to separate file and import
 
 const orc = `
-sr=48000
+sr=44100
 ksmps=128
 0dbfs=1
 nchnls=2
@@ -34,14 +34,17 @@ gkBeatLength chnexport "beatLength", 1
 gkVolume chnexport "volume", 1
 
 gkBeatLength init 1
-gkVolume init 0.8
+gkVolume init 1
 
 ;schedule "PlaySequence", 0, 10
 
 instr PlaySequence ; plays the notes (MIDI NN) from array giNotes
-gkMayPlay init 1
-kMetroRate =1/gkBeatLength
+iBeatLength init p4
+;kMetroRate =1/gkBeatLength
+kMetroRate =1/iBeatLength
 kCounter init 0
+
+printk2 kMetroRate
 
 if (metro:k(kMetroRate)==1) then
 schedulek "PlayNote", 0, 1, giNotes[kCounter]
@@ -274,7 +277,9 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
         setExerciseHasBegun(true);
 
         if ( dictationType === "degrees" ) {
-            startCsound();
+            if (!csoundStarted) {
+                startCsound();
+            }
         }
 
         // the initial category comes with the exercise name, maybe later user can change it
@@ -385,8 +390,11 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
 
     // võibolla -  ka helifailide mängimine Csoundiga?
     const play = (dictation) => {
+        //stop(); // need a stop here  - take care, that it does not kill already started event
         if (dictationType === "degrees") {
-            playCsoundSequence(dictation);
+            const beatLength = 1.2;
+            playTonic(dictation.tonicVtNote, 1*beatLength);
+            playCsoundSequence(dictation, 2*beatLength, beatLength );
         } else {
             playSoundFile(dictation.soundFile);
         }
@@ -410,10 +418,12 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
 
     const playCsoundSequence = (dictation, startTime = 0, beatLength=1) => {
         //const dictation = selectedDictation; //dictations[dictationIndex];
+        console.log("BeatLength:", beatLength);
         if ( dictation.hasOwnProperty("midiNotes") ) {
             const compileString = `giNotes[] fillarray ${dictation.midiNotes.join(",")}`;
             console.log("Compile: ", compileString);
             csound.compileOrc(compileString);
+            //csound.setControlChannel("beatLength", beatLength);
             csound.readScore(`i 1 ${startTime} -1 ${beatLength} `);
         }
     };
@@ -512,7 +522,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
 
     // Csound functions =============================================
 
-    //const [csoundStarted, setCsoundStarted] = useState(false);
+    const [csoundStarted, setCsoundStarted] = useState(false);
     const [csound, setCsound] = useState(null);
 
     useEffect(() => {
@@ -522,19 +532,19 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                 const cs = new CsoundObj(); // : Module.arguments has been replaced with plain arguments_ etc
                 setCsound(cs);
             });
-        } else {
+        } /*else { // tried to have the second effect here, but resets sometimes too early...
             csound.reset();
-        }
+        }*/
     }, [csound]);
 
-    /*useEffect(() => {
+    useEffect(() => {
         console.log("Csound effect 2");
         return () => {
             if (csound) {
                 csound.reset();
             }
         }
-    }, [csound]);*/
+    }, [csound]);
 
     async function loadResources(csound,  startinNote=60, endingNote=84, instrument="flute") {
         if (!csound) {
@@ -543,7 +553,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
         for (let i = startinNote; i <= endingNote; i++) {
             const fileUrl = "sounds/instruments/" + instrument + "/" + i + ".ogg";
             const serverUrl = `${process.env.PUBLIC_URL}/${fileUrl}`;
-            console.log("Trying to load URL ",serverUrl);
+            //console.log("Trying to load URL ",serverUrl);
             const f = await fetch(serverUrl);
             const fName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
             // const path = `/${dirToSave}/${fName}`;
@@ -562,7 +572,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
             csound.compileOrc(orc);
             csound.start();
             csound.audioContext.resume();
-            //setCsoundStarted(true);
+            setCsoundStarted(true);
         } else {
             console.log("StartCsound: csound is null.");
         }
