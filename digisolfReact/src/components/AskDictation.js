@@ -17,7 +17,7 @@ import {useParams} from "react-router-dom";
 import CsoundObj from "@kunstmusik/csound";
 import {makeInterval,  scaleDefinitions} from "../util/intervals";
 import * as notes from "../util/notes";
-import { stringToIntArray } from "../util/util.js"
+import { stringToIntArray, getRandomInt, getRandomElementFromArray } from "../util/util.js"
 
 // move the csound orchestra to separate file and import
 
@@ -282,6 +282,10 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
             }
         }
 
+        if (name.includes("random")) {
+            renew(0);
+        }
+
         // the initial category comes with the exercise name, maybe later user can change it
         // if (categories.includes(name.split("_")[0])) {
         //     setCurrentCategory(name);
@@ -294,8 +298,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
         //renew(firstInCategory);
     };
 
-    // ilmselt selles tüübis ei võta juhuslikult vaid mingi menüü, kust kasutaja saab valida
-    // võib mõelda ka juhuslikult moodustamise tüübi peale, aga siis ei saa kasutada vist päris pille
+
     const renew = (dictationIndex) => {
         console.log("Renew: ", dictationIndex);
         setAnswered(false);
@@ -303,12 +306,22 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
         setDegreesEnteredByUser("");
         hideAnswer();
 
-        const dictation = dictations[dictationIndex];
+        let dictation;
+
+        if (!name.includes("random")) {
+            dictation = dictations[dictationIndex];
+        }
 
         let answer = null;
 
         if (dictationType === "degrees") { // degree dictations -  generate notation from dictation.degrees
             // TODO: take tonicVtNote form given array major: [C, G, F ], minor: [a, e, d] etc
+
+            if ( name.includes("degrees_random")) {
+                dictation = generateDegreeDictation();
+                console.log("new dictation: ", dictation.degrees, dictation.scale, dictation.tonicVtNote);
+            }
+
             const {vtString, midiNotes} = degreesToNotes(dictation.degrees, dictation.scale, dictation.tonicVtNote);
             console.log("Constructed notation: ", vtString);
             dictation.notation = vtString;
@@ -329,6 +342,33 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
             //playSoundFile(dictation.soundFile);
         }
 
+    };
+
+    const generateDegreeDictation = () => {
+        // a degree dictaion has 7 notes, on degrees of the scale 1..7
+        // a tonic as vextab note and the scale
+        const possibleTonicNotes = ["G/4", "A/4", "C/5", "D/5"];
+        const possibleScales = ["major", "minorNatural", "minorHarmonic"]; // maybe scale should be given as a parameter
+        const possibleDegrees = [-5, -6, -7, 1, 2, 3, 4, 5, 6];
+        const maxNotes = 7;
+
+        // const degreeProbabilities: [ {step: 1, probability: 1}, {step: 2: probability: 0.6}, etc ]
+        // see: https://stackoverflow.com/questions/8877249/generate-random-integers-with-probabilities
+        let degreesString = "";
+        let lastDegree = 0;
+        // TODO: think about some clevere rules about likelyhood of the steps
+        for (let i=0; i<maxNotes; i++) {
+            // TODO -  avoid repeating degrees - compare with lastDegree
+            let randomDegree = getRandomElementFromArray(possibleDegrees);
+            // TODO: check that will not fo out of range (by MIDI note)
+            degreesString += randomDegree + " ";
+        }
+
+        return { title: "generated",
+            degrees: degreesString,
+            tonicVtNote: getRandomElementFromArray(possibleTonicNotes),
+            scale: getRandomElementFromArray(possibleScales)
+        };
     };
 
     const degreesToNotes = ( degreeString, scale, tonicVtNote) => { // returns object {vtString: <string>, midiNotes: [] }
@@ -366,7 +406,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
             return {vtString: vtString, midiNotes: midiNotes};
         } else {
             console.log("Could not find scale: ", scale );
-            return null;
+            return {vtString: "", midiNotes: []};
         }
     };
 
@@ -602,7 +642,9 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                         </Button>
                     </Grid.Column>
                     {/*Järgnev nupp peaks olema nähtav ainult diktaadiharjutuste puhul: */}
+                    {createRenewButton()}
                     {createTonicButton()}
+
                 </Grid.Row>
 
             );
@@ -623,7 +665,8 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
     const createDegreeDictationInput = () => { // if degreedictation, Input for  degrees (text), otherwise lilypondINpute + Notation
         return (exerciseHasBegun && dictationType==="degrees") ? (
             <div>
-                <label className={"marginRight"}>{  capitalizeFirst( t("enterDegrees") ) }: </label>
+                <label className={"marginRight"}>{  capitalizeFirst( t("enterDegrees") ) }
+                    {name.includes("random") ? t("inMode") : ""} <b>{ t(selectedDictation.scale) }</b>: </label>
                 <Input
                     className={"marginRight"}
                     onChange={e => {  setDegreesEnteredByUser(e.target.value) } }
@@ -644,6 +687,16 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
             <Grid.Column>
                 <Button className={"fullWidth marginTopSmall"}
                         onClick={() => playTonic(selectedDictation.tonicVtNote)}>{capitalizeFirst(t("tonic"))}
+                </Button>
+            </Grid.Column>
+        ) : null;
+    };
+
+    const createRenewButton = () => {
+        return (exerciseHasBegun && name.toString().startsWith("degrees_random")) ? (
+            <Grid.Column>
+                <Button className={"fullWidth marginTopSmall"}
+                        onClick={() => renew(0)}>{capitalizeFirst(t("new"))}
                 </Button>
             </Grid.Column>
         ) : null;
@@ -713,7 +766,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
             }
         }
 
-        return (
+        return name.includes("random") ? null :  (
             <Grid.Row>
                 <Grid.Column>
             <Select

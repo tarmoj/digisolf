@@ -19,8 +19,8 @@
   "octave": "oktav",
   "diminished": "vähendatud",
   "augmented": "suurendatud",
-  "minor": "väike",
-  "major": "suur",
+  "intervalMinor": "väike",
+  "intervalMajor": "suur",
   "perfect": "puhas",
   "correctAnswerIs": "Õige vastus on",
   "startExercise": "Alusta harjutust",
@@ -74,5 +74,13 @@
   "level": "tase",
   "answer": "vasta",
   "enterDegrees": "sisesta astmed",
-  "tonic": "toonika"
+  "tonic": "toonika",
+  "generated": "genereeritud",
+  "renew": "uuenda",
+  "new": "uus",
+  "major": "mažoor",
+  "minorNatural": "loomulik minoor",
+  "minorHarmonic": "harmooniline minoor",
+  "inMode": "laadis"
+
 }
