@@ -31,8 +31,8 @@ const Notation = (props) => {
                     {
                         notes: [
                             {
-                                keys: [""], // like ["C/4", "Eb/4", "G/4"] for chord
-                                duration: "4", // quarter note is the default
+                                keys: [], // like ["C/4", "Eb/4", "G/4"] for chord
+                                duration: "", // like 4, 8, 2. etc
                             }
                         ]
                     }
@@ -120,17 +120,7 @@ const Notation = (props) => {
 
     };
 
-    const notationInfoToVtString = () => {
-        let vtString = "";
-        // TODO: options
-        for (let stave of notationInfo.staves) {
-            vtString += `stave clef=${stave.clef} key=${stave.key} time=${stave.time} \n`;
-            for (let voice of stave.voices) {
-                // notation
-                // test if chord -  ( . .  ) notation -  or single note
-            }
-        }
-    };
+
 
     // DYNAMIC NOTE INPUT  ----------------------------
 
@@ -142,7 +132,8 @@ const Notation = (props) => {
         const note = getRandomElementFromArray(noteNames)+getRandomElementFromArray(accidentals) + "/4"; // middle octave
         const duration =  getRandomElementFromArray(durations);
 
-        addNote(note, duration);
+        //addNoteToArtist(note, duration);
+        insertNote(note, duration);
     };
 
 
@@ -157,8 +148,57 @@ const Notation = (props) => {
 
     }
 
-    // the note is added to the end of current stave
-    const addNote = (note, durationString, showAccidental=true) => { // like addNote("C#/4", "8.", false))
+    // TODO: check for chord - vtNote coulde bey also and array of keys. Not supported yet.
+    const insertNote = (vtNote, duration = "4",  index=-1, voice=0,  staff=0) => { // index -1 means to the end
+        if (index>=0) {
+            notationInfo.staves[staff].voices[voice].notes.splice(index, 0, {keys:[vtNote], duration: duration} );
+        } else {
+            notationInfo.staves[staff].voices[voice].notes.push( {keys:[vtNote], duration: duration} );
+        }
+        console.log("NotionInfo to vtString: ", notationInfoToVtString());
+        redraw( notationInfoToVtString() );
+    };
+
+    const removeNote = ( index=-1, voice=0,  staff=0) => {
+        if (index>=0) {
+            notationInfo.staves[staff].voices[voice].notes.splice(index, 1);
+        } else { // -1 stand for last note
+            notationInfo.staves[staff].voices[voice].notes.pop();
+        }
+        redraw( notationInfoToVtString() );
+    }
+
+    // TODO: maybe also add changePitch and changeDuration functions, if needed. But remove and insert should do it.
+
+    const notationInfoToVtString = () => {
+        let vtString = "";
+        // TODO: options
+        for (let stave of notationInfo.staves) {
+            vtString += `stave clef=${stave.clef} key=${stave.key} time=${stave.time} \n`;
+            for (let voice of stave.voices) {
+                vtString += "voice\n";
+                if (voice.notes.length>0) {
+                    vtString += "notes ";
+                    for (let note of  voice.notes) {
+                        // test if chord or single note. Several keys ->  ( . .  ) notation
+                        if (note.keys.length>0) {
+                            let noteString = "";
+                            if (note.keys.length>1) {
+                                noteString = `( ${note.keys.join(",")} )`;
+                            } else if (note.keys.length==1) {
+                                noteString = note.keys[0];
+                            }
+                            vtString += ` :${note.duration.replace(/\./g, "d")} ${noteString.replace(/b/g, "@")}`; // for any case, VexFlow->VexTab: dot -> d, (flat) b - > @
+                        }
+                    }
+                }
+            }
+        }
+        return vtString;
+    };
+
+    // test, works but formatting goes wrong...
+    const addNoteToArtist = (note, durationString, showAccidental=true) => { // like addNote("C#/4", "8.", false))
         let durationValue, dotted;
         if (durationString.endsWith(".") || durationString.endsWith("d") ) {
             durationValue = durationString.slice(0, -1);
@@ -181,7 +221,6 @@ const Notation = (props) => {
 
 
 
-
     const  createVexTabString = (notes) => {
         const startString = "stave "; //"options space=20\n stave \n ";
         const clefString = (props.clef) ? "clef="+props.clef+"\n" : "";
@@ -200,7 +239,7 @@ const Notation = (props) => {
             console.log("vexTab not initialized!");
             return;
         }
-        if (typeof(note)==="undefined") { // draw an empty staff if no notes set
+        if (typeof(notes)==="undefined") { // draw an empty staff if no notes set
             console.log("Jälle undefined!");
             //notes = "stave";
         }
@@ -225,7 +264,7 @@ const Notation = (props) => {
         <div>
             <div ref={vtDiv} />
             <button onClick={addRandomNote}>Test: Lisa noot</button>
-            <button onClick={deleteLastNote}>Kustuta viimane</button>
+            <button onClick={removeNote}>Kustuta viimane</button>
         </div>
     );
 };

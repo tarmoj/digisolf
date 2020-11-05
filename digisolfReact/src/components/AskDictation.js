@@ -516,22 +516,25 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
     const [csound, setCsound] = useState(null);
 
     useEffect(() => {
-        if (csound == null) {
-            CsoundObj.initialize().then(() => {
-                const cs = new CsoundObj();
-                const data = [1,2,3];
+        console.log("Csound effect 1");
+        if (csound === null) {  // if you go back to main menu and enter again, then stays "Loading"
+            CsoundObj.initialize().then(() => { // ... and error happens here
+                const cs = new CsoundObj(); // : Module.arguments has been replaced with plain arguments_ etc
                 setCsound(cs);
             });
+        } else {
+            csound.reset();
         }
     }, [csound]);
 
-    useEffect(() => {
+    /*useEffect(() => {
+        console.log("Csound effect 2");
         return () => {
             if (csound) {
                 csound.reset();
             }
         }
-    }, [csound]);
+    }, [csound]);*/
 
     async function loadResources(csound,  startinNote=60, endingNote=84, instrument="flute") {
         if (!csound) {
@@ -737,17 +740,13 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                 onFinishedPlaying={handleDictationFinishedPlaying}
             />
 
-            {/*{ csound == null ? (
+            { csound === null ? (
                 <div>
                     <p>Loading...</p>
                 </div>
             ) : (
-                csoundStarted ? (
-                    <button onClick={renew(1)}>NEW</button>
-                ) : (
-                    <button onClick={startCsound}>START Csound</button>
-                )
-            )}*/}
+
+
 
             <Grid>
                 <ScoreRow/>
@@ -762,6 +761,8 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
+
+            )}
         </div>
 
     );
