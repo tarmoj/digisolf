@@ -346,33 +346,40 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
 
         let degrees = [];
 
-        const firstNoteProbabilities = { 1:0.5, 3:0.2, 5:0.1, 2:0.2 };
+        const firstNoteProbabilities = { 1:0.6, 3:0.2, 5:0.1, 2:0.1 };
+        const followUpProbabilities = { // probabilities, what comes after the given degree
+            "1": {2:0.4 , 3:0.2, 5:0.1, "-7":0.25, "-5":0.05  }, // give 5 steps, probabilities must sum to 1, like 0.4, 0.25, 0.2, 0.1, 0.05)
+            "2": {3:0.4 , 1:0.25, 4:0.1, "-7":0.1, "-5":0.05  },
+            "3": {4:0.4 , 1:0.25, 2:0.1, 5:0.1, 6:0.05  },
+            "4": {5:0.4 , 2:0.25, 1:0.1, 6:0.1, "-7":0.05  },
+            "5": {4:0.4 , 6:0.25, 1:0.1, 3:0.1, "-5":0.05  },
+
+            "6": {5:0.4 , 4:0.25, 7:0.1, 2:0.1, "-6":0.05  },
+            "7": {6:0.4 , 5:0.25, 2:0.1, 4:0.1, "-7":0.05  },
+            "-7": {1:0.5 , 2:0.25, "-6":0.15, "-5":0.1  },
+            "-6": {"-5":0.4 , "-7":0.25, 1:0.1, 2:0.1, 6:0.05  },
+            "-5": {1:0.5 , "-6":0.25, 2:0.15, "-7":0.1  },
+        };
+
         degrees[0] =  parseInt( weightedRandom(firstNoteProbabilities) );
         let lastIndex = possibleDegrees.indexOf(degrees[0]);
         console.log("First note: ", degrees[0]);
 
-        //const after1Probabilities = {2:0.3, 3:0.2, 4:0.1, "-7":0.1, "-6":0.1, "-5":0.1, 5:0.05, 6:0.05};  // perhaps one way is to determine, what is the most probable degrees after given degrees
-        // ... this would be many lines
-        // try wiht most probable intervals
-        const intervalProbabilities = {1:0.5, 2:0.25, 3:0.1, 4:0.1, 5:0.05}; // interval in degrees
 
-        // const degreeProbabilities: [ {step: 1, probability: 1}, {step: 2: probability: 0.6}, etc ]
-        // see: https://stackoverflow.com/questions/8877249/generate-random-integers-with-probabilities
+        // try wiht most probable intervals -  did not work well
+        // const intervalProbabilities = {1:0.5, 2:0.25, 3:0.1, 4:0.1, 5:0.05}; // interval in degrees
+
         let degreesString = "";
-        // TODO: think about some clevere rules about likelyhood of the steps
-        for (let i=1; i<maxNotes; i++) {
-            let intervalInDegrees = parseInt( weightedRandom(intervalProbabilities) );
-            if (getRandomBoolean() ) { // random up or down
-                intervalInDegrees = -intervalInDegrees;
-            }
-            let newIndex = lastIndex + intervalInDegrees;
-            if (newIndex > possibleDegrees.length-1   || newIndex<0 ) {
-                newIndex = lastIndex - intervalInDegrees;
-            }
-            console.log("Got new degree index (,  lastIndex, interval)", newIndex, lastIndex, intervalInDegrees);
-            console.log("And new degree: ", possibleDegrees[newIndex] );
-            degrees[i] = possibleDegrees[newIndex];
 
+        for (let i=1; i<maxNotes; i++) {
+            // simple random:
+            // degrees[1] = getRandomElementFromArray(possibleDegrees);
+
+            // apply melodic likelyhood
+
+            const lastDegree = degrees[i-1].toString();
+            degrees[i] = weightedRandom( followUpProbabilities[lastDegree] );
+            console.log("Lastdegree, new degree: " , degrees[i-1], degrees[i] );
         }
         degreesString = degrees.join(" ");
         console.log("degreeString: ", degreesString)
@@ -681,7 +688,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
     const createDegreeDictationInput = () => { // if degreedictation, Input for  degrees (text), otherwise lilypondINpute + Notation
         return (exerciseHasBegun && dictationType==="degrees") ? (
             <div>
-                <label className={"marginRight"}>{  capitalizeFirst( t("enterDegrees") ) }
+                <label className={"marginRight"}>{  capitalizeFirst( t("enterDegrees") ) + " " }
                     {name.includes("random") ? t("inMode") : ""} <b>{ t(selectedDictation.scale) }</b>: </label>
                 <Input
                     className={"marginRight"}

@@ -41,4 +41,7 @@ export const  weightedRandom = ( weightData ) => { // parameter in format like: 
         sum += weightData[value]; // add the weight
         if (r <= sum) return value;
     }
+    // if nothing found, return random element
+    const arr = Object.keys(weightData);
+    return getRandomElementFromArray(arr);
 }
