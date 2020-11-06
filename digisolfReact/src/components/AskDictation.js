@@ -2,7 +2,7 @@ import React, {useState, useRef, useEffect} from 'react';
 import {Button, Grid, Header, Input, Label, Popup} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
-import {capitalizeFirst} from "../util/util";
+import {capitalizeFirst, weightedRandom} from "../util/util";
 import {getNoteByName, parseLilypondString} from "../util/notes";
 //import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
@@ -17,7 +17,7 @@ import {useParams} from "react-router-dom";
 import CsoundObj from "@kunstmusik/csound";
 import {makeInterval,  scaleDefinitions} from "../util/intervals";
 import * as notes from "../util/notes";
-import { stringToIntArray, getRandomInt, getRandomElementFromArray } from "../util/util.js"
+import { stringToIntArray, getRandomInt, getRandomBoolean, getRandomElementFromArray } from "../util/util.js"
 
 // move the csound orchestra to separate file and import
 
@@ -286,14 +286,6 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
             renew(0);
         }
 
-        // the initial category comes with the exercise name, maybe later user can change it
-        // if (categories.includes(name.split("_")[0])) {
-        //     setCurrentCategory(name);
-        // } else {
-        //     console.log("Unknown dictation category: ", name);
-        //     return;
-        // }
-
         //const firstInCategory = dictations.findIndex(  dict =>  dict.category=== name);
         //renew(firstInCategory);
     };
@@ -339,7 +331,6 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
 
         if (exerciseHasBegun) {
             play(dictation);
-            //playSoundFile(dictation.soundFile);
         }
 
     };
@@ -347,22 +338,44 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
     const generateDegreeDictation = () => {
         // a degree dictaion has 7 notes, on degrees of the scale 1..7
         // a tonic as vextab note and the scale
+        //NB! the biggest degree allowed is 7!
         const possibleTonicNotes = ["G/4", "A/4", "C/5", "D/5"];
         const possibleScales = ["major", "minorNatural", "minorHarmonic"]; // maybe scale should be given as a parameter
         const possibleDegrees = [-5, -6, -7, 1, 2, 3, 4, 5, 6];
         const maxNotes = 7;
 
+        let degrees = [];
+
+        const firstNoteProbabilities = { 1:0.5, 3:0.2, 5:0.1, 2:0.2 };
+        degrees[0] =  parseInt( weightedRandom(firstNoteProbabilities) );
+        let lastIndex = possibleDegrees.indexOf(degrees[0]);
+        console.log("First note: ", degrees[0]);
+
+        //const after1Probabilities = {2:0.3, 3:0.2, 4:0.1, "-7":0.1, "-6":0.1, "-5":0.1, 5:0.05, 6:0.05};  // perhaps one way is to determine, what is the most probable degrees after given degrees
+        // ... this would be many lines
+        // try wiht most probable intervals
+        const intervalProbabilities = {1:0.5, 2:0.25, 3:0.1, 4:0.1, 5:0.05}; // interval in degrees
+
         // const degreeProbabilities: [ {step: 1, probability: 1}, {step: 2: probability: 0.6}, etc ]
         // see: https://stackoverflow.com/questions/8877249/generate-random-integers-with-probabilities
         let degreesString = "";
-        let lastDegree = 0;
         // TODO: think about some clevere rules about likelyhood of the steps
-        for (let i=0; i<maxNotes; i++) {
-            // TODO -  avoid repeating degrees - compare with lastDegree
-            let randomDegree = getRandomElementFromArray(possibleDegrees);
-            // TODO: check that will not fo out of range (by MIDI note)
-            degreesString += randomDegree + " ";
+        for (let i=1; i<maxNotes; i++) {
+            let intervalInDegrees = parseInt( weightedRandom(intervalProbabilities) );
+            if (getRandomBoolean() ) { // random up or down
+                intervalInDegrees = -intervalInDegrees;
+            }
+            let newIndex = lastIndex + intervalInDegrees;
+            if (newIndex > possibleDegrees.length-1   || newIndex<0 ) {
+                newIndex = lastIndex - intervalInDegrees;
+            }
+            console.log("Got new degree index (,  lastIndex, interval)", newIndex, lastIndex, intervalInDegrees);
+            console.log("And new degree: ", possibleDegrees[newIndex] );
+            degrees[i] = possibleDegrees[newIndex];
+
         }
+        degreesString = degrees.join(" ");
+        console.log("degreeString: ", degreesString)
 
         return { title: "generated",
             degrees: degreesString,
@@ -386,16 +399,18 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                 const interval = scaleDefinitions[scale][Math.abs(degree)-1];
                 if (interval) {
                     let note =  makeInterval(baseNote, interval, "up"); // what if bass clef?
-                    if (degree<0) { // below tonic
-                        note =  makeInterval(note, "p8", "down");
+                    if (note) {
+                        if (degree<0) { // below tonic
+                            note =  makeInterval(note, "p8", "down");
+                        }
+                        console.log("Tonic, Interval, note: ", tonicVtNote, interval, note.vtNote );
+                        vtString += ` ${note.vtNote}  $ ${Math.abs(degree) } $ `; // add the
+                        if (counter%4 == 0) {
+                            vtString += " | ";
+                        }
+                        counter += 1;
+                        midiNotes.push(note.midiNote);
                     }
-                    console.log("Tonic, Interval, note: ", tonicVtNote, interval, note.vtNote );
-                    vtString += ` ${note.vtNote}  $ ${Math.abs(degree) } $ `; // add the
-                    if (counter%4 == 0) {
-                        vtString += " | ";
-                    }
-                    counter += 1;
-                    midiNotes.push(note.midiNote);
                 } else {
                     console.log("Could not find interval for scale, degree: ", scale, degree);
                 }
@@ -430,11 +445,12 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
 
     // võibolla -  ka helifailide mängimine Csoundiga?
     const play = (dictation) => {
-        //stop(); // need a stop here  - take care, that it does not kill already started event
+        console.log("***Stop***");
+        stop(); // need a stop here  - take care, that it does not kill already started event
         if (dictationType === "degrees") {
             const beatLength = 1.2;
-            playTonic(dictation.tonicVtNote, 1*beatLength);
-            playCsoundSequence(dictation, 2*beatLength, beatLength );
+            playTonic(dictation.tonicVtNote, 1*beatLength, 0.1);
+            playCsoundSequence(dictation, 2*beatLength+0.1, beatLength );
         } else {
             playSoundFile(dictation.soundFile);
         }
@@ -445,9 +461,9 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
         setPlayStatus(Sound.status.PLAYING);
     };
 
-    const playTonic = (tonicVtNote=0, duration=1) => {
+    const playTonic = (tonicVtNote=0, duration=1, when=0) => {
         const midiNote = notes.getNoteByVtNote(tonicVtNote).midiNote;
-        const scoreLine = `i 2 0 ${duration} ${midiNote}`;
+        const scoreLine = `i 2 ${when} ${duration} ${midiNote}`;
         console.log("Play tonic in Csound: ", scoreLine);
         if (csound) {
             csound.readScore(scoreLine);
@@ -469,10 +485,10 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
     };
 
     const stop = () => {
-        console.log("Stop");
+        console.log("***Stop***");
         if (name.toString().startsWith("degrees")) {
             if (csound) {
-                csound.readScore("i \"Stop\" 0  0.1");
+                csound.readScore("i \"Stop\" 0  0.01");
             }
         } else {
             setPlayStatus(Sound.status.STOPPED);

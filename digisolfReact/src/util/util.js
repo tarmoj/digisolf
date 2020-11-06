@@ -33,3 +33,12 @@ export const stringToIntArray = (str) => { // string  must include numbers separ
     }
     return numArray;
 }
+
+// code from: https://redstapler.co/javascript-weighted-random/
+export const  weightedRandom = ( weightData ) => { // parameter in format like: {0:0.6, 1:0.1, 2:0.1, 3:0.2}) -  the sum of weights must be 1
+    let value, sum=0, r=Math.random();
+    for (value in weightData) {
+        sum += weightData[value]; // add the weight
+        if (r <= sum) return value;
+    }
+}
