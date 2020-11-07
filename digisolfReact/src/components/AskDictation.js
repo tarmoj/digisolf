@@ -613,6 +613,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
         if (!csound) {
             return false;
         }
+        console.log("LOAD RESOURCES")
         for (let i = startinNote; i <= endingNote; i++) {
             const fileUrl = "sounds/instruments/" + instrument + "/" + i + ".ogg";
             const serverUrl = `${process.env.PUBLIC_URL}/${fileUrl}`;
@@ -632,6 +633,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
         if (csound) {
             await loadResources(csound, 60, 84, "flute");
 
+            csound.setOption("-m0d")
             csound.compileOrc(orc);
             csound.start();
             csound.audioContext.resume();
