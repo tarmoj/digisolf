@@ -259,12 +259,45 @@ const Notation = (props) => {
         }
     };
 
+    let selectedNote = "C", selectedAccidental = "", selectedDuration = "4", selectedDot = "", selectedOctave = "4";
+
+    const handleNoteInput = () => {
+        console.log("Selected note, accidental, duration", selectedNote, selectedAccidental ,selectedDuration);
+        let vtNote = selectedNote + selectedAccidental + "/" + selectedOctave;
+        insertNote(vtNote, selectedDuration+selectedDot);
+    }
+
+    const createInputBlock = () => {
+        return (
+          <div>
+              Noot: <select onChange={ e => { selectedNote = e.target.value; } } >
+                <option value={"C"}>C</option>
+                <option value={"D"}>D</option>
+            </select>
+              Märk: <select onChange={ e => {  selectedAccidental = e.target.value} }>
+                <option value={""}>--</option>
+                <option value={"#"}>#</option>
+                <option value={"@"}>b</option>
+                <option value={"n"}>bekaar</option>
+          </select>
+              Vältus: <select onChange={ e => {  selectedDuration = e.target.value} }>
+              <option value={"4"}>4</option>
+              <option value={"8"}>8</option>
+              <option value={"16"}>16</option>
+              <option value={"32"}>32</option>
+          </select>
+          <button onClick={handleNoteInput}>Sisesta</button>
+          </div>
+        );
+    }
+
 
     return (
         <div>
             <div ref={vtDiv} />
-            <button onClick={addRandomNote}>Test: Lisa noot</button>
-            <button onClick={removeNote}>Kustuta viimane</button>
+            {createInputBlock()}
+            {/*<button onClick={addRandomNote}>Test: Lisa noot</button>
+            <button onClick={removeNote}>Kustuta viimane</button>*/}
         </div>
     );
 };
