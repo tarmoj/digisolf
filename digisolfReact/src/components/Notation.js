@@ -18,6 +18,8 @@ const Notation = (props) => {
     const vexTab = new VexTab(artist);
     Artist.NOLOGO = true;
 
+    let selectedNote = "C", selectedAccidental = "", selectedDuration = "4", selectedDot = "", selectedOctave = "4";
+
     // this is basic structure to keep all the score
     // score includes staves,  staves include voices, voices include notes
     let notationInfo = {
@@ -62,6 +64,7 @@ const Notation = (props) => {
 
     useEffect(() => {
         if (renderer !== null) {
+            renderer.getContext().svg.onclick = (event) => handleClick(event); //  console.log("OH MY GOD!", event);
             redraw("");
         }
     }, [renderer]);
@@ -69,25 +72,14 @@ const Notation = (props) => {
 
     const vexTabInit = () => {
         console.log("**** VexTab INIT ****");
-
         const renderer = new Flow.Renderer(vtDiv.current, Flow.Renderer.Backends.SVG);
         setRenderer(renderer);
-        //renderer = new Flow.Renderer(vtDiv.current, Flow.Renderer.Backends.SVG);
-
-
-        // try handling click on canvas:
-        //renderer.getContext().svg.artist = artist;
-        //renderer.getContext().svg.addEventListener('click', handleClick, false);
-
     };
 
     const handleClick = (event) => {
         const x = event.layerX / scale; // võibolla siin ka: (event.layerX - vtDiv.current.offsetLeft / X) vms
         const y =  (event.layerY - vtDiv.current.offsetTop) / scale; // was: clientX, clientY
         console.log("Click coordinates: ",x,y, event);
-        //console.log("artist: ", event.currentTarget.artist);
-        const artist = event.currentTarget.artist;
-
 
         // AJUTINE! testi noodi sisestust:
         if (artist) {
@@ -99,9 +91,8 @@ const Notation = (props) => {
                     //console.log(i, possibleNotes[i].line, line)
                     if (trebleClefNotes[i].line === line) {
                         console.log("FOUND ", i, trebleClefNotes[i].vtNote);
-                        const vexTabString = ":4 " + trebleClefNotes[i].vtNote;
+                        insertNote(trebleClefNotes[i].vtNote, selectedDuration);
                         //setNotesEnteredByUser(vexTabString);
-                        redraw(vexTabString);
                         break;
                     }
                 }
@@ -109,7 +100,6 @@ const Notation = (props) => {
         } else {
             console.log ("Artist is null");
         }
-
     };
 
     // notationInfo functions ------------------------
@@ -117,6 +107,7 @@ const Notation = (props) => {
     const vtStringToNotationInfo  =  (vtString) => {
         // quite complex.
         // see vextab.coffee function parse and parser.parse (vextab.jison)
+        // maybe -  rather - read it from artist.staves
 
     };
 
@@ -239,10 +230,12 @@ const Notation = (props) => {
             console.log("vexTab not initialized!");
             return;
         }
-        if (typeof(notes)==="undefined") { // draw an empty staff if no notes set
-            console.log("Jälle undefined!");
-            //notes = "stave";
+
+        if (!renderer) {
+            console.log("renderer is null");
+            return;
         }
+
         try {
             // Parse VexTab music notation passed in as a string.
             vexTab.reset();
@@ -258,8 +251,6 @@ const Notation = (props) => {
             console.log(e);
         }
     };
-
-    let selectedNote = "C", selectedAccidental = "", selectedDuration = "4", selectedDot = "", selectedOctave = "4";
 
     const handleNoteInput = () => {
         console.log("Selected note, accidental, duration", selectedNote, selectedAccidental ,selectedDuration);
@@ -286,15 +277,15 @@ const Notation = (props) => {
                 <option value={"@"}>b</option>
                 <option value={"n"}>bekaar</option>
           </select>
-              Oktav: <select onChange={ e => {  selectedOctave = e.target.value} }>
+              Oktav: <select defaultValue={"4"} onChange={ e => {  selectedOctave = e.target.value} }>
               <option value={"3"}>3</option>
-              <option value={"4"} selected>4</option>
+              <option value={"4"}>4</option>
               <option value={"5"}>5</option>
           </select>
-              Vältus: <select onChange={ e => {  selectedDuration = e.target.value} }>
+              Vältus: <select defaultValue={"4"} onChange={ e => {  selectedDuration = e.target.value} }>
               <option value={"1"}>1</option>
               <option value={"2"}>2</option>
-              <option value={"4"} selected>4</option>
+              <option value={"4"}>4</option>
               <option value={"8"}>8</option>
               <option value={"16"}>16</option>
               <option value={"32"}>32</option>
@@ -305,7 +296,9 @@ const Notation = (props) => {
               {/*/!*<option value={"dd"}>..</option>*!/ No support for double dot in VexTab...*/}
           </select>
 
-          <button onClick={handleNoteInput}>Sisesta</button>
+              <button onClick={handleNoteInput}>Sisesta</button>
+              <button onClick={removeNote}>Kustuta viimane</button>
+
           </div>
         );
     }
@@ -315,8 +308,6 @@ const Notation = (props) => {
         <div>
             <div ref={vtDiv} />
             {createInputBlock()}
-            {/*<button onClick={addRandomNote}>Test: Lisa noot</button>
-            <button onClick={removeNote}>Kustuta viimane</button>*/}
         </div>
     );
 };
