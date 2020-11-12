@@ -7,7 +7,7 @@ import {getNoteByName, parseLilypondString} from "../util/notes";
 //import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import ScoreRow from "./ScoreRow";
-import Notation from "./Notation";
+import Notation from "./notation/Notation";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import Sound from 'react-sound';
@@ -841,7 +841,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                 {createSelectionMenu()}
                 {createDegreeDictationInput()}
                 {createNotationInputBlock()}
-                {createCorrectNotationBlock()}
+                {/* {createCorrectNotationBlock()} */}
                 {createPlaySoundButton()}
                 <Grid.Row>
                     <Grid.Column>

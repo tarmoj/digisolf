@@ -1,7 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Artist, VexTab, Flow} from 'vextab/releases/vextab-div'
-import {trebleClefNotes} from "../util/notes";
-import {getRandomElementFromArray} from "../util/util";
+import {trebleClefNotes} from "../../util/notes";
+import {getRandomElementFromArray} from "../../util/util";
+import NotationTable from "./NotationTable";
 
 
 const Notation = (props) => {
@@ -263,6 +264,8 @@ const Notation = (props) => {
     return (
         <div>
             <div ref={vtDiv} />
+            <NotationTable />
+            <button onClick={addRandomNote}>Lisa</button>
             <button onClick={addRandomNote}>Test: Lisa noot</button>
             <button onClick={removeNote}>Kustuta viimane</button>
         </div>

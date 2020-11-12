@@ -8,7 +8,7 @@ import {getNoteByName, getNoteByVtNote} from "../util/notes";
 import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import ScoreRow from "./ScoreRow";
-import Notation from "./Notation";
+import Notation from "./notation/Notation";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import {useParams} from "react-router-dom";
