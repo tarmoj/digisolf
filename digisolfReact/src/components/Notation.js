@@ -268,11 +268,17 @@ const Notation = (props) => {
     }
 
     const createInputBlock = () => {
-        return (
+        // temporary, for testing only:
+        return !props.showInput ? null : (
           <div>
               Noot: <select onChange={ e => { selectedNote = e.target.value; } } >
-                <option value={"C"}>C</option>
-                <option value={"D"}>D</option>
+              <option value={"C"}>C</option>
+              <option value={"D"}>D</option>
+              <option value={"E"}>E</option>
+              <option value={"F"}>F</option>
+              <option value={"G"}>G</option>
+              <option value={"A"}>A</option>
+              <option value={"B"}>H</option>
             </select>
               Märk: <select onChange={ e => {  selectedAccidental = e.target.value} }>
                 <option value={""}>--</option>
@@ -280,12 +286,25 @@ const Notation = (props) => {
                 <option value={"@"}>b</option>
                 <option value={"n"}>bekaar</option>
           </select>
+              Oktav: <select onChange={ e => {  selectedOctave = e.target.value} }>
+              <option value={"3"}>3</option>
+              <option value={"4"} selected>4</option>
+              <option value={"5"}>5</option>
+          </select>
               Vältus: <select onChange={ e => {  selectedDuration = e.target.value} }>
-              <option value={"4"}>4</option>
+              <option value={"1"}>1</option>
+              <option value={"2"}>2</option>
+              <option value={"4"} selected>4</option>
               <option value={"8"}>8</option>
               <option value={"16"}>16</option>
               <option value={"32"}>32</option>
           </select>
+              Punkteering: <select onChange={ e => {  selectedDot = e.target.value} }>
+              <option value={""}>--</option>
+              <option value={"d"}>.</option>
+              {/*/!*<option value={"dd"}>..</option>*!/ No support for double dot in VexTab...*/}
+          </select>
+
           <button onClick={handleNoteInput}>Sisesta</button>
           </div>
         );

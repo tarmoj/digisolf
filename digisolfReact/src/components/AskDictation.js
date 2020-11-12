@@ -136,39 +136,39 @@ const AskDictation = () => {
             soundFile: dictation1a,
             //soundFile: "../digisolf/sounds/dictations/1a.mp3",
             notation:
-        ` \ime 4/4 
+        ` \\time 4/4 
         c d c e | c g e r \\bar "|."
         `
         },
         {   category: "C_simple",
             title: "2a", soundFile: "../sounds/dictations/2a.mp3", notation: // url was: ../digisolf/sounds/
                 `
-                \ime 4/4
+                \\time 4/4
                 c e g c | h, c g, r \\bar "|."  
         `
         },
         { category: "C_simple", title: "3c", soundFile: "../sounds/dictations//3c.mp3", notation:
                 `
-                \ime 4/4
+                \\time 4/4
                 c' e' d' c' | g f e  r \\bar "|."  
         `
         },
         { category: "C_simple", title: "4b", soundFile: "../sounds/dictations/4b.mp3", notation:
                 `  
-                \ime 4/4
+                \\time 4/4
                 a, h, c e | f a gis r \\bar "|."
         `
         },
         { category: "C_simple", title: "5a", soundFile: "../sounds/dictations/5a.mp3", notation:
                 `
-                \ime 4/4
+                \\time 4/4
                 a, c e gis, | h, e  a, r \\bar "|."  
         `
         },
 
         { category: "C_simple", title: "14a", soundFile: "../sounds/dictations/14a.mp3", notation:
                 `
-                \ime 3/4
+                \\time 3/4
                 a,8 h, c c h, c | a,4 a, r | a,8 g, c h, c d | e4 e r \\bar "|."   
         `
         },
@@ -195,7 +195,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
             credits: "Hendriks Sal-Saller \"Käime katuseid mööda\"",
             notation:
                 `
-                \ime 4/4 \\key g \major
+                \\time 4/4 \\key g \major
                 r8 h16 h  h a g a~  a8 h r4 |
                 r8 h16 h  h16 h h8 d'16 d'8 d'16~ d'16 d e8~ |
                 e4 r4 r r \\bar "|."  
@@ -734,7 +734,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                     className={"marginRight"}
                     onChange={e => {setNotesEnteredByUser(e.target.value)}}
                     onKeyPress={ e=> { if (e.key === 'Enter') renderNotes()  }}
-                    placeholder={'nt: \ime 3/4 a,8 h, c4 gis | a a\'2'}
+                    placeholder={'nt: \\time 3/4 a,8 h, c4 gis | a a\'2'}
                     value={notesEnteredByUser}
                 />
                 <Button onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
@@ -748,10 +748,10 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                     <p>Paus: r </p>
                     <p>Taktijoon: | </p>
                     <p>Võti: nt. <i>{'\\clef treble'}</i> või <i>{'\\clef bass'}</i></p>
-                    <p>Taktimõõt: <i>nt. {'\ime 2/4 \ime 4/4 \ime 3/8'}</i> </p>
+                    <p>Taktimõõt: <i>nt. {'\\time 2/4 \\time 4/4 \\time 3/8'}</i> </p>
                     <p>Helistik: hetkel toetamata</p>
                     <p>Näide: Rongisõit B-duuris:</p>
-                    <p> { '\ime 2/4 b,8 c d es | f f f4  ' }  </p>
+                    <p> { '\\time 2/4 b,8 c d es | f f f4  ' }  </p>
 
                 </Popup>
 
@@ -759,7 +759,9 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                            notes={notationInfo.vtNotes}
                            time={notationInfo.time}
                            clef={notationInfo.clef}
-                           keySignature={notationInfo.keySignature}/>
+                           keySignature={notationInfo.keySignature}
+                           showInput={true}
+                />
 
             </div>
         ) : null;
@@ -776,7 +778,10 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                          notes={correctNotation.vtNotes}
                          time={correctNotation.time}
                          clef={correctNotation.clef}
-                         keySignature={correctNotation.keySignature}/>
+                         keySignature={correctNotation.keySignature}
+                         showInput={false}
+               />
+
             </div>
         ) : null;
     };
