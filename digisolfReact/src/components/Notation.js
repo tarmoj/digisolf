@@ -80,9 +80,12 @@ const Notation = (props) => {
         const x = event.layerX / scale; // võibolla siin ka: (event.layerX - vtDiv.current.offsetLeft / X) vms
         const y =  (event.layerY - vtDiv.current.offsetTop) / scale; // was: clientX, clientY
         console.log("Click coordinates: ",x,y, event);
-
-        // AJUTINE! testi noodi sisestust:
-        if (artist) {
+        // tryout:  check click on notehead and colour it blue
+        if (event.target.parentElement.getAttribute("class") === "vf-notehead") {
+            console.log("This is notehead!", event.target);
+            event.target.setAttribute("fill", "red");
+        } else {
+            // tryout  to add a note on the line that was clicked
             let line = artist.staves[0].note.getLineForY(y);
             // find note by line
             line = Math.round(line * 2) / 2; // round to nearest 0.5
@@ -97,8 +100,6 @@ const Notation = (props) => {
                     }
                 }
             }
-        } else {
-            console.log ("Artist is null");
         }
     };
 

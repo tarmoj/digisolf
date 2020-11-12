@@ -507,6 +507,12 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
     };
 
     const showDictation = () => {
+        if (selectedDictation.notation.length === 0 ) {
+            alert( t("chooseDictation"));
+            return;
+        }
+        // võibolla -  mitte lubada näidata, kui pole veel vastatud
+        // või isegi ainult "Vasta" nupp näitab õiget diktaati
         if (!answerIsHidden()) {
             hideAnswer()
         } else {
@@ -647,7 +653,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
 
     // UI ======================================================
 
-    const createPlaySoundButton = () => {
+    const createControlButtons = () => {
         console.log("Begun: ", exerciseHasBegun);
 
         if (exerciseHasBegun) {
@@ -847,7 +853,7 @@ notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4
                 {createDegreeDictationInput()}
                 {createNotationInputBlock()}
                 {createCorrectNotationBlock()}
-                {createPlaySoundButton()}
+                {createControlButtons()}
                 <Grid.Row>
                     <Grid.Column>
                         <GoBackToMainMenuBtn/>
