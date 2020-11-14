@@ -1,9 +1,8 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState, setState} from 'react';
 import {Artist, VexTab, Flow} from 'vextab/releases/vextab-div'
-import {trebleClefNotes} from "../util/notes";
-import {getRandomElementFromArray} from "../util/util";
+import {trebleClefNotes} from "../../util/notes";
+import {getRandomElementFromArray} from "../../util/util";
 import NotationTable from "./NotationTable";
-
 
 const Notation = (props) => {
     // sellel siin vist pole mõtet... Püüdsin props-dele panna vaikeväärtusi, aga ilmselt mitte nii.
@@ -19,37 +18,42 @@ const Notation = (props) => {
     const vexTab = new VexTab(artist);
     Artist.NOLOGO = true;
 
-    let selectedNote = "C", selectedAccidental = "", selectedDuration = "4", selectedDot = "", selectedOctave = "4";
+    // user selected items
+    const [note, setNote] = useState("");
+    const [accidental, setAccidental] = useState("");
+    const [duration, setDuration] = useState("");
+    const [dot, setDot] = useState("");
+    const [octave, setOctave] = useState("4");
 
-    // this is basic structure to keep all the score
-    // score includes staves,  staves include voices, voices include notes
-    let notationInfo = {
-        options: "", // scale, width, space etc, if needed
-        staves: [
-            {
-                clef:"treble",
-                key:"C",
-                time: "4/4",
-                voices: [
-                    {
-                        notes: [
-                            {
-                                keys: [], // like ["C/4", "Eb/4", "G/4"] for chord
-                                duration: "", // like 4, 8, 2. etc
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
+    const resetState = () => {
+        setNote("");
+        setAccidental("");
+        setDuration("");
+        setDot("");
+        setOctave("4");
+    }
+
+    // the 2 objects below are mainly used for passing values to NotationTable
+    const selected = {
+        note: note,
+        accidental: accidental,
+        duration: duration,
+        dot: dot,
+        octave: octave
+    }
+
+    const setters = {
+        setNote: setNote, 
+        setDuration: setDuration, 
+        setAccidental: setAccidental,
+        setDot: setDot,
+        setOctave: setOctave
     };
-    let currentStave = 0, currentVoice = 0, lastNote = -1;
 
-    // use like: scoreInfo.staves[0].voices[0].notes[0] = {keys:["C/4"], duration: "2."}
+
+
     // TODO: insertNote(staff, voice, index), getNote(staff, voice, index), removeNote(staff, voice, index)
     // TODO: rework createVexTabString
-
-
 
     useEffect(() => {
         console.log("First run");
@@ -95,7 +99,7 @@ const Notation = (props) => {
                     //console.log(i, possibleNotes[i].line, line)
                     if (trebleClefNotes[i].line === line) {
                         console.log("FOUND ", i, trebleClefNotes[i].vtNote);
-                        insertNote(trebleClefNotes[i].vtNote, selectedDuration);
+                        insertNote(trebleClefNotes[i].vtNote, selected.duration);
                         //setNotesEnteredByUser(vexTabString);
                         break;
                     }
@@ -136,9 +140,15 @@ const Notation = (props) => {
                 artist.staves[0].note_notes.pop();
             }
         }
-
           artist.draw(renderer);
 
+    }
+
+    const addNote = () => {
+        const note = selected.note + selected.accidental + "/" + selected.octave;
+        const duration = selected.duration + selected.dot;
+        insertNote(note, duration);
+        resetState();
     }
 
     // TODO: check for chord - vtNote coulde bey also and array of keys. Not supported yet.
@@ -212,9 +222,7 @@ const Notation = (props) => {
         artist.render(renderer);
     };
 
-
-
-    const  createVexTabString = (notes) => {
+    const createVexTabString = (notes) => {
         const startString = "stave "; //"options space=20\n stave \n ";
         const clefString = (props.clef) ? "clef="+props.clef+"\n" : "";
         const keyString = (props.keySignature) ? "key="+props.keySignature+"\n" : "";
@@ -254,65 +262,37 @@ const Notation = (props) => {
         }
     };
 
-    const handleNoteInput = () => {
-        console.log("Selected note, accidental, duration", selectedNote, selectedAccidental ,selectedDuration);
-        let vtNote = selectedNote + selectedAccidental + "/" + selectedOctave;
-        insertNote(vtNote, selectedDuration+selectedDot);
-    }
-
-    const createInputBlock = () => {
-        // temporary, for testing only:
-        return !props.showInput ? null : (
-          <div>
-              Noot: <select onChange={ e => { selectedNote = e.target.value; } } >
-              <option value={"C"}>C</option>
-              <option value={"D"}>D</option>
-              <option value={"E"}>E</option>
-              <option value={"F"}>F</option>
-              <option value={"G"}>G</option>
-              <option value={"A"}>A</option>
-              <option value={"B"}>H</option>
-            </select>
-              Märk: <select onChange={ e => {  selectedAccidental = e.target.value} }>
-                <option value={""}>--</option>
-                <option value={"#"}>#</option>
-                <option value={"@"}>b</option>
-                <option value={"n"}>bekaar</option>
-          </select>
-              Oktav: <select defaultValue={"4"} onChange={ e => {  selectedOctave = e.target.value} }>
-              <option value={"3"}>3</option>
-              <option value={"4"}>4</option>
-              <option value={"5"}>5</option>
-          </select>
-              Vältus: <select defaultValue={"4"} onChange={ e => {  selectedDuration = e.target.value} }>
-              <option value={"1"}>1</option>
-              <option value={"2"}>2</option>
-              <option value={"4"}>4</option>
-              <option value={"8"}>8</option>
-              <option value={"16"}>16</option>
-              <option value={"32"}>32</option>
-          </select>
-              Punkteering: <select onChange={ e => {  selectedDot = e.target.value} }>
-              <option value={""}>--</option>
-              <option value={"d"}>.</option>
-              {/*/!*<option value={"dd"}>..</option>*!/ No support for double dot in VexTab...*/}
-          </select>
-
-              <button onClick={handleNoteInput}>Sisesta</button>
-              <button onClick={removeNote}>Kustuta viimane</button>
-
-          </div>
-        );
-    }
-
-
     return (
         <div>
             <div ref={vtDiv} />
-            <NotationTable />
-            {createInputBlock()}
+            <NotationTable addNote={addNote} removeNote={removeNote} selected={selected} setters={setters} />
         </div>
     );
 };
 
 export default Notation;
+
+
+// this is basic structure to keep all the score
+// score includes staves,  staves include voices, voices include notes
+let notationInfo = {
+    options: "", // scale, width, space etc, if needed
+    staves: [
+        {
+            clef:"treble",
+            key:"C",
+            time: "4/4",
+            voices: [
+                {
+                    notes: [
+                        {
+                            keys: [], // like ["C/4", "Eb/4", "G/4"] for chord
+                            duration: "", // like 4, 8, 2. etc
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+};
+// use like: scoreInfo.staves[0].voices[0].notes[0] = {keys:["C/4"], duration: "2."}
