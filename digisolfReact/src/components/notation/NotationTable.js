@@ -74,7 +74,7 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
       </Table.Body>
     </Table>
     <Button onClick={addNote}>Lisa noot</Button>
-    <Button onClick={removeNote}>Kustuta viimane</Button>
+    <Button onClick={() => removeNote()}>Kustuta viimane</Button>
   </React.Fragment>
   );
 };

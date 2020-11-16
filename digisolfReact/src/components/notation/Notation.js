@@ -25,14 +25,6 @@ const Notation = (props) => {
     const [dot, setDot] = useState("");
     const [octave, setOctave] = useState("4");
 
-    const resetState = () => {
-        setNote("");
-        setAccidental("");
-        setDuration("");
-        setDot("");
-        setOctave("4");
-    }
-
     // the 2 objects below are mainly used for passing values to NotationTable
     const selected = {
         note: note,
@@ -49,7 +41,6 @@ const Notation = (props) => {
         setDot: setDot,
         setOctave: setOctave
     };
-
 
 
     // TODO: insertNote(staff, voice, index), getNote(staff, voice, index), removeNote(staff, voice, index)
@@ -148,7 +139,6 @@ const Notation = (props) => {
         const note = selected.note + selected.accidental + "/" + selected.octave;
         const duration = selected.duration + selected.dot;
         insertNote(note, duration);
-        resetState();
     }
 
     // TODO: check for chord - vtNote coulde bey also and array of keys. Not supported yet.
@@ -272,7 +262,6 @@ const Notation = (props) => {
 
 export default Notation;
 
-
 // this is basic structure to keep all the score
 // score includes staves,  staves include voices, voices include notes
 let notationInfo = {
@@ -296,3 +285,4 @@ let notationInfo = {
     ]
 };
 // use like: scoreInfo.staves[0].voices[0].notes[0] = {keys:["C/4"], duration: "2."}
+
