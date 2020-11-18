@@ -51,7 +51,6 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
             <NotationTableCell name={'eighth'} handleClick={onNoteDurationClick} checkIfSelected={(isNoteDurationSelected)} />
             <NotationTableCell name={'sixteenth'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
             <NotationTableCell name={'dot'} handleClick={onDotClick} checkIfSelected={isDotSelected} />
-            <NotationTableCell name={'rests'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
           </Table.Row>
           <Table.Row>
             <NotationTableCell name={'C'} handleClick={onNoteClick} checkIfSelected={isNoteSelected} isImageCell={false} />
@@ -61,7 +60,8 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
             <NotationTableCell name={'G'} handleClick={onNoteClick} checkIfSelected={isNoteSelected} isImageCell={false} />
             <NotationTableCell name={'A'} handleClick={onNoteClick} checkIfSelected={isNoteSelected} isImageCell={false} />
             <NotationTableCell name={'B'} handleClick={onNoteClick} checkIfSelected={isNoteSelected} isImageCell={false} />
-        </Table.Row>
+            <NotationTableCell name={'rests'} handleClick={onNoteClick} checkIfSelected={isNoteSelected} />
+          </Table.Row>
         <Table.Row>
           <Table.Cell textAlign='center' width='2'/>
           <NotationTableCell name={'dblflat'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />

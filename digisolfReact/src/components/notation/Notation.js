@@ -136,10 +136,11 @@ const Notation = (props) => {
     }
 
     const addNote = () => {
-        const note = selected.note + selected.accidental + "/" + selected.octave;
+        const note =  (selected.note==="rests") ? "##"  :   selected.note + selected.accidental + "/" + selected.octave;
         const duration = selected.duration + selected.dot;
         insertNote(note, duration);
     }
+
 
     // TODO: check for chord - vtNote coulde bey also and array of keys. Not supported yet.
     const insertNote = (vtNote, duration = "4",  index=-1, voice=0,  staff=0) => { // index -1 means to the end
