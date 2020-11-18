@@ -250,6 +250,11 @@ const Notation = (props) => {
 
         try {
             // Parse VexTab music notation passed in as a string.
+
+            if (! notes.toString().trim().endsWith("=|=")) { // always add end bar, if not present:
+                notes += " =|= ";
+            }
+
             vexTab.reset();
             artist.reset();
             if (notes.toString().trim().startsWith("stave") ) { // already full vextab string
