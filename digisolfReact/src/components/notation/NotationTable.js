@@ -7,6 +7,10 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
     setters.setNote(name);
   }
 
+  const onRestClick = name => {
+    setters.setNote(vtNames[name]);
+  }
+
   const onNoteAccidentalClick = name => {
     setters.setAccidental(vtNames[name]);
   }
@@ -19,12 +23,14 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
     setters.setDot(vtNames[name]);
   }
 
-  // TODO 14.11.20: rethink dot functionality - make it more of a toggle
-  // TODO 14.11.20: implement rests' adding
   // TODO 14.11.20: implement octaves' changing
 
   const isNoteSelected = name => {
     return name === selected.note;
+  }
+
+  const isRestSelected = name => {
+    return vtNames[name] === selected.note;
   }
 
   const isNoteAccidentalSelected = name => {
@@ -35,23 +41,22 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
     return vtNames[name] === selected.duration;
   }
 
-  // temp
-  const isDotSelected = name => {
-    return vtNames[name] === selected.dot;
+  const isDotSelected = () => {
+    return selected.dot !== "";
   }
 
   return(
     <React.Fragment>
-      <Table size='large'>
+      <Table style={{overflowX: 'scrollable'}}>
         <Table.Body>
           <Table.Row>
+            <Table.Cell textAlign='center' width='2'/>
             <NotationTableCell name={'whole'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
             <NotationTableCell name={'half'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
             <NotationTableCell name={'quarter'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
             <NotationTableCell name={'eighth'} handleClick={onNoteDurationClick} checkIfSelected={(isNoteDurationSelected)} />
             <NotationTableCell name={'sixteenth'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
             <NotationTableCell name={'dot'} handleClick={onDotClick} checkIfSelected={isDotSelected} />
-            <NotationTableCell name={'rests'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
           </Table.Row>
           <Table.Row>
             <NotationTableCell name={'C'} handleClick={onNoteClick} checkIfSelected={isNoteSelected} isImageCell={false} />
@@ -61,6 +66,7 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
             <NotationTableCell name={'G'} handleClick={onNoteClick} checkIfSelected={isNoteSelected} isImageCell={false} />
             <NotationTableCell name={'A'} handleClick={onNoteClick} checkIfSelected={isNoteSelected} isImageCell={false} />
             <NotationTableCell name={'B'} handleClick={onNoteClick} checkIfSelected={isNoteSelected} isImageCell={false} />
+            <NotationTableCell name={'rest'} handleClick={onRestClick} checkIfSelected={isRestSelected} />
         </Table.Row>
         <Table.Row>
           <Table.Cell textAlign='center' width='2'/>
@@ -69,6 +75,7 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
           <NotationTableCell name={'nat'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
           <NotationTableCell name={'sharp'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
           <NotationTableCell name={'dblsharp'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
+          <Table.Cell textAlign='center' width='2'/>
           <Table.Cell textAlign='center' width='2'/>
         </Table.Row>
       </Table.Body>
@@ -94,7 +101,7 @@ const NotationTableCell = ({name, handleClick, checkIfSelected, isImageCell=true
   );
 };
 
-const vtNames = {
+export const vtNames = {
   "whole":"1",
   "half":"2",
   "quarter":"4",
@@ -106,5 +113,6 @@ const vtNames = {
   "flat":"@",
   "nat":"n",
   "sharp":"#",
-  "dblsharp":"##"
+  "dblsharp":"##",
+  "rest": "##"
 }
