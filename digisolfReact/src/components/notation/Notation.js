@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState, setState} from 'react';
 import {Artist, VexTab, Flow} from 'vextab/releases/vextab-div'
 import {trebleClefNotes} from "../../util/notes";
 import {getRandomElementFromArray} from "../../util/util";
-import NotationTable from "./NotationTable";
+import NotationTable, {vtNames} from "./NotationTable";
 
 const Notation = (props) => {
     // sellel siin vist pole mõtet... Püüdsin props-dele panna vaikeväärtusi, aga ilmselt mitte nii.
@@ -41,7 +41,6 @@ const Notation = (props) => {
         setDot: setDot,
         setOctave: setOctave
     };
-
 
     // TODO: insertNote(staff, voice, index), getNote(staff, voice, index), removeNote(staff, voice, index)
     // TODO: rework createVexTabString
@@ -136,7 +135,10 @@ const Notation = (props) => {
     }
 
     const addNote = () => {
-        const note =  (selected.note==="rests") ? "##"  :   selected.note + selected.accidental + "/" + selected.octave;
+        const isRestSelected = selected.note === vtNames["rest"];
+        const note = isRestSelected ? selected.note : selected.note + selected.accidental + "/" + selected.octave;
+        //tarmo versioon:
+        //const note =  (selected.note==="rests") ? "##"  :   selected.note + selected.accidental + "/" + selected.octave;
         const duration = selected.duration + selected.dot;
         insertNote(note, duration);
     }
