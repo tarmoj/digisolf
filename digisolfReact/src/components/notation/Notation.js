@@ -141,6 +141,13 @@ const Notation = (props) => {
         insertNote(note, duration);
     }
 
+    const addBarline = () => {
+        insertNote("|", 0);
+    }
+
+    const addEndBarline = () => {
+        insertNote("=|=", 0);
+    }
 
     // TODO: check for chord - vtNote coulde bey also and array of keys. Not supported yet.
     const insertNote = (vtNote, duration = "4",  index=-1, voice=0,  staff=0) => { // index -1 means to the end
@@ -182,7 +189,11 @@ const Notation = (props) => {
                             } else if (note.keys.length==1) {
                                 noteString = note.keys[0];
                             }
-                            vtString += ` :${note.duration.replace(/\./g, "d")} ${noteString.replace(/b/g, "@")}`; // for any case, VexFlow->VexTab: dot -> d, (flat) b - > @
+                            if ( note.keys[0]==="|" || note.keys[0].startsWith("=")  ) { // barline
+                                vtString += ` ${note.keys[0]} `;
+                            } else {
+                                vtString += ` :${note.duration.replace(/\./g, "d")} ${noteString.replace(/b/g, "@")}`; // for any case, VexFlow->VexTab: dot -> d, (flat) b - > @
+                            }
                         }
                     }
                 }
@@ -256,6 +267,10 @@ const Notation = (props) => {
     return (
         <div>
             <div ref={vtDiv} />
+            <div>
+                <button onClick={addBarline}>Taktijoon</button>
+                <button onClick={addEndBarline}>Lõpujoon</button>
+            </div>
             <NotationTable addNote={addNote} removeNote={removeNote} selected={selected} setters={setters} />
         </div>
     );
