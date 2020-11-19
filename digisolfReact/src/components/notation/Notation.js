@@ -72,15 +72,23 @@ const Notation = (props) => {
     };
 
     const handleClick = (event) => {
-        const x = event.layerX / scale; // võibolla siin ka: (event.layerX - vtDiv.current.offsetLeft / X) vms
+        const x =  (event.layerX - vtDiv.current.offsetLeft) / scale; // võibolla siin ka: (event.layerX - vtDiv.current.offsetLeft / X) vms
         const y =  (event.layerY - vtDiv.current.offsetTop) / scale; // was: clientX, clientY
         console.log("Click coordinates: ",x,y, event);
+        findClosestNoteByX(x);
+
+
         // tryout:  check click on notehead and colour it blue
-        if (event.target.parentElement.getAttribute("class") === "vf-notehead") {
+        if ( event.target.parentElement.getAttribute("class") === "vf-notehead") {
             console.log("This is notehead!", event.target);
             event.target.setAttribute("fill", "red");
         } else {
-            // tryout  to add a note on the line that was clicked
+            if (artist.staves.length===0) {
+                console.log("No staves!");
+                return;
+            }
+
+            /*// tryout  to add a note on the line that was clicked
             let line = artist.staves[0].note.getLineForY(y);
             // find note by line
             line = Math.round(line * 2) / 2; // round to nearest 0.5
@@ -89,14 +97,37 @@ const Notation = (props) => {
                     //console.log(i, possibleNotes[i].line, line)
                     if (trebleClefNotes[i].line === line) {
                         console.log("FOUND ", i, trebleClefNotes[i].vtNote);
-                        insertNote(trebleClefNotes[i].vtNote, selected.duration);
+                        insertNote(trebleClefNotes[i].vtNote, "4");
                         //setNotesEnteredByUser(vexTabString);
                         break;
                     }
                 }
-            }
+            }*/
         }
     };
+
+    //test:
+    const findClosestNoteByX = (x) => {
+        // tryout: find closest note -  compare note.getAbsoluteX & x
+        // try rectangles:
+        //const  context = renderer.getContext();
+        let indexOfClosest=-1, minDistance=999999, i=0;
+        console.log("Notes: ", artist.staves[0].note_notes);
+
+        // does not work -  artist.staves[0].note_notes seems to be empty at this point...
+        for (let note of artist.staves[0].note_notes ) { // later: use currentStave
+            console.log("X, absX: ", note.getX(), note.getAbsoluteX() );
+            let distance = Math.abs(x-note.getAbsoluteX());
+            if (distance<minDistance) {
+                indexOfClosest = i;
+                minDistance = distance;
+            }
+            i++;
+            //context.rect(note.getAbsoluteX()-10, note.stave.getYForTopText()-10, note.width+20, note.stave.height+10, { fill: 'darkgreen' });
+        }
+
+        console.log("Closest note to the click: ", indexOfClosest);
+    }
 
     // notationInfo functions ------------------------
 
