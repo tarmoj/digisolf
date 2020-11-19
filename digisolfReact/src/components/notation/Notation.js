@@ -135,12 +135,14 @@ const Notation = (props) => {
     }
 
     const addNote = () => {
-        const isRestSelected = selected.note === vtNames["rest"];
-        const note = isRestSelected ? selected.note : selected.note + selected.accidental + "/" + selected.octave;
-        //tarmo versioon:
-        //const note =  (selected.note==="rests") ? "##"  :   selected.note + selected.accidental + "/" + selected.octave;
-        const duration = selected.duration + selected.dot;
-        insertNote(note, duration);
+        if (selected.note) {
+            const isRestSelected = selected.note === vtNames["rest"];
+            const note = isRestSelected ? selected.note : selected.note + selected.accidental + "/" + selected.octave;
+            const duration = selected.duration + selected.dot;
+            insertNote(note, duration);
+        } else {
+            console.log("Not note/rest seleceted");
+        }
     }
 
     const addBarline = () => {
@@ -163,6 +165,11 @@ const Notation = (props) => {
     };
 
     const removeNote = ( index=-1, voice=0,  staff=0) => {
+        if (notationInfo.staves[staff].voices[voice].notes.length==0) {
+            console.log("Staff/voice is empty, nothing to remove: ", staff, voice);
+            return;
+        }
+
         if (index>=0) {
             notationInfo.staves[staff].voices[voice].notes.splice(index, 1);
         } else { // -1 stand for last note
@@ -231,7 +238,7 @@ const Notation = (props) => {
         const clefString = (props.clef) ? "clef="+props.clef+"\n" : "";
         const keyString = (props.keySignature) ? "key="+props.keySignature+"\n" : "";
         const timeString = (props.time) ?  "time="+props.time+"\n" : "";
-        const notesString =  (notes) ? "\nnotes " + notes + "\n" : "";
+        const notesString =  (notes) ? "\nnotes " + notes + " \n" : "";
         const endString = ""; //"\noptions space=20\n";
         const vtString = startString + clefString + keyString + timeString + notesString + endString;
         console.log (vtString);
@@ -254,7 +261,12 @@ const Notation = (props) => {
             // Parse VexTab music notation passed in as a string.
 
             if (! notes.toString().trim().endsWith("=|=")) { // always add end bar, if not present:
-                notes += " =|= ";
+                if (notes.toString().trim().endsWith("voice")) {
+                    console.log("No notes, empty voice");
+                    notes += "\nnotes =|=";
+                } else {
+                    notes += " =|=";
+                }
             }
 
             vexTab.reset();
