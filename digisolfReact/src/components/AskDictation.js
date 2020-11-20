@@ -19,6 +19,10 @@ import {makeInterval,  scaleDefinitions} from "../util/intervals";
 import * as notes from "../util/notes";
 import { stringToIntArray, getRandomInt, getRandomBoolean, getRandomElementFromArray } from "../util/util.js"
 import {dictationOrchestra as orc} from "../csound/orchestras";
+import {dictations as oneVoice} from "../dictations/1voice";
+import {dictations as twoVoice} from "../dictations/2voice";
+import {dictations as popJazz} from "../dictations/popJazz";
+import {dictations as degrees} from "../dictations/degrees";
 
 
 const AskDictation = () => {
@@ -56,144 +60,7 @@ const AskDictation = () => {
 
     const dictationType = name.toString().split("_")[0]; // categories come in as 1voice_level1 etc
 
-    const dictations = [
-        {category: "C_simple", title: "1a",
-            soundFile: dictation1a,
-            //soundFile: "../digisolf/sounds/dictations/1a.mp3",
-            notation:
-        ` \\time 4/4 
-        c d c e | c g e r \\bar "|."
-        `
-        },
-        {   category: "C_simple",
-            title: "2a", soundFile: "../sounds/dictations/2a.mp3", notation: // url was: ../digisolf/sounds/
-                `
-                \\time 4/4
-                c e g c | h, c g, r \\bar "|."  
-        `
-        },
-        { category: "C_simple", title: "3c", soundFile: "../sounds/dictations//3c.mp3", notation:
-                `
-                \\time 4/4
-                c' e' d' c' | g f e  r \\bar "|."  
-        `
-        },
-        { category: "C_simple", title: "4b", soundFile: "../sounds/dictations/4b.mp3", notation:
-                `  
-                \\time 4/4
-                a, h, c e | f a gis r \\bar "|."
-        `
-        },
-        { category: "C_simple", title: "5a", soundFile: "../sounds/dictations/5a.mp3", notation:
-                `
-                \\time 4/4
-                a, c e gis, | h, e  a, r \\bar "|."  
-        `
-        },
-
-        { category: "C_simple", title: "14a", soundFile: "../sounds/dictations/14a.mp3", notation:
-                `
-                \\time 3/4
-                a,8 h, c c h, c | a,4 a, r | a,8 g, c h, c d | e4 e r \\bar "|."   
-        `
-        },
-
-        // TEST: kahehäälne ühel süsteemil. Notatsioon praegu VexTab
-        //NB! helifal praegu vale!
-        { category: "C_simple",
-            title: "2v 1a",
-            soundFile: "../sounds/dictations/14a.mp3",
-            notationType: "vextab", // vextab VT or lilypond
-            notation:
-                `
-stave time=4/4
-voice
-notes :4 E/4 F/4 G/4 A/4 | G/4 F/4 :2 G/4 
-
-voice 
-notes :4 C/4 D/4 E/4 F/4 | E/4 D/4 :2 E/4    
-        `
-        },
-
-        // RM Tõnu näide
-        {category: "RM_simple", title: "Smilers", soundFile: "../sounds/dictations/Smilers.mp3",
-            credits: "Hendriks Sal-Saller \"Käime katuseid mööda\"",
-            notation:
-                `
-                \\time 4/4 \\key g \major
-                r8 h16 h  h a g a~  a8 h r4 |
-                r8 h16 h  h16 h h8 d'16 d'8 d'16~ d'16 d e8~ |
-                e4 r4 r r \\bar "|."  
-        `,
-            chords: [
-                {bar: 1, beat: 1, chord: "G"},
-                {bar: 3, beat: 1, chord: "C"}
-            ],
-            melody: ",33,3212_,23/33,333,555_,556_/1,,,", // miks lõpus 1, pekas ju 6 olema
-            rhythm: "34,1234_,13,/34,123,124_,123_/1,,,/"
-
-        },
-
-        // degree dictations ===============================================
-        {category: "degrees_level1", title: "1",
-            //soundFile: "",
-            //notation: "", // vist ikka vaja et oleks notatsioon ja selle järgi leiab MIDI noodid
-            degrees: "1 2 3 2 1 -7 1 ",
-            tonicVtNote: "C/5", // kas vaja
-            scale: "major",
-        },
-        {category: "degrees_level1", title: "2",
-            tonicVtNote: "C/5",
-            degrees: "1 2 1 -7   -6 -5 1 ",
-            scale: "major",
-        },
-        {category: "degrees_level1", title: "3",
-            tonicVtNote: "C/4",
-            degrees: "1 2 3 4 5 6 5 ",
-            scale: "major",
-        },
-        {category: "degrees_level1", title: "4",
-            tonicVtNote: "C/5",
-            degrees: "1 2 3 4 3 2 3 ",
-            scale: "major",
-        },
-        {category: "degrees_level1", title: "5",
-            tonicVtNote: "G/4",
-            degrees: "1 -7   -6 -5 1 2 3 ",
-            scale: "major",
-        },
-
-        {category: "degrees_level1", title: "6",
-            tonicVtNote: "G/4",
-            degrees: "1 -7 1 2  3 4 3 ",
-            scale: "major",
-        },
-        {category: "degrees_level1", title: "7",
-            tonicVtNote: "G/4",
-            degrees: "1 2 3 4 5 1 -7 ",
-            scale: "major",
-        },
-        {category: "degrees_level1", title: "8",
-            tonicVtNote: "G/4",
-            degrees: "1 2 3 1 3 4 5 ",
-            scale: "major",
-        },
-        {category: "degrees_level1", title: "9",
-            tonicVtNote: "F/4",
-            degrees: "1 2 3 5 4 2 3  ",
-            scale: "major",
-        },
-        {category: "degrees_level1", title: "10",
-            tonicVtNote: "/4",
-            degrees: "1 3 5 4 3 5 1 ",
-            scale: "major",
-        },
-
-
-
-
-    ];
-
+    const dictations = oneVoice.concat(twoVoice).concat(degrees).concat(popJazz); // + add other dictations when done
 
 
     // EXERCISE LOGIC ======================================
