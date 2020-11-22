@@ -1,8 +1,11 @@
-import React, {useEffect, useRef, useState, setState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Artist, VexTab, Flow} from 'vextab/releases/vextab-div'
 import {trebleClefNotes} from "../../util/notes";
 import {getRandomElementFromArray} from "../../util/util";
-import NotationTable, {vtNames} from "./NotationTable";
+import NotationTable from "./NotationTable";
+import {defaultStateValues, vtNames, defaultNotationInfo} from "./notationConstants";
+
+let notationInfo = defaultNotationInfo;
 
 const Notation = (props) => {
     // sellel siin vist pole mõtet... Püüdsin props-dele panna vaikeväärtusi, aga ilmselt mitte nii.
@@ -19,28 +22,11 @@ const Notation = (props) => {
     Artist.NOLOGO = true;
 
     // user selected items
-    const [note, setNote] = useState("");
-    const [accidental, setAccidental] = useState("");
-    const [duration, setDuration] = useState("");
-    const [dot, setDot] = useState("");
-    const [octave, setOctave] = useState("4");
-
-    // the 2 objects below are mainly used for passing values to NotationTable
-    const selected = {
-        note: note,
-        accidental: accidental,
-        duration: duration,
-        dot: dot,
-        octave: octave
-    }
-
-    const setters = {
-        setNote: setNote, 
-        setDuration: setDuration, 
-        setAccidental: setAccidental,
-        setDot: setDot,
-        setOctave: setOctave
-    };
+    const [note, setNote] = useState(defaultStateValues.note);
+    const [accidental, setAccidental] = useState(defaultStateValues.accidental);
+    const [duration, setDuration] = useState(defaultStateValues.duration);
+    const [dot, setDot] = useState(defaultStateValues.dot);
+    const [octave, setOctave] = useState(defaultStateValues.octave);
 
     // TODO: insertNote(staff, voice, index), getNote(staff, voice, index), removeNote(staff, voice, index)
     // TODO: rework createVexTabString
@@ -65,6 +51,32 @@ const Notation = (props) => {
         }
     }, [renderer]);
 
+    useEffect(() => {
+        refreshNote();
+    }, [octave]);
+
+    // TODO 22.11.2020: think this over. has to target a specific note, not just the last one
+    const refreshNote = () => {
+        removeNote();
+        addNote();
+    }
+
+    // the 2 objects below are mainly used for passing values to NotationTable
+    const selected = {
+        note: note,
+        accidental: accidental,
+        duration: duration,
+        dot: dot,
+        octave: octave
+    }
+
+    const setters = {
+        setNote: setNote, 
+        setDuration: setDuration, 
+        setAccidental: setAccidental,
+        setDot: setDot,
+        setOctave: setOctave
+    };
 
     const vexTabInit = () => {
         console.log("**** VexTab INIT ****");
@@ -180,23 +192,23 @@ const Notation = (props) => {
 
     }
 
-    const addNote = () => {
-        if (selected.note) {
-            const isRestSelected = selected.note === vtNames["rest"];
-            const note = isRestSelected ? selected.note : selected.note + selected.accidental + "/" + selected.octave;
-            const duration = selected.duration + selected.dot;
-            insertNote(note, duration);
-        } else {
-            console.log("Not note/rest seleceted");
-        }
-    }
-
     const addBarline = () => {
         insertNote("|", 0);
     }
 
     const addEndBarline = () => {
         insertNote("=|=", 0);
+    }
+
+    const addNote = () => {
+        if (note) {
+            const isRestSelected = selected.note === vtNames["rest"];
+            const note = isRestSelected ? selected.note : selected.note + selected.accidental + "/" + selected.octave;
+            const duration = selected.duration + selected.dot;
+            insertNote(note, duration);
+        } else {
+            console.log("No note/rest selected");
+        }
     }
 
     // TODO: check for chord - vtNote coulde bey also and array of keys. Not supported yet.
@@ -342,28 +354,4 @@ const Notation = (props) => {
 };
 
 export default Notation;
-
-// this is basic structure to keep all the score
-// score includes staves,  staves include voices, voices include notes
-let notationInfo = {
-    options: "", // scale, width, space etc, if needed
-    staves: [
-        {
-            clef:"treble",
-            key:"C",
-            time: "4/4",
-            voices: [
-                {
-                    notes: [
-                        {
-                            keys: [], // like ["C/4", "Eb/4", "G/4"] for chord
-                            duration: "", // like 4, 8, 2. etc
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
-};
-// use like: scoreInfo.staves[0].voices[0].notes[0] = {keys:["C/4"], duration: "2."}
 

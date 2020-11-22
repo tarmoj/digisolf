@@ -1,5 +1,6 @@
 import React from 'react';
-import {Table, Image, Button} from 'semantic-ui-react';
+import {Table, Image, Button, Popup} from 'semantic-ui-react';
+import {vtNames, octaveData} from './notationConstants';
 
 const NotationTable = ({addNote, removeNote, selected, setters}) => {
 
@@ -23,7 +24,21 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
     setters.setDot(vtNames[name]);
   }
 
-  // TODO 14.11.20: implement octaves' changing
+  const onOctaveUpClick = () => {
+    let octave = parseInt(selected.octave);
+    if (octave < octaveData.maxOctave) {
+      octave++;
+      setters.setOctave(octave.toString());
+    }
+  }
+
+  const onOctaveDownClick = () => {
+    let octave = parseInt(selected.octave);
+    if (octave > octaveData.minOctave) {
+      octave--;
+      setters.setOctave(octave.toString());
+    }
+  }
 
   const isNoteSelected = name => {
     return name === selected.note;
@@ -78,6 +93,16 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
           <Table.Cell textAlign='center' width='2'/>
           <Table.Cell textAlign='center' width='2'/>
         </Table.Row>
+        <Table.Row>
+          <Table.Cell textAlign='center' width='2'/>
+          <Table.Cell textAlign='center' width='2'/>
+          <Table.Cell textAlign='center' width='2'/>
+          <NotationTableCell name={'octaveup'} handleClick={onOctaveUpClick} popupContent={'Oktav kõrgemaks'} />
+          <NotationTableCell name={'octavedown'} handleClick={onOctaveDownClick} popupContent={'Oktav madalamaks'} />
+          <Table.Cell textAlign='center' width='2'/>
+          <Table.Cell textAlign='center' width='2'/>
+          <Table.Cell textAlign='center' width='2'/>
+        </Table.Row>
       </Table.Body>
     </Table>
     <Button onClick={addNote}>Lisa noot</Button>
@@ -88,31 +113,20 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
 
 export default NotationTable;
 
-const NotationTableCell = ({name, handleClick, checkIfSelected, isImageCell=true}) => {
+const NotationTableCell = ({name, handleClick, checkIfSelected, isImageCell=true, popupContent}) => {
 
-  const isActive = checkIfSelected(name);
+  const isActive = checkIfSelected && checkIfSelected(name);
 
+  const cell = <Table.Cell selectable active={isActive} onClick={() => handleClick(name)} textAlign='center' width='2' style={{cursor: 'pointer'}}>
+                {isImageCell ? 
+                  <Image src={require('../../images/notes/' + name + '.png')} style={{margin: 'auto', padding: '5px'}}/> :
+                  <div style={{padding: '10px'}}>{name}</div>}
+              </Table.Cell>
+  
   return(
-    <Table.Cell selectable active={isActive} onClick={() => handleClick(name)} textAlign='center' width='2' style={{cursor: 'pointer'}}>
-      {isImageCell? 
-        <Image src={require('../../images/notes/' + name + '.png')} style={{margin: 'auto', padding: '5px'}}/> :
-        <div style={{padding: '10px'}}>{name}</div>}
-    </Table.Cell>
+    <React.Fragment>
+          {popupContent ? <Popup content={popupContent} trigger={cell} position={'top center'} /> : cell}
+    </React.Fragment>
   );
 };
 
-export const vtNames = {
-  "whole":"1",
-  "half":"2",
-  "quarter":"4",
-  "eighth":"8",
-  "sixteenth":"16",
-  "thirtysecond":"32",
-  "dot":".",
-  "dblflat":"@@",
-  "flat":"@",
-  "nat":"n",
-  "sharp":"#",
-  "dblsharp":"##",
-  "rest": "##"
-}
