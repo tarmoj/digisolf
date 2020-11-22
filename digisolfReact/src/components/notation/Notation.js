@@ -323,7 +323,7 @@ const Notation = (props) => {
                     console.log("No notes, empty voice");
                     notes += "\nnotes =|=";
                 } else {
-                    notes += " =|=";
+                    notes =  notes.trim() + " =|=";
                 }
             }
 

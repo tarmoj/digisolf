@@ -81,6 +81,11 @@
   "major": "mažoor",
   "minorNatural": "loomulik minoor",
   "minorHarmonic": "harmooniline minoor",
-  "inMode": "laadis"
+  "inMode": "laadis",
+  "oneVoice": "ühehäälsed",
+  "twoVoice": "kahehäälsed",
+  "popJazz": "rütmimuusika",
+  "classics": "klassika"
+
 
 }

@@ -62,8 +62,10 @@ const MainMenu = () => {
                 <Grid.Column>
                     <Header size='large'>{t("dictations")}</Header>
                     {/*siia oleks vaja teha tegelikult Dropdown sorti menüü*/}
-                    <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/C_simple")}>{capitalizeFirst(t("simple"))}</Button><br/>
-                    <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/RM_simple")}>{capitalizeFirst(t("RM_simple"))}</Button><br/>
+                    <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/1voice")}>{capitalizeFirst(t("oneVoice"))}</Button><br/>
+                    <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/2voice")}>{capitalizeFirst(t("twoVoice"))}</Button><br/>
+                    <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/popJazz")}>{capitalizeFirst(t("popJazz"))}</Button><br/>
+                    <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/classics")}>{capitalizeFirst(t("classics"))}</Button><br/>
                     <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/degrees_level1")}>{capitalizeFirst(t("degreeDictations"))}</Button><br/>
                     <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/degrees_random")}>{capitalizeFirst(t("degreeDictations"))} - {t("generated") }</Button><br/>
                     {/*<Button className={"marginTopSmall mainMenuBtn"} onClick={() => startDictation("simple")}>{capitalizeFirst(t("simple"))}</Button><br/>*/}

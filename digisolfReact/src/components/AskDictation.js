@@ -585,11 +585,11 @@ const AskDictation = () => {
     };
 
     const createSelectionMenu = () => {
-        const options = []; //"[";
+        const options = [];
         console.log("createSelectionMenu for: ", currentCategory, name);
         //const dictationsByCategory =  dictations.filter(dict =>  dict.category=== currentCategory);
         for (let i=0; i< dictations.length; i++) {
-            if (dictations[i].category === name) { // exercise's name contains also the category; later support changing the category
+            if ( dictations[i].category.startsWith(name) /*dictations[i].category === name*/) { // NB! no levels for now!, _leve1 etc are ignored
                 options.push( { value: i, text: dictations[i].title  } );
             }
         }

@@ -3,7 +3,7 @@
  export const dictations = [
  
 	{
-	 category: "RM_simple", title: "Smilers", soundFile: "../sounds/dictations/Smilers.mp3",
+	 category: "popJazz", title: "Smilers", soundFile: "../sounds/dictations/Smilers.mp3",
             credits: "Hendriks Sal-Saller \"Käime katuseid mööda\"",
             notation:
                 `
