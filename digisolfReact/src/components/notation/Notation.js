@@ -6,6 +6,9 @@ import NotationTable from "./NotationTable";
 import {defaultStateValues, vtNames, defaultNotationInfo} from "./notationConstants";
 
 let notationInfo = defaultNotationInfo;
+let artist = new Artist(10, 10, 600, {scale: 1}); // handleCLick works if artis is defined outside of the Notation component
+// how to set the width and scale that come from Notation.props?
+
 
 const Notation = (props) => {
     // sellel siin vist pole mõtet... Püüdsin props-dele panna vaikeväärtusi, aga ilmselt mitte nii.
@@ -15,7 +18,7 @@ const Notation = (props) => {
     const scale = (props.scale) ? props.scale : 0.8;
 
     const vtDiv = useRef(null);
-    const artist = new Artist(10, 10, width, {scale: scale});
+    //artist = new Artist(10, 10, width, {scale: scale}); // moved outside of Notation component
     const [renderer, setRenderer] = useState(null);
     //let renderer = null;
     const vexTab = new VexTab(artist);
@@ -28,8 +31,6 @@ const Notation = (props) => {
     const [dot, setDot] = useState(defaultStateValues.dot);
     const [octave, setOctave] = useState(defaultStateValues.octave);
 
-    // TODO: insertNote(staff, voice, index), getNote(staff, voice, index), removeNote(staff, voice, index)
-    // TODO: rework createVexTabString
 
     useEffect(() => {
         console.log("First run");
@@ -44,7 +45,6 @@ const Notation = (props) => {
     }, [props]);
 
     useEffect(() => {
-        console.log("CHECK1 Renderer effect");
         if (renderer !== null) {
             renderer.getContext().svg.onclick = (event) => handleClick(event); //  console.log("OH MY GOD!", event);
             redraw("");
@@ -55,7 +55,11 @@ const Notation = (props) => {
         refreshNote();
     }, [octave]);
 
+
+
     // TODO 22.11.2020: think this over. has to target a specific note, not just the last one
+    // Tarmo: insertNote have parameters index, voice, staff to select the note
+    // probably we need currentNoteIndex, currentVoice, currentStaff to use with addNote and removeNote
     const refreshNote = () => {
         removeNote();
         addNote();
@@ -85,11 +89,21 @@ const Notation = (props) => {
     };
 
     const handleClick = (event) => {
-        console.log("DIV data: ", vtDiv.current, vtDiv.current.offsetLeft  )
+        //console.log("DIV data: ", vtDiv.current, vtDiv.current.offsetLeft  )
         const x =  (event.layerX - vtDiv.current.offsetLeft) / scale;
         const y =  (event.layerY - vtDiv.current.offsetTop) / scale;
-        console.log("Click coordinates: ",x,y, event);
-        findClosestNoteByX(x) ;
+        console.log("CHECK1 Click coordinates: ",x,y, event);
+        const closestIndex = findClosestNoteByX(x) ;
+        //TODO 23.11.20: setCurrentNoteIndex(closestInedex), setSelectedNote vms
+
+        if (closestIndex>=0) {
+            const note = artist.staves[0].note_notes[closestIndex];
+            // draw a semitransparent rect around selected noted
+            renderer.getContext().rect(note.getAbsoluteX()-10, note.stave.getYForTopText()-10, note.width+20, note.stave.height+10,
+                { fill: "lightblue", opacity:"0.2" } );
+            //TODO: 23.11.20 -  if a note was selected previously, clear the background
+        }
+
 
         // tryout:  check click on notehead and colour it blue
         if (event.target.parentElement.getAttribute("class") === "vf-notehead") {
@@ -101,18 +115,6 @@ const Notation = (props) => {
                 return;
             }
 
-            // tryout: find closest note -  compare note.getAbsoluteX & x
-            // try rectangles:
-            //const  context = renderer.getContext();
-            //const distances = [];
-            //console.log("CHECK1 Noote:", artist.staves[0].note_notes.length);
-            for (let note of artist.staves[0].note_notes ) {
-                console.log("CHECK1 X, absX: ", note.getX(), note.getAbsoluteX() );
-
-                //context.rect(note.getAbsoluteX()-10, note.stave.getYForTopText()-10, note.width+20, note.stave.height+10, { fill: 'darkgreen' });
-
-            }
-
 
             // tryout  to add a note on the line that was clicked
             let line = artist.staves[0].note.getLineForY(y);
@@ -122,11 +124,9 @@ const Notation = (props) => {
                 if (trebleClefNotes[i].hasOwnProperty("line")) {
                     //console.log(i, possibleNotes[i].line, line)
                     if (trebleClefNotes[i].line === line) {
-                        console.log("FOUND ", i, trebleClefNotes[i].vtNote);
-                        insertNote(trebleClefNotes[i].vtNote, "4"); //  kui see on välja kommenteeritud, siis Number of notes on alati 0
-                        // kui see aga toimub, siis findClosestNoteByX näeb nootide arvu, so nootide arvu, mis on sisestatud hiireklõpsuga
-                        // ilmselt kuna insertNote() kutsub välja reDraw(), see artist.reset samas tsüklis
-                        // kui noodid on sisestatud aga NotationTable kaudu, siis see toimub ilmselt mingis teises state olekus...
+                        //console.log("FOUND ", i, trebleClefNotes[i].vtNote);
+
+                        //insertNote(trebleClefNotes[i].vtNote, "4"); //  kui see on välja kommenteeritud, siis Number of notes on alati 0
                         break;
                     }
                 }
@@ -138,21 +138,18 @@ const Notation = (props) => {
     const findClosestNoteByX = (x) => {
         // find closest note -  compare note.getAbsoluteX & x
         let indexOfClosest = -1, minDistance = 999999, i = 0;
-        console.log("CHECK1 Number of notes: ", artist.staves[0].note_notes.length);
 
-        // does not work -  artist.staves[0].note_notes seems to be empty at this point...
         for (let note of artist.staves[0].note_notes) { // later: use currentStave
-            console.log("X, absX: ", note.getX(), note.getAbsoluteX());
+            //console.log("CHECK1 X, absX: ", note.getX(), note.getAbsoluteX());
             let distance = Math.abs(x - note.getAbsoluteX());
             if (distance < minDistance) {
                 indexOfClosest = i;
                 minDistance = distance;
             }
             i++;
-            //context.rect(note.getAbsoluteX()-10, note.stave.getYForTopText()-10, note.width+20, note.stave.height+10, { fill: 'darkgreen' });
         }
 
-        console.log("Closest note to the click: ", indexOfClosest);
+        console.log("CHECK1 Closest note to the click: ", indexOfClosest);
         return indexOfClosest;
     }
 
@@ -336,6 +333,7 @@ const Notation = (props) => {
             }
 
             artist.render(renderer);
+
         } catch (e) {
             console.log(e);
         }
