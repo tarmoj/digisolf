@@ -115,3 +115,22 @@ body {
 .red {
     color: red;
 }
+
+.vtDiv {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+/* styles for smaller devices */
+@media (max-width: 991px) {
+    .maxWidth {
+        max-width: 90% !important;
+        margin: auto;
+    }
+
+    .notationBlock {
+        max-width: 100%;
+        margin: auto;
+    }
+}

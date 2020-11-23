@@ -341,7 +341,7 @@ const Notation = (props) => {
 
     return (
         <div>
-            <div ref={vtDiv} />
+            <div className={'vtDiv'} ref={vtDiv} />
             <div>
                 <button onClick={addBarline}>Taktijoon</button>
                 <button onClick={addEndBarline}>Lõpujoon</button>

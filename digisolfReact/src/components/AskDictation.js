@@ -527,7 +527,7 @@ const AskDictation = () => {
 
     const createNotationInputBlock =  () => {
         return (exerciseHasBegun && dictationType!=="degrees") ? (
-            <div>
+            <div className={'notationBlock'}>
                 <Input
                     className={"marginRight"}
                     onChange={e => {setNotesEnteredByUser(e.target.value)}}

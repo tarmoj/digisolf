@@ -62,10 +62,10 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
 
   return(
     <React.Fragment>
-      <Table style={{overflowX: 'scrollable'}}>
+      <Table unstackable >
         <Table.Body>
           <Table.Row>
-            <Table.Cell textAlign='center' width='2'/>
+            <Table.Cell textAlign='center' width='2' />
             <NotationTableCell name={'whole'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
             <NotationTableCell name={'half'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
             <NotationTableCell name={'quarter'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
@@ -84,24 +84,24 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
             <NotationTableCell name={'rest'} handleClick={onRestClick} checkIfSelected={isRestSelected} />
         </Table.Row>
         <Table.Row>
-          <Table.Cell textAlign='center' width='2'/>
+          <Table.Cell textAlign='center' width='2' />
           <NotationTableCell name={'dblflat'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
           <NotationTableCell name={'flat'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
           <NotationTableCell name={'nat'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
           <NotationTableCell name={'sharp'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
           <NotationTableCell name={'dblsharp'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
-          <Table.Cell textAlign='center' width='2'/>
-          <Table.Cell textAlign='center' width='2'/>
+          <Table.Cell textAlign='center' width='2' />
+          <Table.Cell textAlign='center' width='2' />
         </Table.Row>
         <Table.Row>
-          <Table.Cell textAlign='center' width='2'/>
-          <Table.Cell textAlign='center' width='2'/>
-          <Table.Cell textAlign='center' width='2'/>
+          <Table.Cell textAlign='center' width='2' />
+          <Table.Cell textAlign='center' width='2' />
+          <Table.Cell textAlign='center' width='2' />
           <NotationTableCell name={'octaveup'} handleClick={onOctaveUpClick} popupContent={'Oktav kõrgemaks'} />
           <NotationTableCell name={'octavedown'} handleClick={onOctaveDownClick} popupContent={'Oktav madalamaks'} />
-          <Table.Cell textAlign='center' width='2'/>
-          <Table.Cell textAlign='center' width='2'/>
-          <Table.Cell textAlign='center' width='2'/>
+          <Table.Cell textAlign='center' width='2' />
+          <Table.Cell textAlign='center' width='2' />
+          <Table.Cell textAlign='center' width='2' />
         </Table.Row>
       </Table.Body>
     </Table>
