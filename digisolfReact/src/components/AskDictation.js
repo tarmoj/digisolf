@@ -39,6 +39,7 @@ const AskDictation = () => {
     const [selectedDictation, setSelectedDictation] = useState({title:"", soundFile:"", notation:""});
     const [answer, setAnswer] = useState(null);
     const [answered, setAnswered] = useState(false);
+    const [showCorrectNotation, setShowCorrectNotation] =  useState(false);
     const [currentCategory, setCurrentCategory] = useState("C_simple");
 
     const [notesEnteredByUser, setNotesEnteredByUser] = useState("");
@@ -93,7 +94,8 @@ const AskDictation = () => {
         setAnswered(false);
         setNotesEnteredByUser("");
         setDegreesEnteredByUser("");
-        hideAnswer();
+        //hideAnswer();
+        setShowCorrectNotation(false);
 
         let dictation;
 
@@ -119,8 +121,22 @@ const AskDictation = () => {
         } else { // other, notation oriented dictations
             // uncommented for testing:
             showFirstNote(dictationIndex);
-            hideAnswer();
-            answer = {notation: selectedDictation.notation};
+            // hideAnswer();
+            answer = {notation: selectedDictation.notation}; // <- this will not be used
+
+            // set notationIfo for correct notation block
+            let notationInfo =  {vtNotes: ""};
+            // see on paha struktuur, oleks vaja, et oleks võimalik anda kogu vexTab String tervikuna, kui nt mitmehäälne muusika
+            if (dictation.notation.trim().startsWith("stave") ) {
+                notationInfo.vtNotes = dictation.notation;
+            } else {
+                notationInfo = parseLilypondString(dictation.notation);
+            }
+
+            console.log("Õiged noodid: ", notationInfo.vtNotes);
+            if (notationInfo.vtNotes) {
+                setCorrectNotation(notationInfo);
+            }
         }
 
         setSelectedDictation(dictation);
@@ -243,9 +259,9 @@ const AskDictation = () => {
 
     };
 
-    const hideAnswer = () => {
-        setCorrectNotation({vtNotes: null});
-    };
+    // const hideAnswer = () => {
+    //     setCorrectNotation({vtNotes: null});
+    // };
 
     // võibolla -  ka helifailide mängimine Csoundiga?
     const play = (dictation) => {
@@ -299,41 +315,21 @@ const AskDictation = () => {
         }
     };
 
-    const answerIsHidden = () => {
-        return correctNotation.vtNotes === null || correctNotation.vtNotes === "";
-    };
+    // const answerIsHidden = () => {
+    //     return  !showCorrectNotation; //correctNotation.vtNotes === null || correctNotation.vtNotes === "";
+    // };
 
     const showDictation = () => {
         if (selectedDictation.notation.length === 0 ) {
             alert( t("chooseDictation"));
             return;
         }
-        // võibolla -  mitte lubada näidata, kui pole veel vastatud
-        // või isegi ainult "Vasta" nupp näitab õiget diktaati
-        if (!answerIsHidden()) {
-            hideAnswer()
-        } else {
-            let notationInfo =  {vtNotes: ""};
-            // see on paha struktuur, oleks vaja, et oleks võimalik anda kogu vexTab String tervikuna, kui nt mitmehäälne muusika
-            if (selectedDictation.notation.trim().startsWith("stave") ) {
-                notationInfo.vtNotes = selectedDictation.notation;
-            } else {
-                notationInfo = parseLilypondString(selectedDictation.notation);
-            }
-
-            console.log("Õiged noodid: ", notationInfo.vtNotes);
-            if (notationInfo.vtNotes) {
-                setCorrectNotation(notationInfo);
-            }
-            //test: checkresponse should call this, not vice versa
-            checkResponse(null);
-        }
+        setShowCorrectNotation(true);
     };
 
     const renderNotes = () => {
         const notationInfo = parseLilypondString(notesEnteredByUser);//  noteStringToVexTabChord(notesEnteredByUser);
         setNotationInfo(notationInfo);
-        //setVexTabNotes(notationInfo.vtNotes);
     };
 
 
@@ -590,7 +586,7 @@ const AskDictation = () => {
 
 
     const createCorrectNotationBlock = () => {
-        const answerDisplay = answerIsHidden() ? "none" : "inline";
+        const answerDisplay = showCorrectNotation ? "inline" : "none" ;
 
         return exerciseHasBegun ? (
 
