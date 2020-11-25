@@ -126,7 +126,7 @@ const Notation = (props) => {
                     if (trebleClefNotes[i].line === line) {
                         //console.log("FOUND ", i, trebleClefNotes[i].vtNote);
 
-                        insertNote(trebleClefNotes[i].vtNote, "4"); //  kui see on välja kommenteeritud, siis Number of notes on alati 0
+                        //insertNote(trebleClefNotes[i].vtNote, "4"); //  kui see on välja kommenteeritud, siis Number of notes on alati 0
                         break;
                     }
                 }
@@ -300,6 +300,13 @@ const Notation = (props) => {
         return vtString;
     };
 
+    // test: pass staves to parent:
+    const passStaves = () => {
+        if (props.passStaves && artist.staves) {
+            props.passStaves( artist.staves);
+        }
+    }
+
     // notes can be yct also a full vextab string, then it must begin with keyword 'stave'
     const redraw = (notes) => {
         if (!vexTab) {
@@ -333,6 +340,7 @@ const Notation = (props) => {
             }
 
             artist.render(renderer);
+            passStaves();
 
         } catch (e) {
             console.log(e);

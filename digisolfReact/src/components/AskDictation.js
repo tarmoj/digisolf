@@ -49,6 +49,11 @@ const AskDictation = () => {
 
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
 
+    //test:
+    const [responseStaves, setResponseStaves] = useState(null);
+    const [correctStaves, setCorrectStaves] = useState(null);
+
+
 
 
     // diktaatide definitsioonid võibolla eraldi failis.
@@ -315,11 +320,13 @@ const AskDictation = () => {
             } else {
                 notationInfo = parseLilypondString(selectedDictation.notation);
             }
-            //
+
             console.log("Õiged noodid: ", notationInfo.vtNotes);
             if (notationInfo.vtNotes) {
                 setCorrectNotation(notationInfo);
             }
+            //test: checkresponse should call this, not vice versa
+            checkResponse(null);
         }
     };
 
@@ -362,6 +369,21 @@ const AskDictation = () => {
             }
 
             showDictation();
+        } else { // all other dictations are with note input
+            //showDictation(); // display the dictation first, this should set the CorrectNotation, but that will be too late...
+            // NB! this should be the other way round -  button calls checkresponse, checkResponse showNotation
+            // What takes care of marking wrong notes?
+
+            //test: staves should be passed via setResponseStaves from Notation
+            console.log("STAVES in checkresponse: ", responseStaves);
+            console.log("STAVES of correctNotation in checkresponse: ", correctStaves);
+            for (let stave of responseStaves ) { // can be two-voiced
+                //TODO (tarmo): check that the number of staves is equal between correctNotation and response
+                for (let note of stave.note_notes) {
+                    console.log("STAVE keys from note :", note.keys);
+                }
+            }
+
         }
 
         /*if (checkNotation()) {
@@ -559,6 +581,7 @@ const AskDictation = () => {
                            clef={notationInfo.clef}
                            keySignature={notationInfo.keySignature}
                            showInput={true}
+                           passStaves={setResponseStaves}
                 />
 
             </div>
@@ -578,6 +601,7 @@ const AskDictation = () => {
                          clef={correctNotation.clef}
                          keySignature={correctNotation.keySignature}
                          showInput={false}
+                         /*passStaves={setCorrectStaves}*/
                />
 
             </div>
