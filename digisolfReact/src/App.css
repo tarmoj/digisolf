@@ -134,3 +134,14 @@ body {
         margin: auto;
     }
 }
+
+#toggleTableIcon.iconDown {
+    transform: rotate(0deg);
+    transition: transform 0.26s linear;
+
+}
+
+#toggleTableIcon.iconUp {
+    transform: rotate(-180deg);
+    transition: transform 0.26s linear;
+}
