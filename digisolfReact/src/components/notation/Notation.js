@@ -89,9 +89,9 @@ const Notation = (props) => {
     };
 
     const handleClick = (event) => {
-        //console.log("DIV data: ", vtDiv.current, vtDiv.current.offsetLeft  )
-        const x =  (event.layerX - vtDiv.current.offsetLeft) / scale;
-        const y =  (event.layerY - vtDiv.current.offsetTop) / scale;
+        console.log("DIV data: ", vtDiv.current, vtDiv.current.offsetLeft  )
+        const x =  event.layerX / scale; // was: (event.layerX - vtDiv.current.offsetLeft) / scale
+        const y =  event.layerY  / scale; // was: (event.layerY - vtDiv.current.offsetTop)
         console.log("CHECK1 Click coordinates: ",x,y, event);
         const closestIndex = findClosestNoteByX(x) ;
         //TODO 23.11.20: setCurrentNoteIndex(closestInedex), setSelectedNote vms
@@ -126,7 +126,7 @@ const Notation = (props) => {
                     if (trebleClefNotes[i].line === line) {
                         //console.log("FOUND ", i, trebleClefNotes[i].vtNote);
 
-                        //insertNote(trebleClefNotes[i].vtNote, "4"); //  kui see on välja kommenteeritud, siis Number of notes on alati 0
+                        insertNote(trebleClefNotes[i].vtNote, "4"); //  kui see on välja kommenteeritud, siis Number of notes on alati 0
                         break;
                     }
                 }
@@ -140,7 +140,7 @@ const Notation = (props) => {
         let indexOfClosest = -1, minDistance = 999999, i = 0;
 
         for (let note of artist.staves[0].note_notes) { // later: use currentStave
-            //console.log("CHECK1 X, absX: ", note.getX(), note.getAbsoluteX());
+            console.log("CHECK1 X, absX: ", note.getX(), note.getAbsoluteX());
             let distance = Math.abs(x - note.getAbsoluteX());
             if (distance < minDistance) {
                 indexOfClosest = i;
