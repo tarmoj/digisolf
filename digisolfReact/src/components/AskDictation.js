@@ -50,10 +50,8 @@ const AskDictation = () => {
 
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
 
-    //test:
-    const [responseStaves, setResponseStaves] = useState(null);
-    const [correctStaves, setCorrectStaves] = useState(null);
-
+    // store staves from artist object of Notation components -  necessary for checkResponse
+    let responseStaves=null, correctStaves = null;
 
 
 
@@ -341,10 +339,10 @@ const AskDictation = () => {
             return;
         }
 
-        if (answered) {
-            alert(t("alreadyAnswered"));
-            return;
-        }
+        // if (answered) {
+        //     alert(t("alreadyAnswered"));
+        //     return;
+        // }
 
         setAnswered(true);
         let feedBack = "";
@@ -366,20 +364,32 @@ const AskDictation = () => {
 
             showDictation();
         } else { // all other dictations are with note input
-            //showDictation(); // display the dictation first, this should set the CorrectNotation, but that will be too late...
-            // NB! this should be the other way round -  button calls checkresponse, checkResponse showNotation
-            // What takes care of marking wrong notes?
 
             //test: staves should be passed via setResponseStaves from Notation
             console.log("STAVES in checkresponse: ", responseStaves);
             console.log("STAVES of correctNotation in checkresponse: ", correctStaves);
-            for (let stave of responseStaves ) { // can be two-voiced
-                //TODO (tarmo): check that the number of staves is equal between correctNotation and response
-                for (let note of stave.note_notes) {
-                    console.log("STAVE keys from note :", note.keys);
+
+            if (responseStaves) {
+                for (let i = 0; i < responseStaves.length; i++) { // can be two-voiced
+                    const responseNotes = responseStaves[i].note_notes; // or stave.voice_notes? What is the differenece?
+                    const correctNotes = correctStaves[i].note_notes;
+                    //TODO: check if one array is shorter than other
+                    for (let j = 0; j < responseNotes.length; j++) {
+                        if (j >= correctNotes.length) {
+                            correctNotes[j] = {keys: []}; // if there is less correct notes, fill with empty string
+                        }
+                        // TODO (tarmo): think about barlines -  maybe ignore..
+                        if (JSON.stringify(responseNotes[j].keys) === JSON.stringify(correctNotes[j].keys)) {
+                            console.log("Note ", j, responseNotes[j].keys, " is correct!");
+                        } else {
+                            console.log("Note ", j, responseNotes[j].keys, " should be:!", correctNotes[j].keys);
+                            correct = false;
+                        }
+                    }
                 }
             }
 
+            showDictation();
         }
 
         /*if (checkNotation()) {
@@ -479,7 +489,7 @@ const AskDictation = () => {
                     </Grid.Column>
                     <Grid.Column>
                         <Button className={"fullWidth marginTopSmall"}
-                                onClick={() => showDictation()  /*checkResponse({userInput:"c d e" })*/}>{capitalizeFirst(t("show"))}
+                                onClick={() => /*showDictation()*/  checkResponse(null)}>{capitalizeFirst(t("check"))}
                         </Button>
                     </Grid.Column>
                     {/*Järgnev nupp peaks olema nähtav ainult diktaadiharjutuste puhul: */}
@@ -584,6 +594,16 @@ const AskDictation = () => {
         ) : null;
     };
 
+    const setResponseStaves = (staves) => {
+        //console.log("TEST staves from user input ", staves[0].note_notes);
+        responseStaves = staves;
+    }
+
+    const setCorrectStaves = (staves) => {
+        //console.log("TEST staves from correct dictation ", staves[0].note_notes);
+        correctStaves = staves;
+    }
+
 
     const createCorrectNotationBlock = () => {
         const answerDisplay = showCorrectNotation ? "inline" : "none" ;
@@ -597,7 +617,7 @@ const AskDictation = () => {
                          clef={correctNotation.clef}
                          keySignature={correctNotation.keySignature}
                          showInput={false}
-                         /*passStaves={setCorrectStaves}*/
+                         passStaves={setCorrectStaves}
                />
 
             </div>
