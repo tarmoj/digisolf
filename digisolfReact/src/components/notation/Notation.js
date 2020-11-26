@@ -354,7 +354,7 @@ const Notation = (props) => {
                 <button onClick={addBarline}>Taktijoon</button>
                 <button onClick={addEndBarline}>Lõpujoon</button>
             </div>
-            <NotationTable addNote={addNote} removeNote={removeNote} selected={selected} setters={setters} />
+            {props.showInput && <NotationTable addNote={addNote} removeNote={removeNote} selected={selected} setters={setters} />}
         </div>
     );
 };
