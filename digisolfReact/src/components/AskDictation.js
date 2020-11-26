@@ -330,7 +330,17 @@ const AskDictation = () => {
         setNotationInfo(notationInfo);
     };
 
+    const setResponseStaves = (staves) => {
+        //console.log("TEST staves from user input ", staves[0].note_notes);
+        responseStaves = staves;
+    }
 
+    const setCorrectStaves = (staves) => {
+        //console.log("TEST staves from correct dictation ", staves[0].note_notes);
+        correctStaves = staves;
+    }
+
+    const checkDegrees = () => checkResponse( {degrees: stringToIntArray(degreesEnteredByUser) } );
 
     const checkResponse = (response) => { // response is an object {key: value [, key2: value, ...]}
 
@@ -408,6 +418,8 @@ const AskDictation = () => {
             dispatch(incrementIncorrectAnswers());
         }
     };
+
+
 
     // Csound functions =============================================
 
@@ -510,9 +522,6 @@ const AskDictation = () => {
         }
     };
 
-    const checkDegrees = () => checkResponse( {degrees: stringToIntArray(degreesEnteredByUser) } );
-
-
     const createDegreeDictationInput = () => { // if degreedictation, Input for  degrees (text), otherwise lilypondINpute + Notation
         return (exerciseHasBegun && dictationType==="degrees") ? (
             <div>
@@ -594,23 +603,12 @@ const AskDictation = () => {
         ) : null;
     };
 
-    const setResponseStaves = (staves) => {
-        //console.log("TEST staves from user input ", staves[0].note_notes);
-        responseStaves = staves;
-    }
-
-    const setCorrectStaves = (staves) => {
-        //console.log("TEST staves from correct dictation ", staves[0].note_notes);
-        correctStaves = staves;
-    }
-
-
     const createCorrectNotationBlock = () => {
         const answerDisplay = showCorrectNotation ? "inline" : "none" ;
 
         return exerciseHasBegun ? (
 
-            <div style={{display: answerDisplay}}>
+            <div className={'notationBlock'} style={{display: answerDisplay}}>
                <Notation className={"marginTopSmall"} width={600} scale={1}
                          notes={correctNotation.vtNotes}
                          time={correctNotation.time}
