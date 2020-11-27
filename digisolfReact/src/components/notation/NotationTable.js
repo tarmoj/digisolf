@@ -79,7 +79,7 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
 
   return(
     <div style={{paddingTop: '1rem'}}>
-      <Accordion styled active={showTable}  >
+      <Accordion styled active={showTable} >
         <Accordion.Title onClick={onTitleClick} >
           <Icon className={'chevron down ' + iconClass} id={'toggleTableIcon'} />
         </Accordion.Title>
