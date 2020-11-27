@@ -45,12 +45,16 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
 
   // this is to get a fancy animation when accordionblock's opening
   const onTitleClick = () => {
+    toggleTable();
     if (iconClass === "iconDown") {
       setIconClass("iconUp");
     } else {
       setIconClass("iconDown");
     }
-    toggleTable();
+  }
+
+  const toggleTable = () => {
+    setShowTable(!showTable);
   }
 
   const isNoteSelected = name => {
@@ -73,13 +77,9 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
     return selected.dot !== "";
   }
 
-  const toggleTable = () => {
-    setShowTable(!showTable);
-  }
-
   return(
     <div style={{paddingTop: '1rem'}}>
-      <Accordion styled active={showTable} >
+      <Accordion styled active={showTable}>
         <Accordion.Title onClick={onTitleClick} >
           <Icon className={'chevron down ' + iconClass} id={'toggleTableIcon'} />
         </Accordion.Title>
