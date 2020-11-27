@@ -39,6 +39,7 @@ const AskDictation = () => {
     const [selectedDictation, setSelectedDictation] = useState({title:"", soundFile:"", notation:""});
     const [answer, setAnswer] = useState(null);
     const [answered, setAnswered] = useState(false);
+    const [showCorrectNotation, setShowCorrectNotation] =  useState(false);
     const [currentCategory, setCurrentCategory] = useState("C_simple");
 
     const [notesEnteredByUser, setNotesEnteredByUser] = useState("");
@@ -48,6 +49,9 @@ const AskDictation = () => {
     const [correctNotation, setCorrectNotation] = useState({  clef:"treble", time: "4/4", vtNotes: "" });
 
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
+
+    // store staves from artist object of Notation components -  necessary for checkResponse
+    let responseStaves=null, correctStaves = null;
 
 
 
@@ -88,7 +92,8 @@ const AskDictation = () => {
         setAnswered(false);
         setNotesEnteredByUser("");
         setDegreesEnteredByUser("");
-        hideAnswer();
+        //hideAnswer();
+        setShowCorrectNotation(false);
 
         let dictation;
 
@@ -114,8 +119,22 @@ const AskDictation = () => {
         } else { // other, notation oriented dictations
             // uncommented for testing:
             showFirstNote(dictationIndex);
-            hideAnswer();
-            answer = {notation: selectedDictation.notation};
+            // hideAnswer();
+            answer = {notation: selectedDictation.notation}; // <- this will not be used
+
+            // set notationIfo for correct notation block
+            let notationInfo =  {vtNotes: ""};
+            // see on paha struktuur, oleks vaja, et oleks võimalik anda kogu vexTab String tervikuna, kui nt mitmehäälne muusika
+            if (dictation.notation.trim().startsWith("stave") ) {
+                notationInfo.vtNotes = dictation.notation;
+            } else {
+                notationInfo = parseLilypondString(dictation.notation);
+            }
+
+            console.log("Õiged noodid: ", notationInfo.vtNotes);
+            if (notationInfo.vtNotes) {
+                setCorrectNotation(notationInfo);
+            }
         }
 
         setSelectedDictation(dictation);
@@ -238,9 +257,9 @@ const AskDictation = () => {
 
     };
 
-    const hideAnswer = () => {
-        setCorrectNotation({vtNotes: null});
-    };
+    // const hideAnswer = () => {
+    //     setCorrectNotation({vtNotes: null});
+    // };
 
     // võibolla -  ka helifailide mängimine Csoundiga?
     const play = (dictation) => {
@@ -294,42 +313,34 @@ const AskDictation = () => {
         }
     };
 
-    const answerIsHidden = () => {
-        return correctNotation.vtNotes === null || correctNotation.vtNotes === "";
-    };
+    // const answerIsHidden = () => {
+    //     return  !showCorrectNotation; //correctNotation.vtNotes === null || correctNotation.vtNotes === "";
+    // };
 
     const showDictation = () => {
         if (selectedDictation.notation.length === 0 ) {
             alert( t("chooseDictation"));
             return;
         }
-        // võibolla -  mitte lubada näidata, kui pole veel vastatud
-        // või isegi ainult "Vasta" nupp näitab õiget diktaati
-        if (!answerIsHidden()) {
-            hideAnswer()
-        } else {
-            let notationInfo =  {vtNotes: ""};
-            // see on paha struktuur, oleks vaja, et oleks võimalik anda kogu vexTab String tervikuna, kui nt mitmehäälne muusika
-            if (selectedDictation.notation.trim().startsWith("stave") ) {
-                notationInfo.vtNotes = selectedDictation.notation;
-            } else {
-                notationInfo = parseLilypondString(selectedDictation.notation);
-            }
-            //
-            console.log("Õiged noodid: ", notationInfo.vtNotes);
-            if (notationInfo.vtNotes) {
-                setCorrectNotation(notationInfo);
-            }
-        }
+        setShowCorrectNotation(true);
     };
 
     const renderNotes = () => {
         const notationInfo = parseLilypondString(notesEnteredByUser);//  noteStringToVexTabChord(notesEnteredByUser);
         setNotationInfo(notationInfo);
-        //setVexTabNotes(notationInfo.vtNotes);
     };
 
+    const setResponseStaves = (staves) => {
+        //console.log("TEST staves from user input ", staves[0].note_notes);
+        responseStaves = staves;
+    }
 
+    const setCorrectStaves = (staves) => {
+        //console.log("TEST staves from correct dictation ", staves[0].note_notes);
+        correctStaves = staves;
+    }
+
+    const checkDegrees = () => checkResponse( {degrees: stringToIntArray(degreesEnteredByUser) } );
 
     const checkResponse = (response) => { // response is an object {key: value [, key2: value, ...]}
 
@@ -338,10 +349,10 @@ const AskDictation = () => {
             return;
         }
 
-        if (answered) {
-            alert(t("alreadyAnswered"));
-            return;
-        }
+        // if (answered) {
+        //     alert(t("alreadyAnswered"));
+        //     return;
+        // }
 
         setAnswered(true);
         let feedBack = "";
@@ -358,6 +369,33 @@ const AskDictation = () => {
                     // TODO: form feedBack string, colour wrong degrees
                     console.log("Wrong degree: ", i, responseArray[i]);
                     correct = false;
+                }
+            }
+
+            showDictation();
+        } else { // all other dictations are with note input
+
+            //test: staves should be passed via setResponseStaves from Notation
+            console.log("STAVES in checkresponse: ", responseStaves);
+            console.log("STAVES of correctNotation in checkresponse: ", correctStaves);
+
+            if (responseStaves) {
+                for (let i = 0; i < responseStaves.length; i++) { // can be two-voiced
+                    const responseNotes = responseStaves[i].note_notes; // or stave.voice_notes? What is the differenece?
+                    const correctNotes = correctStaves[i].note_notes;
+                    //TODO: check if one array is shorter than other
+                    for (let j = 0; j < responseNotes.length; j++) {
+                        if (j >= correctNotes.length) {
+                            correctNotes[j] = {keys: []}; // if there is less correct notes, fill with empty string
+                        }
+                        // TODO (tarmo): think about barlines -  maybe ignore..
+                        if (JSON.stringify(responseNotes[j].keys) === JSON.stringify(correctNotes[j].keys)) {
+                            console.log("Note ", j, responseNotes[j].keys, " is correct!");
+                        } else {
+                            console.log("Note ", j, responseNotes[j].keys, " should be:!", correctNotes[j].keys);
+                            correct = false;
+                        }
+                    }
                 }
             }
 
@@ -380,6 +418,8 @@ const AskDictation = () => {
             dispatch(incrementIncorrectAnswers());
         }
     };
+
+
 
     // Csound functions =============================================
 
@@ -461,7 +501,7 @@ const AskDictation = () => {
                     </Grid.Column>
                     <Grid.Column>
                         <Button className={"fullWidth marginTopSmall"}
-                                onClick={() => showDictation()  /*checkResponse({userInput:"c d e" })*/}>{capitalizeFirst(t("show"))}
+                                onClick={() => /*showDictation()*/  checkResponse(null)}>{capitalizeFirst(t("check"))}
                         </Button>
                     </Grid.Column>
                     {/*Järgnev nupp peaks olema nähtav ainult diktaadiharjutuste puhul: */}
@@ -481,9 +521,6 @@ const AskDictation = () => {
             );
         }
     };
-
-    const checkDegrees = () => checkResponse( {degrees: stringToIntArray(degreesEnteredByUser) } );
-
 
     const createDegreeDictationInput = () => { // if degreedictation, Input for  degrees (text), otherwise lilypondINpute + Notation
         return (exerciseHasBegun && dictationType==="degrees") ? (
@@ -559,25 +596,26 @@ const AskDictation = () => {
                            clef={notationInfo.clef}
                            keySignature={notationInfo.keySignature}
                            showInput={true}
+                           passStaves={setResponseStaves}
                 />
 
             </div>
         ) : null;
     };
 
-
     const createCorrectNotationBlock = () => {
-        const answerDisplay = answerIsHidden() ? "none" : "inline";
+        const answerDisplay = showCorrectNotation ? "inline" : "none" ;
 
         return exerciseHasBegun ? (
 
-            <div style={{display: answerDisplay}}>
+            <div className={'notationBlock'} style={{display: answerDisplay}}>
                <Notation className={"marginTopSmall"} width={600} scale={1}
                          notes={correctNotation.vtNotes}
                          time={correctNotation.time}
                          clef={correctNotation.clef}
                          keySignature={correctNotation.keySignature}
                          showInput={false}
+                         passStaves={setCorrectStaves}
                />
 
             </div>
