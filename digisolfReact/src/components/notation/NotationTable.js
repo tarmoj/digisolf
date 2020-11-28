@@ -23,8 +23,8 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
     setters.setDuration(vtNames[name]);
   }
 
-  const onDotClick = name => {
-    setters.setDot(vtNames[name]);
+  const onDotClick = () => {
+    setters.setDot(!selected.dot);
   }
 
   const onOctaveUpClick = () => {
@@ -73,10 +73,6 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
     return vtNames[name] === selected.duration;
   }
 
-  const isDotSelected = () => {
-    return selected.dot !== "";
-  }
-
   return(
     <div style={{paddingTop: '1rem'}}>
       <Accordion styled active={showTable}>
@@ -93,7 +89,7 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
                 <NotationTableCell name={'quarter'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
                 <NotationTableCell name={'eighth'} handleClick={onNoteDurationClick} checkIfSelected={(isNoteDurationSelected)} />
                 <NotationTableCell name={'sixteenth'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
-                <NotationTableCell name={'dot'} handleClick={onDotClick} checkIfSelected={isDotSelected} />
+                <NotationTableCell name={'dot'} handleClick={onDotClick} checkIfSelected={() => selected.dot} />
               </Table.Row>
               <Table.Row>
                 <NotationTableCell name={'C'} handleClick={onNoteClick} checkIfSelected={isNoteSelected} isImageCell={false} />

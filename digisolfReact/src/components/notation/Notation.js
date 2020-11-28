@@ -31,6 +31,7 @@ const Notation = (props) => {
     const [dot, setDot] = useState(defaultStateValues.dot);
     const [octave, setOctave] = useState(defaultStateValues.octave);
 
+    let currentNoteIndex;
 
     useEffect(() => {
         console.log("First run");
@@ -96,12 +97,14 @@ const Notation = (props) => {
         const closestIndex = findClosestNoteByX(x) ;
         //TODO 23.11.20: setCurrentNoteIndex(closestInedex), setSelectedNote vms
 
+
         if (closestIndex>=0) {
             const note = artist.staves[0].note_notes[closestIndex];
+            setCurrentNote(closestIndex, note);
             // draw a semitransparent rect around selected noted
+            redraw(notationInfoToVtString()); // to clear the previous rectangle
             renderer.getContext().rect(note.getAbsoluteX()-10, note.stave.getYForTopText()-10, note.width+20, note.stave.height+10,
                 { fill: "lightblue", opacity:"0.2" } );
-            //TODO: 23.11.20 -  if a note was selected previously, clear the background
         }
 
 
@@ -153,6 +156,16 @@ const Notation = (props) => {
         return indexOfClosest;
     }
 
+    const setCurrentNote = (noteIndex, staveNote) => {
+        currentNoteIndex = noteIndex;
+        const key = staveNote.keyProps[0];
+        setNote(key.key);
+        setOctave(key.octave);
+        setAccidental(key.accidental);
+        setDuration(staveNote.duration);
+        setDot(staveNote.dots && staveNote.dots > 0);
+    }
+
     // notationInfo functions ------------------------
 
     const vtStringToNotationInfo  =  (vtString) => {
@@ -200,8 +213,9 @@ const Notation = (props) => {
     const addNote = () => {
         if (note) {
             const isRestSelected = selected.note === vtNames["rest"];
+            const dot = selected.dot ? vtNames["dot"] : "";
             const note = isRestSelected ? selected.note : selected.note + selected.accidental + "/" + selected.octave;
-            const duration = selected.duration + selected.dot;
+            const duration = selected.duration + dot;
             insertNote(note, duration);
         } else {
             console.log("No note/rest selected");

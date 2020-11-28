@@ -2,7 +2,7 @@ export const defaultStateValues = {
   note: "",
   accidental: "",
   duration: "",
-  dot: "",
+  dot: false,
   octave: "4"
 }
 
