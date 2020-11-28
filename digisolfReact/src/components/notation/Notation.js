@@ -99,6 +99,8 @@ const Notation = (props) => {
 
 
         if (closestIndex>=0) {
+            // test: color note:
+            // setNoteColor(closestIndex, "red");
             const note = artist.staves[0].note_notes[closestIndex];
             setCurrentNote(closestIndex, note);
             // draw a semitransparent rect around selected noted
@@ -128,7 +130,7 @@ const Notation = (props) => {
                     //console.log(i, possibleNotes[i].line, line)
                     if (trebleClefNotes[i].line === line) {
                         //console.log("FOUND ", i, trebleClefNotes[i].vtNote);
-
+                        
                         //insertNote(trebleClefNotes[i].vtNote, "4"); //  kui see on välja kommenteeritud, siis Number of notes on alati 0
                         break;
                     }
@@ -161,7 +163,7 @@ const Notation = (props) => {
         const key = staveNote.keyProps[0];
         setNote(key.key);
         setOctave(key.octave);
-        setAccidental(key.accidental);
+        setAccidental(key.accidental); // JT TODO 28.11.2020 : figure out another way for the accidental does not show in that place
         setDuration(staveNote.duration);
         setDot(staveNote.dots && staveNote.dots > 0);
     }
@@ -219,6 +221,29 @@ const Notation = (props) => {
             insertNote(note, duration);
         } else {
             console.log("No note/rest selected");
+        }
+    }
+
+    const setNoteColor = (noteIndex, color, staff=0, voice=0) => {
+        const note = artist.staves[staff].note_voices[voice][noteIndex];
+        if (note) {
+            console.log("PAINT Going to paint note: ", note.keys);
+            const noteHeads = note.getElem().getElementsByClassName("vf-notehead");
+            const stems = note.getElem().getElementsByClassName("vf-stem"); //[0].firstChild.setAttribute("stroke", color);
+            const modifiers = note.getElem().getElementsByClassName("vf-modifiers"); // accidentals etc
+            // TODO (tarmo): beamed stems. What is the classname of a beam? beamgroup?
+            // TODO (tarmo): and dots are not colored yet
+            // maybe -  find all children of note.getElem() and if there is property fill or stroke, change it..
+            console.log("noteheads, stems: ", noteHeads.length, stems.length );
+            for (let element of noteHeads) {
+                element.firstChild.setAttribute("fill", color);
+            }
+            for (let element of stems) {
+                element.firstChild.setAttribute("stroke", color);
+            }
+            for (let element of modifiers) {
+                element.firstChild.setAttribute("fill", color);
+            }
         }
     }
 
