@@ -19,7 +19,9 @@ export const vtNames = {
   "nat":"n",
   "sharp":"#",
   "dblsharp":"##",
-  "rest": "##"
+  "rest": "##",
+  "bb": "@@",
+  "b": "@"
 }
 
 export const octaveData = {

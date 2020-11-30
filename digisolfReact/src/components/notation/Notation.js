@@ -161,11 +161,27 @@ const Notation = (props) => {
     const setCurrentNote = (noteIndex, staveNote) => {
         currentNoteIndex = noteIndex;
         const key = staveNote.keyProps[0];
+        const dot = staveNote.dots && staveNote.dots > 0;
         setNote(key.key);
         setOctave(key.octave);
-        setAccidental(key.accidental); // JT TODO 28.11.2020 : figure out another way for the accidental does not show in that place
         setDuration(staveNote.duration);
-        setDot(staveNote.dots && staveNote.dots > 0);
+        setDot(!!dot);
+        setCurrentAccidental(staveNote)
+    }
+
+    const setCurrentAccidental = (staveNote) => {
+        if (staveNote.getAccidentals()) {
+            const accidental = staveNote.getAccidentals()[0].type;
+            if (accidental === "bb") {
+                setAccidental(vtNames["bb"]);
+            } else if (accidental === "b") {
+                setAccidental(vtNames["b"]);
+            } else {
+                setAccidental(staveNote.getAccidentals()[0].type);
+            }
+        } else {
+            setAccidental("");
+        }
     }
 
     // notationInfo functions ------------------------

@@ -16,7 +16,11 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
   }
 
   const onNoteAccidentalClick = name => {
-    setters.setAccidental(vtNames[name]);
+    if (selected.accidental === vtNames[name]) {
+      setters.setAccidental("");
+    } else {
+      setters.setAccidental(vtNames[name]);
+    }
   }
 
   const onNoteDurationClick = name => {
