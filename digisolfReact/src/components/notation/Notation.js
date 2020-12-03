@@ -34,7 +34,7 @@ const Notation = (props) => {
     let currentNoteIndex;
 
     useEffect(() => {
-        console.log("First run");
+        console.log("First run", props.name);
         vexTabInit();
     }, []); // [] teise parameetrina tähendab, et kutsu välja ainult 1 kord
 
@@ -42,8 +42,16 @@ const Notation = (props) => {
         if (props.notes) {
             redraw(props.notes);
         }
-        console.log("props.notes change ", props.notes);
+        console.log("props.notes change ", props.notes , props.name );
     }, [props]);
+
+    useEffect(() => {
+        console.log("wrong notes in effect  ", props.wrongNoteIndexes, props.name)
+        if (props.wrongNoteIndexes) {
+            markWrongNotes();
+        }
+    }, [props.wrongNoteIndexes]);
+
 
     useEffect(() => {
         if (renderer !== null) {
@@ -59,8 +67,8 @@ const Notation = (props) => {
 
 
     // TODO 22.11.2020: think this over. has to target a specific note, not just the last one
-    // Tarmo: insertNote have parameters index, voice, staff to select the note
-    // probably we need currentNoteIndex, currentVoice, currentStaff to use with addNote and removeNote
+    // Tarmo: insertNote have parameters index, voice, stave to select the note
+    // probably we need currentNoteIndex, currentVoice, currentstave to use with addNote and removeNote
     const refreshNote = () => {
         removeNote();
         addNote();
@@ -84,7 +92,7 @@ const Notation = (props) => {
     };
 
     const vexTabInit = () => {
-        console.log("**** VexTab INIT ****");
+        console.log("**** VexTab INIT ****", props.name);
         const renderer = new Flow.Renderer(vtDiv.current, Flow.Renderer.Backends.SVG);
         setRenderer(renderer);
     };
@@ -139,10 +147,14 @@ const Notation = (props) => {
         }
     };
 
-    //test:
     const findClosestNoteByX = (x) => {
         // find closest note -  compare note.getAbsoluteX & x
         let indexOfClosest = -1, minDistance = 999999, i = 0;
+
+        if (artist.staves.length===0) {
+            console.log("No staves in artist!");
+            return -1;
+        }
 
         for (let note of artist.staves[0].note_notes) { // later: use currentStave
             console.log("CHECK1 X, absX: ", note.getX(), note.getAbsoluteX());
@@ -240,8 +252,8 @@ const Notation = (props) => {
         }
     }
 
-    const setNoteColor = (noteIndex, color, staff=0, voice=0) => {
-        const note = artist.staves[staff].note_voices[voice][noteIndex];
+    const setNoteColor = (noteIndex, color, stave=0, voice=0) => {
+        const note = artist.staves[stave].note_voices[voice][noteIndex];
         if (note) {
             console.log("PAINT Going to paint note: ", note.keys);
             const noteHeads = note.getElem().getElementsByClassName("vf-notehead");
@@ -252,38 +264,58 @@ const Notation = (props) => {
             // maybe -  find all children of note.getElem() and if there is property fill or stroke, change it..
             console.log("noteheads, stems: ", noteHeads.length, stems.length );
             for (let element of noteHeads) {
-                element.firstChild.setAttribute("fill", color);
+                if (element.firstChild)
+                    element.firstChild.setAttribute("fill", color);
             }
             for (let element of stems) {
-                element.firstChild.setAttribute("stroke", color);
+                if (element.firstChild)
+                    element.firstChild.setAttribute("stroke", color);
             }
             for (let element of modifiers) {
-                element.firstChild.setAttribute("fill", color);
+                if (element.firstChild)
+                    element.firstChild.setAttribute("fill", color);
             }
         }
     }
 
-    // TODO: check for chord - vtNote coulde bey also and array of keys. Not supported yet.
-    const insertNote = (vtNote, duration = "4",  index=-1, voice=0,  staff=0) => { // index -1 means to the end
-        if (index>=0) {
-            notationInfo.staves[staff].voices[voice].notes.splice(index, 0, {keys:[vtNote], duration: duration} );
-        } else {
-            notationInfo.staves[staff].voices[voice].notes.push( {keys:[vtNote], duration: duration} );
+    const markWrongNotes = () => { // take the indexes of wrong notes from props and mark them
+        console.log("wrong notes in markWrongNotes: ", props.wrongNoteIndexes, props.name)
+        if (props.wrongNoteIndexes) {
+            for (let stave=0; stave<props.wrongNoteIndexes.length; stave++ ) {
+                for (let noteIndex of props.wrongNoteIndexes[stave]) {
+                    if (noteIndex < artist.staves[stave].note_notes.length) {
+                        console.log("wrong note: ", noteIndex, artist.staves[stave].note_notes[noteIndex].keys);
+                        setNoteColor(noteIndex, "red", stave);
+                    } else {
+                        console.log("markWrongNotes: not so many notes in artist ");
+                    }
+                }
+            }
         }
-        console.log("NotionInfo to vtString: ", notationInfoToVtString());
+
+    }
+
+    // TODO: check for chord - vtNote coulde bey also and array of keys. Not supported yet.
+    const insertNote = (vtNote, duration = "4",  index=-1, voice=0,  stave=0) => { // index -1 means to the end
+        if (index>=0) {
+            notationInfo.staves[stave].voices[voice].notes.splice(index, 0, {keys:[vtNote], duration: duration} );
+        } else {
+            notationInfo.staves[stave].voices[voice].notes.push( {keys:[vtNote], duration: duration} );
+        }
+        //console.log("NotionInfo to vtString: ", notationInfoToVtString());
         redraw( notationInfoToVtString() );
     };
 
-    const removeNote = ( index=-1, voice=0,  staff=0) => {
-        if (notationInfo.staves[staff].voices[voice].notes.length==0) {
-            console.log("Staff/voice is empty, nothing to remove: ", staff, voice);
+    const removeNote = ( index=-1, voice=0,  stave=0) => {
+        if (notationInfo.staves[stave].voices[voice].notes.length==0) {
+            console.log("stave/voice is empty, nothing to remove: ", stave, voice);
             return;
         }
 
         if (index>=0) {
-            notationInfo.staves[staff].voices[voice].notes.splice(index, 1);
+            notationInfo.staves[stave].voices[voice].notes.splice(index, 1);
         } else { // -1 stand for last note
-            notationInfo.staves[staff].voices[voice].notes.pop();
+            notationInfo.staves[stave].voices[voice].notes.pop();
         }
         redraw( notationInfoToVtString() );
     }
@@ -351,13 +383,13 @@ const Notation = (props) => {
         const notesString =  (notes) ? "\nnotes " + notes + " \n" : "";
         const endString = ""; //"\noptions space=20\n";
         const vtString = startString + clefString + keyString + timeString + notesString + endString;
-        console.log (vtString);
+        console.log (vtString, props.name);
         return vtString;
     };
 
     // test: pass staves to parent:
     const passStaves = () => {
-        if (props.passStaves && artist.staves) {
+        if (props.passStaves && artist.staves.length>0) {
             props.passStaves( artist.staves);
         }
     }
@@ -395,6 +427,9 @@ const Notation = (props) => {
             }
 
             artist.render(renderer);
+            if (props.wrongNoteIndexes) {
+                markWrongNotes();
+            }
             passStaves();
 
         } catch (e) {
