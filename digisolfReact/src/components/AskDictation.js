@@ -132,6 +132,7 @@ const AskDictation = () => {
                 notationInfo.vtNotes = dictation.notation;
             } else {
                 notationInfo = parseLilypondString(dictation.notation);
+                console.log("NotationIndo structure: ", notationInfo);
             }
 
             console.log("Õiged noodid: ", notationInfo.vtNotes);

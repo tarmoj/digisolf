@@ -179,6 +179,7 @@ export const parseLilypondString = (lyString) => { //NB! rewrite! returns notati
 	let stave=0, voice=0;
 	let notes = [] ; // each note has format {keys:[], duration: ""}
 	let useTie = false;
+	let lastDuration = "4";
 	// TODO (tarmo): support for \new Staff and \new Voice (at least Staff). Currently works only with one voice
 	for (let i = 0; i<chunks.length; i++) {
 		let vtNote="";
@@ -209,22 +210,26 @@ export const parseLilypondString = (lyString) => { //NB! rewrite! returns notati
 		} else if  (chunks[i].trim() === "\\bar" && chunks.length >= i+1)  { // handle different barlines
 			const barLine = chunks[i + 1].trim().replace(/[\"]+/g, ''); // remove quoates \"
 
-			console.log("Found barline: ", barLine)
+			console.log("Found barline: ", barLine);
+			let vtBar = "";
 			switch (barLine) {
-				case '|' : console.log("Normal bar"); vtNote = "|"; break;
-				case '|.' : console.log("End bar"); vtNote = "=|="; break;
-				case '||' : console.log("Double bar"); vtNote += "=||"; break;
-				case '.|:' : console.log("Repeat begins"); vtNote += "=|:"; break;
-				case ':|.' : console.log("Repeat ends"); vtNote += " =:||"; break;
-				case ':|.|:' : console.log("Double repeat"); vtNote += "=::"; break;
-				default : console.log("Normal bar"); vtNote += "|"; break;
+				case '|' : console.log("Normal bar"); vtBar = "|"; break;
+				case '|.' : console.log("End bar"); vtBar = "=|="; break;
+				case '||' : console.log("Double bar"); vtBar += "=||"; break;
+				case '.|:' : console.log("Repeat begins"); vtBar += "=|:"; break;
+				case ':|.' : console.log("Repeat ends"); vtBar += " =:||"; break;
+				case ':|.|:' : console.log("Double repeat"); vtBar += "=::"; break;
+				default : console.log("Normal bar"); vtBar += "|"; break;
 
 			}
+			notes.push({keys:[vtBar], duration:"0"});
 			i += 1;
 		} else if     (chunks[i].trim() === "|") {
 			console.log("Barline");
-			vtNote = "|";
+			//vtNote = "|";
+			notes.push({keys:["|"], duration:"0"});
 		} else  { // might be a note or error
+			let vtNote="";
 			const index = chunks[i].search(/[~,'\\\d\s]/); // in lylypond one of those may follow th note: , ' digit \ whitespace or nothing
 			let noteName;
 			if (index>=0) {
@@ -277,6 +282,9 @@ export const parseLilypondString = (lyString) => { //NB! rewrite! returns notati
 			// duration
 			const re = /\d+/;
 			const duration = re.exec(chunks[i]);
+			if (duration) {
+				lastDuration = duration;
+			}
 
 
 			// if (duration) {
@@ -286,9 +294,10 @@ export const parseLilypondString = (lyString) => { //NB! rewrite! returns notati
 			// }
 
 			console.log("vtNote: ", vtNote);
-			notes.push({keys:[vtNote], duration:duration})
+			notes.push({keys:[vtNote], duration:lastDuration});
 
 		}
+
 	}
 	//console.log("Parsed notes: ", vtNotes);
 	notationInfo.staves[stave].voices[voice].notes = notes;
