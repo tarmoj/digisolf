@@ -1,49 +1,54 @@
 import React, {useState} from 'react';
 import {Table, Image, Button, Popup, Accordion, Icon} from 'semantic-ui-react';
 import {vtNames, octaveData} from './notationConstants';
+import {useSelector, useDispatch} from 'react-redux';
+import {setSelected} from '../../actions/askDictation';
 
-const NotationTable = ({addNote, removeNote, selected, setters}) => {
+const NotationTable = ({addNote, removeNote}) => {
 
   const [showTable, setShowTable] = useState(false);
   const [iconClass, setIconClass] = useState("iconDown");
+  const selectedNote = useSelector(state => state.askDictationReducer.selectedNote);
+
+  const dispatch = useDispatch();
 
   const onNoteClick = name => {
-    setters.setNote(name);
+    dispatch(setSelected("note", name));
   }
 
   const onRestClick = name => {
-    setters.setNote(vtNames[name]);
+    dispatch(setSelected("note", vtNames[name]));
   }
 
   const onNoteAccidentalClick = name => {
-    if (selected.accidental === vtNames[name]) {
-      setters.setAccidental("");
+    if (selectedNote.accidental === vtNames[name]) {
+      dispatch(setSelected("accidental", ""));
     } else {
-      setters.setAccidental(vtNames[name]);
+      dispatch(setSelected("accidental", vtNames[name]));
     }
   }
 
   const onNoteDurationClick = name => {
-    setters.setDuration(vtNames[name]);
+    dispatch(setSelected("duration", vtNames[name]));
   }
 
   const onDotClick = () => {
-    setters.setDot(!selected.dot);
+    dispatch(setSelected("dot", !selectedNote.dot));
   }
 
   const onOctaveUpClick = () => {
-    let octave = parseInt(selected.octave);
+    let octave = parseInt(selectedNote.octave);
     if (octave < octaveData.maxOctave) {
       octave++;
-      setters.setOctave(octave.toString());
+      dispatch(setSelected("octave", octave.toString()));
     }
   }
 
   const onOctaveDownClick = () => {
-    let octave = parseInt(selected.octave);
+    let octave = parseInt(selectedNote.octave);
     if (octave > octaveData.minOctave) {
       octave--;
-      setters.setOctave(octave.toString());
+      dispatch(setSelected("octave", octave.toString()));
     }
   }
 
@@ -62,19 +67,19 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
   }
 
   const isNoteSelected = name => {
-    return name === selected.note;
+    return name === selectedNote.note;
   }
 
   const isRestSelected = name => {
-    return vtNames[name] === selected.note;
+    return vtNames[name] === selectedNote.note;
   }
 
   const isNoteAccidentalSelected = name => {
-    return vtNames[name] === selected.accidental;
+    return vtNames[name] === selectedNote.accidental;
   }
 
   const isNoteDurationSelected = name => {
-    return vtNames[name] === selected.duration;
+    return vtNames[name] === selectedNote.duration;
   }
 
   return(
@@ -93,7 +98,7 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
                 <NotationTableCell name={'quarter'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
                 <NotationTableCell name={'eighth'} handleClick={onNoteDurationClick} checkIfSelected={(isNoteDurationSelected)} />
                 <NotationTableCell name={'sixteenth'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
-                <NotationTableCell name={'dot'} handleClick={onDotClick} checkIfSelected={() => selected.dot} />
+                <NotationTableCell name={'dot'} handleClick={onDotClick} checkIfSelected={() => selectedNote.dot} />
               </Table.Row>
               <Table.Row>
                 <NotationTableCell name={'C'} handleClick={onNoteClick} checkIfSelected={isNoteSelected} isImageCell={false} />
