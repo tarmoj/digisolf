@@ -114,3 +114,86 @@ instr Beep
 endin
 
     `;
+
+export const tuningOrchestra = `
+sr = 44100 ; 
+nchnls = 2
+0dbfs = 1
+ksmps = 32
+A4=442
+
+;;channesls
+chn_k "interval", 1
+chn_k "volume", 1
+chn_k "octave",1
+chn_k "step",1
+chn_k "pitchratio",2
+chn_k "tracking",1
+chn_k "threshold", 1
+chn_k "relativeRatio",3
+
+chnset 8, "octave"
+chnset 0.45, "volume"
+chnset 0.05, "threshold"
+chnset 1.5, "interval"
+
+giSine ftgen 0,0, 32768, 10, 1, 0.05, 0.02, 0.002, 0.002, 0.001, 0.001
+gkBaseFreq init 0
+gkInterval init 0
+
+; steps for s2,v3,s3,p4,p5,v6,v7,s7,p8
+;giIntervals[] array 9/8, 6/5, 5/4, 4/3, 3/2, 8/5, 5/3, 7/4, 9/5, 15/8, 2 ; teine v7 on 9/5
+
+;schedule "Analyze", 0, 1
+instr Analyze
+
+  gkBaseFreq = cpspch(chnget:k("octave") + chnget:k("step")/100)
+  gkInterval = chnget:k("interval") ; must come in as a ratio already
+  printk2 gkInterval  
+	
+  ; values for meter:
+  kmin = gkInterval / 1.05 ; about semitone lower
+  kmax = gkInterval * 1.05 ; semitone higher
+	
+; pltrack -------------------
+	ain inch 1
+	ain butterhp ain, 100
+	kcps, kamp  ptrack  ain, 2048
+	kcps *= A4/440
+	;kcps portk kcps, 0.02
+	kamp = ampdb(kamp)
+		
+	if (kamp > (0.001 +chnget:k("threshold")*0.5)) then ; threshold between 0.001 .. 0.5
+		kPitchRatio = kcps/gkBaseFreq
+		kPitchRatio port  kPitchRatio, 0.05 
+		chnset kPitchRatio, "pitchratio";
+		; convert to relative ratio min=0, max=1, correctRatio=0.5
+		kRelativeRatio = (kPitchRatio-kmin) / (kmax-kmin)
+		chnset kRelativeRatio, "relativeRatio"		
+	endif
+	aL, aR subinstr nstrnum("Sound")+0.1, 0
+	outs aL, aR
+endin
+
+instr Sound
+	
+	iPlayInterval = p4
+	print iPlayInterval
+	print i(gkInterval)
+	kvol chnget "volume"
+	kvol port kvol, 0.05
+	; this is bad code!
+	kFrequency = (iPlayInterval>0) ? gkBaseFreq * chnget:k("interval") : gkBaseFreq
+	printk2 kFrequency
+	
+	aenv linenr 1, 0.1, 0.3, 0.001
+	
+	asig poscil 1, kFrequency, giSine
+
+	asig *=  aenv * kvol
+	outs asig, asig
+
+endin
+
+
+`;

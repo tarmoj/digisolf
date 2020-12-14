@@ -86,7 +86,14 @@
   "twoVoice": "kahehäälsed",
   "popJazz": "rütmimuusika",
   "classics": "klassika",
-  "check": "kontrolli"
+  "check": "kontrolli",
+  "tuneInterval": "häälesta intervall",
+  "greatOctave": "suur oktav",
+  "smallOctave": "väike oktav",
+  "firstOctave": "esimene oktav",
+  "secondOctave": "teine oktav"
+
+
 
 
 }

@@ -74,6 +74,7 @@ const MainMenu = () => {
                 <Grid.Column>
                     <div>
                         <Header size='large'>{t("intonation")}</Header>
+                        <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/asktuning")}>{ capitalizeFirst( t("tuneInterval") )}</Button><br/>
                         <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askintonation/+-30/30")}>{t("+-30")}</Button><br/>
                         <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askintonation/+-20/20")}>{t("+-20")}</Button><br/>
                         <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askintonation/+-10/10")}>{t("+-10")}</Button><br/>
