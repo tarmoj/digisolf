@@ -21,14 +21,14 @@ const AskTuning = () => {
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [intervalRatio, setIntervalRatio] = useState(1.5);
-    const [answered, setAnswered] = useState(false);
-    const [soundType, setSoundType] = useState(2);
-    const [octave, setOctave] = useState(8);
-    const [baseNote, setBaseNote] = useState(0);
+    const [userPitchRatio, setUserPitchratio] = useState(0);
+    const [csound, setCsound] = useState(null);
+    const [soundOn, setSoundOn] = useState(false);
 
+    let channelReadFunction = null;
     //const [started, setStarted] = useState(false);
 
-    const [csound, setCsound] = useState(null);
+
     useEffect(() => {
         if (csound == null) {
             let audioContext = CsoundObj.CSOUND_AUDIO_CONTEXT;
@@ -70,7 +70,7 @@ const AskTuning = () => {
 
     const playBase = () => {
         if (csound) {
-            //updateChannelData();
+            updateChannels();
             csound.readScore("i 1 0 3 0");
         }
     };
@@ -79,6 +79,27 @@ const AskTuning = () => {
         if (csound) {
             csound.readScore("i 2 0 3 1");
         }
+    }
+
+    const stopUpdate = () => {
+        if (channelReadFunction) {
+            clearInterval(channelReadFunction);
+            clearInterval = null;
+        }
+    }
+
+    const updateChannels = () => {
+        stopUpdate(); //clearInterval
+        channelReadFunction =  setInterval( () => {
+            if (csound) {
+                csound.requestControlChannel("pitchratio",
+                    () => {
+                        const value = csound.getControlChannel("pitchratio");
+                        setUserPitchratio(value);
+                    });
+            }
+        }, 100 );
+        // TODO: how to stop it?
     }
 
 
@@ -187,21 +208,38 @@ const AskTuning = () => {
           </Grid.Row>
         ) : null;
     };
-    const setInterval = (intervalRatio) => {
-        console.log("setInterval");
+
+   const createFeedbackRow = () => {
+       return exerciseHasBegun ? (
+           <Grid.Row>
+               <Grid.Column></Grid.Column>
+               <Grid.Column>
+                   {` ${capitalizeFirst(t("ratio"))}: ${intervalRatio} `}
+                   {` ${capitalizeFirst(t("input"))}: ${userPitchRatio} `}
+               </Grid.Column>
+               <Grid.Column></Grid.Column>
+
+           </Grid.Row>
+       ) : null;
+   }
+
+    const setSelectedInterval = (intervalRatio) => {
         if (csound) {
             console.log("Set interval to: ", intervalRatio);
             csound.setControlChannel("interval", intervalRatio);
+            setIntervalRatio(intervalRatio);
             //playBase();  // later: take care of on/off
         }
+        setSoundOn(!soundOn);
     }
+
     const createIntervals = () => {
         return exerciseHasBegun ? (
             <Grid.Row>
-                <Button.Group>
-                    <Button onClick={ () => setInterval(5/4) }>s3</Button>
-                    <Button onClick={ () => setInterval(4/3) }>p4</Button>
-                    <Button onClick={ () => setInterval(3/2) }>p5</Button>
+                <Button.Group toggle={true}>
+                    <Button  onClick={ () => setSelectedInterval(5/4) }>s3</Button>
+                    <Button  onClick={ () => setSelectedInterval(4/3) }>p4</Button>
+                    <Button  onClick={ () => setSelectedInterval(3/2) }>p5</Button>
                 </Button.Group>
             </Grid.Row>
         ) : null;
@@ -221,9 +259,7 @@ const AskTuning = () => {
 
             <Grid>
                 {createOptionsRow()}
-                <Grid.Row>
-                    Siia tuleb häälestuse slider/meter jm andmed
-                </Grid.Row>
+                {createFeedbackRow()}
                 {createIntervals()}
                 {createPlaySoundButton()}
 
