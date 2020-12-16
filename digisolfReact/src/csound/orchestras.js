@@ -147,13 +147,13 @@ gkInterval init 0
 ;schedule "Analyze", 0, 1
 instr Analyze
 
-  gkBaseFreq = cpspch(chnget:k("octave") + chnget:k("step")/100)
-  gkInterval = chnget:k("interval") ; must come in as a ratio already
-  printk2 gkInterval  
+  kBaseFreq = cpspch(chnget:k("octave") + chnget:k("step")/100)
+  kInterval = chnget:k("interval") ; must come in as a ratio already
+  ;printk2 kInterval  
 	
   ; values for meter:
-  kmin = gkInterval / 1.05 ; about semitone lower
-  kmax = gkInterval * 1.05 ; semitone higher
+  kmin = kInterval / 1.05 ; about semitone lower
+  kmax = kInterval * 1.05 ; semitone higher
 	
 ; pltrack -------------------
 	ain inch 1
@@ -164,35 +164,28 @@ instr Analyze
 	kamp = ampdb(kamp)
 		
 	if (kamp > (0.001 +chnget:k("threshold")*0.5)) then ; threshold between 0.001 .. 0.5
-		kPitchRatio = kcps/gkBaseFreq
+		kPitchRatio = kcps/kBaseFreq
 		kPitchRatio port  kPitchRatio, 0.05 
 		chnset kPitchRatio, "pitchratio";
 		; convert to relative ratio min=0, max=1, correctRatio=0.5
 		kRelativeRatio = (kPitchRatio-kmin) / (kmax-kmin)
 		chnset kRelativeRatio, "relativeRatio"		
 	endif
-	aL, aR subinstr nstrnum("Sound")+0.1, 0
-	outs aL, aR
-endin
-
-instr Sound
 	
-	iPlayInterval = p4
-	print iPlayInterval
-	print i(gkInterval)
-	kvol chnget "volume"
-	kvol port kvol, 0.05
-	; this is bad code!
-	kFrequency = (iPlayInterval>0) ? gkBaseFreq * chnget:k("interval") : gkBaseFreq
-	printk2 kFrequency
+	; sound
+	kVolume chnget "volume"
+	kVolume port kVolume, 0.05
 	
 	aenv linenr 1, 0.1, 0.3, 0.001
 	
-	asig poscil 1, kFrequency, giSine
+	aBase poscil 0.6, kBaseFreq, giSine
+	aInterval poscil 0.6, kBaseFreq * kInterval
+	kIntervalAmp chnget "playInterval"
+	kIntervalAmp port kIntervalAmp, 0.05
 
-	asig *=  aenv * kvol
+	asig =  (aBase + aInterval*kIntervalAmp ) * aenv * kVolume
 	outs asig, asig
-
+	
 endin
 
 

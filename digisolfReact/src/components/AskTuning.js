@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {Button, Grid, Header, Dropdown, Form} from 'semantic-ui-react'
+import {Button, Grid, Header, Dropdown} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../util/util";
@@ -24,6 +24,7 @@ const AskTuning = () => {
     const [userPitchRatio, setUserPitchratio] = useState(0);
     const [csound, setCsound] = useState(null);
     const [soundOn, setSoundOn] = useState(false);
+    const [playIntervalOn, setPlayIntervalOn] = useState(false);
 
     let channelReadFunction = null;
     //const [started, setStarted] = useState(false);
@@ -68,27 +69,47 @@ const AskTuning = () => {
         csound.audioContext.resume();
     };
 
-    const playBase = () => {
+    const tune = () => {
         if (csound) {
-            updateChannels();
-            csound.readScore("i 1 0 3 0");
+            if ( !soundOn ) {
+                startUpdateChannels();
+                csound.setControlChannel("playInterval", 0);
+                csound.readScore("i 1 0 -1");
+            } else {
+                startUpdateChannels();
+                csound.setControlChannel("playInterval", 0);
+                csound.readScore("i -1 0 0");
+            }
         }
+        setSoundOn(!soundOn);
     };
 
-    const playInterval = () => {
+    const playInterval = (event, data) => {
         if (csound) {
-            csound.readScore("i 2 0 3 1");
+            if (playIntervalOn) { // if on, then out
+                csound.setControlChannel("playInterval", 0);
+            } else {
+                csound.setControlChannel("playInterval", 1);
+            }
         }
+        setPlayIntervalOn(!playIntervalOn);
+    }
+
+    const stop = () => {
+        if (csound) {
+            csound.readScore("i -1 0 0");
+        }
+        stopUpdate();
     }
 
     const stopUpdate = () => {
         if (channelReadFunction) {
             clearInterval(channelReadFunction);
-            clearInterval = null;
+            channelReadFunction = null;
         }
     }
 
-    const updateChannels = () => {
+    const startUpdateChannels = () => {
         stopUpdate(); //clearInterval
         channelReadFunction =  setInterval( () => {
             if (csound) {
@@ -99,7 +120,6 @@ const AskTuning = () => {
                     });
             }
         }, 100 );
-        // TODO: how to stop it?
     }
 
 
@@ -119,12 +139,15 @@ const AskTuning = () => {
 
         if (exerciseHasBegun) {
             return (
-            <Grid.Row  columns={3} centered={true}>
+                <Grid.Row  columns={3} centered={true}>
                     <Grid.Column>
-                        <Button onClick={playBase} className={"fullWidth marginTopSmall"}  >{t("baseNote")}</Button>
+                        <Button toggle={true} onClick={tune} className={"fullWidth marginTopSmall"}  >{t("tune")}</Button>
                     </Grid.Column>
                     <Grid.Column>
-                        <Button onClick={playInterval} className={"fullWidth marginTopSmall"}  >{t("upper Note")}</Button>
+                        <Button onClick={stop} className={"fullWidth marginTopSmall"}  >{t("stop")}</Button>
+                    </Grid.Column>
+                    <Grid.Column>
+                        <Button toggle={true} onClick={playInterval} className={"fullWidth marginTopSmall"}  >{t("upper Note")}</Button>
                     </Grid.Column>
                 </Grid.Row>
 
@@ -223,23 +246,35 @@ const AskTuning = () => {
        ) : null;
    }
 
+   // TODO: connetc this code and tune somhow
     const setSelectedInterval = (intervalRatio) => {
         if (csound) {
             console.log("Set interval to: ", intervalRatio);
             csound.setControlChannel("interval", intervalRatio);
             setIntervalRatio(intervalRatio);
-            //playBase();  // later: take care of on/off
+            //tune();
         }
-        setSoundOn(!soundOn);
     }
 
     const createIntervals = () => {
+       // TODO: something like checked for defualt interval (p5)
         return exerciseHasBegun ? (
-            <Grid.Row>
-                <Button.Group toggle={true}>
+            <Grid.Row centered={true}>
+                <Button.Group toggle={true} >
+                    <Button  onClick={ () => setSelectedInterval(9/8) }>s2</Button>
+                    <Button  onClick={ () => setSelectedInterval(6/5) }>v3</Button>
+
                     <Button  onClick={ () => setSelectedInterval(5/4) }>s3</Button>
                     <Button  onClick={ () => setSelectedInterval(4/3) }>p4</Button>
                     <Button  onClick={ () => setSelectedInterval(3/2) }>p5</Button>
+
+                    <Button  onClick={ () => setSelectedInterval(8/5) }>v6</Button>
+                    <Button  onClick={ () => setSelectedInterval(5/3) }>s6</Button>
+
+                    <Button  onClick={ () => setSelectedInterval(7/4) }>v7 7/4</Button>
+                    <Button  onClick={ () => setSelectedInterval(9/5) }>v7 9/5</Button>
+                    <Button  onClick={ () => setSelectedInterval(15/8) }>s7 </Button>
+                    <Button  onClick={ () => setSelectedInterval(2) }>p8 </Button>
                 </Button.Group>
             </Grid.Row>
         ) : null;
@@ -275,5 +310,7 @@ const AskTuning = () => {
 
     );
 };
+
+
 
 export default AskTuning;

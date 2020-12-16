@@ -91,7 +91,9 @@
   "greatOctave": "suur oktav",
   "smallOctave": "väike oktav",
   "firstOctave": "esimene oktav",
-  "secondOctave": "teine oktav"
+  "secondOctave": "teine oktav",
+  "tune": "häälesta",
+  "upperNote": "ülemine noot"
 
 
 
