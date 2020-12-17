@@ -7,6 +7,7 @@ import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import {useParams} from "react-router-dom";
 import CsoundObj from "@kunstmusik/csound";
 import  {tuningOrchestra as orc} from "../csound/orchestras";
+import { Slider } from "react-semantic-ui-range";
 
 
 // NB!!!! start with  export HOST="localhost" ; npm start for local testing, with other hostnames sound input does not work
@@ -22,6 +23,7 @@ const AskTuning = () => {
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [intervalRatio, setIntervalRatio] = useState(1.5);
     const [userPitchRatio, setUserPitchratio] = useState(0);
+    const [relativeRatio, setRelativeRatio] = useState(0);
     const [csound, setCsound] = useState(null);
     const [soundOn, setSoundOn] = useState(false);
     const [playIntervalOn, setPlayIntervalOn] = useState(false);
@@ -79,6 +81,7 @@ const AskTuning = () => {
                 startUpdateChannels();
                 csound.setControlChannel("playInterval", 0);
                 csound.readScore("i -1 0 0");
+                setPlayIntervalOn(false);
             }
         }
         setSoundOn(!soundOn);
@@ -118,6 +121,11 @@ const AskTuning = () => {
                         const value = csound.getControlChannel("pitchratio");
                         setUserPitchratio(value);
                     });
+                csound.requestControlChannel("relativeRatio",
+                    () => {
+                        const value = csound.getControlChannel("pitchratio");
+                        setRelativeRatio(value);
+                    });
             }
         }, 100 );
     }
@@ -143,9 +151,9 @@ const AskTuning = () => {
                     <Grid.Column>
                         <Button toggle={true} onClick={tune} className={"fullWidth marginTopSmall"}  >{t("tune")}</Button>
                     </Grid.Column>
-                    <Grid.Column>
+                    {/*<Grid.Column>
                         <Button onClick={stop} className={"fullWidth marginTopSmall"}  >{t("stop")}</Button>
-                    </Grid.Column>
+                    </Grid.Column>*/}
                     <Grid.Column>
                         <Button toggle={true} onClick={playInterval} className={"fullWidth marginTopSmall"}  >{t("upper Note")}</Button>
                     </Grid.Column>
@@ -234,17 +242,57 @@ const AskTuning = () => {
 
    const createFeedbackRow = () => {
        return exerciseHasBegun ? (
-           <Grid.Row>
+           <Grid.Row centered={true}>
                <Grid.Column></Grid.Column>
                <Grid.Column>
                    {` ${capitalizeFirst(t("ratio"))}: ${intervalRatio} `}
-                   {` ${capitalizeFirst(t("input"))}: ${userPitchRatio} `}
+                   <Meter level={relativeRatio} />
+                   {` ${capitalizeFirst(t("input"))}: ${userPitchRatio.toFixed(2)} `}
                </Grid.Column>
                <Grid.Column></Grid.Column>
 
            </Grid.Row>
        ) : null;
    }
+
+    const [sensitivity, setSensitivity] = useState(0.5);
+
+    const settings = {
+        start: 0.5,
+        min: 0,
+        max: 1,
+        step: 0.01,
+        onChange: value => {
+            console.log("Slider value:", value);
+        }
+    };
+
+   const handleSliderChange = (value) => {
+       if (csound) {
+           csound.setControlChannel("threshold", value);
+       }
+       //console.log("Slider value:", value);
+       setSensitivity(value);
+   }
+
+   const createInputSensitivityRow = () => {
+       return exerciseHasBegun ? (
+           <Grid.Row centered={true} columns={3}>
+               <Grid.Column />
+               <Grid.Column>
+                   {capitalizeFirst(t("inputSensitivity"))}
+                   <Slider value={sensitivity} color="blue"
+                           settings={ {
+                               min:0, max:1, step:0.01,
+                               start: {sensitivity},
+                               onChange: handleSliderChange
+                           } }
+                   />
+               </Grid.Column>
+               <Grid.Column />
+           </Grid.Row>
+       ) : null;
+   };
 
    // TODO: connetc this code and tune somhow
     const setSelectedInterval = (intervalRatio) => {
@@ -259,6 +307,7 @@ const AskTuning = () => {
     const createIntervals = () => {
        // TODO: something like checked for defualt interval (p5)
         return exerciseHasBegun ? (
+            <>
             <Grid.Row centered={true}>
                 <Button.Group toggle={true} >
                     <Button  onClick={ () => setSelectedInterval(9/8) }>s2</Button>
@@ -267,16 +316,19 @@ const AskTuning = () => {
                     <Button  onClick={ () => setSelectedInterval(5/4) }>s3</Button>
                     <Button  onClick={ () => setSelectedInterval(4/3) }>p4</Button>
                     <Button  onClick={ () => setSelectedInterval(3/2) }>p5</Button>
-
                     <Button  onClick={ () => setSelectedInterval(8/5) }>v6</Button>
+                </Button.Group>
+            </Grid.Row>
+            <Grid.Row centered={true}>
+                <Button.Group toggle={true} >
                     <Button  onClick={ () => setSelectedInterval(5/3) }>s6</Button>
-
                     <Button  onClick={ () => setSelectedInterval(7/4) }>v7 7/4</Button>
                     <Button  onClick={ () => setSelectedInterval(9/5) }>v7 9/5</Button>
                     <Button  onClick={ () => setSelectedInterval(15/8) }>s7 </Button>
                     <Button  onClick={ () => setSelectedInterval(2) }>p8 </Button>
                 </Button.Group>
             </Grid.Row>
+                </>
         ) : null;
     }
 
@@ -295,6 +347,7 @@ const AskTuning = () => {
             <Grid>
                 {createOptionsRow()}
                 {createFeedbackRow()}
+                {createInputSensitivityRow()}
                 {createIntervals()}
                 {createPlaySoundButton()}
 
@@ -314,3 +367,36 @@ const AskTuning = () => {
 
 
 export default AskTuning;
+
+// the code is based from example here by Adam Mark
+// https://github.com/bmorelli25/react-svg-meter/blob/master/src/Meter.js
+const  Meter = (props) => {
+    let {
+        level = 0,         // a number between 0 and 1, inclusive
+        width = 30,         // the overall width
+        height = 100,         // the overall height
+        rounded = false,      // if true, use rounded corners
+        color = "#0078bc",   // the fill color
+        animate = false,     // if true, animate when the percent changes
+        label = null         // a label to describe the contents (for accessibility)
+    } = props;
+
+    const r = rounded ? Math.ceil(width / 4) : 0;
+    const h = level ? Math.max(width, height * Math.min(level, 1)) : 0; // this is probably wrong, see
+    const style = animate ? { "transition": "width 500ms, fill 250ms" } : null;
+    let varyColor = "#0078bc";
+    if (level < 0.3 || level >=0.7  ) {
+        varyColor = "red";
+    } else if ( (level >= 0.3 && level <0.45) || (level >= 0.55 && level <0.7)   ) {
+        varyColor = "yellow";
+    } else { // is it foolproof? should be 0.45..0.54
+        varyColor = "green"
+    }
+
+    return (
+        <svg width={width} height={height} aria-label={label}>
+            <rect   width={width} height={height} fill="#ccc" rx={r} ry={r}/>
+            <rect width={width} height={h} y={height-h} fill={varyColor} rx={r} ry={r} style={style}/>
+        </svg>
+    );
+};
