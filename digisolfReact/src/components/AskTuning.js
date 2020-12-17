@@ -71,9 +71,14 @@ const AskTuning = () => {
         csound.audioContext.resume();
     };
 
-    const tune = () => {
+    const startTuning = () => {
         if (csound) {
-            if ( !soundOn ) {
+            startUpdateChannels();
+            csound.setControlChannel("playInterval", 0);
+            csound.readScore("i 1 0 -1");
+            setPlayIntervalOn(false);
+            setSoundOn(true);
+            /*if ( !soundOn ) {
                 startUpdateChannels();
                 csound.setControlChannel("playInterval", 0);
                 csound.readScore("i 1 0 -1");
@@ -82,9 +87,9 @@ const AskTuning = () => {
                 csound.setControlChannel("playInterval", 0);
                 csound.readScore("i -1 0 0");
                 setPlayIntervalOn(false);
-            }
+            }*/
         }
-        setSoundOn(!soundOn);
+        //setSoundOn(!soundOn);
     };
 
     const playInterval = (event, data) => {
@@ -98,10 +103,12 @@ const AskTuning = () => {
         setPlayIntervalOn(!playIntervalOn);
     }
 
-    const stop = () => {
+    const stopTuning = () => {
         if (csound) {
             csound.readScore("i -1 0 0");
         }
+        setPlayIntervalOn(false);
+        setSoundOn(false);
         stopUpdate();
     }
 
@@ -149,7 +156,7 @@ const AskTuning = () => {
             return (
                 <Grid.Row  columns={3} centered={true}>
                     <Grid.Column>
-                        <Button toggle={true} onClick={tune} className={"fullWidth marginTopSmall"}  >{t("tune")}</Button>
+                        <Button toggle={true} onClick={startTuning} className={"fullWidth marginTopSmall"}  >{t("tune")}</Button>
                     </Grid.Column>
                     {/*<Grid.Column>
                         <Button onClick={stop} className={"fullWidth marginTopSmall"}  >{t("stop")}</Button>
@@ -295,13 +302,25 @@ const AskTuning = () => {
    };
 
    // TODO: connetc this code and tune somhow
-    const setSelectedInterval = (intervalRatio) => {
+    const setSelectedInterval = (intervalRatio, active) => {
+
+        if (!active) {
+            if (!soundOn) {
+                console.log("I must switch sound on");
+                startTuning();
+            }
+        } else { // the button is on, must be switched out
+            if (soundOn) {
+                console.log("I must switch sound off")
+                stopTuning();
+            }
+        }
+
         if (csound) {
             console.log("Set interval to: ", intervalRatio);
             csound.setControlChannel("interval", intervalRatio);
-            setIntervalRatio(intervalRatio);
-            //tune();
         }
+        setIntervalRatio(intervalRatio);
     }
 
     const createIntervals = () => {
@@ -310,22 +329,26 @@ const AskTuning = () => {
             <>
             <Grid.Row centered={true}>
                 <Button.Group toggle={true} >
-                    <Button  onClick={ () => setSelectedInterval(9/8) }>s2</Button>
-                    <Button  onClick={ () => setSelectedInterval(6/5) }>v3</Button>
+                    <Button active={intervalRatio === 9/8 && soundOn}  onClick={ (event, data) => setSelectedInterval(9/8,data.active) }>s2</Button>
+                    <Button active={intervalRatio === 6/5 && soundOn}  onClick={ (event, data) => setSelectedInterval(6/5,data.active) }>v3</Button>
+                    <Button active={intervalRatio === 5/4 && soundOn}  onClick={ (event, data) => setSelectedInterval(5/4,data.active) }>s3</Button>
 
-                    <Button  onClick={ () => setSelectedInterval(5/4) }>s3</Button>
-                    <Button  onClick={ () => setSelectedInterval(4/3) }>p4</Button>
-                    <Button  onClick={ () => setSelectedInterval(3/2) }>p5</Button>
-                    <Button  onClick={ () => setSelectedInterval(8/5) }>v6</Button>
+
+                    {/*<Button  onClick={ () => setSelectedInterval(6/5) }>v3</Button>
+
+                    <Button  onClick={ () => setSelectedInterval(5/4) }>s3</Button>*/}
+                    <Button  active={intervalRatio === 4/3 && soundOn}  onClick={ (event, data) => setSelectedInterval(4/3,data.active) }>p4</Button>
+                    <Button  active={intervalRatio === 3/2 && soundOn}  onClick={ (event, data) => setSelectedInterval(3/2,data.active) }>p5</Button>
+                    <Button  active={intervalRatio === 8/5 && soundOn}  onClick={ (event, data) => setSelectedInterval(8/5,data.active) }>v6</Button>
                 </Button.Group>
             </Grid.Row>
             <Grid.Row centered={true}>
                 <Button.Group toggle={true} >
-                    <Button  onClick={ () => setSelectedInterval(5/3) }>s6</Button>
-                    <Button  onClick={ () => setSelectedInterval(7/4) }>v7 7/4</Button>
-                    <Button  onClick={ () => setSelectedInterval(9/5) }>v7 9/5</Button>
-                    <Button  onClick={ () => setSelectedInterval(15/8) }>s7 </Button>
-                    <Button  onClick={ () => setSelectedInterval(2) }>p8 </Button>
+                    <Button  active={intervalRatio === 5/3 && soundOn}  onClick={ (event, data) => setSelectedInterval(5/3,data.active) }>s6</Button>
+                    <Button  active={intervalRatio === 7/4 && soundOn}  onClick={ (event, data) => setSelectedInterval(7/4,data.active) }>v7 7/4</Button>
+                    <Button  active={intervalRatio === 9/5 && soundOn}  onClick={ (event, data) => setSelectedInterval(9/5,data.active) }>v7 9/5</Button>
+                    <Button  active={intervalRatio === 15/8 && soundOn}  onClick={ (event, data) => setSelectedInterval(15/8,data.active) }>s7 </Button>
+                    <Button  active={intervalRatio === 2 && soundOn}  onClick={ (event, data) => setSelectedInterval(2,data.active) }>p8 </Button>
                 </Button.Group>
             </Grid.Row>
                 </>
@@ -367,6 +390,7 @@ const AskTuning = () => {
 
 
 export default AskTuning;
+
 
 // the code is based from example here by Adam Mark
 // https://github.com/bmorelli25/react-svg-meter/blob/master/src/Meter.js
