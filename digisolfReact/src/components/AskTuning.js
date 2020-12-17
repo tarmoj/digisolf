@@ -62,6 +62,7 @@ const AskTuning = () => {
             console.log("Csound RESET");
             csound.reset();
         }
+        return () => { console.log("cleanup"); stopUpdate();  if (csound) csound.reset();} // tryout against memory leak...
     }, [csound]);
 
 
@@ -130,7 +131,7 @@ const AskTuning = () => {
                     });
                 csound.requestControlChannel("relativeRatio",
                     () => {
-                        const value = csound.getControlChannel("pitchratio");
+                        const value = csound.getControlChannel("relativeRatio");
                         setRelativeRatio(value);
                     });
             }
