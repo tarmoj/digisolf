@@ -237,15 +237,21 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 				console.log("noteName is: ", noteName);
 				vtNote = noteNames.get(noteName);
 
-				//TODO: octave from relative writing
+				//for now octave by absolute notation ' - 1st oct, '' -2nd, none - small, , - great etc.
 				let octave;
 				// use better regexp and test for '' ,, etc
-				if (chunks[i].search("\'")>=0) {
+				if (chunks[i].search("\'\'\'")>=0) {
+					octave = "6";
+				} else if (chunks[i].search("\'\'")>=0) {
 					octave = "5";
-				} else if (chunks[i].search(",")>=0) {
-					octave ="3";
-				} else {
+				} else if (chunks[i].search("\'")>=0) {
 					octave = "4";
+				} else if (chunks[i].search(",")>=0) {
+						octave ="2";
+				} else if (chunks[i].search(",,")>=0) {
+							octave ="1";
+				} else { // no ending
+					octave = "3";
 				}
 
 				vtNote += "/" + octave + " ";
