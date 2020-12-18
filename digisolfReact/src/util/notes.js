@@ -1,3 +1,6 @@
+import {defaultNotationInfo} from "../components/notation/notationConstants";
+
+
 // Think about different conventions: classical german - b,h, classical scandinavian (bes, b), syllabic (do, re mi), syllabic russian
 // See lilypond definitions https://lilypond.org/doc/v2.18/Documentation/notation/writing-pitches#note-names-in-other-languages
 // define as map where key is (lilypond) noteName, value VexTab note
@@ -168,12 +171,18 @@ export const getNoteByVtNote = (vtNote, noteArray=trebleClefNotes) => {
 	return noteArray.find(note => note.vtNote === vtNote);
 };
 
-export const parseLilypondString = (lyString) => { // returns vexTabString of the notation
+
+export const parseLilypondString = (lyString) => { //NB! rewrite! returns notationInfo object -  see notationConstant defaultNotationInfo
 	const chunks = lyString.trim().replace(/\s\s+/g, ' ').split(" "); // simplify string
-	let vtNotes = "";
-	let notationInfo = { clef: "", keySignature: "", time: "", vtNotes: "" };
+	//let vtNotes = "";
+	let notationInfo = defaultNotationInfo;
+	let stave=0, voice=0;
+	let notes = [] ; // each note has format {keys:[], duration: ""}
 	let useTie = false;
+	let lastDuration = "4";
+	// TODO (tarmo): support for \new Staff and \new Voice (at least Staff). Currently works only with one voice
 	for (let i = 0; i<chunks.length; i++) {
+		let vtNote="";
 		if (chunks[i].trim() === "\\key" && chunks.length >= i+1 ) { // must be like "\key a \major\minor
 			console.log("key: ", chunks[i+1], chunks[i+2]);
 			let vtKey = noteNames.get(chunks[i+1].toLowerCase());
@@ -182,7 +191,7 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 				if (chunks[i+2]=="\\minor") {
 					vtKey += "m"
 				}
-				notationInfo.keySignature = vtKey;
+				notationInfo.staves[stave].key = vtKey;
 				console.log("Converted key:", vtKey)
 			} else {
 				console.log("Could not find notename for: ", chunks[i+1])
@@ -190,33 +199,37 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 			i += 2;
 		} else if (chunks[i].trim() === "\\time" && chunks.length >= i+1) { // must be like "\key a \major
 			console.log("time: ", chunks[i + 1]);
-			notationInfo.time = chunks[i + 1];
+			notationInfo.staves[stave].time = chunks[i + 1];
 			i += 1;
 			// VT nt: time=2/4
 		} else if (chunks[i].trim() === "\\clef" && chunks.length >= i+1) {
 			console.log("clef: ", chunks[i + 1]);
-			notationInfo.clef = chunks[i + 1];
+			notationInfo.staves[stave].clef = chunks[i + 1];
 			i += 1;
 			// VT nt: clef=treble
 		} else if  (chunks[i].trim() === "\\bar" && chunks.length >= i+1)  { // handle different barlines
 			const barLine = chunks[i + 1].trim().replace(/[\"]+/g, ''); // remove quoates \"
 
-			console.log("Found barline: ", barLine)
+			console.log("Found barline: ", barLine);
+			let vtBar = "";
 			switch (barLine) {
-				case '|' : console.log("Normal bar"); vtNotes += " | "; break;
-				case '|.' : console.log("End bar"); vtNotes += " =|= "; break;
-				case '||' : console.log("Double bar"); vtNotes += " =|| "; break;
-				case '.|:' : console.log("Repeat begins"); vtNotes += " =|: "; break;
-				case ':|.' : console.log("Repeat ends"); vtNotes += " =:|| "; break;
-				case ':|.|:' : console.log("Double repeat"); vtNotes += " =:: "; break;
-				default : console.log("Normal bar"); vtNotes += " | "; break;
+				case '|' : console.log("Normal bar"); vtBar = "|"; break;
+				case '|.' : console.log("End bar"); vtBar = "=|="; break;
+				case '||' : console.log("Double bar"); vtBar += "=||"; break;
+				case '.|:' : console.log("Repeat begins"); vtBar += "=|:"; break;
+				case ':|.' : console.log("Repeat ends"); vtBar += " =:||"; break;
+				case ':|.|:' : console.log("Double repeat"); vtBar += "=::"; break;
+				default : console.log("Normal bar"); vtBar += "|"; break;
 
 			}
+			notes.push({keys:[vtBar], duration:"0"});
 			i += 1;
 		} else if     (chunks[i].trim() === "|") {
 			console.log("Barline");
-			vtNotes += " | ";
+			//vtNote = "|";
+			notes.push({keys:["|"], duration:"0"});
 		} else  { // might be a note or error
+			let vtNote="";
 			const index = chunks[i].search(/[~,'\\\d\s]/); // in lylypond one of those may follow th note: , ' digit \ whitespace or nothing
 			let noteName;
 			if (index>=0) {
@@ -224,7 +237,7 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 			} else {
 				noteName = chunks[i].toLowerCase();
 			}
-			let vtNote = "";
+			//let vtNote = "";
 
 			if (noteName === "r") { // rest
 				vtNote = "##";
@@ -248,11 +261,12 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 					octave = "4";
 				}
 
-				vtNote += "/" + octave + " ";
+				vtNote += "/" + octave;
 			}
 
 
 			// tie - in lilypond ~ is on first note, in VT h after the duration of next one
+			// NB! untested in  new notationInfo context!
 			if (useTie) {
 				vtNote = " h " + vtNote; // for held note/legato
 				useTie = false;
@@ -268,23 +282,28 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 			// duration
 			const re = /\d+/;
 			const duration = re.exec(chunks[i]);
-
-
 			if (duration) {
-				vtNote = ":" + duration + " " + vtNote + " ";  //` :${duration} ${vtNote}. `; // in VT duration is before note(s)
-			} else if (useTie) {
-
+				lastDuration = duration;
 			}
 
+
+			// if (duration) {
+			// 	vtNote = ":" + duration + " " + vtNote + " ";  //` :${duration} ${vtNote}. `; // in VT duration is before note(s)
+			// } else if (useTie) {
+			//
+			// }
+
 			console.log("vtNote: ", vtNote);
-			vtNotes += vtNote;
+			notes.push({keys:[vtNote], duration:lastDuration});
 
 		}
+
 	}
-	console.log("Parsed notes: ", vtNotes);
-	notationInfo.vtNotes = vtNotes;
+	//console.log("Parsed notes: ", vtNotes);
+	notationInfo.staves[stave].voices[voice].notes = notes;
 	return notationInfo;
 };
+
 
 
 

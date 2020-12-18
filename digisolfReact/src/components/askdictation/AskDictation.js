@@ -48,6 +48,8 @@ const AskDictation = () => {
     const [correctNotation, setCorrectNotation] = useState({  clef:"treble", time: "4/4", vtNotes: "" });
 
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
+    const [wrongNoteIndexes, setWrongNoteIndexes] = useState(null);
+    //let wrongNoteIndexes = null;
 
     // store staves from artist object of Notation components -  necessary for checkResponse
     let responseStaves=null, correctStaves = null;
@@ -83,6 +85,7 @@ const AskDictation = () => {
         setDegreesEnteredByUser("");
         //hideAnswer();
         setShowCorrectNotation(false);
+        setWrongNoteIndexes(null);
 
         let dictation;
 
@@ -109,12 +112,13 @@ const AskDictation = () => {
             answer = {notation: selectedDictation.notation}; // <- this will not be used
 
             // set notationIfo for correct notation block
-            let notationInfo =  {vtNotes: ""};
+            let notationInfo = {};
             // see on paha struktuur, oleks vaja, et oleks võimalik anda kogu vexTab String tervikuna, kui nt mitmehäälne muusika
             if (dictation.notation.trim().startsWith("stave") ) {
                 notationInfo.vtNotes = dictation.notation;
             } else {
                 notationInfo = parseLilypondString(dictation.notation);
+                console.log("NotationIndo structure: ", notationInfo);
             }
 
             console.log("Õiged noodid: ", notationInfo.vtNotes);
@@ -207,7 +211,7 @@ const AskDictation = () => {
         const firstNote = vtNotes.slice(0, vtNotes.indexOf("/")+2);
         console.log("First note: ", firstNote );
         notation.vtNotes = firstNote;*/
-        const notation = { vtNotes:"" }
+        const notation = { vtNotes: "" }
         setNotationInfo(notation);
         //TODO: peaks sisestama ka taktimõõdu, helistiku ja esimese noodi sisestus-Inputi tekstiks ( notesEnteredByUser )
 
@@ -278,10 +282,18 @@ const AskDictation = () => {
     };
 
     const setResponseStaves = (staves) => {
+<<<<<<< HEAD:digisolfReact/src/components/askdictation/AskDictation.js
+=======
+        console.log("TEST staves from user input ", staves[0].note_notes);
+>>>>>>> 575cae55753935561640636dc7b7198ca3264217:digisolfReact/src/components/AskDictation.js
         responseStaves = staves;
     }
 
     const setCorrectStaves = (staves) => {
+<<<<<<< HEAD:digisolfReact/src/components/askdictation/AskDictation.js
+=======
+        console.log("TEST staves from correct dictation ", staves[0].note_notes);
+>>>>>>> 575cae55753935561640636dc7b7198ca3264217:digisolfReact/src/components/AskDictation.js
         correctStaves = staves;
     }
 
@@ -294,6 +306,15 @@ const AskDictation = () => {
             return;
         }
 
+<<<<<<< HEAD:digisolfReact/src/components/askdictation/AskDictation.js
+=======
+        if (answered) {
+            alert(t("alreadyAnswered"));
+            return;
+        }
+
+        setAnswered(true);
+>>>>>>> 575cae55753935561640636dc7b7198ca3264217:digisolfReact/src/components/AskDictation.js
         let feedBack = "";
         let correct = true;
 
@@ -302,27 +323,42 @@ const AskDictation = () => {
         } else { // all other dictations are with note input
 
             //test: staves should be passed via setResponseStaves from Notation
-            console.log("STAVES in checkresponse: ", responseStaves);
-            console.log("STAVES of correctNotation in checkresponse: ", correctStaves);
+            console.log("STAVES in checkresponse: ", responseStaves, responseStaves ? responseStaves[0].note_notes.length : -1 );
+            console.log("STAVES of correctNotation in checkresponse: ", correctStaves ? correctStaves[0].note_notes.length : -1);
+            //const wrongNoteIndexes = [ [], [] ];
+
 
             if (responseStaves) {
+                const wrongNotes = [ [], [] ];
                 for (let i = 0; i < responseStaves.length; i++) { // can be two-voiced
                     const responseNotes = responseStaves[i].note_notes; // or stave.voice_notes? What is the differenece?
                     const correctNotes = correctStaves[i].note_notes;
-                    //TODO: check if one array is shorter than other
-                    for (let j = 0; j < responseNotes.length; j++) {
-                        if (j >= correctNotes.length) {
-                            correctNotes[j] = {keys: []}; // if there is less correct notes, fill with empty string
+
+                    for (let j = 0; j < correctNotes.length; j++) {
+                        if (j >= responseNotes.length) {
+                            responseNotes[j] = {keys: [], duration:""}; // if there is less entered notes, fill with empty string
                         }
+                        // TODO (tarmo) -  if more notes entered, mark them wrong +  add the missing notes to userInput
                         // TODO (tarmo): think about barlines -  maybe ignore..
-                        if (JSON.stringify(responseNotes[j].keys) === JSON.stringify(correctNotes[j].keys)) {
+                        if (JSON.stringify(responseNotes[j].keys) === JSON.stringify(correctNotes[j].keys) &&
+                            responseNotes[j].getIntrinsicTicks() === correctNotes[j].getIntrinsicTicks() ) { // durations are better to compared this way to avoid q<->4, h<->2 etc confusion
                             console.log("Note ", j, responseNotes[j].keys, " is correct!");
                         } else {
-                            console.log("Note ", j, responseNotes[j].keys, " should be:!", correctNotes[j].keys);
+                            console.log("Note ", j, responseNotes[j].keys, "wrong should be:!", correctNotes[j].keys, correctNotes[j].duration );
                             correct = false;
+                            wrongNotes[i].push(j);
                         }
                     }
                 }
+                //setWrongNoteIndexes(wrongNotes);
+                //console.log("Wrong notes: ", wrongNotes);
+                if (wrongNotes[0].length>0 ||  wrongNotes[1].length>0) {
+                    console.log("Setting wrong note indexes: ", wrongNotes);
+                    //wrongNoteIndexes = wrongNotes;
+                    setWrongNoteIndexes(wrongNotes); // this will be forwarded to Notation via props
+                }
+            } else {
+                console.log ("STAVES WRONG responseStaves are null");
             }
 
             showDictation();
@@ -538,6 +574,8 @@ const AskDictation = () => {
                            keySignature={notationInfo.keySignature}
                            showInput={true}
                            passStaves={setResponseStaves}
+                           wrongNoteIndexes={wrongNoteIndexes}
+                           name={"UserInputNotation"} /*for debugging*/
                 />
 
             </div>
@@ -557,6 +595,7 @@ const AskDictation = () => {
                          keySignature={correctNotation.keySignature}
                          showInput={false}
                          passStaves={setCorrectStaves}
+                         name={"correctNotation"} /*for debugging*/
                />
 
             </div>
@@ -573,7 +612,7 @@ const AskDictation = () => {
             }
         }
 
-        return name.includes("random") ? null :  (
+        return (name.includes("random") || !exerciseHasBegun) ? null :  (
             <Grid.Row>
                 <Grid.Column>
             <Select
@@ -582,9 +621,9 @@ const AskDictation = () => {
                 options={options}
                 /*defaultValue={options[0].soundFile}*/
                 onChange={(e, {value}) => {
-                    if (!exerciseHasBegun) {
-                        startExercise();
-                    }
+                    // if (!exerciseHasBegun) {
+                    //     startExercise();
+                    // }
                     renew(value);
                 }
                 }
