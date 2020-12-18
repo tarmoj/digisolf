@@ -272,11 +272,12 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 			}
 
 			// duration
-			const re = /\d+/;
-			const duration = re.exec(chunks[i]);
-
+			const re = /\d{1,2}(\.{0,1})+/; // was re = /\d+/; - but this skips the dot
+			let duration = re.exec(chunks[i]);
+			console.log("Duration: ", chunks[i], duration);
 
 			if (duration) {
+				duration = duration[0].replace(/\./g, "d"); // d instead of dot for VexTab
 				vtNote = ":" + duration + " " + vtNote + " ";  //` :${duration} ${vtNote}. `; // in VT duration is before note(s)
 			} else if (useTie) {
 
