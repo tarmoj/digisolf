@@ -1,13 +1,14 @@
 import React, {useState} from 'react';
 import {Table, Image, Button, Popup, Accordion, Icon} from 'semantic-ui-react';
-import {vtNames, octaveData} from './notationConstants';
+import {vtNames, octaveData} from './notationUtils';
 import {useSelector, useDispatch} from 'react-redux';
-import {setSelected} from '../../actions/askDictation';
+import {setSelected, insertNote, removeNote} from '../../actions/askDictation';
 
-const NotationTable = ({addNote, removeNote}) => {
+const NotationInput = () => {
 
   const [showTable, setShowTable] = useState(false);
   const [iconClass, setIconClass] = useState("iconDown");
+
   const selectedNote = useSelector(state => state.askDictationReducer.selectedNote);
 
   const dispatch = useDispatch();
@@ -60,6 +61,14 @@ const NotationTable = ({addNote, removeNote}) => {
     } else {
       setIconClass("iconDown");
     }
+  }
+
+  const onAddNoteClick = () => {
+    dispatch(insertNote());
+  }
+
+  const onRemoveNoteClick = () => {
+    dispatch(removeNote());
   }
 
   const toggleTable = () => {
@@ -132,15 +141,15 @@ const NotationTable = ({addNote, removeNote}) => {
               </Table.Row>
             </Table.Body>
           </Table>
-          <Button onClick={addNote}>Lisa noot</Button>
-          <Button onClick={() => removeNote()}>Kustuta viimane</Button>
+          <Button onClick={onAddNoteClick}>Lisa noot</Button>
+          <Button onClick={onRemoveNoteClick}>Kustuta</Button>
         </Accordion.Content>
       </Accordion>
   </div>
   );
 };
 
-export default NotationTable;
+export default NotationInput;
 
 const NotationTableCell = ({name, handleClick, checkIfSelected, isImageCell=true, popupContent}) => {
 

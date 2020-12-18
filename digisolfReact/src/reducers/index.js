@@ -4,13 +4,15 @@ import {languageReducer} from "./language";
 import {exerciseReducer} from "./exercise";
 import {headerMessageReducer} from "./headerMessage";
 import {scoreReducer} from "./score";
+import {askDictationReducer} from "./askDictation";
 
 const appReducer = combineReducers({
     componentReducer,
     languageReducer,
     exerciseReducer,
     headerMessageReducer,
-    scoreReducer
+    scoreReducer,
+    askDictationReducer
 });
 
 const rootReducer = (state, action) => {

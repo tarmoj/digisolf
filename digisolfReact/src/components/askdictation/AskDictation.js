@@ -1,28 +1,28 @@
-import React, {useState, useRef, useEffect} from 'react';
-import {Button, Grid, Header, Input, Label, Popup} from 'semantic-ui-react'
-import {useDispatch, useSelector} from "react-redux";
+import React, {useState, useEffect} from 'react';
+import {Button, Grid, Header, Input, Popup} from 'semantic-ui-react'
+import {useDispatch} from "react-redux";
 import {useTranslation} from "react-i18next";
-import {capitalizeFirst, weightedRandom} from "../util/util";
-import {getNoteByName, parseLilypondString} from "../util/notes";
+import {capitalizeFirst, weightedRandom} from "../../util/util";
+import {parseLilypondString} from "../../util/notes";
 //import MIDISounds from 'midi-sounds-react';
-import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
-import ScoreRow from "./ScoreRow";
-import Notation from "./notation/Notation";
-import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
-import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
+import {setNegativeMessage, setPositiveMessage} from "../../actions/headerMessage";
+import ScoreRow from "../ScoreRow";
+import Notation from "../notation/Notation";
+import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../../actions/score";
+import GoBackToMainMenuBtn from "../GoBackToMainMenuBtn";
 import Sound from 'react-sound';
 import Select from "semantic-ui-react/dist/commonjs/addons/Select";
-import dictation1a from "../sounds/dictations/1a.mp3";
 import {useParams} from "react-router-dom";
 import CsoundObj from "@kunstmusik/csound";
-import {makeInterval,  scaleDefinitions} from "../util/intervals";
-import * as notes from "../util/notes";
-import { stringToIntArray, getRandomInt, getRandomBoolean, getRandomElementFromArray } from "../util/util.js"
-import {dictationOrchestra as orc} from "../csound/orchestras";
-import {dictations as oneVoice} from "../dictations/1voice";
-import {dictations as twoVoice} from "../dictations/2voice";
-import {dictations as popJazz} from "../dictations/popJazz";
-import {dictations as degrees} from "../dictations/degrees";
+import {makeInterval,  scaleDefinitions} from "../../util/intervals";
+import * as notes from "../../util/notes";
+import {stringToIntArray, getRandomElementFromArray } from "../../util/util.js"
+import {dictationOrchestra as orc} from "../../csound/orchestras";
+import {dictations as oneVoice} from "../../dictations/1voice";
+import {dictations as twoVoice} from "../../dictations/2voice";
+import {dictations as popJazz} from "../../dictations/popJazz";
+import {dictations as degrees} from "../../dictations/degrees";
+import * as constants from "./dictationConstants";
 
 
 const AskDictation = () => {
@@ -38,7 +38,6 @@ const AskDictation = () => {
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [selectedDictation, setSelectedDictation] = useState({title:"", soundFile:"", notation:""});
     const [answer, setAnswer] = useState(null);
-    const [answered, setAnswered] = useState(false);
     const [showCorrectNotation, setShowCorrectNotation] =  useState(false);
     const [currentCategory, setCurrentCategory] = useState("C_simple");
 
@@ -52,15 +51,6 @@ const AskDictation = () => {
 
     // store staves from artist object of Notation components -  necessary for checkResponse
     let responseStaves=null, correctStaves = null;
-
-
-
-    // diktaatide definitsioonid võibolla eraldi failis.
-    // kas notatsioon Lilypond või VT? pigem lilypond sest import musicXML-st lihtsam
-    // vaja mõelda, milliline oleks diktaadifailide struktuur
-    // midagi sellist nagu:
-    // category: C-  classical, RM - rhythm music (pop-jazz) NB! categorys will most likely change!
-    const categories = ["1voice", "2voice", "classical", "popJazz", "functional", "C_simple", "RM_simple", "degrees"];
 
     const dictationType = name.toString().split("_")[0]; // categories come in as 1voice_level1 etc
 
@@ -89,7 +79,6 @@ const AskDictation = () => {
 
     const renew = (dictationIndex) => {
         console.log("Renew: ", dictationIndex);
-        setAnswered(false);
         setNotesEnteredByUser("");
         setDegreesEnteredByUser("");
         //hideAnswer();
@@ -116,10 +105,7 @@ const AskDictation = () => {
             dictation.notation = vtString;
             dictation.midiNotes = midiNotes;
             answer = {degrees: stringToIntArray(dictation.degrees) };
-        } else { // other, notation oriented dictations
-            // uncommented for testing:
-            showFirstNote(dictationIndex);
-            // hideAnswer();
+        } else {
             answer = {notation: selectedDictation.notation}; // <- this will not be used
 
             // set notationIfo for correct notation block
@@ -150,59 +136,29 @@ const AskDictation = () => {
         // a degree dictaion has 7 notes, on degrees of the scale 1..7
         // a tonic as vextab note and the scale
         //NB! the biggest degree allowed is 7!
-        const possibleTonicNotes = ["G/4", "A/4", "C/5", "D/5"];
-        const possibleScales = ["major", "minorNatural", "minorHarmonic"]; // maybe scale should be given as a parameter
-        const possibleDegrees = [-5, -6, -7, 1, 2, 3, 4, 5, 6];
-        const maxNotes = 7;
-
         let degrees = [];
-
-        const firstNoteProbabilities = { 1:0.6, 3:0.2, 5:0.1, 2:0.1 };
-        const followUpProbabilities = { // probabilities, what comes after the given degree
-            "1": {2:0.4 , 3:0.2, 5:0.1, "-7":0.25, "-5":0.05  }, // give 5 steps, probabilities must sum to 1, like 0.4, 0.25, 0.2, 0.1, 0.05)
-            "2": {3:0.4 , 1:0.25, 4:0.1, "-7":0.1, "-5":0.05  },
-            "3": {4:0.4 , 1:0.25, 2:0.1, 5:0.1, 6:0.05  },
-            "4": {5:0.4 , 2:0.25, 1:0.1, 6:0.1, "-7":0.05  },
-            "5": {4:0.4 , 6:0.25, 1:0.1, 3:0.1, "-5":0.05  },
-
-            "6": {5:0.4 , 4:0.25, 7:0.1, 2:0.1, "-6":0.05  },
-            "7": {6:0.4 , 5:0.25, 2:0.1, 4:0.1, "-7":0.05  },
-            "-7": {1:0.5 , 2:0.25, "-6":0.15, "-5":0.1  },
-            "-6": {"-5":0.4 , "-7":0.25, 1:0.1, 2:0.1, 6:0.05  },
-            "-5": {1:0.5 , "-6":0.25, 2:0.15, "-7":0.1  },
-        };
-
-        degrees[0] =  parseInt( weightedRandom(firstNoteProbabilities) );
-        let lastIndex = possibleDegrees.indexOf(degrees[0]);
+        degrees[0] =  parseInt( weightedRandom(constants.firstNoteProbabilities) );
         console.log("First note: ", degrees[0]);
-
-
-        // try wiht most probable intervals -  did not work well
-        // const intervalProbabilities = {1:0.5, 2:0.25, 3:0.1, 4:0.1, 5:0.05}; // interval in degrees
 
         let degreesString = "";
 
-        for (let i=1; i<maxNotes; i++) {
-            // simple random:
-            // degrees[1] = getRandomElementFromArray(possibleDegrees);
-
-            // apply melodic likelyhood
-
+        for (let i=1; i<constants.maxNotes; i++) {
             const lastDegree = degrees[i-1].toString();
-            degrees[i] = weightedRandom( followUpProbabilities[lastDegree] );
+            degrees[i] = weightedRandom( constants.followUpProbabilities[lastDegree] );
             console.log("Lastdegree, new degree: " , degrees[i-1], degrees[i] );
         }
         degreesString = degrees.join(" ");
         console.log("degreeString: ", degreesString)
 
-        return { title: "generated",
+        return { 
+            title: "generated",
             degrees: degreesString,
-            tonicVtNote: getRandomElementFromArray(possibleTonicNotes),
-            scale: getRandomElementFromArray(possibleScales)
+            tonicVtNote: getRandomElementFromArray(constants.possibleTonicNotes),
+            scale: getRandomElementFromArray(constants.possibleScales)
         };
     };
 
-    const degreesToNotes = ( degreeString, scale, tonicVtNote) => { // returns object {vtString: <string>, midiNotes: [] }
+    const degreesToNotes = (degreeString, scale, tonicVtNote) => { // returns object {vtString: <string>, midiNotes: [] }
         if (scaleDefinitions.hasOwnProperty(scale) ) {
             const midiNotes = [];
             let vtString = "stave time=4/4\nnotes :4 "; // TODO: key
@@ -257,13 +213,8 @@ const AskDictation = () => {
 
     };
 
-    // const hideAnswer = () => {
-    //     setCorrectNotation({vtNotes: null});
-    // };
-
     // võibolla -  ka helifailide mängimine Csoundiga?
     const play = (dictation) => {
-        console.log("***Stop***");
         stop(); // need a stop here  - take care, that it does not kill already started event
         if (dictationType === "degrees") {
             const beatLength = 1.2;
@@ -313,10 +264,6 @@ const AskDictation = () => {
         }
     };
 
-    // const answerIsHidden = () => {
-    //     return  !showCorrectNotation; //correctNotation.vtNotes === null || correctNotation.vtNotes === "";
-    // };
-
     const showDictation = () => {
         if (selectedDictation.notation.length === 0 ) {
             alert( t("chooseDictation"));
@@ -331,12 +278,10 @@ const AskDictation = () => {
     };
 
     const setResponseStaves = (staves) => {
-        //console.log("TEST staves from user input ", staves[0].note_notes);
         responseStaves = staves;
     }
 
     const setCorrectStaves = (staves) => {
-        //console.log("TEST staves from correct dictation ", staves[0].note_notes);
         correctStaves = staves;
     }
 
@@ -349,30 +294,11 @@ const AskDictation = () => {
             return;
         }
 
-        // if (answered) {
-        //     alert(t("alreadyAnswered"));
-        //     return;
-        // }
-
-        setAnswered(true);
         let feedBack = "";
         let correct = true;
 
-        //console.log(response);
-
         if (dictationType === "degrees" ) {
-            const responseArray = response.degrees;
-            const correctArray = answer.degrees;
-
-            for (let i=0; i<correctArray.length; i++ ) {
-                if (Math.abs(responseArray[i]) !== Math.abs(correctArray[i]) ) { // ignore minus signs
-                    // TODO: form feedBack string, colour wrong degrees
-                    console.log("Wrong degree: ", i, responseArray[i]);
-                    correct = false;
-                }
-            }
-
-            showDictation();
+            checkDegreesResponse(response.degrees, correct);
         } else { // all other dictations are with note input
 
             //test: staves should be passed via setResponseStaves from Notation
@@ -396,6 +322,20 @@ const AskDictation = () => {
                             correct = false;
                         }
                     }
+                }
+            }
+
+            showDictation();
+        }
+
+        const checkDegreesResponse = (degrees, correct) => {
+            const correctArray = answer.degrees;
+
+            for (let i=0; i<correctArray.length; i++ ) {
+                if (Math.abs(degrees[i]) !== Math.abs(correctArray[i]) ) { // ignore minus signs
+                    // TODO: form feedBack string, colour wrong degrees
+                    console.log("Wrong degree: ", i, degrees[i]);
+                    correct = false;
                 }
             }
 
@@ -468,6 +408,7 @@ const AskDictation = () => {
     }
 
     const startCsound = async () => {
+        console.error('start csound')
         if (csound) {
             await loadResources(csound, 60, 84, "flute");
 
@@ -674,9 +615,6 @@ const AskDictation = () => {
                     <p>Loading...</p>
                 </div>
             ) : (
-
-
-
             <Grid>
                 <ScoreRow/>
                 {createSelectionMenu()}
@@ -690,7 +628,6 @@ const AskDictation = () => {
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
-
             )}
         </div>
 
