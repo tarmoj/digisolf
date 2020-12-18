@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {Button, Grid, Header, Dropdown} from 'semantic-ui-react'
-import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../util/util";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
-import {useParams} from "react-router-dom";
 import CsoundObj from "@kunstmusik/csound";
 import  {tuningOrchestra as orc} from "../csound/orchestras";
 import { Slider } from "react-semantic-ui-range";
@@ -13,11 +11,7 @@ import { Slider } from "react-semantic-ui-range";
 // NB!!!! start with  export HOST="localhost" ; npm start for local testing, with other hostnames sound input does not work
 
 const AskTuning = () => {
-    const { name } = useParams();
-
-
     const { t, i18n } = useTranslation();
-    const dispatch = useDispatch();
 
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
@@ -27,6 +21,8 @@ const AskTuning = () => {
     const [csound, setCsound] = useState(null);
     const [soundOn, setSoundOn] = useState(false);
     const [playIntervalOn, setPlayIntervalOn] = useState(false);
+    const [sensitivity, setSensitivity] = useState(0.6);
+    const [volume, setVolume] = useState(0.6);
 
     let channelReadFunction = null;
     //const [started, setStarted] = useState(false);
@@ -38,24 +34,12 @@ const AskTuning = () => {
             if ( typeof (audioContext) == "undefined") {
                 CsoundObj.initialize().then(() => {
                     const cs = new CsoundObj();
-                    //console.log("CsoundObj: ", cs);
-
-                    if (!navigator.mediaDevices) {
-                        alert("The page needs to be served from https or localhost!")
-                    } else {
-                        cs.enableAudioInput((res) => {
-                            if (res) {
-                                console.log("Audio Input OK");
-                            } else {
-                                console.log("Audio Input NOT OK!!");
-                                alert("This site needs enabled audio input to work.");
-                            }
-                        });
-                    }
+                    enableAudioInput(cs);
                     setCsound(cs);
                 });
             } else { // do not initialize if audio context is already created
                 const cs = new CsoundObj();
+                enableAudioInput(cs);
                 setCsound(cs);
             }
         } else {
@@ -65,6 +49,25 @@ const AskTuning = () => {
         return () => { console.log("cleanup"); stopUpdate();  if (csound) csound.reset();} // tryout against memory leak...
     }, [csound]);
 
+    useEffect( ()=> {
+        console.log("Started");
+        return () => console.log("Ended");
+    }, [] );
+
+    const  enableAudioInput = (cs) => {
+        if (!navigator.mediaDevices) {
+            alert("The page needs to be served from https or localhost!")
+        } else {
+            cs.enableAudioInput((res) => {
+                if (res) {
+                    console.log("Audio Input OK");
+                } else {
+                    console.log("Audio Input NOT OK!!");
+                    alert("This site needs enabled audio input to work.");
+                }
+            });
+        }
+    }
 
     const startCsound = () => {
         csound.compileOrc(orc);
@@ -79,18 +82,7 @@ const AskTuning = () => {
             csound.readScore("i 1 0 -1");
             setPlayIntervalOn(false);
             setSoundOn(true);
-            /*if ( !soundOn ) {
-                startUpdateChannels();
-                csound.setControlChannel("playInterval", 0);
-                csound.readScore("i 1 0 -1");
-            } else {
-                startUpdateChannels();
-                csound.setControlChannel("playInterval", 0);
-                csound.readScore("i -1 0 0");
-                setPlayIntervalOn(false);
-            }*/
         }
-        //setSoundOn(!soundOn);
     };
 
     const playInterval = (event, data) => {
@@ -154,20 +146,21 @@ const AskTuning = () => {
     const createPlaySoundButton = () => {
 
         if (exerciseHasBegun) {
-            return (
+            return null /*(
+
                 <Grid.Row  columns={3} centered={true}>
                     <Grid.Column>
                         <Button toggle={true} onClick={startTuning} className={"fullWidth marginTopSmall"}  >{t("tune")}</Button>
                     </Grid.Column>
-                    {/*<Grid.Column>
+                    {<Grid.Column>
                         <Button onClick={stop} className={"fullWidth marginTopSmall"}  >{t("stop")}</Button>
-                    </Grid.Column>*/}
-                    <Grid.Column>
+                    </Grid.Column>*!/}
+                    {<Grid.Column>
                         <Button toggle={true} onClick={playInterval} className={"fullWidth marginTopSmall"}  >{t("upper Note")}</Button>
-                    </Grid.Column>
+                    </Grid.Column>}
                 </Grid.Row>
 
-            );
+            )*/;
         } else {
             return(
                 <Grid.Row  >
@@ -196,15 +189,18 @@ const AskTuning = () => {
             { text: "C", value: 0},
             { text: "Cis", value: 1}, // TODO (future): English/Russion naming convention
             { text: "D", value: 2}, // etc
+            { text: "Es", value: 3}, { text: "E", value: 4}, { text: "F", value: 5},
+            { text: "Fis", value: 6}, { text: "G", value: 7},{ text: "As", value: 8},
+            { text: "A", value: 9}, { text: "B", value: 10},{ text: "H", value: 11},
         ];
         return  exerciseHasBegun ?  (
-          <Grid.Row columns={5}>
-              <Grid.Column> { `${capitalizeFirst(t("sound"))}: `} </Grid.Column>
+          <Grid.Row columns={5} centered={true}>
+              <Grid.Column>{capitalizeFirst(t("sound"))}</Grid.Column>
               <Grid.Column>
+
                   <Dropdown
                       placeholder={capitalizeFirst(t("sound"))}
                       onChange={ (event, data) => {
-                          //console.log("on change follower", data.value);
                           if (csound) {
                               csound.setControlChannel("sound", data.value);
                           }
@@ -216,25 +212,8 @@ const AskTuning = () => {
               <Grid.Column>{ `${capitalizeFirst(t("lowerNote"))}: `}</Grid.Column>
               <Grid.Column>
                   <Dropdown
-                      placeholder={capitalizeFirst(t("octave"))}
-                      onChange={ (event, data) => {
-                          // console.log("on change follower", data.value);
-                          //setOctave(data.value);
-                          if (csound) {
-                              csound.setControlChannel("octave", data.value);
-                          }
-                        }
-                      }
-                      options ={octaveOptions}
-                      defaultValue={8}
-                  />
-              </Grid.Column>
-              <Grid.Column>
-                  <Dropdown
                       placeholder={capitalizeFirst(t("note"))}
                       onChange={ (event, data) => {
-                          // console.log("on change follower", data.value);
-                          //setBaseNote(data.value);
                           if (csound) {
                               csound.setControlChannel("step", data.value);
                           }
@@ -242,6 +221,19 @@ const AskTuning = () => {
                       }
                       options ={noteOptions}
                       defaultValue={0}
+                  />
+              </Grid.Column>
+              <Grid.Column>
+                      <Dropdown
+                      placeholder={capitalizeFirst(t("octave"))}
+                      onChange={ (event, data) => {
+                          if (csound) {
+                              csound.setControlChannel("octave", data.value);
+                          }
+                        }
+                      }
+                      options ={octaveOptions}
+                      defaultValue={8}
                   />
               </Grid.Column>
           </Grid.Row>
@@ -263,19 +255,8 @@ const AskTuning = () => {
        ) : null;
    }
 
-    const [sensitivity, setSensitivity] = useState(0.5);
 
-    const settings = {
-        start: 0.5,
-        min: 0,
-        max: 1,
-        step: 0.01,
-        onChange: value => {
-            console.log("Slider value:", value);
-        }
-    };
-
-   const handleSliderChange = (value) => {
+    const handleSliderChange = (value) => {
        if (csound) {
            csound.setControlChannel("threshold", value);
        }
@@ -302,17 +283,41 @@ const AskTuning = () => {
        ) : null;
    };
 
+    const createVolumeRow = () => {
+        return exerciseHasBegun ? (
+            <Grid.Row centered={true} columns={3}>
+                <Grid.Column />
+                <Grid.Column>
+                    {capitalizeFirst(t("volume"))}
+                    <Slider value={volume} color="blue"
+                            settings={ {
+                                min:0, max:1, step:0.01,
+                                start: {volume},
+                                onChange: (value) => {
+                                    if (csound) {
+                                        csound.setControlChannel("volume", value);
+                                    }
+                                    setVolume(value);
+                                }
+                            } }
+                    />
+                </Grid.Column>
+                <Grid.Column />
+            </Grid.Row>
+        ) : null;
+    };
+
    // TODO: connetc this code and tune somhow
     const setSelectedInterval = (intervalRatio, active) => {
 
         if (!active) {
             if (!soundOn) {
-                console.log("I must switch sound on");
+                //console.log("I must switch sound on");
                 startTuning();
             }
         } else { // the button is on, must be switched out
             if (soundOn) {
-                console.log("I must switch sound off")
+                //console.log("I must switch sound off")
                 stopTuning();
             }
         }
@@ -334,10 +339,6 @@ const AskTuning = () => {
                     <Button active={intervalRatio === 6/5 && soundOn}  onClick={ (event, data) => setSelectedInterval(6/5,data.active) }>v3</Button>
                     <Button active={intervalRatio === 5/4 && soundOn}  onClick={ (event, data) => setSelectedInterval(5/4,data.active) }>s3</Button>
 
-
-                    {/*<Button  onClick={ () => setSelectedInterval(6/5) }>v3</Button>
-
-                    <Button  onClick={ () => setSelectedInterval(5/4) }>s3</Button>*/}
                     <Button  active={intervalRatio === 4/3 && soundOn}  onClick={ (event, data) => setSelectedInterval(4/3,data.active) }>p4</Button>
                     <Button  active={intervalRatio === 3/2 && soundOn}  onClick={ (event, data) => setSelectedInterval(3/2,data.active) }>p5</Button>
                     <Button  active={intervalRatio === 8/5 && soundOn}  onClick={ (event, data) => setSelectedInterval(8/5,data.active) }>v6</Button>
@@ -351,6 +352,10 @@ const AskTuning = () => {
                     <Button  active={intervalRatio === 15/8 && soundOn}  onClick={ (event, data) => setSelectedInterval(15/8,data.active) }>s7 </Button>
                     <Button  active={intervalRatio === 2 && soundOn}  onClick={ (event, data) => setSelectedInterval(2,data.active) }>p8 </Button>
                 </Button.Group>
+                <Grid.Column>
+                    <Button toggle={true} onClick={playInterval} className={"fullWidth marginTopSmall"}  >{t("play")}</Button>
+                </Grid.Column>
+
             </Grid.Row>
                 </>
         ) : null;
@@ -372,6 +377,7 @@ const AskTuning = () => {
                 {createOptionsRow()}
                 {createFeedbackRow()}
                 {createInputSensitivityRow()}
+                {createVolumeRow()}
                 {createIntervals()}
                 {createPlaySoundButton()}
 
@@ -401,14 +407,14 @@ const  Meter = (props) => {
         width = 30,         // the overall width
         height = 100,         // the overall height
         rounded = false,      // if true, use rounded corners
-        color = "#0078bc",   // the fill color
-        animate = false,     // if true, animate when the percent changes
+        //color = "#0078bc",   // the fill color
+        animate = true,     // if true, animate when the percent changes
         label = null         // a label to describe the contents (for accessibility)
     } = props;
 
     const r = rounded ? Math.ceil(width / 4) : 0;
     const h = level ? Math.max(width, height * Math.min(level, 1)) : 0; // this is probably wrong, see
-    const style = animate ? { "transition": "width 500ms, fill 250ms" } : null;
+    const style = animate ? { "transition": "width 100ms, fill 250ms" } : null;
     let varyColor = "#0078bc";
     if (level < 0.3 || level >=0.7  ) {
         varyColor = "red";
