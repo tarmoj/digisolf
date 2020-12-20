@@ -282,18 +282,10 @@ const AskDictation = () => {
     };
 
     const setResponseStaves = (staves) => {
-<<<<<<< HEAD:digisolfReact/src/components/askdictation/AskDictation.js
-=======
-        console.log("TEST staves from user input ", staves[0].note_notes);
->>>>>>> 575cae55753935561640636dc7b7198ca3264217:digisolfReact/src/components/AskDictation.js
         responseStaves = staves;
     }
 
     const setCorrectStaves = (staves) => {
-<<<<<<< HEAD:digisolfReact/src/components/askdictation/AskDictation.js
-=======
-        console.log("TEST staves from correct dictation ", staves[0].note_notes);
->>>>>>> 575cae55753935561640636dc7b7198ca3264217:digisolfReact/src/components/AskDictation.js
         correctStaves = staves;
     }
 
@@ -306,15 +298,6 @@ const AskDictation = () => {
             return;
         }
 
-<<<<<<< HEAD:digisolfReact/src/components/askdictation/AskDictation.js
-=======
-        if (answered) {
-            alert(t("alreadyAnswered"));
-            return;
-        }
-
-        setAnswered(true);
->>>>>>> 575cae55753935561640636dc7b7198ca3264217:digisolfReact/src/components/AskDictation.js
         let feedBack = "";
         let correct = true;
 

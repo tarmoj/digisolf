@@ -1,4 +1,4 @@
-import {defaultNotationInfo} from "../components/notation/notationConstants";
+import {defaultNotationInfo} from "../components/notation/notationUtils";
 
 
 // Think about different conventions: classical german - b,h, classical scandinavian (bes, b), syllabic (do, re mi), syllabic russian
