@@ -178,7 +178,7 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 			console.log("key: ", chunks[i+1], chunks[i+2]);
 			let vtKey = noteNames.get(chunks[i+1].toLowerCase());
 			if (vtKey) {
-				vtKey.replace("@","b"); // key siganture does not want @ but b for flat
+				vtKey = vtKey.replace("@","b"); // key siganture does not want @ but b for flat
 				if (chunks[i+2]=="\\minor") {
 					vtKey += "m"
 				}

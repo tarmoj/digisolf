@@ -12,7 +12,7 @@ import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/sco
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import Sound from 'react-sound';
 import Select from "semantic-ui-react/dist/commonjs/addons/Select";
-import dictation1a from "../sounds/dictations/1a.mp3";
+//import dictation1a from "../sounds/dictations/1a.mp3";
 import {useParams} from "react-router-dom";
 import CsoundObj from "@kunstmusik/csound";
 import {makeInterval,  scaleDefinitions} from "../util/intervals";
