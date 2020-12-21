@@ -23,6 +23,7 @@ import {dictations as oneVoice} from "../dictations/1voice";
 import {dictations as twoVoice} from "../dictations/2voice";
 import {dictations as popJazz} from "../dictations/popJazz";
 import {dictations as degrees} from "../dictations/degrees";
+import {dictations as classical} from "../dictations/classical";
 
 
 const AskDictation = () => {
@@ -64,7 +65,7 @@ const AskDictation = () => {
 
     const dictationType = name.toString().split("_")[0]; // categories come in as 1voice_level1 etc
 
-    const dictations = oneVoice.concat(twoVoice).concat(degrees).concat(popJazz); // + add other dictations when done
+    const dictations = oneVoice.concat(twoVoice).concat(degrees).concat(popJazz).concat(classical); // + add other dictations when done
 
 
     // EXERCISE LOGIC ======================================
