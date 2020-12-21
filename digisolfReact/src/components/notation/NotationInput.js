@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Table, Image, Button, Popup, Accordion, Icon} from 'semantic-ui-react';
 import {vtNames, octaveData} from './notationUtils';
 import {useSelector, useDispatch} from 'react-redux';
@@ -12,6 +12,52 @@ const NotationInput = () => {
   const selectedNote = useSelector(state => state.askDictationReducer.selectedNote);
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  });
+
+  const onKeyDown = (e) => {
+    const noteNameKeys = ["c", "d", "e", "f", "g", "a", "b"];
+    if (noteNameKeys.includes(e.key)) {
+      onNoteClick(e.key.toUpperCase());
+    } else if (e.key === "1") {
+      onNoteDurationClick("whole");
+    } else if (e.key === "2") {
+      onNoteDurationClick("half");
+    } else if (e.key === "3") {
+      onNoteDurationClick("quarter");
+    } else if (e.key === "4") {
+      onNoteDurationClick("eighth");
+    } else if (e.key === "5") {
+      onNoteDurationClick("sixteenth");
+    } else if (e.key === "6") {
+      onDotClick("dot");
+    } else if (e.key === "0") {
+      onRestClick("rest");
+    } else if (e.key === "n") {
+      onNoteAccidentalClick("dblflat");
+    } else if (e.key === "m") {
+      onNoteAccidentalClick("flat");
+    } else if (e.key === ",") {
+      onNoteAccidentalClick("nat");
+    } else if (e.key === ".") {
+      onNoteAccidentalClick("sharp");
+    } else if (e.key === "-") {
+      onNoteAccidentalClick("dblsharp");
+    } else if (e.key === "ArrowUp") {
+      onOctaveUpClick();
+    } else if (e.key === "ArrowDown") {
+      onOctaveDownClick();
+    } else if (e.key === "Enter") {
+      onAddNoteClick();
+    } else if (e.key === "Delete") {
+      onRemoveNoteClick();
+    }
+  };
 
   const onNoteClick = name => {
     dispatch(setSelected("note", name));

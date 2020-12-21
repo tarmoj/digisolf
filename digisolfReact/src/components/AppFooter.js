@@ -11,7 +11,7 @@ const AppFooter = () => {
                         <Image className={"footerLogo"} fluid src={euLogo} />
                     </Grid.Column>
                     <Grid.Column>
-                        <p>(c) 2020, Tarmo Johannes, Edgar Tereping</p>
+                        <p>(c) 2020, Tarmo Johannes, Edgar Tereping, Jane Tereping</p>
                     </Grid.Column>
                 </Grid.Row>
             </div>
