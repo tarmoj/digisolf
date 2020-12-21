@@ -49,6 +49,8 @@ const NotationInput = () => {
       onNoteAccidentalClick("sharp");
     } else if (e.key === "-") {
       onNoteAccidentalClick("dblsharp");
+    } else if (e.key === "Shift") {
+      onBarlineClick();
     } else if (e.key === "ArrowUp") {
       onOctaveUpClick();
     } else if (e.key === "ArrowDown") {
@@ -85,6 +87,11 @@ const NotationInput = () => {
   const onDotClick = () => {
     dispatch(setSelected("dot", !selectedNote.dot));
   }
+
+  const onBarlineClick = () => {
+    dispatch(setSelected("note", "|"));
+    dispatch(insertNote());
+  };
 
   const onOctaveUpClick = () => {
     let octave = parseInt(selectedNote.octave);
@@ -171,6 +178,7 @@ const NotationInput = () => {
                 <NotationTableCell name={'nat'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
                 <NotationTableCell name={'sharp'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
                 <NotationTableCell name={'dblsharp'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
+                <NotationTableCell name={'barline'} handleClick={onBarlineClick} checkIfSelected={isNoteSelected} />
                 <Table.Cell textAlign='center' width='2' />
                 <Table.Cell textAlign='center' width='2' />
               </Table.Row>

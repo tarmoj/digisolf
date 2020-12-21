@@ -134,8 +134,8 @@ const isCorrectNote = note => {
 const buildVtNoteString = selectedNote => {
   if (selectedNote) {
     const isRestSelected = selectedNote.note === vtNames["rest"];
-    const note = isRestSelected ? selectedNote.note : selectedNote.note + selectedNote.accidental + "/" + selectedNote.octave;
-    return note;
+    const isBarline = selectedNote.note === vtNames["barline"];
+    return isRestSelected || isBarline ? selectedNote.note : selectedNote.note + selectedNote.accidental + "/" + selectedNote.octave;
   }
 
   return null;

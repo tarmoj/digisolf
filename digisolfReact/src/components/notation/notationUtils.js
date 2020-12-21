@@ -22,7 +22,8 @@ export const vtNames = {
   "dblsharp":"##",
   "rest": "##",
   "bb": "@@",
-  "b": "@"
+  "b": "@",
+  "barline": "|"
 }
 
 export const octaveData = {
