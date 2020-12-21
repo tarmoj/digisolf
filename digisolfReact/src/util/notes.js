@@ -194,8 +194,9 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 			i += 1;
 			// VT nt: time=2/4
 		} else if (chunks[i].trim() === "\\clef" && chunks.length >= i+1) {
-			console.log("clef: ", chunks[i + 1]);
-			notationInfo.clef = chunks[i + 1];
+			const clef = chunks[i + 1].trim().replace(/[\"]+/g, ''); // remove quoates \"
+			console.log("clef: ", clef);
+			notationInfo.clef = clef;
 			i += 1;
 			// VT nt: clef=treble
 		} else if  (chunks[i].trim() === "\\bar" && chunks.length >= i+1)  { // handle different barlines
