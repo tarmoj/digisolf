@@ -175,7 +175,7 @@ export const getNoteByVtNote = (vtNote, noteArray=trebleClefNotes) => {
 export const parseLilypondString = (lyString) => { //NB! rewrite! returns notationInfo object -  see notationConstant defaultNotationInfo
 	const chunks = lyString.trim().replace(/\s\s+/g, ' ').split(" "); // simplify string
 	//let vtNotes = "";
-	let notationInfo = defaultNotationInfo;
+	let notationInfo = JSON.parse(JSON.stringify(defaultNotationInfo));	// Deep clone object
 	let stave=0, voice=0;
 	let notes = [] ; // each note has format {keys:[], duration: ""}
 	let useTie = false;
