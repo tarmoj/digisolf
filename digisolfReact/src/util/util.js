@@ -50,3 +50,10 @@ export const  weightedRandom = ( weightData ) => { // parameter in format like: 
 export const deepClone = (obj) => {
     return JSON.parse(JSON.stringify(obj));
 };
+
+export const arraysAreEqual = (a, b) => {
+    return Array.isArray(a) &&
+        Array.isArray(b) &&
+        a.length === b.length &&
+        a.every((val) => b.includes(val));
+};

@@ -52,3 +52,9 @@ export const setAllowInput = (allowInput) => {
     payload: allowInput
   }
 };
+
+export const resetState = () => {
+  return {
+    type: "RESET_STATE"
+  }
+};

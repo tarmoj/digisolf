@@ -109,6 +109,11 @@ export const askDictationReducer = (state = initialState, action) => {
         ...state,
         allowInput: action.payload
       };
+    case "RESET_STATE":
+      return {
+        ...initialState,
+        inputNotation: deepClone(defaultNotationInfo)
+      };
       default:
         return state;
   }

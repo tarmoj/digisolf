@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import {Button, Grid, Header, Input, Popup} from 'semantic-ui-react'
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
-import {capitalizeFirst, weightedRandom} from "../../util/util";
+import {arraysAreEqual, capitalizeFirst, weightedRandom} from "../../util/util";
 import {parseLilypondString} from "../../util/notes";
 //import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../../actions/headerMessage";
@@ -23,7 +23,7 @@ import {dictations as twoVoice} from "../../dictations/2voice";
 import {dictations as popJazz} from "../../dictations/popJazz";
 import {dictations as degrees} from "../../dictations/degrees";
 import * as constants from "./dictationConstants";
-import {setAllowInput} from "../../actions/askDictation";
+import {resetState, setAllowInput} from "../../actions/askDictation";
 
 
 const AskDictation = () => {
@@ -50,14 +50,17 @@ const AskDictation = () => {
 
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
     const [wrongNoteIndexes, setWrongNoteIndexes] = useState(null);
-    //let wrongNoteIndexes = null;
-
-    // store staves from artist object of Notation components -  necessary for checkResponse
-    let responseStaves=null, correctStaves = null;
 
     const dictationType = name.toString().split("_")[0]; // categories come in as 1voice_level1 etc
 
     const dictations = oneVoice.concat(twoVoice).concat(degrees).concat(popJazz); // + add other dictations when done
+
+    const inputNotation = useSelector(state => state.askDictationReducer.inputNotation);
+    const allowInput = useSelector(state => state.askDictationReducer.allowInput);
+
+    useEffect(() => {
+        dispatch(resetState());
+    }, []);
 
 
     // EXERCISE LOGIC ======================================
@@ -271,21 +274,15 @@ const AskDictation = () => {
             alert( t("chooseDictation"));
             return;
         }
-        setShowCorrectNotation(true);
+
+        dispatch(setAllowInput(!allowInput));
+        setShowCorrectNotation(!showCorrectNotation);
     };
 
     const renderNotes = () => {
         const notationInfo = parseLilypondString(notesEnteredByUser);//  noteStringToVexTabChord(notesEnteredByUser);
         setNotationInfo(notationInfo);
     };
-
-    const setResponseStaves = (staves) => {
-        responseStaves = staves;
-    }
-
-    const setCorrectStaves = (staves) => {
-        correctStaves = staves;
-    }
 
     const checkDegrees = () => checkResponse( {degrees: stringToIntArray(degreesEnteredByUser) } );
 
@@ -302,48 +299,24 @@ const AskDictation = () => {
         if (dictationType === "degrees" ) {
             checkDegreesResponse(response.degrees, correct);
         } else { // all other dictations are with note input
+            let incorrectNotes = [];
 
-            //test: staves should be passed via setResponseStaves from Notation
-            console.log("STAVES in checkresponse: ", responseStaves, responseStaves ? responseStaves[0].note_notes.length : -1 );
-            console.log("STAVES of correctNotation in checkresponse: ", correctStaves ? correctStaves[0].note_notes.length : -1);
-            //const wrongNoteIndexes = [ [], [] ];
-
-
-            if (responseStaves) {
-                const wrongNotes = [ [], [] ];
-                for (let i = 0; i < responseStaves.length; i++) { // can be two-voiced
-                    const responseNotes = responseStaves[i].note_notes; // or stave.voice_notes? What is the differenece?
-                    const correctNotes = correctStaves[i].note_notes;
-
-                    for (let j = 0; j < correctNotes.length; j++) {
-                        if (j >= responseNotes.length) {
-                            responseNotes[j] = {keys: [], duration:""}; // if there is less entered notes, fill with empty string
-                        }
-                        // TODO (tarmo) -  if more notes entered, mark them wrong +  add the missing notes to userInput
-                        // TODO (tarmo): think about barlines -  maybe ignore..
-                        if (JSON.stringify(responseNotes[j].keys) === JSON.stringify(correctNotes[j].keys) &&
-                            responseNotes[j].getIntrinsicTicks() === correctNotes[j].getIntrinsicTicks() ) { // durations are better to compared this way to avoid q<->4, h<->2 etc confusion
-                            console.log("Note ", j, responseNotes[j].keys, " is correct!");
-                        } else {
-                            console.log("Note ", j, responseNotes[j].keys, "wrong should be:!", correctNotes[j].keys, correctNotes[j].duration );
-                            correct = false;
-                            wrongNotes[i].push(j);
+            for (let i = 0, n = correctNotation.staves.length; i < n; i++) {
+                for (let j = 0, n = correctNotation.staves[i].voices.length; j < n; j++) {
+                    for (let k = 0, n = correctNotation.staves[i].voices[j].notes.length; k < n - 1; k++) { // Skip end barline
+                        if (!inputNotation.staves[i].voices[j].notes[k] || !arraysAreEqual(correctNotation.staves[i].voices[j].notes[k].keys, inputNotation.staves[i].voices[j].notes[k].keys)) {
+                            incorrectNotes.push({
+                                staveIndex: i,
+                                voiceIndex: j,
+                                noteIndex: k
+                            });
                         }
                     }
                 }
-                //setWrongNoteIndexes(wrongNotes);
-                //console.log("Wrong notes: ", wrongNotes);
-                if (wrongNotes[0].length>0 ||  wrongNotes[1].length>0) {
-                    console.log("Setting wrong note indexes: ", wrongNotes);
-                    //wrongNoteIndexes = wrongNotes;
-                    setWrongNoteIndexes(wrongNotes); // this will be forwarded to Notation via props
-                }
-            } else {
-                console.log ("STAVES WRONG responseStaves are null");
             }
 
+            setWrongNoteIndexes(incorrectNotes);
             showDictation();
-            dispatch(setAllowInput(false));
         }
 
         const checkDegreesResponse = (degrees, correct) => {
@@ -555,7 +528,6 @@ const AskDictation = () => {
                            clef={notationInfo.clef}
                            keySignature={notationInfo.keySignature}
                            showInput={true}
-                           passStaves={setResponseStaves}
                            wrongNoteIndexes={wrongNoteIndexes}
                            name={"UserInputNotation"} /*for debugging*/
                 />
@@ -575,7 +547,6 @@ const AskDictation = () => {
                          clef={correctNotation.clef}
                          keySignature={correctNotation.keySignature}
                          showInput={false}
-                         passStaves={setCorrectStaves}
                          name={"correctNotation"} /*for debugging*/
                />
 

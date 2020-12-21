@@ -3,7 +3,7 @@ import {Flow} from 'vextab/releases/vextab-div';
 import NotationInput from "./NotationInput";
 import {vtNames, notationInfoToVtString} from "./notationUtils";
 import {useSelector, useDispatch} from "react-redux";
-import {setSelectedNote, setSelectedNoteSet} from "../../actions/askDictation";
+import {setAllowInput, setSelectedNote, setSelectedNoteSet} from "../../actions/askDictation";
 import {artist, vexTab, scale, createVexTabString} from "./vextabUtils";
 
 const Notation = (props) => {
@@ -18,6 +18,7 @@ const Notation = (props) => {
 
     useEffect(() => {
         initializeVexTab();
+        dispatch(setAllowInput(true));
     }, []); 
 
     useEffect(() => {
@@ -33,7 +34,7 @@ const Notation = (props) => {
             if (previousSelectedNote.index === selectedNote.index) {    // Clicked-on note is the same as previously selected note
                 dispatch(setSelectedNoteSet(false));
             } else {
-                highlightSelectedNote(note);
+                highlightNote(note);
             }
         }
     }, [selectedNote]);
@@ -76,10 +77,10 @@ const Notation = (props) => {
         }
     };
 
-    const highlightSelectedNote = (note) => {
+    const highlightNote = (note, color = "lightblue") => {
         if (note) {
             renderer.getContext().rect(note.getAbsoluteX()-10, note.stave.getYForTopText()-10, note.width+20, note.stave.height+10,
-            { fill: "lightblue", opacity:"0.2" } );
+            { fill: color, opacity:"0.2" } );
         }
     }
 
@@ -154,28 +155,11 @@ const Notation = (props) => {
     }
 
     const markWrongNotes = () => { // take the indexes of wrong notes from props and mark them
-        console.log("wrong notes in markWrongNotes: ", props.wrongNoteIndexes, props.name)
-        if (props.wrongNoteIndexes) {
-            for (let stave=0; stave<props.wrongNoteIndexes.length; stave++ ) {
-                for (let noteIndex of props.wrongNoteIndexes[stave]) {
-                    if (noteIndex < artist.staves[stave].note_notes.length) {
-                        console.log("wrong note: ", noteIndex, artist.staves[stave].note_notes[noteIndex].keys);
-                        setNoteColor(noteIndex, "red", stave);
-                    } else {
-                        console.log("markWrongNotes: not so many notes in artist ");
-                    }
-                }
-            }
+        for (let i = 0, n = props.wrongNoteIndexes.length; i < n; i++) {
+            const note = artist.staves[props.wrongNoteIndexes[i].staveIndex].note_notes[props.wrongNoteIndexes[i].noteIndex];
+            highlightNote(note, "red");
         }
-
-    }
-
-    // TODO: think of a neater way
-    const passStaves = () => {
-        if (props.passStaves && artist.staves.length>0) {
-            props.passStaves( artist.staves);
-        }
-    }
+    };
 
     const redraw = (notes) => {
         if (!vexTab) {
@@ -211,7 +195,6 @@ const Notation = (props) => {
             if (props.wrongNoteIndexes) {
                 markWrongNotes();
             }
-            passStaves();
 
         } catch (e) {
             console.error(e);
