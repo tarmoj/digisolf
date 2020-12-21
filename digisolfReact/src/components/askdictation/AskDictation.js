@@ -23,6 +23,7 @@ import {dictations as twoVoice} from "../../dictations/2voice";
 import {dictations as popJazz} from "../../dictations/popJazz";
 import {dictations as degrees} from "../../dictations/degrees";
 import * as constants from "./dictationConstants";
+import {setAllowInput} from "../../actions/askDictation";
 
 
 const AskDictation = () => {
@@ -121,10 +122,7 @@ const AskDictation = () => {
                 console.log("NotationIndo structure: ", notationInfo);
             }
 
-            console.log("Õiged noodid: ", notationInfo.vtNotes);
-            if (notationInfo.vtNotes) {
-                setCorrectNotation(notationInfo);
-            }
+            setCorrectNotation(notationInfo);
         }
 
         setSelectedDictation(dictation);
@@ -345,6 +343,7 @@ const AskDictation = () => {
             }
 
             showDictation();
+            dispatch(setAllowInput(false));
         }
 
         const checkDegreesResponse = (degrees, correct) => {
@@ -569,10 +568,9 @@ const AskDictation = () => {
         const answerDisplay = showCorrectNotation ? "inline" : "none" ;
 
         return exerciseHasBegun ? (
-
             <div className={'notationBlock'} style={{display: answerDisplay}}>
                <Notation className={"marginTopSmall"} width={600} scale={1}
-                         notes={correctNotation.vtNotes}
+                         notes={correctNotation}
                          time={correctNotation.time}
                          clef={correctNotation.clef}
                          keySignature={correctNotation.keySignature}

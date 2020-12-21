@@ -45,3 +45,10 @@ export const setSelectedNoteSet = (noteIsSet) => {
     payload: noteIsSet
   }
 };
+
+export const setAllowInput = (allowInput) => {
+  return {
+    type: "SET_ALLOW_INPUT",
+    payload: allowInput
+  }
+};

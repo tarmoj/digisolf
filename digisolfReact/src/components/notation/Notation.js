@@ -53,8 +53,8 @@ const Notation = (props) => {
     }, [renderer]);
 
     useEffect(() => {
-        if (props.notes) {
-            redraw(props.notes);
+        if (props.notes.staves) {
+            redraw(notationInfoToVtString(props.notes));
         }
     }, [props]);
 

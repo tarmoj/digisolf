@@ -11,6 +11,7 @@ const NotationInput = () => {
 
   const selectedNote = useSelector(state => state.askDictationReducer.selectedNote);
   const selectedNoteSet = useSelector(state => state.askDictationReducer.selectedNoteSet);
+  const allowInput = useSelector(state => state.askDictationReducer.allowInput);
 
   const dispatch = useDispatch();
 
@@ -21,42 +22,49 @@ const NotationInput = () => {
     };
   });
 
+  useEffect(() => {
+    setShowTable(allowInput);
+  }, [allowInput]);
+
   const onKeyDown = (e) => {
     const noteNameKeys = ["c", "d", "e", "f", "g", "a", "b"];
-    if (noteNameKeys.includes(e.key)) {
-      onNoteClick(e.key.toUpperCase());
-    } else if (e.key === "1") {
-      onNoteDurationClick("whole");
-    } else if (e.key === "2") {
-      onNoteDurationClick("half");
-    } else if (e.key === "3") {
-      onNoteDurationClick("quarter");
-    } else if (e.key === "4") {
-      onNoteDurationClick("eighth");
-    } else if (e.key === "5") {
-      onNoteDurationClick("sixteenth");
-    } else if (e.key === "6") {
-      onDotClick("dot");
-    } else if (e.key === "0") {
-      onRestClick("rest");
-    } else if (e.key === "n") {
-      onNoteAccidentalClick("dblflat");
-    } else if (e.key === "m") {
-      onNoteAccidentalClick("flat");
-    } else if (e.key === ",") {
-      onNoteAccidentalClick("nat");
-    } else if (e.key === ".") {
-      onNoteAccidentalClick("sharp");
-    } else if (e.key === "-") {
-      onNoteAccidentalClick("dblsharp");
-    } else if (e.key === "Shift") {
-      onBarlineClick();
-    } else if (e.key === "ArrowUp") {
-      onOctaveUpClick();
-    } else if (e.key === "ArrowDown") {
-      onOctaveDownClick();
-    } else if (e.key === "Backspace") {
-      onRemoveNoteClick();
+
+    if (allowInput) {
+      if (noteNameKeys.includes(e.key)) {
+        onNoteClick(e.key.toUpperCase());
+      } else if (e.key === "1") {
+        onNoteDurationClick("whole");
+      } else if (e.key === "2") {
+        onNoteDurationClick("half");
+      } else if (e.key === "3") {
+        onNoteDurationClick("quarter");
+      } else if (e.key === "4") {
+        onNoteDurationClick("eighth");
+      } else if (e.key === "5") {
+        onNoteDurationClick("sixteenth");
+      } else if (e.key === "6") {
+        onDotClick("dot");
+      } else if (e.key === "0") {
+        onRestClick("rest");
+      } else if (e.key === "n") {
+        onNoteAccidentalClick("dblflat");
+      } else if (e.key === "m") {
+        onNoteAccidentalClick("flat");
+      } else if (e.key === ",") {
+        onNoteAccidentalClick("nat");
+      } else if (e.key === ".") {
+        onNoteAccidentalClick("sharp");
+      } else if (e.key === "-") {
+        onNoteAccidentalClick("dblsharp");
+      } else if (e.key === "Shift") {
+        onBarlineClick();
+      } else if (e.key === "ArrowUp") {
+        onOctaveUpClick();
+      } else if (e.key === "ArrowDown") {
+        onOctaveDownClick();
+      } else if (e.key === "Backspace") {
+        onRemoveNoteClick();
+      }
     }
   };
 
@@ -111,11 +119,13 @@ const NotationInput = () => {
 
   // this is to get a fancy animation when accordionblock's opening
   const onTitleClick = () => {
-    toggleTable();
-    if (iconClass === "iconDown") {
-      setIconClass("iconUp");
-    } else {
-      setIconClass("iconDown");
+    if (allowInput) {
+      toggleTable();
+      if (iconClass === "iconDown") {
+        setIconClass("iconUp");
+      } else {
+        setIconClass("iconDown");
+      }
     }
   }
 

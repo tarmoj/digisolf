@@ -45,3 +45,8 @@ export const  weightedRandom = ( weightData ) => { // parameter in format like: 
     const arr = Object.keys(weightData);
     return getRandomElementFromArray(arr);
 }
+
+// Deep clones an object
+export const deepClone = (obj) => {
+    return JSON.parse(JSON.stringify(obj));
+};

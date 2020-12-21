@@ -1,12 +1,13 @@
 import {defaultNotationInfo, defaultSelectedNote, vtNames} from "../components/notation/notationUtils";
+import {deepClone} from "../util/util";
 
 const initialState = {
   selectedNote: defaultSelectedNote,
   previousSelectedNote: null,
-  correctNotation: defaultNotationInfo,
-  inputNotation: defaultNotationInfo,
+  inputNotation: deepClone(defaultNotationInfo),
   selectedStaveIndex: 0,
-  selectedNoteSet: false
+  selectedNoteSet: false,
+  allowInput: true
 }
 
 export const askDictationReducer = (state = initialState, action) => {
@@ -65,7 +66,7 @@ export const askDictationReducer = (state = initialState, action) => {
           ...state,
           inputNotation: currentInputNotation,
           selectedNoteSet: false
-        }
+        };
       case "REMOVE_NOTE":
         const currentNotesLength = currentInputNotation.staves[staff].voices[voice].notes.length;
         if (currentNotesLength === 0) {
@@ -102,6 +103,11 @@ export const askDictationReducer = (state = initialState, action) => {
         ...state,
         selectedNoteSet: action.payload,
         selectedNote: defaultSelectedNote
+      };
+    case "SET_ALLOW_INPUT":
+      return {
+        ...state,
+        allowInput: action.payload
       };
       default:
         return state;

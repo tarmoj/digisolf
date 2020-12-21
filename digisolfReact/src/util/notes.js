@@ -1,4 +1,5 @@
 import {defaultNotationInfo} from "../components/notation/notationUtils";
+import {deepClone} from "./util";
 
 
 // Think about different conventions: classical german - b,h, classical scandinavian (bes, b), syllabic (do, re mi), syllabic russian
@@ -175,7 +176,7 @@ export const getNoteByVtNote = (vtNote, noteArray=trebleClefNotes) => {
 export const parseLilypondString = (lyString) => { //NB! rewrite! returns notationInfo object -  see notationConstant defaultNotationInfo
 	const chunks = lyString.trim().replace(/\s\s+/g, ' ').split(" "); // simplify string
 	//let vtNotes = "";
-	let notationInfo = JSON.parse(JSON.stringify(defaultNotationInfo));	// Deep clone object
+	let notationInfo = deepClone(defaultNotationInfo);
 	let stave=0, voice=0;
 	let notes = [] ; // each note has format {keys:[], duration: ""}
 	let useTie = false;
@@ -184,7 +185,7 @@ export const parseLilypondString = (lyString) => { //NB! rewrite! returns notati
 	for (let i = 0; i<chunks.length; i++) {
 		let vtNote="";
 		if (chunks[i].trim() === "\\key" && chunks.length >= i+1 ) { // must be like "\key a \major\minor
-			console.log("key: ", chunks[i+1], chunks[i+2]);
+			// console.log("key: ", chunks[i+1], chunks[i+2]);
 			let vtKey = noteNames.get(chunks[i+1].toLowerCase());
 			if (vtKey) {
 				vtKey.replace("@","b"); // key siganture does not want @ but b for flat
@@ -192,25 +193,25 @@ export const parseLilypondString = (lyString) => { //NB! rewrite! returns notati
 					vtKey += "m"
 				}
 				notationInfo.staves[stave].key = vtKey;
-				console.log("Converted key:", vtKey)
+				// console.log("Converted key:", vtKey)
 			} else {
-				console.log("Could not find notename for: ", chunks[i+1])
+				// console.log("Could not find notename for: ", chunks[i+1])
 			}
 			i += 2;
 		} else if (chunks[i].trim() === "\\time" && chunks.length >= i+1) { // must be like "\key a \major
-			console.log("time: ", chunks[i + 1]);
+			// console.log("time: ", chunks[i + 1]);
 			notationInfo.staves[stave].time = chunks[i + 1];
 			i += 1;
 			// VT nt: time=2/4
 		} else if (chunks[i].trim() === "\\clef" && chunks.length >= i+1) {
-			console.log("clef: ", chunks[i + 1]);
+			// console.log("clef: ", chunks[i + 1]);
 			notationInfo.staves[stave].clef = chunks[i + 1];
 			i += 1;
 			// VT nt: clef=treble
 		} else if  (chunks[i].trim() === "\\bar" && chunks.length >= i+1)  { // handle different barlines
 			const barLine = chunks[i + 1].trim().replace(/[\"]+/g, ''); // remove quoates \"
 
-			console.log("Found barline: ", barLine);
+			// console.log("Found barline: ", barLine);
 			let vtBar = "";
 			switch (barLine) {
 				case '|' : console.log("Normal bar"); vtBar = "|"; break;
@@ -225,7 +226,7 @@ export const parseLilypondString = (lyString) => { //NB! rewrite! returns notati
 			notes.push({keys:[vtBar], duration:"0"});
 			i += 1;
 		} else if     (chunks[i].trim() === "|") {
-			console.log("Barline");
+			// console.log("Barline");
 			//vtNote = "|";
 			notes.push({keys:["|"], duration:"0"});
 		} else  { // might be a note or error
@@ -247,7 +248,7 @@ export const parseLilypondString = (lyString) => { //NB! rewrite! returns notati
 					alert(noteName +  " is not a recognized note or keyword."); // TODO: translate!
 					break;
 				}
-				console.log("noteName is: ", noteName);
+				// console.log("noteName is: ", noteName);
 				vtNote = noteNames.get(noteName);
 
 				//TODO: octave from relative writing
@@ -293,7 +294,7 @@ export const parseLilypondString = (lyString) => { //NB! rewrite! returns notati
 			//
 			// }
 
-			console.log("vtNote: ", vtNote);
+			// console.log("vtNote: ", vtNote);
 			notes.push({keys:[vtNote], duration:lastDuration});
 
 		}
