@@ -3,7 +3,7 @@ import {Flow} from 'vextab/releases/vextab-div';
 import NotationInput from "./NotationInput";
 import {vtNames, notationInfoToVtString} from "./notationUtils";
 import {useSelector, useDispatch} from "react-redux";
-import {setSelectedNote} from "../../actions/askDictation";
+import {setSelectedNote, setSelectedNoteSet} from "../../actions/askDictation";
 import {artist, vexTab, scale, createVexTabString} from "./vextabUtils";
 
 const Notation = (props) => {
@@ -12,6 +12,7 @@ const Notation = (props) => {
     const [renderer, setRenderer] = useState(null);
     const inputNotation = useSelector(state => state.askDictationReducer.inputNotation);
     const selectedNote = useSelector(state => state.askDictationReducer.selectedNote);
+    const previousSelectedNote = useSelector(state => state.askDictationReducer.previousSelectedNote);
     const selectedNoteSet = useSelector(state => state.askDictationReducer.selectedNoteSet);
     const dispatch = useDispatch();
 
@@ -28,7 +29,12 @@ const Notation = (props) => {
     useEffect(() => {
         if (selectedNoteSet) {
             const note = artist.staves[0].note_notes[selectedNote.index];
-            highlightSelectedNote(note);
+
+            if (previousSelectedNote.index === selectedNote.index) {    // Clicked-on note is the same as previously selected note
+                dispatch(setSelectedNoteSet(false));
+            } else {
+                highlightSelectedNote(note);
+            }
         }
     }, [selectedNote]);
 
@@ -62,11 +68,11 @@ const Notation = (props) => {
         const x = event.layerX / scale;
         const closestIndex = findClosestNoteByX(x);
 
-        if (closestIndex>=0) {
+        if (closestIndex >= 0) {
             const note = artist.staves[0].note_notes[closestIndex];
             setCurrentNote(closestIndex, note);
             redraw(notationInfoToVtString(inputNotation));
-            highlightSelectedNote(note);
+            // highlightSelectedNote(note);
         }
     };
 

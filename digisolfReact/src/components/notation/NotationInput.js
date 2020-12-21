@@ -21,11 +21,6 @@ const NotationInput = () => {
     };
   });
 
-  useEffect(() => {
-    // Select default values
-    onNoteDurationClick("quarter");
-  }, []);
-
   const onKeyDown = (e) => {
     const noteNameKeys = ["c", "d", "e", "f", "g", "a", "b"];
     if (noteNameKeys.includes(e.key)) {
@@ -58,8 +53,6 @@ const NotationInput = () => {
       onOctaveUpClick();
     } else if (e.key === "ArrowDown") {
       onOctaveDownClick();
-    // } else if (e.key === "Enter") {
-    //   onAddNoteClick();
     } else if (e.key === "Backspace") {
       onRemoveNoteClick();
     }
@@ -74,6 +67,7 @@ const NotationInput = () => {
 
   const onRestClick = name => {
     dispatch(setSelected("note", vtNames[name]));
+    dispatch(insertNote());
   }
 
   const onNoteAccidentalClick = name => {
@@ -117,10 +111,6 @@ const NotationInput = () => {
       setIconClass("iconDown");
     }
   }
-
-  // const onAddNoteClick = () => {
-  //   dispatch(insertNote());
-  // }
 
   const onRemoveNoteClick = () => {
     dispatch(removeNote());
@@ -196,7 +186,6 @@ const NotationInput = () => {
               </Table.Row>
             </Table.Body>
           </Table>
-          {/*<Button onClick={onAddNoteClick}>Lisa noot</Button>*/}
           <Button onClick={onRemoveNoteClick}>Kustuta</Button>
         </Accordion.Content>
       </Accordion>

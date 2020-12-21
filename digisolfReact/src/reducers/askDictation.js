@@ -2,6 +2,7 @@ import {defaultNotationInfo, defaultSelectedNote, vtNames} from "../components/n
 
 const initialState = {
   selectedNote: defaultSelectedNote,
+  previousSelectedNote: null,
   correctNotation: defaultNotationInfo,
   inputNotation: defaultNotationInfo,
   selectedStaveIndex: 0,
@@ -48,7 +49,8 @@ export const askDictationReducer = (state = initialState, action) => {
           return {
             ...state,
             selectedNote: action.payload,
-            selectedNoteSet: true
+            selectedNoteSet: true,
+            previousSelectedNote: state.selectedNote
         };
         } else {
           console.warn("Given input is not a correct note object", action.payload);
@@ -95,6 +97,12 @@ export const askDictationReducer = (state = initialState, action) => {
           inputNotation: currentInputNotation,
           selectedNote: currentSelectedNote
         }
+    case "SET_SELECTED_NOTE_SET":
+      return {
+        ...state,
+        selectedNoteSet: action.payload,
+        selectedNote: defaultSelectedNote
+      };
       default:
         return state;
   }

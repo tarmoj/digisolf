@@ -38,3 +38,10 @@ export const editNote = () => {
     type: "EDIT_NOTE"
   }
 };
+
+export const setSelectedNoteSet = (noteIsSet) => {
+  return {
+    type: "SET_SELECTED_NOTE_SET",
+    payload: noteIsSet
+  }
+};

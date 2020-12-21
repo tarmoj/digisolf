@@ -1,7 +1,7 @@
 export const defaultSelectedNote = {
   note: "",
   accidental: "",
-  duration: "",
+  duration: "4",
   dot: false,
   octave: "4",
   index: null
