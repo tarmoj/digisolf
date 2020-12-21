@@ -10,6 +10,7 @@ const NotationInput = () => {
   const [iconClass, setIconClass] = useState("iconDown");
 
   const selectedNote = useSelector(state => state.askDictationReducer.selectedNote);
+  const selectedNoteSet = useSelector(state => state.askDictationReducer.selectedNoteSet);
 
   const dispatch = useDispatch();
 
@@ -19,6 +20,11 @@ const NotationInput = () => {
       document.removeEventListener("keydown", onKeyDown);
     };
   });
+
+  useEffect(() => {
+    // Select default values
+    onNoteDurationClick("quarter");
+  }, []);
 
   const onKeyDown = (e) => {
     const noteNameKeys = ["c", "d", "e", "f", "g", "a", "b"];
@@ -52,15 +58,18 @@ const NotationInput = () => {
       onOctaveUpClick();
     } else if (e.key === "ArrowDown") {
       onOctaveDownClick();
-    } else if (e.key === "Enter") {
-      onAddNoteClick();
-    } else if (e.key === "Delete") {
+    // } else if (e.key === "Enter") {
+    //   onAddNoteClick();
+    } else if (e.key === "Backspace") {
       onRemoveNoteClick();
     }
   };
 
   const onNoteClick = name => {
     dispatch(setSelected("note", name));
+    if (!selectedNoteSet) {
+      dispatch(insertNote());
+    }
   }
 
   const onRestClick = name => {
@@ -109,9 +118,9 @@ const NotationInput = () => {
     }
   }
 
-  const onAddNoteClick = () => {
-    dispatch(insertNote());
-  }
+  // const onAddNoteClick = () => {
+  //   dispatch(insertNote());
+  // }
 
   const onRemoveNoteClick = () => {
     dispatch(removeNote());
@@ -187,7 +196,7 @@ const NotationInput = () => {
               </Table.Row>
             </Table.Body>
           </Table>
-          <Button onClick={onAddNoteClick}>Lisa noot</Button>
+          {/*<Button onClick={onAddNoteClick}>Lisa noot</Button>*/}
           <Button onClick={onRemoveNoteClick}>Kustuta</Button>
         </Accordion.Content>
       </Accordion>
