@@ -105,7 +105,6 @@ const AskDictation = () => {
         let answer = null;
 
         if (dictationType === "degrees") { // degree dictations -  generate notation from dictation.degrees
-            // TODO: take tonicVtNote form given array major: [C, G, F ], minor: [a, e, d] etc
 
             if ( name.includes("degrees_random")) {
                 dictation = generateDegreeDictation();
@@ -123,19 +122,20 @@ const AskDictation = () => {
             // hideAnswer();
             answer = {notation: selectedDictation.notation}; // <- this will not be used
 
-            // set notationIfo for correct notation block
-            let notationInfo =  {vtNotes: ""};
-            // see on paha struktuur, oleks vaja, et oleks võimalik anda kogu vexTab String tervikuna, kui nt mitmehäälne muusika
-            if (dictation.notation.trim().startsWith("stave") ) {
-                notationInfo.vtNotes = dictation.notation;
-            } else {
-                notationInfo = parseLilypondString(dictation.notation);
-            }
 
-            console.log("Õiged noodid: ", notationInfo.vtNotes);
-            if (notationInfo.vtNotes) {
-                setCorrectNotation(notationInfo);
-            }
+        }
+
+        // set notationIfo for correct notation block
+        let notationInfo =  {vtNotes: ""};
+        if (dictation.notation.trim().startsWith("stave") ) {
+            notationInfo.vtNotes = dictation.notation;
+        } else {
+            notationInfo = parseLilypondString(dictation.notation);
+        }
+
+        console.log("Õiged noodid: ", notationInfo.vtNotes);
+        if (notationInfo.vtNotes) {
+            setCorrectNotation(notationInfo);
         }
 
         setSelectedDictation(dictation);
@@ -341,7 +341,10 @@ const AskDictation = () => {
         correctStaves = staves;
     }
 
-    const checkDegrees = () => checkResponse( {degrees: stringToIntArray(degreesEnteredByUser) } );
+    const checkDegrees = () => {
+        //console.log("Degrees from user: ",degreesEnteredByUser, stringToIntArray(degreesEnteredByUser) );
+        checkResponse( {degrees: stringToIntArray(degreesEnteredByUser) } );
+    }
 
     const checkResponse = (response) => { // response is an object {key: value [, key2: value, ...]}
 
@@ -362,6 +365,10 @@ const AskDictation = () => {
         //console.log(response);
 
         if (dictationType === "degrees" ) {
+            if (!response) {
+                console.log("response is null", response);
+                return;
+            }
             const responseArray = response.degrees;
             const correctArray = answer.degrees;
 
@@ -500,12 +507,12 @@ const AskDictation = () => {
                     <Grid.Column>
                         <Button onClick={() => stop()} className={"fullWidth marginTopSmall"}  >{ capitalizeFirst( t("stop") )}</Button>
                     </Grid.Column>
-                    <Grid.Column>
-                        <Button className={"fullWidth marginTopSmall"}
+                    { dictationType!=="degrees" && <Grid.Column>
+                         <Button className={"fullWidth marginTopSmall"}
                                 onClick={() => /*showDictation()*/  checkResponse(null)}>{capitalizeFirst(t("check"))}
                         </Button>
-                    </Grid.Column>
-                    {/*Järgnev nupp peaks olema nähtav ainult diktaadiharjutuste puhul: */}
+                    </Grid.Column> }
+                    {/*Järgnev nupp peaks olema nähtav ainult diktaadiharjutuste puhul:  - kirjuta ümber: dictationType==="degrees" && ... */}
                     {createRenewButton()}
                     {createTonicButton()}
 
