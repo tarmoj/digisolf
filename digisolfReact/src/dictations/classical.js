@@ -137,36 +137,67 @@
             `,
 	},
 	
-	{ category: "classical_level1", title: "X", soundFile: "../sounds/dictations/classical/level1/X_classical_level1.mp3",
-            credits: "",
+	{ category: "classical_level1", title: "7", soundFile: "../sounds/dictations/classical/level1/7_classical_level1.mp3",
+            credits: "Tõnu Kõrvits \"Kreegi vihik\" 8.osa",
             notation:
                 `
-         
+         \\clef "treble" \\key a \\major \\time 4/4 
+    e'4 | 
+    a'4 gis'4 a'8 cis''8 cis''4 | 
+    cis''8 h'8 h'2 d''4 | 
+    cis''8 h'8 h'8 a'8 h'4 a'8 gis'8 |
+    a'2 r4 a'4 | 
+    e''4 e''8 cis''8 d''4 cis''8 h'8 | 
+    h'2 r4 \\bar "|."
         `,
             show: `
-            
+            \\clef "treble" \\key a \\major \\time 4/4 
+    e'4 | 
             `,
 	},
 	
-	{ category: "classical_level1", title: "X", soundFile: "../sounds/dictations/classical/level1/X_classical_level1.mp3",
-            credits: "",
+	{ category: "classical_level1", title: "8", soundFile: "../sounds/dictations/classical/level1/8_classical_level1.mp3",
+            credits: "Cyrillus Kreek - Reekviem VIII osa",
             notation:
                 `
-         
+         \\clef "treble" \\key es \\major \\time 6/4 
+    c'4 d'4 es'4 g'2 f'4 | 
+    c'4 d'4 es'4 g'2 f'4 | 
+    c'4 g'4 f'4 es'4 d'4 c'4 | 
+    es'2. d'2. | 
+    c'4 d'4 es'4 g'2 f'4 | 
+    c'4 d'4 es'4 g'2 f'4 | 
+    es'4 d'4 c'4 b2 d'4 | 
+    c'2. c'2. \\bar "|."
         `,
             show: `
-            
+            \\clef "treble" \\key es \\major \\time 6/4 
+    c'4 d'4 es'4
             `,
 	},
 	
-	{ category: "classical_level1", title: "X", soundFile: "../sounds/dictations/classical/level1/X_classical_level1.mp3",
-            credits: "",
+// NB! Vaja triooli tugi!	
+// vextab:  :8  E/4 F/4 G/4  ^3^
+// VexFlow? how to do it in notationInfo	
+	{ category: "classical_level1", title: "9", soundFile: "../sounds/dictations/classical/level1/9_classical_level1.mp3",
+            credits: "Tõnu Kõrvits \"Kreegi vihik\" 1.osa",
             notation:
                 `
-         
+         \\clef "treble" \\key es \\major \\time 4/4 
+    es'8  g'8 | 
+    b'4 b'4 b'8 f'8 f'4 | 
+    b'4 
+    \\tuplet 3/2  {c''8 b'8 c''8 }
+    b'4 c''8 b'8 | 
+    b'4 g'4 g'8 as'8 
+    \\tuplet 3/2 {g'8 f'8 d'8 } | 
+    es'4 
+    \\tuplet 3/2   {b'8 f'8 g'8 }
+    f'4 es'4 \\bar "|."
         `,
             show: `
-            
+            \\clef "treble" \\key es \\major \\time 4/4 
+    es'8  g'8 | 
             `,
 	},
 	
