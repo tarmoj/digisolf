@@ -1,34 +1,45 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Flow} from 'vextab/releases/vextab-div';
+import {Artist, Flow, VexTab} from 'vextab/releases/vextab-div';
 import NotationInput from "./NotationInput";
 import {vtNames, notationInfoToVtString} from "./notationUtils";
 import {useSelector, useDispatch} from "react-redux";
-import {setAllowInput, setSelectedNote, setSelectedNoteSet} from "../../actions/askDictation";
-import {artist, vexTab, scale, createVexTabString} from "./vextabUtils";
+import {resetState, setAllowInput, setSelectedNote, setSelectedNoteSet} from "../../actions/askDictation";
+import {scale, createVexTabString, width} from "./vextabUtils";
 
 const Notation = (props) => {
-
     const vtDiv = useRef(null);
+
     const [renderer, setRenderer] = useState(null);
+    const [artist, setArtist] = useState(null);
+    const [vexTab, setVexTab] = useState(null);
+
     const inputNotation = useSelector(state => state.askDictationReducer.inputNotation);
     const selectedNote = useSelector(state => state.askDictationReducer.selectedNote);
     const previousSelectedNote = useSelector(state => state.askDictationReducer.previousSelectedNote);
     const selectedNoteSet = useSelector(state => state.askDictationReducer.selectedNoteSet);
+    const correctNotation = useSelector(state => state.askDictationReducer.correctNotation);
+
     const dispatch = useDispatch();
 
     useEffect(() => {
         initializeVexTab();
         dispatch(setAllowInput(true));
-    }, []); 
+    }, []);
 
     useEffect(() => {
-        if (inputNotation) {
+        if (props.name === "inputNotation" && (inputNotation || !selectedNoteSet || previousSelectedNote.index !== selectedNote.index )) {
             redraw(notationInfoToVtString(inputNotation));
         }
-    }, [inputNotation]);
+    }, [inputNotation, selectedNoteSet, previousSelectedNote, selectedNote]);
 
     useEffect(() => {
-        if (selectedNoteSet) {
+        if (props.name === "correctNotation" && correctNotation) {
+            redraw(notationInfoToVtString(correctNotation));
+        }
+    }, [correctNotation]);
+
+    useEffect(() => {
+        if (selectedNoteSet && artist) {
             const note = artist.staves[0].note_notes[selectedNote.index];
 
             if (previousSelectedNote.index === selectedNote.index) {    // Clicked-on note is the same as previously selected note
@@ -40,9 +51,10 @@ const Notation = (props) => {
     }, [selectedNote]);
 
     useEffect(() => {
-        console.log("wrong notes in effect  ", props.wrongNoteIndexes, props.name)
         if (props.wrongNoteIndexes) {
             markWrongNotes();
+        } else {
+            redraw(notationInfoToVtString(inputNotation));
         }
     }, [props.wrongNoteIndexes]);
 
@@ -57,30 +69,34 @@ const Notation = (props) => {
         if (props.notes.staves) {
             redraw(notationInfoToVtString(props.notes));
         }
-    }, [props]);
+    }, [props.notes]);
 
     const initializeVexTab = () => {
-        console.log("**** Initializing VexTab ****");
+        const artist = new Artist(10, 10, width, {scale: scale});
+        setArtist(artist);
+        const vexTab = new VexTab(artist);
+        setVexTab(vexTab);
         const renderer = new Flow.Renderer(vtDiv.current, Flow.Renderer.Backends.SVG);
         setRenderer(renderer);
     };
 
     const handleClick = (event) => {
-        const x = event.layerX / scale;
-        const closestIndex = findClosestNoteByX(x);
+        if (props.showInput) {
+            const x = event.layerX / scale;
+            const closestIndex = findClosestNoteByX(x);
 
-        if (closestIndex >= 0) {
-            const note = artist.staves[0].note_notes[closestIndex];
-            setCurrentNote(closestIndex, note);
-            redraw(notationInfoToVtString(inputNotation));
-            // highlightSelectedNote(note);
+            if (closestIndex >= 0) {
+                const note = artist.staves[0].note_notes[closestIndex];
+                setCurrentNote(closestIndex, note);
+                console.log(inputNotation)
+            }
         }
     };
 
     const highlightNote = (note, color = "lightblue") => {
-        if (note) {
+        if (note && renderer) {
             renderer.getContext().rect(note.getAbsoluteX()-10, note.stave.getYForTopText()-10, note.width+20, note.stave.height+10,
-            { fill: color, opacity:"0.2" } );
+            { fill: color, opacity: "0.2" } );
         }
     }
 
@@ -128,32 +144,6 @@ const Notation = (props) => {
         }
     }
 
-    const setNoteColor = (noteIndex, color, stave=0, voice=0) => {
-        const note = artist.staves[stave].note_voices[voice][noteIndex];
-        if (note) {
-            console.log("PAINT Going to paint note: ", note.keys);
-            const noteHeads = note.getElem().getElementsByClassName("vf-notehead");
-            const stems = note.getElem().getElementsByClassName("vf-stem"); //[0].firstChild.setAttribute("stroke", color);
-            const modifiers = note.getElem().getElementsByClassName("vf-modifiers"); // accidentals etc
-            // TODO (tarmo): beamed stems. What is the classname of a beam? beamgroup?
-            // TODO (tarmo): and dots are not colored yet
-            // maybe -  find all children of note.getElem() and if there is property fill or stroke, change it..
-            console.log("noteheads, stems: ", noteHeads.length, stems.length );
-            for (let element of noteHeads) {
-                if (element.firstChild)
-                    element.firstChild.setAttribute("fill", color);
-            }
-            for (let element of stems) {
-                if (element.firstChild)
-                    element.firstChild.setAttribute("stroke", color);
-            }
-            for (let element of modifiers) {
-                if (element.firstChild)
-                    element.firstChild.setAttribute("fill", color);
-            }
-        }
-    }
-
     const markWrongNotes = () => { // take the indexes of wrong notes from props and mark them
         for (let i = 0, n = props.wrongNoteIndexes.length; i < n; i++) {
             const note = artist.staves[props.wrongNoteIndexes[i].staveIndex].note_notes[props.wrongNoteIndexes[i].noteIndex];
@@ -168,7 +158,7 @@ const Notation = (props) => {
         }
 
         if (!renderer) {
-            console.log("renderer is null");
+            // console.log("renderer is null");
             return;
         }
 
@@ -203,7 +193,7 @@ const Notation = (props) => {
 
     return (
         <div>
-            <div className={'vtDiv'} ref={vtDiv} />
+            <div id={props.name} className={'vtDiv'} ref={vtDiv} />
             {props.showInput && <NotationInput />}
         </div>
     );

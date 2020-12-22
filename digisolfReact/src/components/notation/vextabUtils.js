@@ -1,6 +1,6 @@
 import {Artist, VexTab} from 'vextab/releases/vextab-div';
 
-let width = 600;
+export let width = 600;
 
 export const setWidth = newWidth => {
   width = newWidth;
@@ -12,10 +12,7 @@ export const setScale = newScale => {
   scale = newScale;
 }
 
-export const artist = new Artist(10, 10, width, {scale: scale});
 Artist.NOLOGO = true;
-
-export const vexTab = new VexTab(artist);
 
 export const createVexTabString = (props, notes) => {
   const startString = "stave "; //"options space=20\n stave \n ";

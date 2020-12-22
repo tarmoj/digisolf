@@ -58,3 +58,10 @@ export const resetState = () => {
     type: "RESET_STATE"
   }
 };
+
+export const setCorrectNotation = (correctNotation) => {
+  return {
+    type: "SET_CORRECT_NOTATION",
+    payload: correctNotation
+  }
+};

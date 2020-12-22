@@ -5,6 +5,7 @@ const initialState = {
   selectedNote: defaultSelectedNote,
   previousSelectedNote: null,
   inputNotation: deepClone(defaultNotationInfo),
+  correctNotation: deepClone(defaultNotationInfo),
   selectedStaveIndex: 0,
   selectedNoteSet: false,
   allowInput: true
@@ -113,6 +114,11 @@ export const askDictationReducer = (state = initialState, action) => {
       return {
         ...initialState,
         inputNotation: deepClone(defaultNotationInfo)
+      };
+    case "SET_CORRECT_NOTATION":
+      return {
+        ...state,
+        correctNotation: action.payload
       };
       default:
         return state;

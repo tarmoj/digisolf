@@ -23,15 +23,16 @@ import {dictations as twoVoice} from "../../dictations/2voice";
 import {dictations as popJazz} from "../../dictations/popJazz";
 import {dictations as degrees} from "../../dictations/degrees";
 import * as constants from "./dictationConstants";
-import {resetState, setAllowInput} from "../../actions/askDictation";
+import {resetState, setAllowInput, setCorrectNotation} from "../../actions/askDictation";
 
 
 const AskDictation = () => {
     const { name } = useParams();
 
-
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
+
+    const defaultNotationInfo = {  clef:"treble", time: "4/4", vtNotes: "" };
 
     // const name = useSelector(state => state.exerciseReducer.name);
     //const midiSounds = useRef(null);
@@ -45,23 +46,22 @@ const AskDictation = () => {
     const [notesEnteredByUser, setNotesEnteredByUser] = useState("");
     const [degreesEnteredByUser, setDegreesEnteredByUser] = useState("");
 
-    const [notationInfo, setNotationInfo] = useState({  clef:"treble", time: "4/4", vtNotes: "" });
-    const [correctNotation, setCorrectNotation] = useState({  clef:"treble", time: "4/4", vtNotes: "" });
+    const [notationInfo, setNotationInfo] = useState(defaultNotationInfo);
 
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
     const [wrongNoteIndexes, setWrongNoteIndexes] = useState(null);
+
+    useEffect(() => {
+        dispatch(resetState());
+    }, []);
 
     const dictationType = name.toString().split("_")[0]; // categories come in as 1voice_level1 etc
 
     const dictations = oneVoice.concat(twoVoice).concat(degrees).concat(popJazz); // + add other dictations when done
 
     const inputNotation = useSelector(state => state.askDictationReducer.inputNotation);
+    const correctNotation = useSelector(state => state.askDictationReducer.correctNotation);
     const allowInput = useSelector(state => state.askDictationReducer.allowInput);
-
-    useEffect(() => {
-        dispatch(resetState());
-    }, []);
-
 
     // EXERCISE LOGIC ======================================
 
@@ -122,10 +122,10 @@ const AskDictation = () => {
                 notationInfo.vtNotes = dictation.notation;
             } else {
                 notationInfo = parseLilypondString(dictation.notation);
-                console.log("NotationIndo structure: ", notationInfo);
+                // console.log("NotationIndo structure: ", notationInfo);
             }
 
-            setCorrectNotation(notationInfo);
+            dispatch(setCorrectNotation(notationInfo));
         }
 
         setSelectedDictation(dictation);
@@ -231,7 +231,7 @@ const AskDictation = () => {
     };
 
     const playSoundFile = (url) => { // why is here url? Sound.url is probably already set somewhere...
-        console.log("Play soundfile", url);
+        // console.log("Play soundfile", url);
         setPlayStatus(Sound.status.PLAYING);
     };
 
@@ -259,7 +259,7 @@ const AskDictation = () => {
     };
 
     const stop = () => {
-        console.log("***Stop***");
+        // console.log("***Stop***");
         if (name.toString().startsWith("degrees")) {
             if (csound) {
                 csound.readScore("i \"Stop\" 0  0.01");
@@ -277,6 +277,9 @@ const AskDictation = () => {
 
         dispatch(setAllowInput(!allowInput));
         setShowCorrectNotation(!showCorrectNotation);
+        if (showCorrectNotation) {
+            setWrongNoteIndexes(null);
+        }
     };
 
     const renderNotes = () => {
@@ -358,7 +361,7 @@ const AskDictation = () => {
     const [csound, setCsound] = useState(null);
 
     useEffect(() => {
-        console.log("Csound effect 1");
+        // console.log("Csound effect 1");
         if (csound === null) {  // if you go back to main menu and enter again, then stays "Loading"
             CsoundObj.initialize().then(() => { // ... and error happens here
                 const cs = new CsoundObj(); // : Module.arguments has been replaced with plain arguments_ etc
@@ -370,7 +373,7 @@ const AskDictation = () => {
     }, [csound]);
 
     useEffect(() => {
-        console.log("Csound effect 2");
+        // console.log("Csound effect 2");
         return () => {
             if (csound) {
                 csound.reset();
@@ -418,7 +421,7 @@ const AskDictation = () => {
     // UI ======================================================
 
     const createControlButtons = () => {
-        console.log("Begun: ", exerciseHasBegun);
+        // console.log("Begun: ", exerciseHasBegun);
 
         if (exerciseHasBegun) {
             return (
@@ -529,7 +532,7 @@ const AskDictation = () => {
                            keySignature={notationInfo.keySignature}
                            showInput={true}
                            wrongNoteIndexes={wrongNoteIndexes}
-                           name={"UserInputNotation"} /*for debugging*/
+                           name={"inputNotation"}
                 />
 
             </div>
@@ -547,7 +550,7 @@ const AskDictation = () => {
                          clef={correctNotation.clef}
                          keySignature={correctNotation.keySignature}
                          showInput={false}
-                         name={"correctNotation"} /*for debugging*/
+                         name={"correctNotation"}
                />
 
             </div>
@@ -556,7 +559,7 @@ const AskDictation = () => {
 
     const createSelectionMenu = () => {
         const options = [];
-        console.log("createSelectionMenu for: ", currentCategory, name);
+        // console.log("createSelectionMenu for: ", currentCategory, name);
         //const dictationsByCategory =  dictations.filter(dict =>  dict.category=== currentCategory);
         for (let i=0; i< dictations.length; i++) {
             if ( dictations[i].category.startsWith(name) /*dictations[i].category === name*/) { // NB! no levels for now!, _leve1 etc are ignored
@@ -576,6 +579,7 @@ const AskDictation = () => {
                     // if (!exerciseHasBegun) {
                     //     startExercise();
                     // }
+                    dispatch(resetState());
                     renew(value);
                 }
                 }
