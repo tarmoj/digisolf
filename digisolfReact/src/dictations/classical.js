@@ -178,7 +178,9 @@
 	
 // NB! Vaja triooli tugi!	
 // vextab:  :8  E/4 F/4 G/4  ^3^
-// VexFlow? how to do it in notationInfo	
+// VexFlow? how to do it in notationInfo -  add field tuplet: 3 (as in StaveNote) 
+// comment out for now...
+/*	
 	{ category: "classical_level1", title: "9", soundFile: "../sounds/dictations/classical/level1/9_classical_level1.mp3",
             credits: "Tõnu Kõrvits \"Kreegi vihik\" 1.osa",
             notation:
@@ -211,19 +213,101 @@
             
             `,
 	},
-	
-	{ category: "classical_level1", title: "X", soundFile: "../sounds/dictations/classical/level1/X_classical_level1.mp3",
-            credits: "",
+*/
+
+// triplet again...
+// + support for \grace
+/*
+	{ category: "classical_level1", title: "10 - Noteeri fagoti soolo", soundFile: "../sounds/dictations/classical/level1/10_classical_level1.mp3",
+            credits: "Cyrillus Kreek - Reekviem 2.osa",
             notation:
                 `
-         
+         \\clef "bass" \\key as \\major \\time 2/2
+    as4 as8 b8 as8 g8
+    f8 es8 | 
+    g4 as4 g4 f4 | 
+    as8 g8 as8 b8 as8 g8 f8 es8 | 
+    g8 es8 as4 g16 as16 g8 f4 | 
+    c4. es8 f4 es4 | 
+    g8 es8 as4 \grace { g16 as16 } g4 f4 | 
+    c4. es8 g8 f8 es4 | 
+    f4 
+    \\tuplet 3/2  {es8 f8 es8 }
+    c2 \\bar "|."
         `,
             show: `
-            
+            \\clef "bass" \\key as \\major \\time 2/2
+    as4 as8 b8
             `,
 	},
+*/	
+
+	{ category: "classical_level1", title: "11", soundFile: "../sounds/dictations/classical/level1/11_classical_level1.mp3",
+            credits: "Eduard Tubin \"Sabatants\" balletist \"Kratt\"",
+            notation:
+                `
+         \\time 2/4   r4  g''4~ | 
+    g''8. c''16 f''8 a''8 | 
+    g''16 f''16 d''16 h'16 d''8 c''8 | 
+    f''8. c''16 e''8. c''16 | 
+    e''8 d''16 h'16 d''8 c''8 | 
+    g''8. c''16 f''8 a''8 | 
+    g''8. c''16 f''8 e''16 c''16 | 
+    g''8. c''16 f''8 e''16 c''16 | 
+    e''8 d''16 h'16 d''8 c''8 | 
+    f''8. c''16 e''8. c''16 | 
+    f''8. c''16 e''8. c''16 | 
+    d''8 c''8 d''8 c''8 \\bar "|."
+        `,
+            show: `
+            \\time 2/4   r4  g''4~ | 
+    g''8. c''16 f''8 a''8 |
+            `,
+	},	
 		
+// jne, lihtsaid kokku 23
+	
+	
+// ================= LEVEL 2 =========================	
+	
+
+// NB! Siin ka akordimärgid, aga mõtle veel, kuidas neid vormistada - kas noodi või takti külge vms	
+// NB! uus väli "instructions" - tõlge?	
+	{ category: "classical_level2", title: "II - 1", soundFile: "../sounds/dictations/classical/level1/1_classical_level2.mp3",
+			instructions: "Noteeri meloodia ja bass, tähista harmoonia - D-duur",
+            credits: "Margo Kõlar \"Martale\"",
+            notation: {
+				stave1: `
+	\\clef "treble" \\key d \\major \\time 3/4 
+    fis''2~ fis''8.
+    g''32 fis''32 | 
+    e''2 a''4 | 
+    d''2 d''4 h'8 a'8 ~ a'2 | 
+    fis''2 ~ fis''8. g''32 fis''32 | 
+    e''2 a''4 | 
+    h''8 d'''8 ~ d'''2 | 
+    r4 d''2 \\bar "|."
+				
+				`,
+				stave2: `
+	\\clef "treble" \\key d \\major \\time 3/4 
+    d'2.  | cis'2. | g2. | e2. | 
+    r2 r8 d'8 | 
+    a2. |  e2. | g2. \\bar "|."
+				`
+			},
+	show: {
+         stave1: `
+	\\clef "treble" \\key d \\major \\time 3/4 
+    fis''2~ fis''8.
+				
+				`,
+				stave2: `
+	\\clef "treble" \\key d \\major \\time 3/4 
+    d'2.  | 
+				`   
 		
-		
+	}
+	},
 		
  ]
