@@ -1,11 +1,12 @@
 import React, {useState, useEffect} from 'react';
 import {Table, Image, Button, Popup, Accordion, Icon} from 'semantic-ui-react';
-import {vtNames, octaveData} from './notationUtils';
+import {vtNames, octaveData, octaveNoToName} from './notationUtils';
 import {useSelector, useDispatch} from 'react-redux';
 import {setSelected, insertNote, removeNote} from '../../actions/askDictation';
+import {useTranslation} from "react-i18next";
+import {capitalizeFirst} from "../../util/util";
 
 const NotationInput = () => {
-
   const [showTable, setShowTable] = useState(false);
   const [iconClass, setIconClass] = useState("iconDown");
 
@@ -14,6 +15,7 @@ const NotationInput = () => {
   const allowInput = useSelector(state => state.askDictationReducer.allowInput);
 
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   useEffect(() => {
     document.addEventListener("keydown", onKeyDown);
@@ -160,6 +162,7 @@ const NotationInput = () => {
           <Icon className={'chevron down ' + iconClass} id={'toggleTableIcon'} />
         </Accordion.Title>
         <Accordion.Content active={showTable} id={'notationTableContent'}>
+          <p className={"floatLeft"}>{capitalizeFirst(t("octave"))}: <span className={"bold"}>{t(octaveNoToName[selectedNote.octave])}</span></p>
           <Table unstackable >
             <Table.Body>
               <Table.Row>

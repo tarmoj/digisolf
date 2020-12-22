@@ -31,6 +31,15 @@ export const octaveData = {
   minOctave: 3
 }
 
+export const octaveNoToName = {
+  2: "contraOctave",
+  3: "greatOctave",
+  4: "smallOctave",
+  5: "firstOctave",
+  6: "secondOctave",
+  7: "thirdOctave"
+};
+
 // this is basic structure to keep all the score
 // score includes staves,  staves include voices, voices include notes
 export const defaultNotationInfo = {
