@@ -71,31 +71,31 @@
 		{category: "degrees_level1", title: "13",
             tonicVtNote: "A/4",
             degrees: "1 -7 1 2 3 1 -7 ",
-            scale: "harmonicMinor",
+            scale: "minorHarmonic",
         },
 		
 		{category: "degrees_level1", title: "14",
             tonicVtNote: "A/4",
             degrees: "1 -5 -6 -5 1 -7 1 ",
-            scale: "harmonicMinor",
+            scale: "minorHarmonic",
         },
 		
 		{category: "degrees_level1", title: "15",
             tonicVtNote: "A/4",
             degrees: "1 2 3 1 3 4 5 ",
-            scale: "harmonicMinor",
+            scale: "minorHarmonic",
         },
 		
 		{category: "degrees_level1", title: "16",
             tonicVtNote: "A/4",
             degrees: "1 -7 -6 -5 1 3 2 ",
-            scale: "naturalMinor",
+            scale: "minorNatural",
         },
 		
 		{category: "degrees_level1", title: "17",
             tonicVtNote: "G/4",
             degrees: "1 -5 1 2 3 1 5 ",
-            scale: "naturalMinor",
+            scale: "minorNatural",
         },
 		
 		{category: "degrees_level1", title: "18",
@@ -107,13 +107,13 @@
 		{category: "degrees_level1", title: "19",
             tonicVtNote: "G/4",
             degrees: "1 5 1 -7 1 3 2",
-            scale: "harmonicMinor",
+            scale: "minorHarmonic",
         },
 		
 		{category: "degrees_level1", title: "20",
             tonicVtNote: "E/4",
             degrees: "8 5 4 3 2 1 -7 ",
-            scale: "harmonicMinor",
+            scale: "minorHarmonic",
         },
  
 ];

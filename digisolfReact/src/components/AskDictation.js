@@ -15,7 +15,7 @@ import Select from "semantic-ui-react/dist/commonjs/addons/Select";
 //import dictation1a from "../sounds/dictations/1a.mp3";
 import {useParams} from "react-router-dom";
 import CsoundObj from "@kunstmusik/csound";
-import {makeInterval,  scaleDefinitions} from "../util/intervals";
+import {makeInterval,  scaleDefinitions, getIntervalByShortName} from "../util/intervals";
 import * as notes from "../util/notes";
 import { stringToIntArray, getRandomInt, getRandomBoolean, getRandomElementFromArray } from "../util/util.js"
 import {dictationOrchestra as orc} from "../csound/orchestras";
@@ -211,17 +211,15 @@ const AskDictation = () => {
             const melodyDegrees = stringToIntArray(degreeString); // split by comma or white space
             let counter = 1;
             for (let degree of melodyDegrees) {
-                if (degree < -7 || degree > 7  ) {
+                if (degree < -7 || degree > 8  ) {
                     console.log("Wrong degree: ", degree);
                     break;
                 }
                 const interval = scaleDefinitions[scale][Math.abs(degree)-1];
                 if (interval) {
-                    let note =  makeInterval(baseNote, interval, "up"); // what if bass clef?
+                    let note = (degree<0) ? makeInterval( baseNote, getIntervalByShortName(interval).inversion, "down" )
+                        :  makeInterval(baseNote, interval, "up"); // what if bass clef?
                     if (note) {
-                        if (degree<0) { // below tonic
-                            note =  makeInterval(note, "p8", "down");
-                        }
                         console.log("Tonic, Interval, note: ", tonicVtNote, interval, note.vtNote );
                         vtString += ` ${note.vtNote}  $ ${Math.abs(degree) } $ `; // add the
                         if (counter%4 == 0) {

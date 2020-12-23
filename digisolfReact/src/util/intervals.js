@@ -1,21 +1,23 @@
 import * as notes from "./notes"
 
+//TODO: shortNames to English -  check. perhams m, M, d, a ?
+// + translations
 const intervalDefinitions = [
-    { shortName: "p1", longName: "unison", semitones: 0, degrees: 0 }, // degrees (astmeid) -  difference in scale degrees (Ces/C/Cis - 0,  Des/D/Dis - 1 etc)
-    { shortName: "v2", longName: "minor second", semitones: 1, degrees: 1 },
-    { shortName: "s2", longName: "major second", semitones: 2, degrees: 1 },
-    { shortName: "v3", longName: "minor third", semitones: 3, degrees: 2 },
-    { shortName: "s3", longName: "major third", semitones: 4, degrees: 2 },
-    { shortName: "p4", longName: "perfect fourth", semitones: 5, degrees: 3 },
-    { shortName: ">4", longName: "augmented fourth", semitones: 6, degrees: 3 },
-    { shortName: "<5", longName: "diminished fifth", semitones: 6, degrees: 4 },
-    { shortName: "p5", longName: "perfect fifth", semitones: 7, degrees: 4 },
-    { shortName: ">5", longName: "augmented fifth", semitones: 8, degrees: 4 },
-    { shortName: "v6", longName: "minor sixth", semitones: 8, degrees: 5 },
-    { shortName: "s6", longName: "major sixth", semitones: 9, degrees: 5 },
-    { shortName: "v7", longName: "minor seventh", semitones: 10, degrees: 6 },
-    { shortName: "s7", longName: "major seventh", semitones: 11, degrees: 6 },
-    { shortName: "p8", longName: "octave", semitones: 12, degrees:  7 },
+    { shortName: "p1", inversion: "p8", longName: "unison", semitones: 0, degrees: 0 }, // degrees (astmeid) -  difference in scale degrees (Ces/C/Cis - 0,  Des/D/Dis - 1 etc)
+    { shortName: "v2", inversion: "s7",longName: "minor second", semitones: 1, degrees: 1 },
+    { shortName: "s2", inversion: "v7",longName: "major second", semitones: 2, degrees: 1 },
+    { shortName: "v3", inversion: "s6",longName: "minor third", semitones: 3, degrees: 2 },
+    { shortName: "s3", inversion: "v6",longName: "major third", semitones: 4, degrees: 2 },
+    { shortName: "p4", inversion: "p5",longName: "perfect fourth", semitones: 5, degrees: 3 },
+    { shortName: ">4", inversion: "<5",longName: "augmented fourth", semitones: 6, degrees: 3 },
+    { shortName: "<5", inversion: ">4",longName: "diminished fifth", semitones: 6, degrees: 4 }, // TODO: < and > wrong here! Should be the other way round! check!
+    { shortName: "p5", inversion: "p4",longName: "perfect fifth", semitones: 7, degrees: 4 },
+    { shortName: ">5", inversion: "<4",longName: "augmented fifth", semitones: 8, degrees: 4 },
+    { shortName: "v6", inversion: "s3",longName: "minor sixth", semitones: 8, degrees: 5 },
+    { shortName: "s6", inversion: "v3",longName: "major sixth", semitones: 9, degrees: 5 },
+    { shortName: "v7", inversion: "s2",longName: "minor seventh", semitones: 10, degrees: 6 },
+    { shortName: "s7", inversion: "v2",longName: "major seventh", semitones: 11, degrees: 6 },
+    { shortName: "p8", inversion: "p1",longName: "octave", semitones: 12, degrees:  7 },
 ];
 
 // TODO: into English! check abbreviations and correct terms
