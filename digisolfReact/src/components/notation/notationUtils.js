@@ -89,6 +89,7 @@ export const notationInfoToVtString = notationInfo => {
                       }
                   }
               }
+              vtString += "\n";
           }
       }
   }

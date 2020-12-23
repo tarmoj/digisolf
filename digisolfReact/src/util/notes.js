@@ -172,27 +172,48 @@ export const getNoteByVtNote = (vtNote, noteArray=trebleClefNotes) => {
 	return noteArray.find(note => note.vtNote === vtNote);
 };
 
-
-export const parseLilypondString = (lyString) => { //NB! rewrite! returns notationInfo object -  see notationConstant defaultNotationInfo
-	const chunks = lyString.trim().replace(/\s\s+/g, ' ').split(" "); // simplify string
-	//let vtNotes = "";
+export const parseLilypondDictation = (lyDictation) => { // returns returns notationInfo object. Input can be either string
+// for one-voiced dications or object { stave1:"", stave2, "" }. More than 2 staves not supported, currently one voice per stave.
 	let notationInfo = deepClone(defaultNotationInfo);
-	let stave=0, voice=0;
-	let notes = [] ; // each note has format {keys:[], duration: ""}
+	if (typeof(lyDictation)==="string") {
+		notationInfo.staves[0] = parseLilypondString(lyDictation);
+	} else if ( typeof(lyDictation)==="object" ) {
+		if (lyDictation.hasOwnProperty("stave1")) {
+			const stave1 = parseLilypondString(lyDictation.stave1);
+			notationInfo.staves[0] = stave1;
+		}
+		if (lyDictation.hasOwnProperty("stave1")) {
+			const stave2 = parseLilypondString(lyDictation.stave2);
+			notationInfo.staves[1] = stave2;
+		}
+		//etc if more voices needed
+	} else {
+		console.log("Unknown lyDictation: ", lyDictation);
+	}
+
+	return notationInfo;
+
+};
+
+export const parseLilypondString = (lyString) => { //NB! (slight) rewrite 2!  returns notatationInfo for one stave, one voice
+	const chunks = lyString.trim().replace(/\s\s+/g, ' ').split(" "); // simplify string
+	//let notationInfo = deepClone(defaultNotationInfo);
+	let stave=deepClone(defaultNotationInfo.staves[0]);
+	let notes = [] ; // each note has format {keys:[], duration: "", [optional-  chord: ""]}
 	let useTie = false;
 	let lastDuration = "4";
-	// TODO (tarmo): support for \new Staff and \new Voice (at least Staff). Currently works only with one voice
+
 	for (let i = 0; i<chunks.length; i++) {
 		let vtNote="";
 		if (chunks[i].trim() === "\\key" && chunks.length >= i+1 ) { // must be like "\key a \major\minor
 			// console.log("key: ", chunks[i+1], chunks[i+2]);
 			let vtKey = noteNames.get(chunks[i+1].toLowerCase());
 			if (vtKey) {
-				vtKey.replace("@","b"); // key siganture does not want @ but b for flat
+				vtKey = vtKey.replace("@","b"); // key siganture does not want @ but b for flat
 				if (chunks[i+2]=="\\minor") {
 					vtKey += "m"
 				}
-				notationInfo.staves[stave].key = vtKey;
+				stave.key = vtKey;
 				// console.log("Converted key:", vtKey)
 			} else {
 				// console.log("Could not find notename for: ", chunks[i+1])
@@ -200,12 +221,13 @@ export const parseLilypondString = (lyString) => { //NB! rewrite! returns notati
 			i += 2;
 		} else if (chunks[i].trim() === "\\time" && chunks.length >= i+1) { // must be like "\key a \major
 			// console.log("time: ", chunks[i + 1]);
-			notationInfo.staves[stave].time = chunks[i + 1];
+			stave.time = chunks[i + 1];
 			i += 1;
 			// VT nt: time=2/4
 		} else if (chunks[i].trim() === "\\clef" && chunks.length >= i+1) {
-			// console.log("clef: ", chunks[i + 1]);
-			notationInfo.staves[stave].clef = chunks[i + 1];
+			const clef = chunks[i + 1].trim().replace(/[\"]+/g, ''); // remove quoates \"
+			//console.log("clef: ", clef);
+			stave.clef = clef;
 			i += 1;
 			// VT nt: clef=treble
 		} else if  (chunks[i].trim() === "\\bar" && chunks.length >= i+1)  { // handle different barlines
@@ -252,14 +274,21 @@ export const parseLilypondString = (lyString) => { //NB! rewrite! returns notati
 				vtNote = noteNames.get(noteName);
 
 				//TODO: octave from relative writing
+				//for now octave by absolute notation ' - 1st oct, '' -2nd, none - small, , - great etc.
 				let octave;
 				// use better regexp and test for '' ,, etc
-				if (chunks[i].search("\'")>=0) {
+				if (chunks[i].search("\'\'\'")>=0) {
+					octave = "6";
+				} else if (chunks[i].search("\'\'")>=0) {
 					octave = "5";
-				} else if (chunks[i].search(",")>=0) {
-					octave ="3";
-				} else {
+				} else if (chunks[i].search("\'")>=0) {
 					octave = "4";
+				} else if (chunks[i].search(",")>=0) {
+					octave ="2";
+				} else if (chunks[i].search(",,")>=0) {
+					octave ="1";
+				} else { // no ending
+					octave = "3";
 				}
 
 				vtNote += "/" + octave;
@@ -281,18 +310,13 @@ export const parseLilypondString = (lyString) => { //NB! rewrite! returns notati
 			}
 
 			// duration
-			const re = /\d+/;
-			const duration = re.exec(chunks[i]);
+			const re = /\d{1,2}(\.{0,1})+/; // was re = /\d+/; - but this skips the dot
+			let duration = re.exec(chunks[i]);
+
 			if (duration) {
+				duration = duration[0].replace(/\./g, "d"); // d instead of dot for VexTab
 				lastDuration = duration;
 			}
-
-
-			// if (duration) {
-			// 	vtNote = ":" + duration + " " + vtNote + " ";  //` :${duration} ${vtNote}. `; // in VT duration is before note(s)
-			// } else if (useTie) {
-			//
-			// }
 
 			// console.log("vtNote: ", vtNote);
 			notes.push({keys:[vtNote], duration:lastDuration});
@@ -301,8 +325,8 @@ export const parseLilypondString = (lyString) => { //NB! rewrite! returns notati
 
 	}
 	//console.log("Parsed notes: ", vtNotes);
-	notationInfo.staves[stave].voices[voice].notes = notes;
-	return notationInfo;
+	stave.voices[0].notes = notes;
+	return stave;
 };
 
 

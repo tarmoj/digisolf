@@ -3,7 +3,7 @@ import {Button, Grid, Header, Input, Popup} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {arraysAreEqual, capitalizeFirst, weightedRandom} from "../../util/util";
-import {parseLilypondString} from "../../util/notes";
+import {parseLilypondString, parseLilypondDictation} from "../../util/notes";
 //import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../../actions/headerMessage";
 import ScoreRow from "../ScoreRow";
@@ -116,15 +116,15 @@ const AskDictation = () => {
             answer = {notation: selectedDictation.notation}; // <- this will not be used
 
             // set notationIfo for correct notation block
-            let notationInfo = {};
+            let notationInfo = parseLilypondDictation(dictation.notation);
             // see on paha struktuur, oleks vaja, et oleks võimalik anda kogu vexTab String tervikuna, kui nt mitmehäälne muusika
-            if (dictation.notation.trim().startsWith("stave") ) {
-                notationInfo.vtNotes = dictation.notation;
-            } else {
-                notationInfo = parseLilypondString(dictation.notation);
-                // console.log("NotationIndo structure: ", notationInfo);
-            }
-
+            // if (dictation.notation.trim().startsWith("stave") ) {
+            //     notationInfo.vtNotes = dictation.notation;
+            // } else {
+            //     notationInfo = parseLilypondString(dictation.notation);
+            //     // console.log("NotationIndo structure: ", notationInfo);
+            // }
+            console.log("notationInfo: ", notationInfo);
             dispatch(setCorrectNotation(notationInfo));
         }
 
@@ -303,6 +303,13 @@ const AskDictation = () => {
             checkDegreesResponse(response.degrees, correct);
         } else { // all other dictations are with note input
             let incorrectNotes = [];
+
+            // tarmo: NB! temporary! until two-stave input is not supported. Later take care that  there is two input staves for 2voice dictations
+            if (inputNotation.staves.length < correctNotation.staves.length ) {
+                console.log("Too few input staves!");
+                showDictation();
+                return;
+            }
 
             for (let i = 0, n = correctNotation.staves.length; i < n; i++) {
                 for (let j = 0, n = correctNotation.staves[i].voices.length; j < n; j++) {
