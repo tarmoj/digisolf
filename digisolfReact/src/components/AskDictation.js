@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {Button, Grid, Header, Input, Label, Popup} from 'semantic-ui-react'
+import {Button, Dropdown, Grid, Header, Input, Label, Popup} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst, weightedRandom} from "../util/util";
@@ -24,6 +24,7 @@ import {dictations as twoVoice} from "../dictations/2voice";
 import {dictations as popJazz} from "../dictations/popJazz";
 import {dictations as degrees} from "../dictations/degrees";
 import {dictations as classical} from "../dictations/classical";
+import {Slider} from "react-semantic-ui-range";
 
 
 const AskDictation = () => {
@@ -50,6 +51,8 @@ const AskDictation = () => {
     const [correctNotation, setCorrectNotation] = useState({  clef:"treble", time: "4/4", vtNotes: "" });
 
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
+    const [volume, setVolume] = useState(0.6);
+
 
     // store staves from artist object of Notation components -  necessary for checkResponse
     let responseStaves=null, correctStaves = null;
@@ -475,7 +478,7 @@ const AskDictation = () => {
 
     const startCsound = async () => {
         if (csound) {
-            await loadResources(csound, 60, 84, "flute");
+            await loadResources(csound, 60, 84, "violin");
 
             csound.setOption("-m0d")
             csound.compileOrc(orc);
@@ -526,6 +529,45 @@ const AskDictation = () => {
                 </Grid.Row>
             );
         }
+    };
+    const createVolumeRow = () => {
+        return (exerciseHasBegun && dictationType==="degrees")  ? (
+            <Grid.Row centered={true} columns={3}>
+                <Grid.Column>
+                    {capitalizeFirst(t("instrument"))+": "}
+                    <Dropdown
+                        disabled={true}
+                        placeholder={capitalizeFirst(t("sound"))}
+                        onChange={ (event, data) => {
+                            console.log("New sound is: ", data.value)
+                            // if (csound) {
+                            //     csound.setControlChannel("step", data.value);
+                            // }
+                        }
+                        }
+                        options ={ [ {text: "flute", value:"flute"}, {text: "oboe", value:"oboe"}, {text: "violin", value:"violin"}   ]  }
+                        defaultValue={0}
+                    />
+                </Grid.Column>
+
+                <Grid.Column>
+                    {capitalizeFirst(t("volume"))}
+                    <Slider value={volume} color="blue"
+                            settings={ {
+                                min:0, max:1, step:0.01,
+                                start: {volume},
+                                onChange: (value) => {
+                                    if (csound) {
+                                        csound.setControlChannel("volume", value);
+                                    }
+                                    setVolume(value);
+                                }
+                            } }
+                    />
+                </Grid.Column>
+                <Grid.Column />
+            </Grid.Row>
+        ) : null;
     };
 
     const createDegreeDictationInput = () => { // if degreedictation, Input for  degrees (text), otherwise lilypondINpute + Notation
@@ -670,6 +712,7 @@ const AskDictation = () => {
 
             <Sound
                 url={selectedDictation.soundFile}
+                volume={volume*100}
                 loop={false}
                 playStatus={playStatus}
                 onFinishedPlaying={handleDictationFinishedPlaying}
@@ -689,6 +732,7 @@ const AskDictation = () => {
                 {createDegreeDictationInput()}
                 {createNotationInputBlock()}
                 {createCorrectNotationBlock()}
+                {createVolumeRow()}
                 {createControlButtons()}
                 <Grid.Row>
                     <Grid.Column>
