@@ -1,18 +1,21 @@
 import React, {useState, useEffect} from 'react';
 import {Table, Image, Button, Popup, Accordion, Icon} from 'semantic-ui-react';
-import {vtNames, octaveData, octaveNoToName} from './notationUtils';
+import {vtNames, octaveData, octaveNoToName, defaultSelectedNote} from './notationUtils';
 import {useSelector, useDispatch} from 'react-redux';
-import {setSelected, insertNote, removeNote} from '../../actions/askDictation';
+import {setSelected, insertNote, removeNote, setSelectedNoteSet, setCurrentOctave, setCurrentAccidental} from '../../actions/askDictation';
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../../util/util";
 
-const NotationInput = () => {
+const NotationInput = ({selectLastNote}) => {
   const [showTable, setShowTable] = useState(false);
   const [iconClass, setIconClass] = useState("iconDown");
 
   const selectedNote = useSelector(state => state.askDictationReducer.selectedNote);
   const selectedNoteSet = useSelector(state => state.askDictationReducer.selectedNoteSet);
   const allowInput = useSelector(state => state.askDictationReducer.allowInput);
+  const inputNotation = useSelector(state => state.askDictationReducer.inputNotation);
+  const currentOctave = useSelector(state => state.askDictationReducer.currentOctave);
+  const currentAccidental = useSelector(state => state.askDictationReducer.currentAccidental);
 
   const dispatch = useDispatch();
   const { t } = useTranslation();
@@ -75,28 +78,34 @@ const NotationInput = () => {
     if (!selectedNoteSet) {
       dispatch(insertNote());
     }
-  }
+  };
 
   const onRestClick = name => {
     dispatch(setSelected("note", vtNames[name]));
     dispatch(insertNote());
-  }
+  };
 
   const onNoteAccidentalClick = name => {
-    if (selectedNote.accidental === vtNames[name]) {
-      dispatch(setSelected("accidental", ""));
-    } else {
-      dispatch(setSelected("accidental", vtNames[name]));
-    }
-  }
+      if (!selectedNoteSet) {
+        changeLastNoteAccidental(name);
+      } else {
+        dispatch(setCurrentAccidental(vtNames[name]));
+      }
+  };
+
+  const changeLastNoteAccidental = (name) => {
+    selectLastNote();
+    dispatch(setCurrentAccidental(vtNames[name]));
+    dispatch(setSelectedNoteSet(false));
+  };
 
   const onNoteDurationClick = name => {
     dispatch(setSelected("duration", vtNames[name]));
-  }
+  };
 
   const onDotClick = () => {
     dispatch(setSelected("dot", !selectedNote.dot));
-  }
+  };
 
   const onBarlineClick = () => {
     dispatch(setSelected("note", "|"));
@@ -104,22 +113,34 @@ const NotationInput = () => {
   };
 
   const onOctaveUpClick = () => {
-    let octave = parseInt(selectedNote.octave);
-    //test:
-    console.log("Clef: ", selectedNote.clef);
+    let octave = parseInt(currentOctave);
     if (octave < octaveData.maxOctave) {
       octave++;
-      dispatch(setSelected("octave", octave.toString()));
+      if (!selectedNoteSet) {
+        changeLastNoteOctave(octave);
+      } else {
+        dispatch(setCurrentOctave(octave.toString()));
+      }
     }
-  }
+  };
 
   const onOctaveDownClick = () => {
-    let octave = parseInt(selectedNote.octave);
+    let octave = parseInt(currentOctave);
     if (octave > octaveData.minOctave) {
       octave--;
-      dispatch(setSelected("octave", octave.toString()));
+      if (!selectedNoteSet) {
+        changeLastNoteOctave(octave);
+      } else {
+        dispatch(setCurrentOctave(octave.toString()));
+      }
     }
-  }
+  };
+
+  const changeLastNoteOctave = (octave) => {
+    selectLastNote();
+    dispatch(setCurrentOctave(octave.toString()));
+    dispatch(setSelectedNoteSet(false));
+  };
 
   // this is to get a fancy animation when accordionblock's opening
   const onTitleClick = () => {
@@ -131,40 +152,40 @@ const NotationInput = () => {
         setIconClass("iconDown");
       }
     }
-  }
+  };
 
   const onRemoveNoteClick = () => {
     dispatch(removeNote());
-  }
+  };
 
   const toggleTable = () => {
     setShowTable(!showTable);
-  }
+  };
 
   const isNoteSelected = name => {
     return name === selectedNote.note;
-  }
+  };
 
   const isRestSelected = name => {
     return vtNames[name] === selectedNote.note;
-  }
+  };
 
   const isNoteAccidentalSelected = name => {
-    return vtNames[name] === selectedNote.accidental;
-  }
+    return vtNames[name] === currentAccidental;
+  };
 
   const isNoteDurationSelected = name => {
     return vtNames[name] === selectedNote.duration;
-  }
+  };
 
   return(
-    <div style={{paddingTop: '1rem'}}>
+    <div className={"center"} style={{paddingTop: '1rem'}}>
       <Accordion styled active="{showTable}">
         <Accordion.Title onClick={onTitleClick} >
           <Icon className={'chevron down ' + iconClass} id={'toggleTableIcon'} />
         </Accordion.Title>
         <Accordion.Content active={showTable} id={'notationTableContent'}>
-          <p className={"floatLeft"}>{capitalizeFirst(t("octave"))}: <span className={"bold"}>{t(octaveNoToName[selectedNote.octave])}</span></p>
+          <p className={"floatLeft"}>{capitalizeFirst(t("octave"))}: <span className={"bold"}>{t(octaveNoToName[currentOctave])}</span></p>
           <Table unstackable >
             <Table.Body>
               <Table.Row>

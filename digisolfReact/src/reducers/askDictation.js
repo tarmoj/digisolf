@@ -1,5 +1,12 @@
-import {defaultNotationInfo, defaultSelectedNote, vtNames} from "../components/notation/notationUtils";
+import {
+  defaultAccidental,
+  defaultNotationInfo,
+  defaultOctave,
+  defaultSelectedNote,
+  vtNames
+} from "../components/notation/notationUtils";
 import {deepClone} from "../util/util";
+import {setSelected} from "../actions/askDictation";
 
 const initialState = {
   selectedNote: defaultSelectedNote,
@@ -8,7 +15,9 @@ const initialState = {
   correctNotation: deepClone(defaultNotationInfo),
   selectedStaff: 0,
   selectedNoteSet: false,
-  allowInput: false
+  allowInput: false,
+  currentOctave: defaultOctave,
+  currentAccidental: defaultAccidental
 }
 
 export const askDictationReducer = (state = initialState, action) => {
@@ -18,16 +27,12 @@ export const askDictationReducer = (state = initialState, action) => {
 
   const voice = (action.payload && action.payload.voice) ? action.payload.voice : 0;
 
-  const vtNote = buildVtNoteString(state.selectedNote);
-  const duration = buildVtDurationString(state.selectedNote);
+  let vtNote = buildVtNoteString(state.selectedNote, state.currentOctave, state.currentAccidental);
+  let duration = buildVtDurationString(state.selectedNote);
 
   const selectedNoteIndex = state.selectedNote.index;
   let currentInputNotation = Object.assign({}, state.inputNotation);
   let currentSelectedNote = Object.assign({}, state.selectedNote);
-
-  //test - first call nothing is set in currentInputNotation... only after UI action
-  //console.log("reducer. Clef of the selected staff inputNotation: ", currentInputNotation.staves[staff].clef);
-
 
   switch(action.type) {
       case "SET_SELECTED":
@@ -37,10 +42,10 @@ export const askDictationReducer = (state = initialState, action) => {
         if (isCorrectNoteProperty(property)) {
           currentSelectedNote[property] = value;
           if (state.selectedNoteSet) {
-            const currentVtNote = buildVtNoteString(currentSelectedNote);
-            const currentDuration = buildVtDurationString(currentSelectedNote);
+            vtNote = buildVtNoteString(currentSelectedNote, state.currentOctave, state.currentAccidental);
+            duration = buildVtDurationString(currentSelectedNote);
   
-            currentInputNotation.staves[staff].voices[voice].notes.splice(selectedNoteIndex, 1, {keys:[currentVtNote], duration: currentDuration});
+            currentInputNotation.staves[staff].voices[voice].notes.splice(selectedNoteIndex, 1, {keys:[vtNote], duration: duration});
           }
           return {
             ...state,
@@ -67,9 +72,9 @@ export const askDictationReducer = (state = initialState, action) => {
             state
           }
         }
-    case "INSERT_NOTE":
-        // test:
-        //console.log("Staff: ", staff);
+      case "INSERT_NOTE":
+        vtNote = buildVtNoteString(currentSelectedNote, state.currentOctave, state.currentAccidental);
+        duration = buildVtDurationString(currentSelectedNote);
 
         currentInputNotation.staves[staff].voices[voice].notes.push({keys:[vtNote], duration: duration});
 
@@ -115,6 +120,32 @@ export const askDictationReducer = (state = initialState, action) => {
         selectedNoteSet: action.payload,
         selectedNote: defaultSelectedNote
       };
+    case "SET_CURRENT_OCTAVE":
+      vtNote = buildVtNoteString(currentSelectedNote, action.payload, state.currentAccidental);
+      duration = buildVtDurationString(currentSelectedNote);
+
+      currentInputNotation.staves[staff].voices[voice].notes.splice(selectedNoteIndex, 1, {keys:[vtNote], duration: duration});
+      return {
+        ...state,
+        currentOctave: action.payload,
+        inputNotation: currentInputNotation
+      };
+    case "SET_CURRENT_ACCIDENTAL":
+
+      let accidental = action.payload;
+      if (state.currentAccidental === accidental) {
+        accidental = "";
+      }
+
+      vtNote = buildVtNoteString(currentSelectedNote, state.currentOctave, accidental);
+      duration = buildVtDurationString(currentSelectedNote);
+
+      currentInputNotation.staves[staff].voices[voice].notes.splice(selectedNoteIndex, 1, {keys:[vtNote], duration: duration});
+      return {
+        ...state,
+        currentAccidental: accidental,
+        inputNotation: currentInputNotation
+      };
     case "SET_ALLOW_INPUT":
       return {
         ...state,
@@ -143,7 +174,6 @@ export const askDictationReducer = (state = initialState, action) => {
         ...state,
         selectedStaff: action.payload
       };
-
       default:
         return state;
   }
@@ -156,7 +186,7 @@ const isCorrectNoteProperty = property => {
   }
 
   return false;
-}
+};
 
 const isCorrectNote = note => {
   if (typeof note === "object") {
@@ -165,22 +195,22 @@ const isCorrectNote = note => {
       if (!isCorrectNoteProperty(property.toString())) {
         return false;
       }
-    })
+    });
     return true;
   }
 
   return false;
-}
+};
 
-const buildVtNoteString = selectedNote => {
+const buildVtNoteString = (selectedNote, octave = defaultOctave, accidental = defaultAccidental) => {
   if (selectedNote) {
     const isRestSelected = selectedNote.note === vtNames["rest"];
     const isBarline = selectedNote.note === vtNames["barline"];
-    return isRestSelected || isBarline ? selectedNote.note : selectedNote.note + selectedNote.accidental + "/" + selectedNote.octave;
+    return isRestSelected || isBarline ? selectedNote.note : selectedNote.note + accidental + "/" + octave.toString();
   }
 
   return null;
-}
+};
 
 const buildVtDurationString = selectedNote => {
   if (selectedNote) {
@@ -190,4 +220,4 @@ const buildVtDurationString = selectedNote => {
   }
 
   return null;
-}
+};

@@ -11,7 +11,6 @@ import {
     setSelectedStaff
 } from "../../actions/askDictation";
 import {scale, createVexTabString, width} from "./vextabUtils";
-import {deepClone} from "../../util/util";
 
 const Notation = (props) => {
     const vtDiv = useRef(null);
@@ -44,8 +43,9 @@ const Notation = (props) => {
         if (props.name === "inputNotation" && (inputNotation || !selectedNoteSet || previousSelectedNote.index !== selectedNote.index )) {
             redraw(notationInfoToVtString(inputNotation));
         }
-    }, [inputNotation, selectedNoteSet, previousSelectedNote, selectedNote]);
 
+        if (selectedNoteSet && artist) {
+            const note = artist.staves[0].note_notes[selectedNote.index];
     useEffect(() => {
         if (props.name === "inputNotation" && vexTab) {
             redraw(notationInfoToVtString(inputNotation));
@@ -72,7 +72,13 @@ const Notation = (props) => {
                 highlightNote(note);
             }
         }
-    }, [selectedNote]);
+    }, [inputNotation, selectedNoteSet, previousSelectedNote, selectedNote]);
+
+    useEffect(() => {
+        if (props.name === "correctNotation" && correctNotation && vexTab) {
+            redraw(notationInfoToVtString(correctNotation));
+        }
+    }, [correctNotation, vexTab]);
 
     useEffect(() => {
         if (props.wrongNoteIndexes) {
@@ -122,12 +128,7 @@ const Notation = (props) => {
                 //console.log("click to find stave: ", y, artist.staves[0].note.getYForLine(0), artist.staves[1].note.getYForLine(1), artist.staves[1].note.getYForLine(-2)   );
                 const staff =  (y<borderLineY) ? 0 : 1;
                 console.log("Staff clicked: ", staff);
-                // draw a rectangle to show the active  -  does not work since will be redrawn from effects -  rather signal "activeStave" somehow
-                // if (renderer) {
-                //     const box = artist.staves[staff].note.getBoundingBox();
-                //     console.log("draw box: ", box);
-                //     renderer.getContext().rect(15, 0, 200, 100, { fill: "green", opacity: "0.2" } ); // does not do anything
-                // }
+
                 if (currentStaff !== staff) {
                     currentStaff = staff;
                     dispatch(setSelectedStaff(staff));
@@ -170,6 +171,14 @@ const Notation = (props) => {
 
         return indexOfClosest;
     };
+
+    const selectLastNote = () => {
+        if (!selectedNoteSet) {
+            const lastNoteIndex = artist.staves[0].note_notes.length - 1;
+            let lastNote = artist.staves[0].note_notes[lastNoteIndex];
+            setCurrentNote(lastNoteIndex, lastNote);
+        }
+    }
 
     const setCurrentNote = (noteIndex, staveNote) => {
         const key = staveNote.keyProps[0];
@@ -235,8 +244,6 @@ const Notation = (props) => {
                 }
             }
 
-
-
             if (notes.toString().trim().startsWith("stave") ) { // already full vextab string
                 // try: add some space up and above:
                 notes = "options space=15\n" + notes + "\noptions space=15\n";
@@ -258,9 +265,9 @@ const Notation = (props) => {
     return (
         <React.Fragment>
             <div id={props.name} className={'vtDiv center'} ref={vtDiv} />
-            {/*{props.showInput &&  <NotationInput selectLastNote={selectLastNote} />}*/}
-            {props.showInput &&  <NotationInput />}
+            {props.showInput && <NotationInput selectLastNote={selectLastNote} />}
         </React.Fragment>
+
     );
 };
 

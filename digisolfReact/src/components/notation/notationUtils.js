@@ -1,9 +1,7 @@
 export const defaultSelectedNote = {
   note: "",
-  accidental: "",
   duration: "4",
   dot: false,
-  octave: "4",
   index: null,
   //tarmo:
   staff: 0,
@@ -35,6 +33,7 @@ export const octaveData = {
   minOctave: 1
 }
 
+
 // needs to depend on the clef  - notationInfo.staves[staff].clef - perhaps:
 export const octaveData_new = {
     treble: {
@@ -48,6 +47,8 @@ export const octaveData_new = {
 }
 
 
+export const defaultOctave = 4; // TODO: this should depend on clef -  4 for treble, 3 for bass
+
 export const octaveNoToName = {
   1: "contraOctave",
   2: "greatOctave",
@@ -56,6 +57,8 @@ export const octaveNoToName = {
   5: "secondOctave",
   6: "thirdOctave"
 };
+
+export const defaultAccidental = "";
 
 // this is basic structure to keep all the score
 // score includes staves,  staves include voices, voices include notes
@@ -118,7 +121,6 @@ export const notationInfoToVtString = notationInfo => {
                   }
               }
               vtString += "\n";
-
           }
       }
   }
