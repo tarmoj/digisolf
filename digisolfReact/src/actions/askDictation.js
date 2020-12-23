@@ -46,6 +46,20 @@ export const setSelectedNoteSet = (noteIsSet) => {
   }
 };
 
+export const setCurrentOctave = (octave) => {
+  return {
+    type: "SET_CURRENT_OCTAVE",
+    payload: octave
+  }
+};
+
+export const setCurrentAccidental = (accidental) => {
+  return {
+    type: "SET_CURRENT_ACCIDENTAL",
+    payload: accidental
+  }
+};
+
 export const setAllowInput = (allowInput) => {
   return {
     type: "SET_ALLOW_INPUT",

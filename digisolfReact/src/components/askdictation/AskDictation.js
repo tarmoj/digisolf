@@ -605,7 +605,6 @@ const AskDictation = () => {
                 {createSelectionMenu()}
                 {createDegreeDictationInput()}
                 {createNotationInputBlock()}
-                <NotationInput />
                 {createCorrectNotationBlock()}
                 {createControlButtons()}
                 <Grid.Row>

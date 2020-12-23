@@ -1,9 +1,7 @@
 export const defaultSelectedNote = {
   note: "",
-  accidental: "",
   duration: "4",
   dot: false,
-  octave: "4",
   index: null
 }
 
@@ -29,7 +27,9 @@ export const vtNames = {
 export const octaveData = {
   maxOctave: 5,
   minOctave: 3
-}
+};
+
+export const defaultOctave = 4;
 
 export const octaveNoToName = {
   1: "contraOctave",
@@ -39,6 +39,8 @@ export const octaveNoToName = {
   5: "secondOctave",
   6: "thirdOctave"
 };
+
+export const defaultAccidental = "";
 
 // this is basic structure to keep all the score
 // score includes staves,  staves include voices, voices include notes

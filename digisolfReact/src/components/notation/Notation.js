@@ -3,9 +3,8 @@ import {Artist, Flow, VexTab} from 'vextab/releases/vextab-div';
 import NotationInput from "./NotationInput";
 import {vtNames, notationInfoToVtString} from "./notationUtils";
 import {useSelector, useDispatch} from "react-redux";
-import {resetState, setAllowInput, setSelectedNote, setSelectedNoteSet} from "../../actions/askDictation";
+import {setSelectedNote, setSelectedNoteSet} from "../../actions/askDictation";
 import {scale, createVexTabString, width} from "./vextabUtils";
-import {deepClone} from "../../util/util";
 
 const Notation = (props) => {
     const vtDiv = useRef(null);
@@ -36,15 +35,7 @@ const Notation = (props) => {
         if (props.name === "inputNotation" && (inputNotation || !selectedNoteSet || previousSelectedNote.index !== selectedNote.index )) {
             redraw(notationInfoToVtString(inputNotation));
         }
-    }, [inputNotation, selectedNoteSet, previousSelectedNote, selectedNote]);
 
-    useEffect(() => {
-        if (props.name === "correctNotation" && correctNotation && vexTab) {
-            redraw(notationInfoToVtString(correctNotation));
-        }
-    }, [correctNotation, vexTab]);
-
-    useEffect(() => {
         if (selectedNoteSet && artist) {
             const note = artist.staves[0].note_notes[selectedNote.index];
 
@@ -54,7 +45,13 @@ const Notation = (props) => {
                 highlightNote(note);
             }
         }
-    }, [selectedNote]);
+    }, [inputNotation, selectedNoteSet, previousSelectedNote, selectedNote]);
+
+    useEffect(() => {
+        if (props.name === "correctNotation" && correctNotation && vexTab) {
+            redraw(notationInfoToVtString(correctNotation));
+        }
+    }, [correctNotation, vexTab]);
 
     useEffect(() => {
         if (props.wrongNoteIndexes) {
@@ -95,7 +92,6 @@ const Notation = (props) => {
             if (closestIndex >= 0) {
                 const note = artist.staves[0].note_notes[closestIndex];
                 setCurrentNote(closestIndex, note);
-                console.log(inputNotation)
             }
         }
     };
@@ -121,6 +117,14 @@ const Notation = (props) => {
 
         return indexOfClosest;
     };
+
+    const selectLastNote = () => {
+        if (!selectedNoteSet) {
+            const lastNoteIndex = artist.staves[0].note_notes.length - 1;
+            let lastNote = artist.staves[0].note_notes[lastNoteIndex];
+            setCurrentNote(lastNoteIndex, lastNote);
+        }
+    }
 
     const setCurrentNote = (noteIndex, staveNote) => {
         const key = staveNote.keyProps[0];
@@ -199,7 +203,11 @@ const Notation = (props) => {
     };
 
     return (
-        <div id={props.name} className={'vtDiv center'} ref={vtDiv} />
+        <React.Fragment>
+            <div id={props.name} className={'vtDiv center'} ref={vtDiv} />
+            {props.showInput && <NotationInput selectLastNote={selectLastNote} />}
+        </React.Fragment>
+
     );
 };
 
