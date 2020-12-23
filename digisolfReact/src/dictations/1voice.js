@@ -3,6 +3,20 @@
 // Use | for barlines.
 
 export const dictations = [
+
+
+// test:
+
+        {
+            category: "1voice_level1",
+            title: "14a",
+            soundFile: "../sounds/dictations/14a.mp3",
+            notation:
+                `
+                \\time 3/4
+                a8 h c' c' h c' | a4 a r | a8 h c' h c' d' | e'4 e' r \\bar "|."   
+                `
+        },
 		
 // kuidas teha show väljaga? kui pole midagi, siis näita esimest nooti.		
 // lihtsad 11-20 viiul
