@@ -32,12 +32,12 @@ export const octaveData = {
 }
 
 export const octaveNoToName = {
-  2: "contraOctave",
-  3: "greatOctave",
-  4: "smallOctave",
-  5: "firstOctave",
-  6: "secondOctave",
-  7: "thirdOctave"
+  1: "contraOctave",
+  2: "greatOctave",
+  3: "smallOctave",
+  4: "firstOctave",
+  5: "secondOctave",
+  6: "thirdOctave"
 };
 
 // this is basic structure to keep all the score

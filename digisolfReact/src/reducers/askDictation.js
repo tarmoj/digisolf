@@ -8,7 +8,7 @@ const initialState = {
   correctNotation: deepClone(defaultNotationInfo),
   selectedStaveIndex: 0,
   selectedNoteSet: false,
-  allowInput: true
+  allowInput: false
 }
 
 export const askDictationReducer = (state = initialState, action) => {

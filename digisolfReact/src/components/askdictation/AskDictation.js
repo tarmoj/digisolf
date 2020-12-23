@@ -24,6 +24,7 @@ import {dictations as popJazz} from "../../dictations/popJazz";
 import {dictations as degrees} from "../../dictations/degrees";
 import * as constants from "./dictationConstants";
 import {resetState, setAllowInput, setCorrectNotation} from "../../actions/askDictation";
+import NotationInput from "../notation/NotationInput";
 
 
 const AskDictation = () => {
@@ -277,6 +278,8 @@ const AskDictation = () => {
 
         dispatch(setAllowInput(!allowInput));
         setShowCorrectNotation(!showCorrectNotation);
+
+        // Empty wrong note indexes if "Kontrolli" has been pressed second time
         if (showCorrectNotation) {
             setWrongNoteIndexes(null);
         }
@@ -498,34 +501,10 @@ const AskDictation = () => {
     };
 
     const createNotationInputBlock =  () => {
-        return (exerciseHasBegun && dictationType!=="degrees") ? (
-            <div className={'notationBlock'}>
-                <Input
-                    className={"marginRight"}
-                    onChange={e => {setNotesEnteredByUser(e.target.value)}}
-                    onKeyPress={ e=> { if (e.key === 'Enter') renderNotes()  }}
-                    placeholder={'nt: \\time 3/4 a,8 h, c4 gis | a a\'2'}
-                    value={notesEnteredByUser}
-                />
-                <Button onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
-                {/*AJUTINE INFO kast:*/}
-                <Popup on='click' position='bottom right' trigger={<Button content='Juhised' />} >
-                    <h3>Noteerimine teksti abil</h3>
-                    <p>Noodinimed: b, h, c, cis, es, fisis jne.</p>
-                    <p>Oktav (ajutine) noodinime järel: , - väike oktav, ' - teine oktav, Ilma märgita -  1. oktav </p>
-                    <p>Vältused noodinime (ja oktavi) järel: 4 -  veerad, 4. -  veerand punktida, 8 - kaheksandik jne.
-                        Vaikimisi -  veerand. Kui vätlus kordub, pole vaja seda kirjutada</p>
-                    <p>Paus: r </p>
-                    <p>Taktijoon: | </p>
-                    <p>Võti: nt. <i>{'\\clef treble'}</i> või <i>{'\\clef bass'}</i></p>
-                    <p>Taktimõõt: <i>nt. {'\\time 2/4 \\time 4/4 \\time 3/8'}</i> </p>
-                    <p>Helistik: hetkel toetamata</p>
-                    <p>Näide: Rongisõit B-duuris:</p>
-                    <p> { '\\time 2/4 b,8 c d es | f f f4  ' }  </p>
-
-                </Popup>
-
-                <Notation  className={"marginTopSmall"} width={600} scale={1}
+        if (exerciseHasBegun && dictationType!=="degrees" && selectedDictation.title !== "") {
+            return (
+                <Notation  className={"marginTopSmall"}
+                           scale={1}
                            notes={notationInfo.vtNotes}
                            time={notationInfo.time}
                            clef={notationInfo.clef}
@@ -533,28 +512,31 @@ const AskDictation = () => {
                            showInput={true}
                            wrongNoteIndexes={wrongNoteIndexes}
                            name={"inputNotation"}
+                           width={getWidth(correctNotation)}
                 />
-
-            </div>
-        ) : null;
+            )
+        }
     };
 
     const createCorrectNotationBlock = () => {
-        const answerDisplay = showCorrectNotation ? "inline" : "none" ;
+        if (exerciseHasBegun && selectedDictation.title !== "" && showCorrectNotation) {
+            return (
+                <Notation className={"marginTopSmall center"}
+                          scale={1}
+                          notes={correctNotation}
+                          time={correctNotation.time}
+                          clef={correctNotation.clef}
+                          keySignature={correctNotation.keySignature}
+                          showInput={false}
+                          name={"correctNotation"}
+                          width={getWidth(correctNotation)}
+                />
+            )
+        }
+    };
 
-        return exerciseHasBegun ? (
-            <div className={'notationBlock'} style={{display: answerDisplay}}>
-               <Notation className={"marginTopSmall"} width={600} scale={1}
-                         notes={correctNotation}
-                         time={correctNotation.time}
-                         clef={correctNotation.clef}
-                         keySignature={correctNotation.keySignature}
-                         showInput={false}
-                         name={"correctNotation"}
-               />
-
-            </div>
-        ) : null;
+    const getWidth = () => {
+        return correctNotation.staves[0].voices[0].notes.length * 40;
     };
 
     const createSelectionMenu = () => {
@@ -580,6 +562,7 @@ const AskDictation = () => {
                     //     startExercise();
                     // }
                     dispatch(resetState());
+                    dispatch(setAllowInput(true));
                     renew(value);
                 }
                 }
@@ -615,6 +598,7 @@ const AskDictation = () => {
                 {createSelectionMenu()}
                 {createDegreeDictationInput()}
                 {createNotationInputBlock()}
+                <NotationInput />
                 {createCorrectNotationBlock()}
                 {createControlButtons()}
                 <Grid.Row>

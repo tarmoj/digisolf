@@ -5,6 +5,7 @@ import {vtNames, notationInfoToVtString} from "./notationUtils";
 import {useSelector, useDispatch} from "react-redux";
 import {resetState, setAllowInput, setSelectedNote, setSelectedNoteSet} from "../../actions/askDictation";
 import {scale, createVexTabString, width} from "./vextabUtils";
+import {deepClone} from "../../util/util";
 
 const Notation = (props) => {
     const vtDiv = useRef(null);
@@ -23,8 +24,13 @@ const Notation = (props) => {
 
     useEffect(() => {
         initializeVexTab();
-        dispatch(setAllowInput(true));
     }, []);
+
+    useEffect(() => {
+        if (artist) {
+            artist.width = props.width;
+        }
+    }, [props.width]);
 
     useEffect(() => {
         if (props.name === "inputNotation" && (inputNotation || !selectedNoteSet || previousSelectedNote.index !== selectedNote.index )) {
@@ -33,10 +39,10 @@ const Notation = (props) => {
     }, [inputNotation, selectedNoteSet, previousSelectedNote, selectedNote]);
 
     useEffect(() => {
-        if (props.name === "correctNotation" && correctNotation) {
+        if (props.name === "correctNotation" && correctNotation && vexTab) {
             redraw(notationInfoToVtString(correctNotation));
         }
-    }, [correctNotation]);
+    }, [correctNotation, vexTab]);
 
     useEffect(() => {
         if (selectedNoteSet && artist) {
@@ -69,12 +75,13 @@ const Notation = (props) => {
         if (props.notes.staves) {
             redraw(notationInfoToVtString(props.notes));
         }
-    }, [props.notes]);
+    }, [props.notes, vexTab]);
 
     const initializeVexTab = () => {
-        const artist = new Artist(10, 10, width, {scale: scale});
-        setArtist(artist);
-        const vexTab = new VexTab(artist);
+        const newArtist = artist ? Object.assign({}, artist) : new Artist(10, 10, props.width, {scale: scale});
+        newArtist.width = props.width;
+        setArtist(newArtist);
+        const vexTab = new VexTab(newArtist);
         setVexTab(vexTab);
         const renderer = new Flow.Renderer(vtDiv.current, Flow.Renderer.Backends.SVG);
         setRenderer(renderer);
@@ -192,10 +199,7 @@ const Notation = (props) => {
     };
 
     return (
-        <div>
-            <div id={props.name} className={'vtDiv'} ref={vtDiv} />
-            {props.showInput && <NotationInput />}
-        </div>
+        <div id={props.name} className={'vtDiv center'} ref={vtDiv} />
     );
 };
 
