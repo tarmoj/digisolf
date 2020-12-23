@@ -6,7 +6,7 @@ export const dictations = [
             soundFile: "../sounds/dictations/1a.mp3",
             notation:
                 ` \\time 4/4 
-                c d c e | c g e r \\bar "|."
+                c' d' c' e' | c' g' e' r \\bar "|."
                 `
         },
         {   
@@ -17,7 +17,7 @@ export const dictations = [
             notation: // url was: ../digisolf/sounds/
                 `
                 \\time 4/4
-                c e g c | h, c g, r \\bar "|."  
+                c' e' g' c' | h c' g r \\bar "|."  
                 `
         },
         {
@@ -28,7 +28,7 @@ export const dictations = [
             notation:
                 `
                 \\time 4/4
-                c' e' d' c' | g f e  r \\bar "|."  
+                c'' e'' d'' c'' | g' f' e'  r \\bar "|."  
                 `
         },
         {
@@ -39,7 +39,7 @@ export const dictations = [
             notation:
                 `  
                 \\time 4/4
-                a, h, c e | f a gis r \\bar "|."
+                a h c' e' | f' a' gis' r \\bar "|."
                 `
         },
         { 
@@ -50,7 +50,7 @@ export const dictations = [
             notation:
                 `
                 \\time 4/4
-                a, c e gis, | h, e  a, r \\bar "|."  
+                a c' e' gis | h e'  a r \\bar "|."  
                 `
         },
 
@@ -62,7 +62,7 @@ export const dictations = [
             notation:
                 `
                 \\time 3/4
-                a,8 h, c c h, c | a,4 a, r | a,8 g, c h, c d | e4 e r \\bar "|."   
+                a8 h c' c' h c' | a4 a r | a8 h c' h c' d' | e'4 e' r \\bar "|."   
                 `
         }
 ];
