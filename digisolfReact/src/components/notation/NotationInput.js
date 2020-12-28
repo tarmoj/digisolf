@@ -1,60 +1,138 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Table, Image, Button, Popup, Accordion, Icon} from 'semantic-ui-react';
-import {vtNames, octaveData} from './notationConstants';
+import {vtNames, octaveData, octaveNoToName} from './notationUtils';
+import {useSelector, useDispatch} from 'react-redux';
+import {setSelected, insertNote, removeNote} from '../../actions/askDictation';
+import {useTranslation} from "react-i18next";
+import {capitalizeFirst} from "../../util/util";
 
-const NotationTable = ({addNote, removeNote, selected, setters}) => {
-
+const NotationInput = () => {
   const [showTable, setShowTable] = useState(false);
   const [iconClass, setIconClass] = useState("iconDown");
 
+  const selectedNote = useSelector(state => state.askDictationReducer.selectedNote);
+  const selectedNoteSet = useSelector(state => state.askDictationReducer.selectedNoteSet);
+  const allowInput = useSelector(state => state.askDictationReducer.allowInput);
+
+  const dispatch = useDispatch();
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  });
+
+  useEffect(() => {
+    setShowTable(allowInput);
+  }, [allowInput]);
+
+  const onKeyDown = (e) => {
+    const noteNameKeys = ["c", "d", "e", "f", "g", "a", "b"];
+
+    if (allowInput) {
+      if (noteNameKeys.includes(e.key)) {
+        onNoteClick(e.key.toUpperCase());
+      } else if (e.key === "1") {
+        onNoteDurationClick("whole");
+      } else if (e.key === "2") {
+        onNoteDurationClick("half");
+      } else if (e.key === "3") {
+        onNoteDurationClick("quarter");
+      } else if (e.key === "4") {
+        onNoteDurationClick("eighth");
+      } else if (e.key === "5") {
+        onNoteDurationClick("sixteenth");
+      } else if (e.key === "6") {
+        onDotClick("dot");
+      } else if (e.key === "0") {
+        onRestClick("rest");
+      } else if (e.key === "n") {
+        onNoteAccidentalClick("dblflat");
+      } else if (e.key === "m") {
+        onNoteAccidentalClick("flat");
+      } else if (e.key === ",") {
+        onNoteAccidentalClick("nat");
+      } else if (e.key === ".") {
+        onNoteAccidentalClick("sharp");
+      } else if (e.key === "-") {
+        onNoteAccidentalClick("dblsharp");
+      } else if (e.key === "Shift") {
+        onBarlineClick();
+      } else if (e.key === "ArrowUp") {
+        onOctaveUpClick();
+      } else if (e.key === "ArrowDown") {
+        onOctaveDownClick();
+      } else if (e.key === "Backspace") {
+        onRemoveNoteClick();
+      }
+    }
+  };
+
   const onNoteClick = name => {
-    setters.setNote(name);
+    dispatch(setSelected("note", name));
+    if (!selectedNoteSet) {
+      dispatch(insertNote());
+    }
   }
 
   const onRestClick = name => {
-    setters.setNote(vtNames[name]);
+    dispatch(setSelected("note", vtNames[name]));
+    dispatch(insertNote());
   }
 
   const onNoteAccidentalClick = name => {
-    if (selected.accidental === vtNames[name]) {
-      setters.setAccidental("");
+    if (selectedNote.accidental === vtNames[name]) {
+      dispatch(setSelected("accidental", ""));
     } else {
-      setters.setAccidental(vtNames[name]);
+      dispatch(setSelected("accidental", vtNames[name]));
     }
   }
 
   const onNoteDurationClick = name => {
-    setters.setDuration(vtNames[name]);
+    dispatch(setSelected("duration", vtNames[name]));
   }
 
   const onDotClick = () => {
-    setters.setDot(!selected.dot);
+    dispatch(setSelected("dot", !selectedNote.dot));
   }
 
+  const onBarlineClick = () => {
+    dispatch(setSelected("note", "|"));
+    dispatch(insertNote());
+  };
+
   const onOctaveUpClick = () => {
-    let octave = parseInt(selected.octave);
+    let octave = parseInt(selectedNote.octave);
     if (octave < octaveData.maxOctave) {
       octave++;
-      setters.setOctave(octave.toString());
+      dispatch(setSelected("octave", octave.toString()));
     }
   }
 
   const onOctaveDownClick = () => {
-    let octave = parseInt(selected.octave);
+    let octave = parseInt(selectedNote.octave);
     if (octave > octaveData.minOctave) {
       octave--;
-      setters.setOctave(octave.toString());
+      dispatch(setSelected("octave", octave.toString()));
     }
   }
 
   // this is to get a fancy animation when accordionblock's opening
   const onTitleClick = () => {
-    toggleTable();
-    if (iconClass === "iconDown") {
-      setIconClass("iconUp");
-    } else {
-      setIconClass("iconDown");
+    if (allowInput) {
+      toggleTable();
+      if (iconClass === "iconDown") {
+        setIconClass("iconUp");
+      } else {
+        setIconClass("iconDown");
+      }
     }
+  }
+
+  const onRemoveNoteClick = () => {
+    dispatch(removeNote());
   }
 
   const toggleTable = () => {
@@ -62,19 +140,19 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
   }
 
   const isNoteSelected = name => {
-    return name === selected.note;
+    return name === selectedNote.note;
   }
 
   const isRestSelected = name => {
-    return vtNames[name] === selected.note;
+    return vtNames[name] === selectedNote.note;
   }
 
   const isNoteAccidentalSelected = name => {
-    return vtNames[name] === selected.accidental;
+    return vtNames[name] === selectedNote.accidental;
   }
 
   const isNoteDurationSelected = name => {
-    return vtNames[name] === selected.duration;
+    return vtNames[name] === selectedNote.duration;
   }
 
   return(
@@ -84,6 +162,7 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
           <Icon className={'chevron down ' + iconClass} id={'toggleTableIcon'} />
         </Accordion.Title>
         <Accordion.Content active={showTable} id={'notationTableContent'}>
+          <p className={"floatLeft"}>{capitalizeFirst(t("octave"))}: <span className={"bold"}>{t(octaveNoToName[selectedNote.octave])}</span></p>
           <Table unstackable >
             <Table.Body>
               <Table.Row>
@@ -93,7 +172,7 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
                 <NotationTableCell name={'quarter'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
                 <NotationTableCell name={'eighth'} handleClick={onNoteDurationClick} checkIfSelected={(isNoteDurationSelected)} />
                 <NotationTableCell name={'sixteenth'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
-                <NotationTableCell name={'dot'} handleClick={onDotClick} checkIfSelected={() => selected.dot} />
+                <NotationTableCell name={'dot'} handleClick={onDotClick} checkIfSelected={() => selectedNote.dot} />
               </Table.Row>
               <Table.Row>
                 <NotationTableCell name={'C'} handleClick={onNoteClick} checkIfSelected={isNoteSelected} isImageCell={false} />
@@ -112,6 +191,7 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
                 <NotationTableCell name={'nat'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
                 <NotationTableCell name={'sharp'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
                 <NotationTableCell name={'dblsharp'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
+                <NotationTableCell name={'barline'} handleClick={onBarlineClick} checkIfSelected={isNoteSelected} />
                 <Table.Cell textAlign='center' width='2' />
                 <Table.Cell textAlign='center' width='2' />
               </Table.Row>
@@ -127,15 +207,14 @@ const NotationTable = ({addNote, removeNote, selected, setters}) => {
               </Table.Row>
             </Table.Body>
           </Table>
-          <Button onClick={addNote}>Lisa noot</Button>
-          <Button onClick={() => removeNote()}>Kustuta viimane</Button>
+          <Button onClick={onRemoveNoteClick}>Kustuta</Button>
         </Accordion.Content>
       </Accordion>
   </div>
   );
 };
 
-export default NotationTable;
+export default NotationInput;
 
 const NotationTableCell = ({name, handleClick, checkIfSelected, isImageCell=true, popupContent}) => {
 

@@ -1,3 +1,7 @@
+import {defaultNotationInfo} from "../components/notation/notationUtils";
+import {deepClone} from "./util";
+
+
 // Think about different conventions: classical german - b,h, classical scandinavian (bes, b), syllabic (do, re mi), syllabic russian
 // See lilypond definitions https://lilypond.org/doc/v2.18/Documentation/notation/writing-pitches#note-names-in-other-languages
 // define as map where key is (lilypond) noteName, value VexTab note
@@ -168,56 +172,87 @@ export const getNoteByVtNote = (vtNote, noteArray=trebleClefNotes) => {
 	return noteArray.find(note => note.vtNote === vtNote);
 };
 
-export const parseLilypondString = (lyString) => { // returns vexTabString of the notation
+export const parseLilypondDictation = (lyDictation) => { // returns returns notationInfo object. Input can be either string
+// for one-voiced dications or object { stave1:"", stave2, "" }. More than 2 staves not supported, currently one voice per stave.
+	let notationInfo = deepClone(defaultNotationInfo);
+	if (typeof(lyDictation)==="string") {
+		notationInfo.staves[0] = parseLilypondString(lyDictation);
+	} else if ( typeof(lyDictation)==="object" ) {
+		if (lyDictation.hasOwnProperty("stave1")) {
+			const stave1 = parseLilypondString(lyDictation.stave1);
+			notationInfo.staves[0] = stave1;
+		}
+		if (lyDictation.hasOwnProperty("stave1")) {
+			const stave2 = parseLilypondString(lyDictation.stave2);
+			notationInfo.staves[1] = stave2;
+		}
+		//etc if more voices needed
+	} else {
+		console.log("Unknown lyDictation: ", lyDictation);
+	}
+
+	return notationInfo;
+
+};
+
+export const parseLilypondString = (lyString) => { //NB! (slight) rewrite 2!  returns notatationInfo for one stave, one voice
 	const chunks = lyString.trim().replace(/\s\s+/g, ' ').split(" "); // simplify string
-	let vtNotes = "";
-	let notationInfo = { clef: "", keySignature: "", time: "", vtNotes: "" };
+	//let notationInfo = deepClone(defaultNotationInfo);
+	let stave=deepClone(defaultNotationInfo.staves[0]);
+	let notes = [] ; // each note has format {keys:[], duration: "", [optional-  chord: ""]}
 	let useTie = false;
+	let lastDuration = "4";
+
 	for (let i = 0; i<chunks.length; i++) {
+		let vtNote="";
 		if (chunks[i].trim() === "\\key" && chunks.length >= i+1 ) { // must be like "\key a \major\minor
-			console.log("key: ", chunks[i+1], chunks[i+2]);
+			// console.log("key: ", chunks[i+1], chunks[i+2]);
 			let vtKey = noteNames.get(chunks[i+1].toLowerCase());
 			if (vtKey) {
 				vtKey = vtKey.replace("@","b"); // key siganture does not want @ but b for flat
 				if (chunks[i+2]=="\\minor") {
 					vtKey += "m"
 				}
-				notationInfo.keySignature = vtKey;
-				console.log("Converted key:", vtKey)
+				stave.key = vtKey;
+				// console.log("Converted key:", vtKey)
 			} else {
-				console.log("Could not find notename for: ", chunks[i+1])
+				// console.log("Could not find notename for: ", chunks[i+1])
 			}
 			i += 2;
 		} else if (chunks[i].trim() === "\\time" && chunks.length >= i+1) { // must be like "\key a \major
-			console.log("time: ", chunks[i + 1]);
-			notationInfo.time = chunks[i + 1];
+			// console.log("time: ", chunks[i + 1]);
+			stave.time = chunks[i + 1];
 			i += 1;
 			// VT nt: time=2/4
 		} else if (chunks[i].trim() === "\\clef" && chunks.length >= i+1) {
 			const clef = chunks[i + 1].trim().replace(/[\"]+/g, ''); // remove quoates \"
-			console.log("clef: ", clef);
-			notationInfo.clef = clef;
+			//console.log("clef: ", clef);
+			stave.clef = clef;
 			i += 1;
 			// VT nt: clef=treble
 		} else if  (chunks[i].trim() === "\\bar" && chunks.length >= i+1)  { // handle different barlines
 			const barLine = chunks[i + 1].trim().replace(/[\"]+/g, ''); // remove quoates \"
 
-			console.log("Found barline: ", barLine)
+			// console.log("Found barline: ", barLine);
+			let vtBar = "";
 			switch (barLine) {
-				case '|' : console.log("Normal bar"); vtNotes += " | "; break;
-				case '|.' : console.log("End bar"); vtNotes += " =|= "; break;
-				case '||' : console.log("Double bar"); vtNotes += " =|| "; break;
-				case '.|:' : console.log("Repeat begins"); vtNotes += " =|: "; break;
-				case ':|.' : console.log("Repeat ends"); vtNotes += " =:|| "; break;
-				case ':|.|:' : console.log("Double repeat"); vtNotes += " =:: "; break;
-				default : console.log("Normal bar"); vtNotes += " | "; break;
+				case '|' : console.log("Normal bar"); vtBar = "|"; break;
+				case '|.' : console.log("End bar"); vtBar = "=|="; break;
+				case '||' : console.log("Double bar"); vtBar += "=||"; break;
+				case '.|:' : console.log("Repeat begins"); vtBar += "=|:"; break;
+				case ':|.' : console.log("Repeat ends"); vtBar += " =:||"; break;
+				case ':|.|:' : console.log("Double repeat"); vtBar += "=::"; break;
+				default : console.log("Normal bar"); vtBar += "|"; break;
 
 			}
+			notes.push({keys:[vtBar], duration:"0"});
 			i += 1;
 		} else if     (chunks[i].trim() === "|") {
-			console.log("Barline");
-			vtNotes += " | ";
+			// console.log("Barline");
+			//vtNote = "|";
+			notes.push({keys:["|"], duration:"0"});
 		} else  { // might be a note or error
+			let vtNote="";
 			const index = chunks[i].search(/[~,'\\\d\s]/); // in lylypond one of those may follow th note: , ' digit \ whitespace or nothing
 			let noteName;
 			if (index>=0) {
@@ -225,7 +260,7 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 			} else {
 				noteName = chunks[i].toLowerCase();
 			}
-			let vtNote = "";
+			//let vtNote = "";
 
 			if (noteName === "r") { // rest
 				vtNote = "##";
@@ -235,9 +270,10 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 					alert(noteName +  " is not a recognized note or keyword."); // TODO: translate!
 					break;
 				}
-				console.log("noteName is: ", noteName);
+				// console.log("noteName is: ", noteName);
 				vtNote = noteNames.get(noteName);
 
+				//TODO: octave from relative writing
 				//for now octave by absolute notation ' - 1st oct, '' -2nd, none - small, , - great etc.
 				let octave;
 				// use better regexp and test for '' ,, etc
@@ -248,18 +284,19 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 				} else if (chunks[i].search("\'")>=0) {
 					octave = "4";
 				} else if (chunks[i].search(",")>=0) {
-						octave ="2";
+					octave ="2";
 				} else if (chunks[i].search(",,")>=0) {
-							octave ="1";
+					octave ="1";
 				} else { // no ending
 					octave = "3";
 				}
 
-				vtNote += "/" + octave + " ";
+				vtNote += "/" + octave;
 			}
 
 
 			// tie - in lilypond ~ is on first note, in VT h after the duration of next one
+			// NB! untested in  new notationInfo context!
 			if (useTie) {
 				vtNote = " h " + vtNote; // for held note/legato
 				useTie = false;
@@ -275,24 +312,23 @@ export const parseLilypondString = (lyString) => { // returns vexTabString of th
 			// duration
 			const re = /\d{1,2}(\.{0,1})+/; // was re = /\d+/; - but this skips the dot
 			let duration = re.exec(chunks[i]);
-			console.log("Duration: ", chunks[i], duration);
 
 			if (duration) {
 				duration = duration[0].replace(/\./g, "d"); // d instead of dot for VexTab
-				vtNote = ":" + duration + " " + vtNote + " ";  //` :${duration} ${vtNote}. `; // in VT duration is before note(s)
-			} else if (useTie) {
-
+				lastDuration = duration;
 			}
 
-			console.log("vtNote: ", vtNote);
-			vtNotes += vtNote;
+			// console.log("vtNote: ", vtNote);
+			notes.push({keys:[vtNote], duration:lastDuration});
 
 		}
+
 	}
-	console.log("Parsed notes: ", vtNotes);
-	notationInfo.vtNotes = vtNotes;
-	return notationInfo;
+	//console.log("Parsed notes: ", vtNotes);
+	stave.voices[0].notes = notes;
+	return stave;
 };
+
 
 
 
