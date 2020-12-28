@@ -105,6 +105,7 @@ const AskDictation = () => {
         }
 
         let answer = null;
+        //let notationInfo =  {vtNotes: ""};
 
         if (dictationType === "degrees") { // degree dictations -  generate notation from dictation.degrees
 
@@ -120,33 +121,39 @@ const AskDictation = () => {
             answer = {degrees: stringToIntArray(dictation.degrees) };
         } else {
             answer = {notation: selectedDictation.notation}; // <- this will not be used
-
-
-        }
-
-        // set notationIfo for correct notation block
-        let notationInfo =  {vtNotes: ""};
-        if (dictation.notation.trim().startsWith("stave") ) {
-            notationInfo.vtNotes = dictation.notation;
-        } else {
-            notationInfo = parseLilypondString(dictation.notation);
-        }
-
-        console.log("Õiged noodid: ", notationInfo.vtNotes);
-        if (notationInfo.vtNotes) {
-            setCorrectNotation(notationInfo);
-            // set notationIfo for correct notation block
-            let notationInfo = parseLilypondDictation(dictation.notation);
-            // see on paha struktuur, oleks vaja, et oleks võimalik anda kogu vexTab String tervikuna, kui nt mitmehäälne muusika
-            // if (dictation.notation.trim().startsWith("stave") ) {
-            //     notationInfo.vtNotes = dictation.notation;
-            // } else {
-            //     notationInfo = parseLilypondString(dictation.notation);
-            //     // console.log("NotationIndo structure: ", notationInfo);
-            // }
+            const notationInfo = parseLilypondDictation(dictation.notation);
             console.log("notationInfo: ", notationInfo);
             dispatch(setCorrectNotation(notationInfo));
+
         }
+
+        //NB! Notation must take the notation as String, not notatiobobject, otherwise it is difficult to set text info
+
+        // set notationIfo for correct notation block
+
+        // if (dictation.notation.trim().startsWith("stave") ) {
+        //     notationInfo.vtNotes = dictation.notation;
+        // } else {
+        //     notationInfo = parseLilypondString(dictation.notation);
+        // }
+
+        // this is a mess -  check for degree dictations!
+        //console.log("Õiged noodid: ", notationInfo.vtNotes);
+
+        // if (notationInfo.vtNotes) {
+        //     setCorrectNotation(notationInfo);
+        //     // set notationIfo for correct notation block
+        //     let notationInfo = parseLilypondDictation(dictation.notation);
+        //     // see on paha struktuur, oleks vaja, et oleks võimalik anda kogu vexTab String tervikuna, kui nt mitmehäälne muusika
+        //     // if (dictation.notation.trim().startsWith("stave") ) {
+        //     //     notationInfo.vtNotes = dictation.notation;
+        //     // } else {
+        //     //     notationInfo = parseLilypondString(dictation.notation);
+        //     //     // console.log("NotationIndo structure: ", notationInfo);
+        //     // }
+        //     console.log("notationInfo: ", notationInfo);
+        //     dispatch(setCorrectNotation(notationInfo));
+        // }
 
         setSelectedDictation(dictation);
         setAnswer(answer);
@@ -340,6 +347,20 @@ const AskDictation = () => {
 
     const checkDegrees = () => checkResponse( {degrees: stringToIntArray(degreesEnteredByUser) } );
 
+    const checkDegreesResponse = (degrees, correct) => {
+        const correctArray = answer.degrees;
+
+        for (let i=0; i<correctArray.length; i++ ) {
+            if (Math.abs(degrees[i]) !== Math.abs(correctArray[i]) ) { // ignore minus signs
+                // TODO: form feedBack string, colour wrong degrees
+                console.log("Wrong degree: ", i, degrees[i]);
+                correct = false;
+            }
+        }
+
+        showDictation();
+    }
+
     const checkResponse = (response) => { // response is an object {key: value [, key2: value, ...]}
 
         if (!exerciseHasBegun) {
@@ -380,19 +401,7 @@ const AskDictation = () => {
             showDictation();
         }
 
-        const checkDegreesResponse = (degrees, correct) => {
-            const correctArray = answer.degrees;
 
-            for (let i=0; i<correctArray.length; i++ ) {
-                if (Math.abs(degrees[i]) !== Math.abs(correctArray[i]) ) { // ignore minus signs
-                    // TODO: form feedBack string, colour wrong degrees
-                    console.log("Wrong degree: ", i, degrees[i]);
-                    correct = false;
-                }
-            }
-
-            showDictation();
-        }
 
         /*if (checkNotation()) {
             feedBack += `${capitalizeFirst(t("notation"))} ${t("correct")}. `;
