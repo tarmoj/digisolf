@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
-import {Button, Grid, Header, Input, Popup} from 'semantic-ui-react'
-import React, {useState, useRef, useEffect} from 'react';
 import {Button, Dropdown, Grid, Header, Input, Label, Popup} from 'semantic-ui-react'
+import {Slider} from "react-semantic-ui-range";
+
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {arraysAreEqual, capitalizeFirst, weightedRandom} from "../../util/util";
@@ -17,7 +17,7 @@ import Select from "semantic-ui-react/dist/commonjs/addons/Select";
 //import dictation1a from "../sounds/dictations/1a.mp3";
 import {useParams} from "react-router-dom";
 import CsoundObj from "@kunstmusik/csound";
-import {makeInterval,  scaleDefinitions} from "../../util/intervals";
+import {makeInterval,  scaleDefinitions, getIntervalByShortName} from "../../util/intervals";
 import * as notes from "../../util/notes";
 import {stringToIntArray, getRandomElementFromArray } from "../../util/util.js"
 import {dictationOrchestra as orc} from "../../csound/orchestras";
@@ -25,6 +25,7 @@ import {dictations as oneVoice} from "../../dictations/1voice";
 import {dictations as twoVoice} from "../../dictations/2voice";
 import {dictations as popJazz} from "../../dictations/popJazz";
 import {dictations as degrees} from "../../dictations/degrees";
+import {dictations as classical} from "../../dictations/classical"
 import * as constants from "./dictationConstants";
 import {resetState, setAllowInput, setCorrectNotation} from "../../actions/askDictation";
 import NotationInput from "../notation/NotationInput";
@@ -44,8 +45,8 @@ const AskDictation = () => {
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [selectedDictation, setSelectedDictation] = useState({title:"", soundFile:"", notation:""});
     const [answer, setAnswer] = useState(null);
+    const [answered, setAnswered] = useState(false);
     const [showCorrectNotation, setShowCorrectNotation] =  useState(false);
-    const [currentCategory, setCurrentCategory] = useState("C_simple");
 
     const [notesEnteredByUser, setNotesEnteredByUser] = useState("");
     const [degreesEnteredByUser, setDegreesEnteredByUser] = useState("");
@@ -54,6 +55,7 @@ const AskDictation = () => {
 
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
     const [wrongNoteIndexes, setWrongNoteIndexes] = useState(null);
+    const [volume, setVolume] = useState(0.6);
 
     useEffect(() => {
         dispatch(resetState());
