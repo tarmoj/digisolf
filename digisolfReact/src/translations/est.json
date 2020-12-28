@@ -99,7 +99,10 @@
   "inputSensitivity": "sisendi lävi",
   "ratio": "suhe",
   "input": "sisend",
-  "volume": "helitugevus"
+  "volume": "helitugevus",
+  "flute": "flööt",
+  "oboe": "oboe",
+  "violin": "viiul"
 
 
 

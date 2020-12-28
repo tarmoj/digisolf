@@ -478,7 +478,7 @@ const AskDictation = () => {
 
     const startCsound = async () => {
         if (csound) {
-            await loadResources(csound, 60, 84, "violin");
+            await loadResources(csound, 60, 84, "flute");
 
             csound.setOption("-m0d")
             csound.compileOrc(orc);
@@ -536,16 +536,19 @@ const AskDictation = () => {
                 <Grid.Column>
                     {capitalizeFirst(t("instrument"))+": "}
                     <Dropdown
-                        disabled={true}
                         placeholder={capitalizeFirst(t("sound"))}
-                        onChange={ (event, data) => {
+                        onChange={ async (event, data) => {
                             console.log("New sound is: ", data.value)
-                            // if (csound) {
-                            //     csound.setControlChannel("step", data.value);
-                            // }
+                            if (csound) {
+                                await loadResources(csound,  60, 84, data.value);
+                            }
                         }
                         }
-                        options ={ [ {text: "flute", value:"flute"}, {text: "oboe", value:"oboe"}, {text: "violin", value:"violin"}   ]  }
+                        options ={ [
+                            {text: t("flute"), value:"flute"},
+                            {text: t("oboe"), value:"oboe"},
+                            {text: t("violin"), value:"violin"}
+                            ]  }
                         defaultValue={0}
                     />
                 </Grid.Column>

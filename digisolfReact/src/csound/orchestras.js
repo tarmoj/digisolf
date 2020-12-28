@@ -21,7 +21,7 @@ iBeatLength init p4
 kMetroRate =1/iBeatLength
 kCounter init 0
 
-printk2 kMetroRate
+;printk2 kMetroRate
 
 if (metro:k(kMetroRate)==1) then
 schedulek "PlayNote", 0, 1, giNotes[kCounter]
