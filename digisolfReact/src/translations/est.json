@@ -71,6 +71,7 @@
   "C_simple": "Lihtsad",
   "RM_simple": "RM lihtsad",
   "degreeDictations": "astmediktaadid",
+  "degrees": "astmediktaadid",
   "level": "tase",
   "answer": "vasta",
   "enterDegrees": "sisesta astmed",
@@ -102,9 +103,10 @@
   "volume": "helitugevus",
   "flute": "flööt",
   "oboe": "oboe",
-  "violin": "viiul"
-
-
-
-
+  "violin": "viiul",
+  "level_1": "1. tase",
+  "level_2": "2. tase",
+  "level_3": "3. tase",
+  "1voice": "ühehäälsed",
+  "2voice": "kahehäälsed"
 }

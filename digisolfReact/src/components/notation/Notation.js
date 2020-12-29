@@ -44,6 +44,8 @@ const Notation = (props) => {
         }
     }, [correctNotation, vexTab]);
 
+
+
     useEffect(() => {
         if (selectedNoteSet && artist) {
             const note = artist.staves[0].note_notes[selectedNote.index];
@@ -76,6 +78,12 @@ const Notation = (props) => {
             redraw(notationInfoToVtString(props.notes));
         }
     }, [props.notes, vexTab]);
+
+    useEffect(() => {
+        if (props.vtString) {
+            redraw(props.vtString);
+        }
+    }, [props.vtString, vexTab]);
 
     const initializeVexTab = () => {
         const newArtist = artist ? Object.assign({}, artist) : new Artist(10, 10, props.width, {scale: scale});

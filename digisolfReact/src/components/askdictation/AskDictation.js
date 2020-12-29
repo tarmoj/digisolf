@@ -56,6 +56,7 @@ const AskDictation = () => {
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
     const [wrongNoteIndexes, setWrongNoteIndexes] = useState(null);
     const [volume, setVolume] = useState(0.6);
+    const [correctVtString, setCorrectVtString] = useState( "stave time=4/4\n");
 
     useEffect(() => {
         dispatch(resetState());
@@ -68,6 +69,9 @@ const AskDictation = () => {
     const inputNotation = useSelector(state => state.askDictationReducer.inputNotation);
     const correctNotation = useSelector(state => state.askDictationReducer.correctNotation);
     const allowInput = useSelector(state => state.askDictationReducer.allowInput);
+
+    //temporary test for degree dictation, to pass the notation as string:
+
 
     // EXERCISE LOGIC ======================================
 
@@ -105,7 +109,6 @@ const AskDictation = () => {
         }
 
         let answer = null;
-        //let notationInfo =  {vtNotes: ""};
 
         if (dictationType === "degrees") { // degree dictations -  generate notation from dictation.degrees
 
@@ -116,7 +119,10 @@ const AskDictation = () => {
 
             const {vtString, midiNotes} = degreesToNotes(dictation.degrees, dictation.scale, dictation.tonicVtNote);
             console.log("Constructed notation: ", vtString);
-            dictation.notation = vtString;
+            dictation.notation = vtString; // is it still necessary?
+            setCorrectVtString(vtString);
+            // do I need setCorrectNotation for anything???
+
             dictation.midiNotes = midiNotes;
             answer = {degrees: stringToIntArray(dictation.degrees) };
         } else {
@@ -126,34 +132,6 @@ const AskDictation = () => {
             dispatch(setCorrectNotation(notationInfo));
 
         }
-
-        //NB! Notation must take the notation as String, not notatiobobject, otherwise it is difficult to set text info
-
-        // set notationIfo for correct notation block
-
-        // if (dictation.notation.trim().startsWith("stave") ) {
-        //     notationInfo.vtNotes = dictation.notation;
-        // } else {
-        //     notationInfo = parseLilypondString(dictation.notation);
-        // }
-
-        // this is a mess -  check for degree dictations!
-        //console.log("Õiged noodid: ", notationInfo.vtNotes);
-
-        // if (notationInfo.vtNotes) {
-        //     setCorrectNotation(notationInfo);
-        //     // set notationIfo for correct notation block
-        //     let notationInfo = parseLilypondDictation(dictation.notation);
-        //     // see on paha struktuur, oleks vaja, et oleks võimalik anda kogu vexTab String tervikuna, kui nt mitmehäälne muusika
-        //     // if (dictation.notation.trim().startsWith("stave") ) {
-        //     //     notationInfo.vtNotes = dictation.notation;
-        //     // } else {
-        //     //     notationInfo = parseLilypondString(dictation.notation);
-        //     //     // console.log("NotationIndo structure: ", notationInfo);
-        //     // }
-        //     console.log("notationInfo: ", notationInfo);
-        //     dispatch(setCorrectNotation(notationInfo));
-        // }
 
         setSelectedDictation(dictation);
         setAnswer(answer);
@@ -268,8 +246,8 @@ const AskDictation = () => {
         const firstNote = vtNotes.slice(0, vtNotes.indexOf("/")+2);
         console.log("First note: ", firstNote );
         notation.vtNotes = firstNote;*/
-        const notation = { vtNotes: "" }
-        setNotationInfo(notation);
+        //const notation = { vtNotes: "" }
+        //setNotationInfo(notation);
         //TODO: peaks sisestama ka taktimõõdu, helistiku ja esimese noodi sisestus-Inputi tekstiks ( notesEnteredByUser )
 
     };
@@ -341,13 +319,14 @@ const AskDictation = () => {
     };
 
     const renderNotes = () => {
-        const notationInfo = parseLilypondString(notesEnteredByUser);//  noteStringToVexTabChord(notesEnteredByUser);
-        setNotationInfo(notationInfo);
+        //const notationInfo = parseLilypondString(notesEnteredByUser);//  noteStringToVexTabChord(notesEnteredByUser);
+        //setNotationInfo(notationInfo);
     };
 
     const checkDegrees = () => checkResponse( {degrees: stringToIntArray(degreesEnteredByUser) } );
 
-    const checkDegreesResponse = (degrees, correct) => {
+    const checkDegreesResponse = (degrees) => {
+        let correct = true;
         const correctArray = answer.degrees;
 
         for (let i=0; i<correctArray.length; i++ ) {
@@ -359,6 +338,7 @@ const AskDictation = () => {
         }
 
         showDictation();
+        return correct;
     }
 
     const checkResponse = (response) => { // response is an object {key: value [, key2: value, ...]}
@@ -372,7 +352,7 @@ const AskDictation = () => {
         let correct = true;
 
         if (dictationType === "degrees" ) {
-            checkDegreesResponse(response.degrees, correct);
+            correct = checkDegreesResponse(response.degrees); // Tarmo: not sure if different function makes sense -  more difficult to form the feedback in future
         } else { // all other dictations are with note input
             let incorrectNotes = [];
 
@@ -612,9 +592,9 @@ const AskDictation = () => {
                 <Notation  className={"marginTopSmall"}
                            scale={1}
                            notes={notationInfo.vtNotes}
-                           time={notationInfo.time}
-                           clef={notationInfo.clef}
-                           keySignature={notationInfo.keySignature}
+                    /*time={notationInfo.time}
+                    clef={notationInfo.clef}
+                    keySignature={notationInfo.keySignature}*/
                            showInput={true}
                            wrongNoteIndexes={wrongNoteIndexes}
                            name={"inputNotation"}
@@ -629,10 +609,11 @@ const AskDictation = () => {
             return (
                 <Notation className={"marginTopSmall center"}
                           scale={1}
-                          notes={correctNotation}
-                          time={correctNotation.time}
+                          notes={correctNotation} // this has no meaning in degree dictations
+                          vtString={correctVtString}
+                          /*time={correctNotation.time}
                           clef={correctNotation.clef}
-                          keySignature={correctNotation.keySignature}
+                          keySignature={correctNotation.keySignature}*/
                           showInput={false}
                           name={"correctNotation"}
                           width={getWidth(correctNotation)}
@@ -642,7 +623,7 @@ const AskDictation = () => {
     };
 
     const getWidth = () => {
-        return correctNotation.staves[0].voices[0].notes.length * 40;
+        return  Math.max( correctNotation.staves[0].voices[0].notes.length * 40, 600);
     };
 
     const createSelectionMenu = () => {
