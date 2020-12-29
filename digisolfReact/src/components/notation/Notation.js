@@ -207,7 +207,11 @@ const Notation = (props) => {
     };
 
     return (
-        <div id={props.name} className={'vtDiv center'} ref={vtDiv} />
+        <React.Fragment>
+            <div id={props.name} className={'vtDiv center'} ref={vtDiv} />
+            {/*{props.showInput &&  <NotationInput selectLastNote={selectLastNote} />}*/}
+            {props.showInput &&  <NotationInput />}
+        </React.Fragment>
     );
 };
 

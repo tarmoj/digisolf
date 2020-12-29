@@ -686,7 +686,6 @@ const AskDictation = () => {
                 {createSelectionMenu()}
                 {createDegreeDictationInput()}
                 {createNotationInputBlock()}
-                <NotationInput />
                 {createCorrectNotationBlock()}
                 {createVolumeRow()}
                 {createControlButtons()}
