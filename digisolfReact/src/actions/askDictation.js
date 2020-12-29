@@ -65,3 +65,10 @@ export const setCorrectNotation = (correctNotation) => {
     payload: correctNotation
   }
 };
+
+export const setInputNotation = (inputNotation) => {
+  return {
+    type: "SET_INPUT_NOTATION",
+    payload: inputNotation
+  }
+};

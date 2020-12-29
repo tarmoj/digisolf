@@ -21,7 +21,7 @@
         `,
             show: `
             \\key es \\major \\time 4/4
-            r4 g'4 es'4 f'4 \\bar "|."
+            r4 g'4 es'4 f'4 | 
             `,
         },
 		

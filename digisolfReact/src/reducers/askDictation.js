@@ -120,6 +120,12 @@ export const askDictationReducer = (state = initialState, action) => {
         ...state,
         correctNotation: action.payload
       };
+    case "SET_INPUT_NOTATION":
+      return {
+        ...state,
+        inputNotation: action.payload
+      };
+
       default:
         return state;
   }

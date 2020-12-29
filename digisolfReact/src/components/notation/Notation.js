@@ -38,6 +38,15 @@ const Notation = (props) => {
         }
     }, [inputNotation, selectedNoteSet, previousSelectedNote, selectedNote]);
 
+    // test -  with first dictation showFirstnote the notation does not display since vexTab is still null...
+    useEffect(() => {
+        if (props.name === "inputNotation" && vexTab) {
+            redraw(notationInfoToVtString(inputNotation));
+        } else {
+            console.log("Probably vexTab is still null");
+        }
+    }, [inputNotation, vexTab]);
+
     useEffect(() => {
         if (props.name === "correctNotation" && correctNotation && vexTab) {
             redraw(notationInfoToVtString(correctNotation));

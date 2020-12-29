@@ -4,7 +4,7 @@ import {Slider} from "react-semantic-ui-range";
 
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
-import {arraysAreEqual, capitalizeFirst, weightedRandom} from "../../util/util";
+import {arraysAreEqual, capitalizeFirst, deepClone, weightedRandom} from "../../util/util";
 import {parseLilypondString, parseLilypondDictation} from "../../util/notes";
 //import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../../actions/headerMessage";
@@ -14,7 +14,6 @@ import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../../actions/
 import GoBackToMainMenuBtn from "../GoBackToMainMenuBtn";
 import Sound from 'react-sound';
 import Select from "semantic-ui-react/dist/commonjs/addons/Select";
-//import dictation1a from "../sounds/dictations/1a.mp3";
 import {useParams} from "react-router-dom";
 import CsoundObj from "@kunstmusik/csound";
 import {makeInterval,  scaleDefinitions, getIntervalByShortName} from "../../util/intervals";
@@ -26,9 +25,8 @@ import {dictations as twoVoice} from "../../dictations/2voice";
 import {dictations as popJazz} from "../../dictations/popJazz";
 import {dictations as degrees} from "../../dictations/degrees";
 import {dictations as classical} from "../../dictations/classical"
-import * as constants from "./dictationConstants";
-import {resetState, setAllowInput, setCorrectNotation} from "../../actions/askDictation";
-import NotationInput from "../notation/NotationInput";
+//import * as constants from "./dictationConstants";
+import {resetState, setAllowInput, setCorrectNotation, setInputNotation} from "../../actions/askDictation";
 
 
 const AskDictation = () => {
@@ -51,12 +49,14 @@ const AskDictation = () => {
     const [notesEnteredByUser, setNotesEnteredByUser] = useState("");
     const [degreesEnteredByUser, setDegreesEnteredByUser] = useState("");
 
-    const [notationInfo, setNotationInfo] = useState(defaultNotationInfo);
+    const [notationInfo, setNotationInfo] = useState(defaultNotationInfo); // do we need it?
 
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
     const [wrongNoteIndexes, setWrongNoteIndexes] = useState(null);
     const [volume, setVolume] = useState(0.6);
+    //const [inputVtString, setInputVtString] = useState( "stave time=4/4\n");
     const [correctVtString, setCorrectVtString] = useState( "stave time=4/4\n");
+
 
     useEffect(() => {
         dispatch(resetState());
@@ -88,8 +88,6 @@ const AskDictation = () => {
             renew(0);
         }
 
-        //const firstInCategory = dictations.findIndex(  dict =>  dict.category=== name);
-        //renew(firstInCategory);
     };
 
 
@@ -130,6 +128,7 @@ const AskDictation = () => {
             const notationInfo = parseLilypondDictation(dictation.notation);
             console.log("notationInfo: ", notationInfo);
             dispatch(setCorrectNotation(notationInfo));
+            showFirstNote(dictation);
 
         }
 
@@ -238,19 +237,7 @@ const AskDictation = () => {
         }
     };
 
-    const showFirstNote= (dictationIndex) => {
 
-        // must be rewritten -  sometimes notation is Ly, sometimes VT
-        /*const notation =  parseLilypondString(dictations[dictationIndex].notation);
-        const vtNotes = notation.vtNotes;
-        const firstNote = vtNotes.slice(0, vtNotes.indexOf("/")+2);
-        console.log("First note: ", firstNote );
-        notation.vtNotes = firstNote;*/
-        //const notation = { vtNotes: "" }
-        //setNotationInfo(notation);
-        //TODO: peaks sisestama ka taktimõõdu, helistiku ja esimese noodi sisestus-Inputi tekstiks ( notesEnteredByUser )
-
-    };
 
     // võibolla -  ka helifailide mängimine Csoundiga?
     const play = (dictation) => {
@@ -303,6 +290,30 @@ const AskDictation = () => {
         }
     };
 
+    // some dictation may have property show (in lilypond), if not, copy stave definitions and stave's first notes to inputNotation
+    // TODO: this does not work on first call from renew, probably since Notation and its vexTab are not created yet...
+    const showFirstNote= (dictation) => {
+        if (dictation.hasOwnProperty("show")) {
+            const notationInfo = parseLilypondDictation(dictation.show);
+            dispatch( setInputNotation(notationInfo));
+        } else {
+            let notationInfo = parseLilypondDictation(dictation.notation); // correction is one render too old here... -  yes... use parse
+            if (notationInfo.staves.length>=1) {
+                for (let stave of notationInfo.staves) { // leave only the first note from notes
+                    for (let voice of stave.voices) {
+                        voice.notes.splice(1);
+                        console.log("remaining notes: ", voice.notes);
+                    }
+                }
+                dispatch( setInputNotation(notationInfo)); // or this arrives Notation one render cycle too late (ie dictation shows the note of previous one
+            } else {
+                console.log("No stave in correctNotation (yet)");
+            }
+
+        }
+
+    };
+
     const showDictation = () => {
         if (selectedDictation.notation.length === 0 ) {
             alert( t("chooseDictation"));
@@ -345,6 +356,11 @@ const AskDictation = () => {
 
         if (!exerciseHasBegun) {
             alert(t("pressStartExsercise"));
+            return;
+        }
+
+        if (selectedDictation.notation.length === 0 ) {
+            alert( t("chooseDictation"));
             return;
         }
 
@@ -599,7 +615,7 @@ const AskDictation = () => {
             return (
                 <Notation  className={"marginTopSmall"}
                            scale={1}
-                           notes={notationInfo.vtNotes}
+                           notes={notationInfo.vtNotes} // this makes little sense, rework
                     /*time={notationInfo.time}
                     clef={notationInfo.clef}
                     keySignature={notationInfo.keySignature}*/
