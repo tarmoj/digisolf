@@ -553,8 +553,16 @@ const AskDictation = () => {
                     {name.includes("random") ? t("inMode") : ""} <b>{ t(selectedDictation.scale) }</b>: </label>
                 <Input
                     className={"marginRight"}
-                    onChange={e => {  setDegreesEnteredByUser(e.target.value) } }
-                    onKeyPress={ e=> { if (e.key === 'Enter') checkDegrees()  } }
+                    /*onChange={e => {  setDegreesEnteredByUser(e.target.value) } }*/
+                    onKeyPress={ e=> {
+                        if (['0','1','2','3','4','5','6','7','8'].includes(e.key)) {
+                            console.log("this is a number key", e.key);
+                            setDegreesEnteredByUser(degreesEnteredByUser + " "+ e.key);
+                        } else if (e.key === 'Enter') {
+                            checkDegrees();
+                        }
+                    }
+                    }
                     placeholder={'nt: 1 3 2 4 7 1'}
                     value={degreesEnteredByUser}
                 />

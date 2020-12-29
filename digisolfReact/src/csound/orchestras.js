@@ -26,7 +26,7 @@ kCounter init 0
 if (metro:k(kMetroRate)==1) then
 schedulek "PlayNote", 0, 1, giNotes[kCounter]
 kCounter += 1
-printk2 kCounter
+;printk2 kCounter
 if (kCounter==lenarray(giNotes) ) then
 turnoff
 endif 
@@ -38,7 +38,7 @@ endin
 instr PlayNote ; p4 - notenumber
 iNote = p4
 Sfile sprintf "%d.ogg", iNote
-prints Sfile
+;prints Sfile
 p3 filelen Sfile
 aSignal[] diskin2 Sfile
 aSignal *= gkVolume*linenr:a(1, 0.05,0.1, 0.001)
