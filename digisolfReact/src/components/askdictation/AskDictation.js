@@ -297,17 +297,17 @@ const AskDictation = () => {
             const notationInfo = parseLilypondDictation(dictation.show);
             dispatch( setInputNotation(notationInfo));
         } else {
-            let notationInfo = parseLilypondDictation(dictation.notation); // correction is one render too old here... -  yes... use parse
+            let notationInfo = parseLilypondDictation(dictation.notation);
             if (notationInfo.staves.length>=1) {
-                for (let stave of notationInfo.staves) { // leave only the first note from notes
+                for (let stave of notationInfo.staves) {
                     for (let voice of stave.voices) {
-                        voice.notes.splice(1);
-                        console.log("remaining notes: ", voice.notes);
+                        voice.notes.splice(1); // leave only the first note
+                        //console.log("remaining notes: ", voice.notes);
                     }
                 }
                 dispatch( setInputNotation(notationInfo)); // or this arrives Notation one render cycle too late (ie dictation shows the note of previous one
             } else {
-                console.log("No stave in correctNotation (yet)");
+                console.log("No staves in correctNotation");
             }
 
         }

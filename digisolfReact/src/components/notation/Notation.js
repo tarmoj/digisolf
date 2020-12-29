@@ -3,7 +3,13 @@ import {Artist, Flow, VexTab} from 'vextab/releases/vextab-div';
 import NotationInput from "./NotationInput";
 import {vtNames, notationInfoToVtString} from "./notationUtils";
 import {useSelector, useDispatch} from "react-redux";
-import {resetState, setAllowInput, setSelectedNote, setSelectedNoteSet} from "../../actions/askDictation";
+import {
+    resetState,
+    setAllowInput,
+    setSelectedNote,
+    setSelectedNoteSet,
+    setSelectedStaff
+} from "../../actions/askDictation";
 import {scale, createVexTabString, width} from "./vextabUtils";
 import {deepClone} from "../../util/util";
 
@@ -19,6 +25,8 @@ const Notation = (props) => {
     const previousSelectedNote = useSelector(state => state.askDictationReducer.previousSelectedNote);
     const selectedNoteSet = useSelector(state => state.askDictationReducer.selectedNoteSet);
     const correctNotation = useSelector(state => state.askDictationReducer.correctNotation);
+    //const currentStaff = useSelector(state => state.askDictationReducer.staff);
+    let currentStaff = 0;
 
     const dispatch = useDispatch();
 
@@ -57,7 +65,7 @@ const Notation = (props) => {
 
     useEffect(() => {
         if (selectedNoteSet && artist) {
-            const note = artist.staves[0].note_notes[selectedNote.index];
+            const note = artist.staves[currentStaff].note_notes[selectedNote.index];
 
             if (previousSelectedNote.index === selectedNote.index) {    // Clicked-on note is the same as previously selected note
                 dispatch(setSelectedNoteSet(false));
@@ -107,18 +115,41 @@ const Notation = (props) => {
     const handleClick = (event) => {
         if (props.showInput) {
             const x = event.layerX / scale;
-            const closestIndex = findClosestNoteByX(x);
+            const y = event.layerY / scale;
 
+
+            // check on which staff it is clicked on:
+            if (artist.staves.length >= 1) { // stave.note gives different geometric info
+                const borderLineY = artist.staves[1].note.getYForLine(-2); // approximately second upper ledgerline as limit
+                //console.log("click to find stave: ", y, artist.staves[0].note.getYForLine(0), artist.staves[1].note.getYForLine(1), artist.staves[1].note.getYForLine(-2)   );
+                const staff =  (y<borderLineY) ? 0 : 1;
+                console.log("Staff clicked: ", staff);
+                // draw a rectangle to show the active stave
+                // if (renderer) {
+                //     const box = artist.staves[staff].note.getBoundingBox();
+                //     console.log(box);
+                //     renderer.getContext().rect(15, y, 200, 100, { fill: "green", opacity: "0.2" } ); // does not do anything
+                // }
+                if (currentStaff !== staff) {
+                    currentStaff = staff;
+                    dispatch(setSelectedStaff(staff));
+                }
+
+            }
+
+            const closestIndex = findClosestNoteByX(x);
             if (closestIndex >= 0) {
-                const note = artist.staves[0].note_notes[closestIndex];
+                const note = artist.staves[currentStaff].note_notes[closestIndex];
                 setCurrentNote(closestIndex, note);
-                console.log(inputNotation)
+                console.log(note.keys, currentStaff);
+                //console.log(inputNotation)
             }
         }
     };
 
     const highlightNote = (note, color = "lightblue") => {
         if (note && renderer) {
+            console.log("Note in higlight: ", note.keys ); // this comes always from staff 1...
             renderer.getContext().rect(note.getAbsoluteX()-10, note.stave.getYForTopText()-10, note.width+20, note.stave.height+10,
             { fill: color, opacity: "0.2" } );
         }
@@ -127,7 +158,7 @@ const Notation = (props) => {
     const findClosestNoteByX = (x) => {
         let indexOfClosest = -1, minDistance = 999999, i = 0;
 
-        for (let note of artist.staves[0].note_notes) {
+        for (let note of artist.staves[currentStaff].note_notes) {
             let distance = Math.abs(x - note.getAbsoluteX());
             if (distance < minDistance) {
                 indexOfClosest = i;

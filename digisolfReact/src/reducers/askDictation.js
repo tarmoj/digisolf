@@ -12,7 +12,7 @@ const initialState = {
 }
 
 export const askDictationReducer = (state = initialState, action) => {
-  const staff = (action.payload && action.payload.voice) ? action.payload.voice : 0;
+  const staff = (action.payload && action.payload.staff) ? action.payload.staff : 0;
   const voice = (action.payload && action.payload.voice) ? action.payload.voice : 0;
 
   const vtNote = buildVtNoteString(state.selectedNote);
@@ -124,6 +124,11 @@ export const askDictationReducer = (state = initialState, action) => {
       return {
         ...state,
         inputNotation: action.payload
+      };
+    case "SET_SELECTED_STAFF":
+      return {
+        ...state,
+        selectedStaveIndex: action.payload
       };
 
       default:

@@ -72,3 +72,10 @@ export const setInputNotation = (inputNotation) => {
     payload: inputNotation
   }
 };
+
+export const setSelectedStaff = staff => {
+  return {
+    type: "SET_SELECTED_STAFF",
+    payload: staff
+  }
+};
