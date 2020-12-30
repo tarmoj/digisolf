@@ -236,13 +236,13 @@ export const parseLilypondString = (lyString) => { //NB! (slight) rewrite 2!  re
 			// console.log("Found barline: ", barLine);
 			let vtBar = "";
 			switch (barLine) {
-				case '|' : console.log("Normal bar"); vtBar = "|"; break;
-				case '|.' : console.log("End bar"); vtBar = "=|="; break;
-				case '||' : console.log("Double bar"); vtBar += "=||"; break;
-				case '.|:' : console.log("Repeat begins"); vtBar += "=|:"; break;
-				case ':|.' : console.log("Repeat ends"); vtBar += " =:||"; break;
-				case ':|.|:' : console.log("Double repeat"); vtBar += "=::"; break;
-				default : console.log("Normal bar"); vtBar += "|"; break;
+				case '|' : /*console.log("Normal bar");*/ vtBar = "|"; break;
+				case '|.' : /*console.log("End bar");*/ vtBar = "=|="; break;
+				case '||' : /*console.log("Double bar");*/ vtBar += "=||"; break;
+				case '.|:' : /*console.log("Repeat begins");*/ vtBar += "=|:"; break;
+				case ':|.' : /*console.log("Repeat ends");*/ vtBar += " =:||"; break;
+				case ':|.|:' : /*console.log("Double repeat");*/ vtBar += "=::"; break;
+				default : /*console.log("Normal bar");*/ vtBar += "|"; break;
 
 			}
 			notes.push({keys:[vtBar], duration:"0"});

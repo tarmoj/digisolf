@@ -9,12 +9,12 @@
 				`
 		\\clef treble \\time 4/4 
 		e''4 d'' c'' d'' |
-		h' a' g2 \\bar "|."
+		h' a' g'2 \\bar "|."
 				`,
 				stave2: 
 				`
 		\\clef treble \\time 4/4 
-		c'2 e  |
+		c'2 e'  |
 		d'  g2 \\bar "|."
 				`
 			},

@@ -126,7 +126,6 @@ const AskDictation = () => {
         } else {
             answer = {notation: selectedDictation.notation}; // <- this will not be used
             const notationInfo = parseLilypondDictation(dictation.notation);
-            console.log("notationInfo: ", notationInfo);
             dispatch(setCorrectNotation(notationInfo));
             showFirstNote(dictation);
 
@@ -619,7 +618,7 @@ const AskDictation = () => {
     };
 
     const createNotationInputBlock =  () => {
-        if (exerciseHasBegun && dictationType!=="degrees" && selectedDictation.title !== "") {
+        if (exerciseHasBegun && dictationType!=="degrees" /*&& selectedDictation.title !== ""*/) { // allow showing notation also in the beginning, otherwise setting "show" does not work...
             return (
                 <Notation  className={"marginTopSmall"}
                            scale={1}
@@ -630,7 +629,7 @@ const AskDictation = () => {
                            showInput={true}
                            wrongNoteIndexes={wrongNoteIndexes}
                            name={"inputNotation"}
-                           width={getWidth(correctNotation)}
+                           width={getWidth(inputNotation)}
                 />
             )
         }
@@ -654,8 +653,8 @@ const AskDictation = () => {
         }
     };
 
-    const getWidth = () => {
-        return  Math.max( correctNotation.staves[0].voices[0].notes.length * 40, 600);
+    const getWidth = (notation) => {
+        return  Math.max( notation.staves[0].voices[0].notes.length * 40, 400);
     };
 
     const createSelectionMenu = () => {

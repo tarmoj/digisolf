@@ -51,7 +51,7 @@ const Notation = (props) => {
         if (props.name === "inputNotation" && vexTab) {
             redraw(notationInfoToVtString(inputNotation));
         } else {
-            console.log("Probably vexTab is still null");
+            console.log("VexTab is null", props.name);
         }
     }, [inputNotation, vexTab]);
 
@@ -119,7 +119,7 @@ const Notation = (props) => {
 
 
             // check on which staff it is clicked on:
-            if (artist.staves.length >= 1) { // stave.note gives different geometric info
+            if (artist.staves.length > 1) { // stave.note gives different geometric info
                 const borderLineY = artist.staves[1].note.getYForLine(-2); // approximately second upper ledgerline as limit
                 //console.log("click to find stave: ", y, artist.staves[0].note.getYForLine(0), artist.staves[1].note.getYForLine(1), artist.staves[1].note.getYForLine(-2)   );
                 const staff =  (y<borderLineY) ? 0 : 1;
@@ -208,7 +208,7 @@ const Notation = (props) => {
 
     const redraw = (notes) => {
         if (!vexTab) {
-            console.log("vexTab not initialized!");
+            console.log("vexTab not initialized!", props.name);
             return;
         }
 
