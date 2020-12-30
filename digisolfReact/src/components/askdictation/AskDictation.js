@@ -426,23 +426,30 @@ const AskDictation = () => {
     useEffect(() => {
         // console.log("Csound effect 1");
         if (csound === null) {  // if you go back to main menu and enter again, then stays "Loading"
-            CsoundObj.initialize().then(() => { // ... and error happens here
-                const cs = new CsoundObj(); // : Module.arguments has been replaced with plain arguments_ etc
+            let audioContext = CsoundObj.CSOUND_AUDIO_CONTEXT;
+            if ( typeof (audioContext) == "undefined") {
+                CsoundObj.initialize().then(() => {
+                    const cs = new CsoundObj();
+                    setCsound(cs);
+                });
+            } else { // do not initialize if audio context is already created
+                const cs = new CsoundObj();
                 setCsound(cs);
-            });
-        } /*else { // tried to have the second effect here, but resets sometimes too early...
-            csound.reset();
-        }*/
-    }, [csound]);
-
-    useEffect(() => {
-        // console.log("Csound effect 2");
-        return () => {
-            if (csound) {
-                csound.reset();
             }
+
+        } else { // tried to have the second effect here, but resets sometimes too early...
+            csound.reset();
         }
     }, [csound]);
+
+    // useEffect(() => {
+    //     // console.log("Csound effect 2");
+    //     return () => {
+    //         if (csound) {
+    //             csound.reset();
+    //         }
+    //     }
+    // }, [csound]);
 
     async function loadResources(csound,  startinNote=60, endingNote=84, instrument="flute") {
         if (!csound) {
@@ -569,12 +576,13 @@ const AskDictation = () => {
                     {name.includes("random") ? t("inMode") : ""} <b>{ t(selectedDictation.scale) }</b>: </label>
                 <Input
                     className={"marginRight"}
-                    /*onChange={e => {  setDegreesEnteredByUser(e.target.value) } }*/
+                    onChange={e => {  setDegreesEnteredByUser(e.target.value) } }
                     onKeyPress={ e=> {
-                        if (['0','1','2','3','4','5','6','7','8'].includes(e.key)) {
+
+                        /*if (['0','1','2','3','4','5','6','7','8'].includes(e.key)) { // does not work on android chrome
                             console.log("this is a number key", e.key);
                             setDegreesEnteredByUser(degreesEnteredByUser + " "+ e.key);
-                        } else if (e.key === 'Enter') {
+                        } else*/ if (e.key === 'Enter') {
                             checkDegrees();
                         }
                     }

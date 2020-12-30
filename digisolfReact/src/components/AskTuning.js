@@ -49,10 +49,11 @@ const AskTuning = () => {
         return () => { console.log("cleanup"); stopUpdate();  if (csound) csound.reset();} // tryout against memory leak...
     }, [csound]);
 
-    useEffect( ()=> {
-        console.log("Started");
-        return () => console.log("Ended");
-    }, [] );
+    //test
+    // useEffect( ()=> {
+    //     console.log("Started");
+    //     return () => console.log("Ended");
+    // }, [] );
 
     const  enableAudioInput = (cs) => {
         if (!navigator.mediaDevices) {
@@ -194,11 +195,12 @@ const AskTuning = () => {
             { text: "A", value: 9}, { text: "B", value: 10},{ text: "H", value: 11},
         ];
         return  exerciseHasBegun ?  (
-          <Grid.Row columns={5} centered={true}>
+          <Grid.Row columns={5} centered={true}  >
               <Grid.Column>{capitalizeFirst(t("sound"))}</Grid.Column>
               <Grid.Column>
 
                   <Dropdown
+                      disabled={true}
                       placeholder={capitalizeFirst(t("sound"))}
                       onChange={ (event, data) => {
                           if (csound) {
@@ -243,13 +245,11 @@ const AskTuning = () => {
    const createFeedbackRow = () => {
        return exerciseHasBegun ? (
            <Grid.Row centered={true}>
-               <Grid.Column></Grid.Column>
+               <Grid.Column stretched={true}  verticalAlign={"middle"}> {` ${capitalizeFirst(t("ratio"))}: ${intervalRatio.toFixed(2)} `}</Grid.Column>
                <Grid.Column>
-                   {` ${capitalizeFirst(t("ratio"))}: ${intervalRatio} `}
-                   <Meter level={relativeRatio} />
-                   {` ${capitalizeFirst(t("input"))}: ${userPitchRatio.toFixed(2)} `}
+                   <Meter   level={relativeRatio} />
                </Grid.Column>
-               <Grid.Column></Grid.Column>
+               <Grid.Column stretched={true} verticalAlign={"middle"}>{` ${capitalizeFirst(t("input"))}: ${userPitchRatio.toFixed(2)} `}</Grid.Column>
 
            </Grid.Row>
        ) : null;
@@ -264,29 +264,22 @@ const AskTuning = () => {
        setSensitivity(value);
    }
 
-   const createInputSensitivityRow = () => {
-       return exerciseHasBegun ? (
-           <Grid.Row centered={true} columns={3}>
-               <Grid.Column />
-               <Grid.Column>
-                   {capitalizeFirst(t("inputSensitivity"))}
-                   <Slider value={sensitivity} color="blue"
-                           settings={ {
-                               min:0, max:1, step:0.01,
-                               start: {sensitivity},
-                               onChange: handleSliderChange
-                           } }
-                   />
-               </Grid.Column>
-               <Grid.Column />
-           </Grid.Row>
-       ) : null;
-   };
 
-    const createVolumeRow = () => {
+    const createSliderRow = () => {
         return exerciseHasBegun ? (
-            <Grid.Row centered={true} columns={3}>
-                <Grid.Column />
+            <Grid.Row centered={true} columns={4}>
+                <Grid.Column></Grid.Column>
+                <Grid.Column>
+                    {capitalizeFirst(t("inputSensitivity"))}
+                    <Slider value={sensitivity} color="blue"
+                            settings={ {
+                                min:0, max:1, step:0.01,
+                                start: {sensitivity},
+                                onChange: handleSliderChange
+                            } }
+                    />
+
+                </Grid.Column>
                 <Grid.Column>
                     {capitalizeFirst(t("volume"))}
                     <Slider value={volume} color="blue"
@@ -352,11 +345,12 @@ const AskTuning = () => {
                     <Button  active={intervalRatio === 15/8 && soundOn}  onClick={ (event, data) => setSelectedInterval(15/8,data.active) }>s7 </Button>
                     <Button  active={intervalRatio === 2 && soundOn}  onClick={ (event, data) => setSelectedInterval(2,data.active) }>p8 </Button>
                 </Button.Group>
-                <Grid.Column>
-                    <Button toggle={true} onClick={playInterval} className={"fullWidth marginTopSmall"}  >{t("play")}</Button>
-                </Grid.Column>
+
 
             </Grid.Row>
+                <Grid.Row centered={true}>
+                    <Button toggle={true} onClick={playInterval}>{t("upperNote")}</Button>
+                </Grid.Row>
                 </>
         ) : null;
     }
@@ -376,8 +370,7 @@ const AskTuning = () => {
             <Grid>
                 {createOptionsRow()}
                 {createFeedbackRow()}
-                {createInputSensitivityRow()}
-                {createVolumeRow()}
+                {createSliderRow()}
                 {createIntervals()}
                 {createPlaySoundButton()}
 
@@ -404,8 +397,8 @@ export default AskTuning;
 const  Meter = (props) => {
     let {
         level = 0,         // a number between 0 and 1, inclusive
-        width = 30,         // the overall width
-        height = 100,         // the overall height
+        width = 20,         // the overall width
+        height = 80,         // the overall height
         rounded = false,      // if true, use rounded corners
         //color = "#0078bc",   // the fill color
         animate = true,     // if true, animate when the percent changes
@@ -414,7 +407,7 @@ const  Meter = (props) => {
 
     const r = rounded ? Math.ceil(width / 4) : 0;
     const h = level ? Math.max(width, height * Math.min(level, 1)) : 0; // this is probably wrong, see
-    const style = animate ? { "transition": "width 100ms, fill 250ms" } : null;
+    const style = animate ? { "transition": "width 100ms, fill 500ms" } : null;
     let varyColor = "#0078bc";
     if (level < 0.3 || level >=0.7  ) {
         varyColor = "red";
