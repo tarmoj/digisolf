@@ -4,7 +4,10 @@ export const defaultSelectedNote = {
   duration: "4",
   dot: false,
   octave: "4",
-  index: null
+  index: null,
+  //tarmo:
+  staff: 0
+  //maybe also: clef: "treble"
 }
 
 export const vtNames = {
@@ -30,6 +33,19 @@ export const octaveData = {
   maxOctave: 5,
   minOctave: 3
 }
+
+// needs to depend on the clef?  - notationInfo.staves[staff].clef - perhaps:
+export const octaveData_new = {
+    treble: {
+        maxOctave: 6,
+        minOctave: 3
+    },
+    bass: {
+        maxOctave: 4,
+        minOctave: 1
+    }
+}
+
 
 export const octaveNoToName = {
   1: "contraOctave",

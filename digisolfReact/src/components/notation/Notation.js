@@ -65,7 +65,11 @@ const Notation = (props) => {
 
     useEffect(() => {
         if (selectedNoteSet && artist) {
-            const note = artist.staves[currentStaff].note_notes[selectedNote.index];
+            //test:
+
+            //const note = artist.staves[currentStaff].note_notes[selectedNote.index]; // <- currentStaff always 0 here. Maybe bring in from selectedNote
+            //console.log("selectedNote effect. currentStaff, note: ", currentStaff, note.keys);
+            const note = artist.staves[selectedNote.staff].note_notes[selectedNote.index];
 
             if (previousSelectedNote.index === selectedNote.index) {    // Clicked-on note is the same as previously selected note
                 dispatch(setSelectedNoteSet(false));
@@ -181,6 +185,8 @@ const Notation = (props) => {
         currentNote.dot = !!currentDot;
         currentNote.accidental = currentAccidental;
         currentNote.index = noteIndex;
+        //tarmo test:
+        currentNote.staff = currentStaff;
         dispatch(setSelectedNote(currentNote));
     }
 

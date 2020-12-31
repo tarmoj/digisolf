@@ -6,13 +6,16 @@ const initialState = {
   previousSelectedNote: null,
   inputNotation: deepClone(defaultNotationInfo),
   correctNotation: deepClone(defaultNotationInfo),
-  selectedStaveIndex: 0,
+  selectedStaff: 0,
   selectedNoteSet: false,
   allowInput: false
 }
 
 export const askDictationReducer = (state = initialState, action) => {
-  const staff = (action.payload && action.payload.staff) ? action.payload.staff : 0;
+  //const staff = (action.payload && action.payload.staff) ? action.payload.staff : 0;
+  //test: - seems to work
+  const staff = state.selectedStaff;
+
   const voice = (action.payload && action.payload.voice) ? action.payload.voice : 0;
 
   const vtNote = buildVtNoteString(state.selectedNote);
@@ -21,6 +24,7 @@ export const askDictationReducer = (state = initialState, action) => {
   const selectedNoteIndex = state.selectedNote.index;
   let currentInputNotation = Object.assign({}, state.inputNotation);
   let currentSelectedNote = Object.assign({}, state.selectedNote);
+
 
   switch(action.type) {
       case "SET_SELECTED":
@@ -60,7 +64,9 @@ export const askDictationReducer = (state = initialState, action) => {
             state
           }
         }
-      case "INSERT_NOTE":
+    case "INSERT_NOTE":
+        // test:
+        console.log("Staff: ", staff);
         currentInputNotation.staves[staff].voices[voice].notes.push({keys:[vtNote], duration: duration});
 
         return {
@@ -126,9 +132,11 @@ export const askDictationReducer = (state = initialState, action) => {
         inputNotation: action.payload
       };
     case "SET_SELECTED_STAFF":
+      //test:
+      console.log("Set selected staff in reducer: ", action.payload); // <- this is correct
       return {
         ...state,
-        selectedStaveIndex: action.payload
+        selectedStaff: action.payload
       };
 
       default:
