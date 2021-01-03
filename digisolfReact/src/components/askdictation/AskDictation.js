@@ -511,11 +511,7 @@ const AskDictation = () => {
         if (exerciseHasBegun && dictationType!=="degrees" && selectedDictation.title !== "") {
             return (
                 <Notation  className={"marginTopSmall"}
-                           scale={1}
                            notes={notationInfo.vtNotes}
-                           time={notationInfo.time}
-                           clef={notationInfo.clef}
-                           keySignature={notationInfo.keySignature}
                            showInput={true}
                            wrongNoteIndexes={wrongNoteIndexes}
                            name={"inputNotation"}
@@ -529,11 +525,7 @@ const AskDictation = () => {
         if (exerciseHasBegun && selectedDictation.title !== "" && showCorrectNotation) {
             return (
                 <Notation className={"marginTopSmall center"}
-                          scale={1}
                           notes={correctNotation}
-                          time={correctNotation.time}
-                          clef={correctNotation.clef}
-                          keySignature={correctNotation.keySignature}
                           showInput={false}
                           name={"correctNotation"}
                           width={getWidth(correctNotation)}

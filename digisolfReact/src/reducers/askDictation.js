@@ -18,7 +18,7 @@ const initialState = {
   allowInput: false,
   currentOctave: defaultOctave,
   currentAccidental: defaultAccidental
-}
+};
 
 export const askDictationReducer = (state = initialState, action) => {
   const staff = (action.payload && action.payload.voice) ? action.payload.voice : 0;
@@ -39,6 +39,9 @@ export const askDictationReducer = (state = initialState, action) => {
         if (isCorrectNoteProperty(property)) {
           currentSelectedNote[property] = value;
           if (state.selectedNoteSet) {
+            if (!currentSelectedNote.duration) {
+              currentSelectedNote.duration = defaultSelectedNote.duration;
+            }
             vtNote = buildVtNoteString(currentSelectedNote, state.currentOctave, state.currentAccidental);
             duration = buildVtDurationString(currentSelectedNote);
   
@@ -59,6 +62,8 @@ export const askDictationReducer = (state = initialState, action) => {
         if (isCorrectNote(action.payload)) {
           return {
             ...state,
+            currentOctave: action.payload.octave ?? state.currentOctave,
+            currentAccidental: action.payload.accidental ?? state.currentAccidental,
             selectedNote: action.payload,
             selectedNoteSet: true,
             previousSelectedNote: state.selectedNote
@@ -154,9 +159,17 @@ export const askDictationReducer = (state = initialState, action) => {
         inputNotation: deepClone(defaultNotationInfo)
       };
     case "SET_CORRECT_NOTATION":
+      const newCorrectNotation = action.payload;
+      newCorrectNotation.staves.forEach((stave, index) => {
+        currentInputNotation.staves[index].clef = stave.clef ?? currentInputNotation.staves[index].clef;
+        currentInputNotation.staves[index].time = stave.time ?? currentInputNotation.staves[index].time;
+        currentInputNotation.staves[index].key = stave.key ?? currentInputNotation.staves[index].key;
+      });
+
       return {
         ...state,
-        correctNotation: action.payload
+        correctNotation: newCorrectNotation,
+        inputNotation: currentInputNotation
       };
       default:
         return state;
