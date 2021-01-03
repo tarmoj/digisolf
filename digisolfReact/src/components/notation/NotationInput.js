@@ -109,7 +109,9 @@ const NotationInput = ({selectLastNote}) => {
 
   const onBarlineClick = () => {
     dispatch(setSelected("note", "|"));
-    dispatch(insertNote());
+    if (!selectedNoteSet) {
+      dispatch(insertNote());
+    }
   };
 
   const onOctaveUpClick = () => {

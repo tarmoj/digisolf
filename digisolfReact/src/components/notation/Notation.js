@@ -180,16 +180,23 @@ const Notation = (props) => {
         }
     }
 
-    const setCurrentNote = (noteIndex, staveNote) => {
-        const key = staveNote.keyProps[0];
-        const currentDot = staveNote.dots && staveNote.dots > 0;
-        const currentAccidental = getCurrentAccidental(staveNote);
+    const setCurrentNote = (noteIndex, note) => {
         let currentNote = {};
-        currentNote.note = key.key;
-        currentNote.octave = key.octave;
-        currentNote.duration = staveNote.duration;
-        currentNote.dot = !!currentDot;
-        currentNote.accidental = currentAccidental;
+
+        const isBarNote = !note.hasOwnProperty("keyProps");
+        if (isBarNote) {
+            currentNote.note = vtNames.barline;
+        } else {
+            const key = note.keyProps[0];
+            const currentDot = note.dots && note.dots > 0;
+            const currentAccidental = getCurrentAccidental(note);
+            currentNote.note = key.key;
+            currentNote.octave = key.octave;
+            currentNote.duration = note.duration;
+            currentNote.dot = !!currentDot;
+            currentNote.accidental = currentAccidental;
+        }
+
         currentNote.index = noteIndex;
         //tarmo test:
         currentNote.staff = currentStaff;
