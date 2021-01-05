@@ -92,11 +92,11 @@ const Notation = (props) => {
         }
     }, [renderer]);
 
-    useEffect(() => {
+    /*useEffect(() => {
         if (props.notes.staves) {
             redraw(notationInfoToVtString(props.notes));
         }
-    }, [props.notes, vexTab]);
+    }, [props.notes, vexTab]);*/
 
     useEffect(() => {
         if (props.vtString) {

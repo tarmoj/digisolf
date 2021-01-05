@@ -1,7 +1,7 @@
  export const dictations = [
 		{ category: "2voice_level1",
             title: "2v 2b",
-            soundFile: "../sounds/dictations/2voice/2b.mp3",
+            soundFile: "/sounds/dictations/2voice/2b.mp3",
             notationType: "vextab", // vextab VT or lilypond
             notation: 
             {
@@ -36,7 +36,7 @@
 
      { category: "2voice_level1",
             title: "2v 7a",
-            soundFile: "../sounds/dictations/2voice/7a.mp3",
+            soundFile: "/sounds/dictations/2voice/7a.mp3",
             notation:
             {
 				stave1: 

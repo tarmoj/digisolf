@@ -5,7 +5,7 @@
 // level 1 
  
 	{
-	 category: "classical_level1", title: "1", soundFile: "../sounds/dictations/classical/level1/1_classical_level1.mp3",
+	 category: "classical_level1", title: "1", soundFile: "/sounds/dictations/classical/level1/1_classical_level1.mp3",
             credits: "Cyrillus Kreek - Reekviem I osa",
             notation:
                 `
@@ -26,7 +26,7 @@
         },
 		
 		{
-	 category: "classical_level1", title: "2", soundFile: "../sounds/dictations/classical/level1/2_classical_level1.mp3",
+	 category: "classical_level1", title: "2", soundFile: "/sounds/dictations/classical/level1/2_classical_level1.mp3",
             credits: "Olav Ehala - \"Kodulaul\"",
             notation:
                 `
@@ -49,7 +49,7 @@
 		
 		
  
-	{ category: "classical_level1", title: "3", soundFile: "../sounds/dictations/classical/level1/3_classical_level1.mp3",
+	{ category: "classical_level1", title: "3", soundFile: "/sounds/dictations/classical/level1/3_classical_level1.mp3",
             credits: "Cyrillus Kreek / rahvakoraal \"Mu süda, ärka üles\"",
             notation:
                 `
@@ -70,7 +70,7 @@
             `,
 	},
 	
-	{ category: "classical_level1", title: "4", soundFile: "../sounds/dictations/classical/level1/4_classical_level1.mp3",
+	{ category: "classical_level1", title: "4", soundFile: "/sounds/dictations/classical/level1/4_classical_level1.mp3",
             credits: "Beethoven -  9.sümfoonia. Finaal",
             notation:
                 `
@@ -94,7 +94,7 @@
             `,
 	},
 	
-	{ category: "classical_level1", title: "5", soundFile: "../sounds/dictations/classical/level1/5_classical_level1.mp3",
+	{ category: "classical_level1", title: "5", soundFile: "/sounds/dictations/classical/level1/5_classical_level1.mp3",
             credits: "Veljo Tormis \"Kui Arno isaga koolimajja jõudis\" (filmist \"Kevade\")",
             notation:
                 `
@@ -119,7 +119,7 @@
             `,
 	},
 	
-	{ category: "classical_level1", title: "6", soundFile: "../sounds/dictations/classical/level1/6_classical_level1.mp3",
+	{ category: "classical_level1", title: "6", soundFile: "/sounds/dictations/classical/level1/6_classical_level1.mp3",
             credits: "Cyrillus Kreek Reekviem IV osa",
             notation:
                 `
@@ -137,7 +137,7 @@
             `,
 	},
 	
-	{ category: "classical_level1", title: "7", soundFile: "../sounds/dictations/classical/level1/7_classical_level1.mp3",
+	{ category: "classical_level1", title: "7", soundFile: "/sounds/dictations/classical/level1/7_classical_level1.mp3",
             credits: "Tõnu Kõrvits \"Kreegi vihik\" 8.osa",
             notation:
                 `
@@ -156,7 +156,7 @@
             `,
 	},
 	
-	{ category: "classical_level1", title: "8", soundFile: "../sounds/dictations/classical/level1/8_classical_level1.mp3",
+	{ category: "classical_level1", title: "8", soundFile: "/sounds/dictations/classical/level1/8_classical_level1.mp3",
             credits: "Cyrillus Kreek - Reekviem VIII osa",
             notation:
                 `
@@ -181,7 +181,7 @@
 // VexFlow? how to do it in notationInfo -  add field tuplet: 3 (as in StaveNote) 
 // comment out for now...
 /*	
-	{ category: "classical_level1", title: "9", soundFile: "../sounds/dictations/classical/level1/9_classical_level1.mp3",
+	{ category: "classical_level1", title: "9", soundFile: "/sounds/dictations/classical/level1/9_classical_level1.mp3",
             credits: "Tõnu Kõrvits \"Kreegi vihik\" 1.osa",
             notation:
                 `
@@ -203,7 +203,7 @@
             `,
 	},
 	
-	{ category: "classical_level1", title: "X", soundFile: "../sounds/dictations/classical/level1/X_classical_level1.mp3",
+	{ category: "classical_level1", title: "X", soundFile: "/sounds/dictations/classical/level1/X_classical_level1.mp3",
             credits: "",
             notation:
                 `
@@ -218,7 +218,7 @@
 // triplet again...
 // + support for \grace
 /*
-	{ category: "classical_level1", title: "10 - Noteeri fagoti soolo", soundFile: "../sounds/dictations/classical/level1/10_classical_level1.mp3",
+	{ category: "classical_level1", title: "10 - Noteeri fagoti soolo", soundFile: "/sounds/dictations/classical/level1/10_classical_level1.mp3",
             credits: "Cyrillus Kreek - Reekviem 2.osa",
             notation:
                 `
@@ -242,7 +242,7 @@
 	},
 */	
 
-	{ category: "classical_level1", title: "11", soundFile: "../sounds/dictations/classical/level1/11_classical_level1.mp3",
+	{ category: "classical_level1", title: "11", soundFile: "/sounds/dictations/classical/level1/11_classical_level1.mp3",
             credits: "Eduard Tubin \"Sabatants\" balletist \"Kratt\"",
             notation:
                 `
@@ -273,7 +273,7 @@
 
 // NB! Siin ka akordimärgid, aga mõtle veel, kuidas neid vormistada - kas noodi või takti külge vms	
 // NB! uus väli "instructions" - tõlge?	
-	{ category: "classical_level2", title: "II - 1", soundFile: "../sounds/dictations/classical/level1/1_classical_level2.mp3",
+	{ category: "classical_level2", title: "II - 1", soundFile: "/sounds/dictations/classical/level1/1_classical_level2.mp3",
 			instructions: "Noteeri meloodia ja bass, tähista harmoonia - D-duur",
             credits: "Margo Kõlar \"Martale\"",
             notation: {

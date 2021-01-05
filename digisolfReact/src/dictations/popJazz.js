@@ -3,7 +3,7 @@
  export const dictations = [
  
 	{
-	 category: "popJazz", title: "Smilers", soundFile: "../sounds/dictations/Smilers.mp3",
+	 category: "popJazz", title: "Smilers", soundFile: "/sounds/dictations/Smilers.mp3",
             credits: "Hendriks Sal-Saller \"Käime katuseid mööda\"",
             notation:
                 `
@@ -22,7 +22,7 @@
     },
 
      {
-     category: "popJazz", title: "Vaikida võib", soundFile: "../sounds/dictations/popJazz/level1/Vaikida_voib.mp3 ",
+     category: "popJazz", title: "Vaikida võib", soundFile: "/sounds/dictations/popJazz/level1/Vaikida_voib.mp3 ",
      credits: "Muusika/sõnad: Ott Lepland, Oliver Rõõmus, Joonatan Siiman 0:46 - 0:50 https://youtu.be/Q46r_SVSIhk?t=46",
      notation:
  `

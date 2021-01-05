@@ -57,8 +57,9 @@ const AskDictation = () => {
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
     const [wrongNoteIndexes, setWrongNoteIndexes] = useState(null);
     const [volume, setVolume] = useState(0.6);
-    const [inputVtString, setInputVtString] = useState( "stave time=4/4");
-    const [correctVtString, setCorrectVtString] = useState( "stave time=4/4\n");
+    const [inputVtString, setInputVtString] = useState( "stave\n");
+    const [correctVtString, setCorrectVtString] = useState( "stave\n");
+    const [correctNotationWidth, setCorrectNotationWidth] = useState (400);
 
 
     useEffect(() => {
@@ -83,7 +84,7 @@ const AskDictation = () => {
         if (title && dictations) {
             //find index of that dictation
             let index = dictations.findIndex( element => {
-                if (element.title === title) {
+                if (element.title === title && element.category.startsWith(name)) { // later - element.category === name
                     return true;
                 }
             });
@@ -122,6 +123,9 @@ const AskDictation = () => {
             dictation = dictations[dictationIndex];
         }
 
+        //test
+        console.log("Selected dictation notation: ", dictation, dictations.length);
+
         let answer = null;
 
         if (dictationType === "degrees") { // degree dictations -  generate notation from dictation.degrees
@@ -142,7 +146,10 @@ const AskDictation = () => {
         } else {
             answer = {notation: selectedDictation.notation}; // <- this will not be used
             const notationInfo = parseLilypondDictation(dictation.notation);
+            console.log("correct notation notes: ", notationInfo);
             dispatch(setCorrectNotation(notationInfo));
+            setCorrectVtString( notationInfoToVtString(notationInfo) ); // <- is this necessary  or shall we need correctNotation reducer then at all?
+            setCorrectNotationWidth( getWidth(notationInfo)  );
             dispatch(resetState());
             dispatch(setAllowInput(true));
             showFirstNote(dictation);
@@ -644,7 +651,7 @@ const AskDictation = () => {
             return (
                 <Notation  className={"marginTopSmall"}
                            scale={1}
-                           notes={notationInfo.vtNotes} // this makes little sense, rework
+                           //notes={notationInfo.vtNotes} // this makes little sense, rework
                            vtString={inputVtString}
                     /*time={notationInfo.time}
                     clef={notationInfo.clef}
@@ -663,21 +670,18 @@ const AskDictation = () => {
             return (
                 <Notation className={"marginTopSmall center"}
                           scale={1}
-                          notes={correctNotation} // this has no meaning in degree dictations
+                          // notes={correctNotation} // this has no meaning in degree dictations
                           vtString={correctVtString}
-                          /*time={correctNotation.time}
-                          clef={correctNotation.clef}
-                          keySignature={correctNotation.keySignature}*/
                           showInput={false}
                           name={"correctNotation"}
-                          width={getWidth(correctNotation)}
+                          width={correctNotationWidth}
                 />
             )
         }
     };
 
     const getWidth = (notation) => {
-        return  Math.max( notation.staves[0].voices[0].notes.length * 40, 400);
+        return  Math.max( notation.staves[0].voices[0].notes.length * 30, 400);  // TODO: if more staves, one may have more notes
     };
 
     const createSelectionMenu = () => {
