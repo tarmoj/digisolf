@@ -27,6 +27,7 @@ import {dictations as degrees} from "../../dictations/degrees";
 import {dictations as classical} from "../../dictations/classical"
 //import * as constants from "./dictationConstants";
 import {resetState, setAllowInput, setCorrectNotation, setInputNotation} from "../../actions/askDictation";
+import {notationInfoToVtString} from "../notation/notationUtils";
 
 
 const AskDictation = () => {
@@ -56,7 +57,7 @@ const AskDictation = () => {
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
     const [wrongNoteIndexes, setWrongNoteIndexes] = useState(null);
     const [volume, setVolume] = useState(0.6);
-    //const [inputVtString, setInputVtString] = useState( "stave time=4/4\n");
+    const [inputVtString, setInputVtString] = useState( "stave time=4/4");
     const [correctVtString, setCorrectVtString] = useState( "stave time=4/4\n");
 
 
@@ -142,7 +143,10 @@ const AskDictation = () => {
             answer = {notation: selectedDictation.notation}; // <- this will not be used
             const notationInfo = parseLilypondDictation(dictation.notation);
             dispatch(setCorrectNotation(notationInfo));
+            dispatch(resetState());
+            dispatch(setAllowInput(true));
             showFirstNote(dictation);
+
 
         }
 
@@ -253,7 +257,6 @@ const AskDictation = () => {
 
 
 
-    // võibolla -  ka helifailide mängimine Csoundiga?
     const play = (dictation) => {
         stop(); // need a stop here  - take care, that it does not kill already started event
         if (dictationType === "degrees") {
@@ -307,11 +310,12 @@ const AskDictation = () => {
     // some dictation may have property show (in lilypond), if not, copy stave definitions and stave's first notes to inputNotation
     // TODO: this does not work on first call from renew, probably since Notation and its vexTab are not created yet...
     const showFirstNote= (dictation) => {
+        let notationInfo = {};
         if (dictation.hasOwnProperty("show")) {
-            const notationInfo = parseLilypondDictation(dictation.show);
+            notationInfo = parseLilypondDictation(dictation.show);
             dispatch( setInputNotation(notationInfo));
         } else {
-            let notationInfo = parseLilypondDictation(dictation.notation);
+            notationInfo = parseLilypondDictation(dictation.notation);
             if (notationInfo.staves.length>=1) {
                 for (let stave of notationInfo.staves) {
                     for (let voice of stave.voices) {
@@ -325,7 +329,10 @@ const AskDictation = () => {
             }
 
         }
-
+        // do we need both setVtString and dispatch?
+        if (notationInfo && title) {
+            setInputVtString(notationInfoToVtString(notationInfo));
+        } // this is necessary, if the dictation is opened via url like askdictation/1voice/11
     };
 
     const showDictation = () => {
@@ -638,6 +645,7 @@ const AskDictation = () => {
                 <Notation  className={"marginTopSmall"}
                            scale={1}
                            notes={notationInfo.vtNotes} // this makes little sense, rework
+                           vtString={inputVtString}
                     /*time={notationInfo.time}
                     clef={notationInfo.clef}
                     keySignature={notationInfo.keySignature}*/
@@ -689,13 +697,14 @@ const AskDictation = () => {
                 className={"marginTopSmall fullwidth"}
                 placeholder={t("chooseDictation")}
                 options={options}
-                /*defaultValue={options[0].soundFile}*/
+                defaultValue= {title ? title : "" }
                 onChange={(e, {value}) => {
                     // if (!exerciseHasBegun) {
                     //     startExercise();
                     // }
-                    dispatch(resetState());
-                    dispatch(setAllowInput(true));
+                    // moved these to renew():
+                    // dispatch(resetState());
+                    // dispatch(setAllowInput(true));
                     renew(value);
                 }
                 }
@@ -715,7 +724,7 @@ const AskDictation = () => {
             <Header size='large'>{`${capitalizeFirst( t(name) )} ${selectedDictation.title} `}</Header>
 
             <Sound
-                url={selectedDictation.soundFile}
+                url={process.env.PUBLIC_URL + selectedDictation.soundFile}
                 volume={volume*100}
                 loop={false}
                 playStatus={playStatus}
