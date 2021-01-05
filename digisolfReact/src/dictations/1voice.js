@@ -4,13 +4,14 @@
 
 export const dictations = [
 
-
+// NB! perhaps temporary -  now when askdictation may have extra parameter like askidictaion/1voice/11 -  the path should have ../../ in the beginning
+// Reworks this.
 // test:
 
         {
             category: "1voice_level1",
             title: "14a",
-            soundFile: "../sounds/dictations/14a.mp3",
+            soundFile: "../../sounds/dictations/14a.mp3",
             notation:
                 `
                 \\time 3/4
@@ -21,7 +22,7 @@ export const dictations = [
 // kuidas teha show väljaga? kui pole midagi, siis näita esimest nooti.		
 // lihtsad 11-20 viiul
 		
-		{ category: "1voice_level1", title: "11", soundFile: "../sounds/dictations/1voice/level1/11_1voice_level1.mp3", notation:
+		{ category: "1voice_level1", title: "11", soundFile: "../../sounds/dictations/1voice/level1/11_1voice_level1.mp3", notation:
                 `
               \\time 2/4  
     a4  h4 | 
@@ -32,7 +33,7 @@ export const dictations = [
         `
         },
 		
-		{ category: "1voice_level1", title: "12", soundFile: "../sounds/dictations/1voice/level1/12_1voice_level1.mp3", notation:
+		{ category: "1voice_level1", title: "12", soundFile: "/sounds/dictations/1voice/level1/12_1voice_level1.mp3", notation:
                 `
                 \\time 2/4 
     a'8 h'8 c''4 | 

@@ -30,7 +30,9 @@ import {resetState, setAllowInput, setCorrectNotation, setInputNotation} from ".
 
 
 const AskDictation = () => {
-    const { name } = useParams();
+    const { name, title } = useParams(); // title is optional, used for opening the dictation by url
+    //test
+    console.log("Dictation: ", title);
 
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
@@ -77,6 +79,19 @@ const AskDictation = () => {
 
     const startExercise = () => {
         setExerciseHasBegun(true);
+        if (title && dictations) {
+            //find index of that dictation
+            let index = dictations.findIndex( element => {
+                if (element.title === title) {
+                    return true;
+                }
+            });
+            console.log("was able to find index for ", title, index);
+            if (index>=0) {
+                renew(index);
+            }
+
+        }
 
         if ( dictationType === "degrees" ) {
             if (!csoundStarted) {
