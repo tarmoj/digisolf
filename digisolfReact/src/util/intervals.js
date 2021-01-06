@@ -41,6 +41,7 @@ export const scaleDefinitions = { // defined by intervals from tonic
     minor: ["p1", "s2", "v3", "p4", "p5", "v6", "v7", "p8"], // natural, to be certain that 'minor' is also defined
     minorNatural : ["p1", "s2", "v3", "p4", "p5", "v6", "v7", "p8"],
     minorHarmonic : ["p1", "s2", "v3", "p4", "p5", "v6", "s7", "p8"],
+    minorMelodic : ["p1", "s2", "v3", "p4", "p5", "s6", "s7", "p8"],  // how to do that it is lower or higher?
 };
 
 export const makeScale = (tonicVtNote, scale) => { // returns array of vtNotes

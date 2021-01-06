@@ -83,6 +83,7 @@ export const defaultNotationInfo = {
 export const notationInfoToVtString = notationInfo => {
   let vtString = "";
   // TODO: options
+  //vtString += "options space=15\n"
   for (let stave of notationInfo.staves) {
       vtString += `stave clef=${stave.clef} key=${stave.key} time=${stave.time} \n`;
       for (let voice of stave.voices) {
@@ -106,8 +107,10 @@ export const notationInfoToVtString = notationInfo => {
                   }
               }
               vtString += "\n";
+
           }
       }
   }
+  //vtString +=  "\noptions space=20\n"; // try: add some space to lower end
   return vtString;
 };

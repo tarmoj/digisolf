@@ -32,8 +32,6 @@ import {notationInfoToVtString} from "../notation/notationUtils";
 
 const AskDictation = () => {
     const { name, title } = useParams(); // title is optional, used for opening the dictation by url
-    //test
-    console.log("Dictation: ", title);
 
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
@@ -74,7 +72,6 @@ const AskDictation = () => {
     const correctNotation = useSelector(state => state.askDictationReducer.correctNotation);
     const allowInput = useSelector(state => state.askDictationReducer.allowInput);
 
-    //temporary test for degree dictation, to pass the notation as string:
 
 
     // EXERCISE LOGIC ======================================
@@ -254,7 +251,8 @@ const AskDictation = () => {
             }
             // add rest end bar -  now all dictations have 7 notes. If it changes, this here will not make sense...
             // for H5P maybe add rule that degreeDictations must have exactly 7 notes.. (or less)
-            vtString += " ## =|= "
+            vtString += " ## =|= ";
+            //vtString += "\noptions space=15\n"; <- does not work yet since Notation.redraw wants to add "=|=", fix later.
             return {vtString: vtString, midiNotes: midiNotes};
         } else {
             console.log("Could not find scale: ", scale );
@@ -479,7 +477,7 @@ const AskDictation = () => {
     //     }
     // }, [csound]);
 
-    async function loadResources(csound,  startinNote=60, endingNote=84, instrument="flute") {
+    async function loadResources(csound,  startinNote=60, endingNote=84, instrument="oboe") {
         if (!csound) {
             return false;
         }
@@ -502,7 +500,7 @@ const AskDictation = () => {
     const startCsound = async () => {
         console.error('start csound')
         if (csound) {
-            await loadResources(csound, 60, 84, "flute");
+            await loadResources(csound, 60, 84, "oboe");
 
             csound.setOption("-m0d")
             csound.compileOrc(orc);
@@ -562,7 +560,7 @@ const AskDictation = () => {
                     <Dropdown
                         placeholder={capitalizeFirst(t("sound"))}
                         onChange={ async (event, data) => {
-                            console.log("New sound is: ", data.value)
+                            //console.log("New sound is: ", data.value)
                             if (csound) {
                                 await loadResources(csound,  60, 84, data.value);
                             }
@@ -573,7 +571,7 @@ const AskDictation = () => {
                             {text: t("oboe"), value:"oboe"},
                             {text: t("violin"), value:"violin"}
                             ]  }
-                        defaultValue={0}
+                        defaultValue={1}
                     />
                 </Grid.Column>
 

@@ -176,5 +176,157 @@
          degrees: "3 2 1 -7 -6 -5 2 ",
          scale: "major",
      },
+
+
+     {category: "degrees_level1", title: "31",
+         tonicVtNote: "E/5",
+         degrees: " -5 1 -5 2 -5 3 1  ",
+         scale: "minorNatural",
+     },
+
+     {category: "degrees_level1", title: "32",
+         tonicVtNote: "E/5",
+         degrees: "1 2 3 -5 -6 1 -7 ",
+         scale: "minorHarmonic",
+     },
+
+     {category: "degrees_level1", title: "33",
+         tonicVtNote: "F/5",
+         degrees: "1 -5 -4 -3 -5 1 2 ",
+         scale: "major",
+     },
+
+     {category: "degrees_level1", title: "34",
+         tonicVtNote: "F/4",
+         degrees: "5 8 5 4 3 5 1 ",
+         scale: "major",
+     },
+
+     {category: "degrees_level1", title: "35",
+         tonicVtNote: "D/5",
+         degrees: "1 2 1 -5 -6 -7 1 ",
+         scale: "minorMelodic",
+     },
+
+
+     {category: "degrees_level1", title: "36",
+         tonicVtNote: "D/5",
+         degrees: "3 2 1 -7 -6 -5 1 ",
+         scale: "minorNatural",
+     },
+
+
+     {category: "degrees_level1", title: "37",
+         tonicVtNote: "C/5",
+         degrees: "-5 1 -5 -4 -3 -4 -5 ",
+         scale: "major",
+     },
+
+
+     {category: "degrees_level1", title: "38",
+         tonicVtNote: "C/5",
+         degrees: "-7 1 2 5 1 -5 1 ",
+         scale: "major",
+     },
+
+     // original:
+     // {category: "degrees_level1", title: "39",
+     //     tonicVtNote: "A/4",
+     //     degrees: "1 -7 -6 -7  1 6n 5 ", // TODO: support for melodic 6-natural
+     //     scale: "minorMelodic",
+     // },
+
+
+     {category: "degrees_level1", title: "39",
+         tonicVtNote: "A/4",
+         degrees: "1 -7 -6 -7  1 6 5 ", // TODO: support for melodic 6-natural
+         scale: "minorHarmonic",
+     },
+
+     {category: "degrees_level1", title: "40",
+         tonicVtNote: "A/4",
+         degrees: "3 1 2 -7 1 -6 -5 ",
+         scale: "minorHarmonic",
+     },
+
+
+     {
+         category: "degrees_level1", title: "41",
+         tonicVtNote: "G/4",
+         degrees: "8 5 8 4 8 3 1 ",
+         scale: "major",
+     },
+
+     {
+         category: "degrees_level1", title: "42",
+         tonicVtNote: "G/4",
+         degrees: "5 1 -7 5 1 6 5 ",
+         scale: "major",
+     },
+
+
+     {
+         category: "degrees_level1", title: "43",
+         tonicVtNote: "E/4",
+         degrees: "1 2 3 8 2 5 3",
+         scale: "minorNatural",
+     },
+
+
+     {
+         category: "degrees_level1", title: "44",
+         tonicVtNote: "E/5",
+         degrees: "3 1 -5 2 1 -7 1",
+         scale: "minorHarmonic",
+     },
+
+
+     {
+         category: "degrees_level1", title: "45",
+         tonicVtNote: "F/4",
+         degrees: "-7 1 3 7 8 4 2",
+         scale: "major",
+     },
+
+
+     {
+         category: "degrees_level1", title: "46",
+         tonicVtNote: "F/4",
+         degrees: "3 1 5 1 6 1 -7",
+         scale: "major",
+     },
+
+
+     {
+         category: "degrees_level1", title: "47",
+         tonicVtNote: "D/5",
+         degrees: "-5 -6 -7 1 2 -5 3",
+         scale: "minorMelodic",
+     },
+
+     {
+         category: "degrees_level1", title: "48",
+         tonicVtNote: "D/5",
+         degrees: "3 1 -7 2 -5 -7 1",
+         scale: "minorHarmonic",
+     },
+
+     {
+         category: "degrees_level1", title: "49",
+         tonicVtNote: "C/4",
+         degrees: "3 4 5 8 5 2 5",
+         scale: "major",
+     },
+
+     {
+         category: "degrees_level1", title: "50",
+         tonicVtNote: "C/5",
+         degrees: "5 1 5 -7 -6 2 1",
+         scale: "major",
+     },
+
+
+
+
  
 ];
