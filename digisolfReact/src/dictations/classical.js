@@ -263,8 +263,121 @@
             \\time 2/4   r4  g''4~ | 
     g''8. c''16 f''8 a''8 |
             `,
-	},	
-		
+	},
+
+     { category: "classical_level1", title: "12", soundFile: "/sounds/dictations/classical/level1/12_classical_level1.mp3",
+         credits: "Eduard Tubin Intermezzo balletist \"Kratt\"",
+         instructions: "Noteeri meloodia",
+         notation:
+             `
+         \\clef "treble" \\key c \\major \\time 5/4 
+    d'8  a8 c'8 a8
+    d'8 a8 g8 h8 a4~ | 
+    a2. r4 r4 | 
+    c'8 a8 c'8 c'8 a8 g8 h4 a4~ | 
+    a2. r4 r4 | 
+    d'8 h8 c'8 a8 h8 a8 d'8  a8 a4~ | 
+    a2.~ a2 \\bar "|."
+        `,
+         show: `
+       \\clef "treble" \\key c \\major \\time 5/4 
+    d'8  a8     
+            `,
+     },
+
+     // TODO: T S D kui tekst nootide järel -> add support for -"TEXT" to parseLilypondString
+     { category: "classical_level1", title: "13", soundFile: "/sounds/dictations/classical/level1/13_classical_level1.mp3",
+         credits: "Marc-Antoine Charpentier \"Te Deum\"",
+         instructions: "",
+         notation: `
+         \\clef "treble" \\key d \\major \\time 4/4   
+a'4 | d''4 -"T" d''8 e''8 fis''4 d''4 |  
+a''2 -"D" fis''4. -"T" fis''8 | 
+g''4 -"S" a''8 g''8 fis''8 -"T" g''8 a''4 | 
+e''8 -"D" d''8 e''8 fis''8 e''4 a'4 | 
+d''4 -"T" d''8 e''8 fis''4 d''4 | 
+a''2 -"D" fis''4. -"T"  fis''8 | 
+g''8 -"S" a''8 fis''8 -"T" g''8 e''4. -"D"  d''8 | 
+d''2. -"T"  \\bar "|."    
+        `,
+         show: `
+            \\clef "treble" \\key d \\major \\time 4/4
+    a'4 | 
+            `,
+     },
+
+     { category: "classical_level1", title: "14", soundFile: "/sounds/dictations/classical/level1/14_classical_level1.mp3",
+         credits: "Joseph Haydn Sümfoonia nr. 94 II\n            osa",
+         instructions: "Noteeri meloodia",
+         notation:
+             `
+         \\clef "treble" \\key c \\major \\time 2/4 
+     c'8  c'8 e'8 e'8 |
+    g'8 g'8 e'4 | 
+    f'8 f'8 d'8 d'8 | 
+    h8 h8 g4 | 
+    c'8 c'8 e'8 e'8 | 
+    g'8 g'8 e'4 | 
+    c''8 c''8 fis'8 fis'8 | 
+    g'4 g8 r8 \\bar "|."
+        `,
+         show: `
+            \\clef "treble" \\key c \\major \\time 2/4 
+     c'8  c'8 
+            `,
+     },
+
+     { category: "classical_level1", title: "15", soundFile: "/sounds/dictations/classical/level1/15_classical_level1.mp3",
+         credits: "Gabriel Faure - Reekviem 6. osa Libera me",
+         instructions: "Noteeri meloodia - d-moll",
+         notation:
+             `
+         \\clef "bass" \\key f \\major \\time 2/2 
+    
+    d,4  d,4 r4 d,4 | 
+    d,4 d,4 r4 d,4  | 
+    d2~ d4. a8 | 
+    a2 g2 | 
+    b4. b8 a2~ | 
+    a2 a2 | 
+    a2 d4. e8 | 
+    f2 e2 | 
+    d1 \\bar "|."
+        `,
+         show: `
+         \\clef "bass" \\key f \\major \\time 2/2 
+            d,4  d,4 r4 d,4 | 
+    d,4 d,4 r4 d,4  |
+            `,
+     },
+
+
+     { category: "classical_level1", title: "1X", soundFile: "/sounds/dictations/classical/level1/1X_classical_level1.mp3",
+         credits: "",
+         instructions: "",
+         notation:
+             `
+         
+        `,
+         show: `
+            
+            `,
+     },
+
+     { category: "classical_level1", title: "1X", soundFile: "/sounds/dictations/classical/level1/1X_classical_level1.mp3",
+         credits: "",
+         instructions: "",
+         notation:
+             `
+         
+        `,
+         show: `
+            
+            `,
+     },
+
+
+
 // jne, lihtsaid kokku 23
 	
 	

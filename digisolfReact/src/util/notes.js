@@ -251,6 +251,11 @@ export const parseLilypondString = (lyString) => { //NB! (slight) rewrite 2!  re
 			// console.log("Barline");
 			//vtNote = "|";
 			notes.push({keys:["|"], duration:"0"});
+
+		}  else if (chunks[i].trim().startsWith("-") )  { // TODO: text
+			console.log("Found text: ", chunks[i]);
+			//i += 1;
+
 		} else  { // might be a note or error
 			let vtNote="";
 			const index = chunks[i].search(/[~,'\\\d\s]/); // in lylypond one of those may follow th note: , ' digit \ whitespace or nothing
