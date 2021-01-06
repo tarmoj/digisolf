@@ -234,7 +234,11 @@ const Notation = (props) => {
                 }
             }
 
+
+
             if (notes.toString().trim().startsWith("stave") ) { // already full vextab string
+                // try: add some space up and above:
+                notes = "options space=15\n" + notes + "\noptions space=15\n";
                 vexTab.parse(notes);
             } else {
                 vexTab.parse(createVexTabString(notes));
