@@ -26,7 +26,7 @@ import {dictations as popJazz} from "../../dictations/popJazz";
 import {dictations as degrees} from "../../dictations/degrees";
 import {dictations as classical} from "../../dictations/classical"
 //import * as constants from "./dictationConstants";
-import {resetState, setAllowInput, setCorrectNotation, setInputNotation} from "../../actions/askDictation";
+import {resetState, setAllowInput, setInputNotation} from "../../actions/askDictation";
 import {notationInfoToVtString} from "../notation/notationUtils";
 
 
@@ -58,6 +58,7 @@ const AskDictation = () => {
     const [inputVtString, setInputVtString] = useState( "stave\n");
     const [correctVtString, setCorrectVtString] = useState( "stave\n");
     const [correctNotationWidth, setCorrectNotationWidth] = useState (400);
+    const [correctNotation, setCorrectNotation] = useState (defaultNotationInfo);
 
 
     useEffect(() => {
@@ -66,10 +67,19 @@ const AskDictation = () => {
 
     const dictationType = name.toString().split("_")[0]; // categories come in as 1voice_level1 etc
 
-    const dictations = oneVoice.concat(twoVoice).concat(degrees).concat(popJazz).concat(classical); // + add other dictations when done
+    let dictations = [];
+    switch (dictationType) {
+        case "1voice": dictations = oneVoice; break;
+        case "2voice": dictations = twoVoice; break;
+        case "degrees": dictations = degrees; break;
+        case "classical": dictations = classical; break;
+        case "popJazz": dictations = popJazz; break;
+        default: dictations = oneVoice;
+    }
+    //const dictations = oneVoice.concat(twoVoice).concat(degrees).concat(popJazz).concat(classical); // + add other dictations when done
 
     const inputNotation = useSelector(state => state.askDictationReducer.inputNotation);
-    const correctNotation = useSelector(state => state.askDictationReducer.correctNotation);
+    //const correctNotation = useSelector(state => state.askDictationReducer.correctNotation);
     const allowInput = useSelector(state => state.askDictationReducer.allowInput);
 
 
@@ -144,7 +154,8 @@ const AskDictation = () => {
             answer = {notation: selectedDictation.notation}; // <- this will not be used
             const notationInfo = parseLilypondDictation(dictation.notation);
             console.log("correct notation notes: ", notationInfo);
-            dispatch(setCorrectNotation(notationInfo));
+            //dispatch(setCorrectNotation(notationInfo));
+            setCorrectNotation(notationInfo)
             setCorrectVtString( notationInfoToVtString(notationInfo) ); // <- is this necessary  or shall we need correctNotation reducer then at all?
             setCorrectNotationWidth( getWidth(notationInfo)  );
             dispatch(resetState());

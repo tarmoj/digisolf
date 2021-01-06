@@ -24,7 +24,7 @@ const Notation = (props) => {
     const selectedNote = useSelector(state => state.askDictationReducer.selectedNote);
     const previousSelectedNote = useSelector(state => state.askDictationReducer.previousSelectedNote);
     const selectedNoteSet = useSelector(state => state.askDictationReducer.selectedNoteSet);
-    const correctNotation = useSelector(state => state.askDictationReducer.correctNotation);
+    //const correctNotation = useSelector(state => state.askDictationReducer.correctNotation);
     //const currentStaff = useSelector(state => state.askDictationReducer.staff);
     let currentStaff = 0;
 
@@ -54,15 +54,15 @@ const Notation = (props) => {
         }
     }, [inputNotation, vexTab]);
 
-    useEffect(() => {
-        if (props.name === "correctNotation" && correctNotation && vexTab) {
-            redraw(notationInfoToVtString(correctNotation));
-        }
-    }, [correctNotation, vexTab]);
+    // useEffect(() => {
+    //     if (props.name === "correctNotation" && correctNotation && vexTab) {
+    //         redraw(notationInfoToVtString(correctNotation));
+    //     }
+    // }, [correctNotation, vexTab]);
 
 
     useEffect(() => {
-        if (selectedNoteSet && artist) {
+        if (selectedNoteSet && artist && props.name==="inputNotation") {
             //test:
 
             //const note = artist.staves[currentStaff].note_notes[selectedNote.index]; // <- currentStaff always 0 here. Maybe bring in from selectedNote
@@ -151,7 +151,6 @@ const Notation = (props) => {
 
     const highlightNote = (note, color = "lightblue") => {
         if (note && renderer) {
-            console.log("Note in higlight: ", note.keys ); // this comes always from staff 1...
             renderer.getContext().rect(note.getAbsoluteX()-10, note.stave.getYForTopText()-10, note.width+20, note.stave.height+10,
             { fill: color, opacity: "0.2" } );
         }

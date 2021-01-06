@@ -121,11 +121,12 @@ export const askDictationReducer = (state = initialState, action) => {
         ...initialState,
         inputNotation: deepClone(defaultNotationInfo)
       };
-    case "SET_CORRECT_NOTATION":
-      return {
-        ...state,
-        correctNotation: action.payload
-      };
+
+    // case "SET_CORRECT_NOTATION":
+    //   return {
+    //     ...state,
+    //     correctNotation: action.payload
+    //   };
     case "SET_INPUT_NOTATION":
       return {
         ...state,
