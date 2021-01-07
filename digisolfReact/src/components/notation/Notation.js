@@ -184,6 +184,7 @@ const Notation = (props) => {
         currentNote.index = noteIndex;
         //tarmo test:
         currentNote.staff = currentStaff;
+        currentNote.clef = staveNote.clef;
         dispatch(setSelectedNote(currentNote));
     }
 

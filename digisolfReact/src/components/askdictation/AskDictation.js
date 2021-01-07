@@ -95,7 +95,7 @@ const AskDictation = () => {
                     return true;
                 }
             });
-            console.log("was able to find index for ", title, index);
+            //console.log("was able to find index for ", title, index);
             if (index>=0) {
                 renew(index);
             }
@@ -130,9 +130,6 @@ const AskDictation = () => {
             dictation = dictations[dictationIndex];
         }
 
-        //test
-        console.log("Selected dictation notation: ", dictation, dictations.length);
-
         let answer = null;
 
         if (dictationType === "degrees") { // degree dictations -  generate notation from dictation.degrees
@@ -153,7 +150,7 @@ const AskDictation = () => {
         } else {
             answer = {notation: selectedDictation.notation}; // <- this will not be used
             const notationInfo = parseLilypondDictation(dictation.notation);
-            console.log("correct notation notes: ", notationInfo);
+            //console.log("correct notation notes: ", notationInfo);
             //dispatch(setCorrectNotation(notationInfo));
             setCorrectNotation(notationInfo)
             setCorrectVtString( notationInfoToVtString(notationInfo) ); // <- is this necessary  or shall we need correctNotation reducer then at all?
@@ -326,6 +323,7 @@ const AskDictation = () => {
     // some dictation may have property show (in lilypond), if not, copy stave definitions and stave's first notes to inputNotation
     // TODO: this does not work on first call from renew, probably since Notation and its vexTab are not created yet...
     const showFirstNote= (dictation) => {
+        console.log("Show first note")
         let notationInfo = {};
         if (dictation.hasOwnProperty("show")) {
             notationInfo = parseLilypondDictation(dictation.show);
@@ -339,6 +337,7 @@ const AskDictation = () => {
                         //console.log("remaining notes: ", voice.notes);
                     }
                 }
+                console.log("Calling dispatch -> setInputNotation");
                 dispatch( setInputNotation(notationInfo)); // or this arrives Notation one render cycle too late (ie dictation shows the note of previous one
             } else {
                 console.log("No staves in correctNotation");

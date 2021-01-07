@@ -105,6 +105,8 @@ const NotationInput = () => {
 
   const onOctaveUpClick = () => {
     let octave = parseInt(selectedNote.octave);
+    //test:
+    console.log("Clef: ", selectedNote.clef);
     if (octave < octaveData.maxOctave) {
       octave++;
       dispatch(setSelected("octave", octave.toString()));
@@ -157,7 +159,7 @@ const NotationInput = () => {
 
   return(
     <div style={{paddingTop: '1rem'}}>
-      <Accordion styled active={showTable}>
+      <Accordion styled active="{showTable}">
         <Accordion.Title onClick={onTitleClick} >
           <Icon className={'chevron down ' + iconClass} id={'toggleTableIcon'} />
         </Accordion.Title>

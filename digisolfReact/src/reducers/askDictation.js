@@ -25,6 +25,9 @@ export const askDictationReducer = (state = initialState, action) => {
   let currentInputNotation = Object.assign({}, state.inputNotation);
   let currentSelectedNote = Object.assign({}, state.selectedNote);
 
+  //test - first call nothing is set in currentInputNotation... only after UI action
+  console.log("reducer. Clef of the selected staff inputNotation: ", currentInputNotation.staves[staff].clef);
+
 
   switch(action.type) {
       case "SET_SELECTED":

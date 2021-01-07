@@ -6,8 +6,8 @@ export const defaultSelectedNote = {
   octave: "4",
   index: null,
   //tarmo:
-  staff: 0
-  //maybe also: clef: "treble"
+  staff: 0,
+  clef: "treble"
 }
 
 export const vtNames = {
@@ -29,9 +29,10 @@ export const vtNames = {
   "barline": "|"
 }
 
+// tarmo: temporary just allow bigger range to make bass clef range possible
 export const octaveData = {
-  maxOctave: 5,
-  minOctave: 3
+  maxOctave: 6,
+  minOctave: 1
 }
 
 // needs to depend on the clef?  - notationInfo.staves[staff].clef - perhaps:
