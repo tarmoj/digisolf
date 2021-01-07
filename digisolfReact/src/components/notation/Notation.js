@@ -116,9 +116,8 @@ const Notation = (props) => {
 
     const handleClick = (event) => {
         if (props.showInput) {
-            const x = event.layerX / scale;
-            const y = event.layerY / scale;
-
+            let x = event.layerX  / scale;
+            let y = event.layerY / scale;
 
             // check on which staff it is clicked on:
             if (artist.staves.length > 1) { // stave.note gives different geometric info
@@ -139,11 +138,16 @@ const Notation = (props) => {
 
             }
 
+            // correct x must be after correct stave has been chosen. y seems to be correct
+            x = x - artist.staves[currentStaff].note.getBoundingBox().x;
+            //console.log("Click: ", x, artist.staves[currentStaff].note.getBoundingBox().x );
+
             const closestIndex = findClosestNoteByX(x);
             if (closestIndex >= 0) {
+
                 const note = artist.staves[currentStaff].note_notes[closestIndex];
                 setCurrentNote(closestIndex, note);
-                console.log(note.keys, currentStaff);
+                //console.log(note.keys, currentStaff);
                 //console.log(inputNotation)
             }
         }
