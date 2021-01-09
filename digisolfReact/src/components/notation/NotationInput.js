@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import {Table, Image, Button, Popup, Accordion, Icon} from 'semantic-ui-react';
-import {vtNames, octaveData, octaveNoToName, defaultSelectedNote} from './notationUtils';
+import {vtNames, octaveData, octaveNoToName, defaultAccidental} from './notationUtils';
 import {useSelector, useDispatch} from 'react-redux';
-import {setSelected, insertNote, removeNote, setSelectedNoteSet, setCurrentOctave, setCurrentAccidental} from '../../actions/askDictation';
+import {setSelected, insertNote, removeNote, setSelectedNoteSet, setCurrentOctave, setCurrentAccidental, selectPreviousSelectedNote} from '../../actions/askDictation';
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../../util/util";
 
@@ -97,6 +97,7 @@ const NotationInput = ({selectLastNote}) => {
     selectLastNote();
     dispatch(setCurrentAccidental(vtNames[name]));
     dispatch(setSelectedNoteSet(false));
+    dispatch(selectPreviousSelectedNote(false));
   };
 
   const onNoteDurationClick = name => {
@@ -142,6 +143,7 @@ const NotationInput = ({selectLastNote}) => {
     selectLastNote();
     dispatch(setCurrentOctave(octave.toString()));
     dispatch(setSelectedNoteSet(false));
+    dispatch(selectPreviousSelectedNote());
   };
 
   // this is to get a fancy animation when accordionblock's opening

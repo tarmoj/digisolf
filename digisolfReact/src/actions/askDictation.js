@@ -15,6 +15,13 @@ export const setSelectedNote = note => {
   }
 };
 
+export const selectPreviousSelectedNote = (includeAccidental = true) => {
+  return {
+    type: "SELECT_PREVIOUS_SELECTED_NOTE",
+    payload: includeAccidental
+}
+}
+
 export const insertNote = note => {
   return {
     type: "INSERT_NOTE",
