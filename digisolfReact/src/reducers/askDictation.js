@@ -63,6 +63,7 @@ export const askDictationReducer = (state = initialState, action) => {
         }
       case "SET_SELECTED_NOTE":
         if (isCorrectNote(action.payload)) {
+          console.warn(state);
           return {
             ...state,
             currentOctave: action.payload.octave ?? state.currentOctave,
@@ -76,6 +77,13 @@ export const askDictationReducer = (state = initialState, action) => {
           return {
             state
           }
+        }
+      case "SELECT_PREVIOUS_SELECTED_NOTE":
+        const includeAccidental = action.payload;
+        return {
+          ...state,
+          selectedNote: state.previousSelectedNote,
+          currentAccidental: includeAccidental ? state.currentAccidental : defaultAccidental
         }
       case "INSERT_NOTE":
         vtNote = buildVtNoteString(currentSelectedNote, state.currentOctave, state.currentAccidental);
@@ -119,11 +127,12 @@ export const askDictationReducer = (state = initialState, action) => {
           inputNotation: currentInputNotation,
           selectedNote: currentSelectedNote
         }
-    case "SET_SELECTED_NOTE_SET":
+    case "SET_SELECTED_NOTE_SET": 
       return {
         ...state,
         selectedNoteSet: action.payload,
-        selectedNote: defaultSelectedNote
+        selectedNote: defaultSelectedNote,
+        currentAccidental: defaultAccidental
       };
     case "SET_CURRENT_OCTAVE":
       vtNote = buildVtNoteString(currentSelectedNote, action.payload, state.currentAccidental);
@@ -142,10 +151,13 @@ export const askDictationReducer = (state = initialState, action) => {
         accidental = "";
       }
 
-      vtNote = buildVtNoteString(currentSelectedNote, state.currentOctave, accidental);
-      duration = buildVtDurationString(currentSelectedNote);
+      if (state.selectedNoteSet) {
+        vtNote = buildVtNoteString(currentSelectedNote, state.currentOctave, accidental);
+        duration = buildVtDurationString(currentSelectedNote);
+  
+        currentInputNotation.staves[staff].voices[voice].notes.splice(selectedNoteIndex, 1, {keys:[vtNote], duration: duration});
+      }
 
-      currentInputNotation.staves[staff].voices[voice].notes.splice(selectedNoteIndex, 1, {keys:[vtNote], duration: duration});
       return {
         ...state,
         currentAccidental: accidental,
