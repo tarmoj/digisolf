@@ -69,7 +69,8 @@ export const askDictationReducer = (state = initialState, action) => {
         }
     case "INSERT_NOTE":
         // test:
-        console.log("Staff: ", staff);
+        //console.log("Staff: ", staff);
+
         currentInputNotation.staves[staff].voices[voice].notes.push({keys:[vtNote], duration: duration});
 
         return {
@@ -137,7 +138,7 @@ export const askDictationReducer = (state = initialState, action) => {
       };
     case "SET_SELECTED_STAFF":
       //test:
-      console.log("Set selected staff in reducer: ", action.payload); // <- this is correct
+      //console.log("Set selected staff in reducer: ", action.payload); // <- this is correct
       return {
         ...state,
         selectedStaff: action.payload

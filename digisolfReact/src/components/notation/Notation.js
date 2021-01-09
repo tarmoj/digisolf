@@ -63,9 +63,6 @@ const Notation = (props) => {
 
     useEffect(() => {
         if (selectedNoteSet && artist && props.name==="inputNotation") {
-            //test:
-
-            //const note = artist.staves[currentStaff].note_notes[selectedNote.index]; // <- currentStaff always 0 here. Maybe bring in from selectedNote
             //console.log("selectedNote effect. currentStaff, note: ", currentStaff, note.keys);
             const note = artist.staves[selectedNote.staff].note_notes[selectedNote.index];
 
@@ -125,15 +122,16 @@ const Notation = (props) => {
                 //console.log("click to find stave: ", y, artist.staves[0].note.getYForLine(0), artist.staves[1].note.getYForLine(1), artist.staves[1].note.getYForLine(-2)   );
                 const staff =  (y<borderLineY) ? 0 : 1;
                 console.log("Staff clicked: ", staff);
-                // draw a rectangle to show the active stave
+                // draw a rectangle to show the active  -  does not work since will be redrawn from effects -  rather signal "activeStave" somehow
                 // if (renderer) {
                 //     const box = artist.staves[staff].note.getBoundingBox();
-                //     console.log(box);
-                //     renderer.getContext().rect(15, y, 200, 100, { fill: "green", opacity: "0.2" } ); // does not do anything
+                //     console.log("draw box: ", box);
+                //     renderer.getContext().rect(15, 0, 200, 100, { fill: "green", opacity: "0.2" } ); // does not do anything
                 // }
                 if (currentStaff !== staff) {
                     currentStaff = staff;
                     dispatch(setSelectedStaff(staff));
+                    //dispatch(setSelectedNoteSet(false)); // unselect any chosen note - does not work, will be highlighted anyway...
                 }
 
             }
@@ -147,8 +145,6 @@ const Notation = (props) => {
 
                 const note = artist.staves[currentStaff].note_notes[closestIndex];
                 setCurrentNote(closestIndex, note);
-                //console.log(note.keys, currentStaff);
-                //console.log(inputNotation)
             }
         }
     };
@@ -189,6 +185,7 @@ const Notation = (props) => {
         //tarmo test:
         currentNote.staff = currentStaff;
         currentNote.clef = staveNote.clef;
+
         dispatch(setSelectedNote(currentNote));
     }
 
