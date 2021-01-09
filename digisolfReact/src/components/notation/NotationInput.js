@@ -13,7 +13,6 @@ const NotationInput = ({selectLastNote}) => {
   const selectedNote = useSelector(state => state.askDictationReducer.selectedNote);
   const selectedNoteSet = useSelector(state => state.askDictationReducer.selectedNoteSet);
   const allowInput = useSelector(state => state.askDictationReducer.allowInput);
-  const inputNotation = useSelector(state => state.askDictationReducer.inputNotation);
   const currentOctave = useSelector(state => state.askDictationReducer.currentOctave);
   const currentAccidental = useSelector(state => state.askDictationReducer.currentAccidental);
 
@@ -212,14 +211,13 @@ const NotationInput = ({selectLastNote}) => {
                 <NotationTableCell name={'rest'} handleClick={onRestClick} checkIfSelected={isRestSelected} />
               </Table.Row>
               <Table.Row>
-              <Table.Cell textAlign='center' width='2' />
+                <Table.Cell textAlign='center' width='2' />
                 <NotationTableCell name={'dblflat'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
                 <NotationTableCell name={'flat'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
                 <NotationTableCell name={'nat'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
                 <NotationTableCell name={'sharp'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
                 <NotationTableCell name={'dblsharp'} handleClick={onNoteAccidentalClick} checkIfSelected={isNoteAccidentalSelected} />
                 <NotationTableCell name={'barline'} handleClick={onBarlineClick} checkIfSelected={isNoteSelected} />
-                <Table.Cell textAlign='center' width='2' />
                 <Table.Cell textAlign='center' width='2' />
               </Table.Row>
               <Table.Row>
