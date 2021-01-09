@@ -63,7 +63,6 @@ export const askDictationReducer = (state = initialState, action) => {
         }
       case "SET_SELECTED_NOTE":
         if (isCorrectNote(action.payload)) {
-          console.warn(state);
           return {
             ...state,
             currentOctave: action.payload.octave ?? state.currentOctave,
