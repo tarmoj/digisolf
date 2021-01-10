@@ -204,8 +204,8 @@ export const parseLilypondString = (lyString) => { //NB! (slight) rewrite 2!  re
 	let lastDuration = "4";
 
 	for (let i = 0; i<chunks.length; i++) {
-		let vtNote="";
-		if (chunks[i].trim() === "\\key" && chunks.length >= i+1 ) { // must be like "\key a \major\minor
+		chunks[i] = chunks[i].trim();
+		if (chunks[i] === "\\key" && chunks.length >= i+1 ) { // must be like "\key a \major\minor
 			// console.log("key: ", chunks[i+1], chunks[i+2]);
 			let vtKey = noteNames.get(chunks[i+1].toLowerCase());
 			if (vtKey) {
@@ -214,26 +214,20 @@ export const parseLilypondString = (lyString) => { //NB! (slight) rewrite 2!  re
 					vtKey += "m"
 				}
 				stave.key = vtKey;
-				// console.log("Converted key:", vtKey)
 			} else {
 				// console.log("Could not find notename for: ", chunks[i+1])
 			}
 			i += 2;
-		} else if (chunks[i].trim() === "\\time" && chunks.length >= i+1) { // must be like "\key a \major
-			// console.log("time: ", chunks[i + 1]);
+		} else if (chunks[i] === "\\time" && chunks.length >= i+1) { // must be like "\key a \major
 			stave.time = chunks[i + 1];
 			i += 1;
-			// VT nt: time=2/4
-		} else if (chunks[i].trim() === "\\clef" && chunks.length >= i+1) {
+		} else if (chunks[i] === "\\clef" && chunks.length >= i+1) {
 			const clef = chunks[i + 1].trim().replace(/[\"]+/g, ''); // remove quoates \"
-			//console.log("clef: ", clef);
 			stave.clef = clef;
 			i += 1;
-			// VT nt: clef=treble
-		} else if  (chunks[i].trim() === "\\bar" && chunks.length >= i+1)  { // handle different barlines
+		} else if  (chunks[i] === "\\bar" && chunks.length >= i+1)  { // handle different barlines
 			const barLine = chunks[i + 1].trim().replace(/[\"]+/g, ''); // remove quoates \"
 
-			// console.log("Found barline: ", barLine);
 			let vtBar = "";
 			switch (barLine) {
 				case '|' : /*console.log("Normal bar");*/ vtBar = "|"; break;
@@ -247,14 +241,16 @@ export const parseLilypondString = (lyString) => { //NB! (slight) rewrite 2!  re
 			}
 			notes.push({keys:[vtBar], duration:"0"});
 			i += 1;
-		} else if     (chunks[i].trim() === "|") {
-			// console.log("Barline");
-			//vtNote = "|";
+		} else if     (chunks[i] === "|") {
 			notes.push({keys:["|"], duration:"0"});
+		}  else if (chunks[i].startsWith("-") || chunks[i].startsWith("^") )  { // ^ -  text above note, - -under note
 
-		}  else if (chunks[i].trim().startsWith("-") )  { // TODO: text
-			console.log("Found text: ", chunks[i]);
-			//i += 1;
+			if (notes.length>0) {
+				const text = chunks[i].substr(1).replace(/[\"]+/g, ''); // remove quotes, remove first char
+				notes[notes.length-1].text = text;
+				notes[notes.length-1].textPosition = chunks[i].charAt(0)==='^' ?  "top" : "bottom";
+				//console.log("Found text, position: ", text, notes[notes.length-1].textPosition);
+			}
 
 		} else  { // might be a note or error
 			let vtNote="";
@@ -301,7 +297,6 @@ export const parseLilypondString = (lyString) => { //NB! (slight) rewrite 2!  re
 
 
 			// tie - in lilypond ~ is on first note, in VT h after the duration of next one
-			// NB! untested in  new notationInfo context!
 			if (useTie) {
 				vtNote = " h " + vtNote; // for held note/legato
 				useTie = false;

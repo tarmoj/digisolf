@@ -72,6 +72,8 @@ export const defaultNotationInfo = {
                       //{
                       //    keys: [], // like ["C/4", "Eb/4", "G/4"] for chord
                       //    duration: "", // like 4, 8, 2. etc
+                      //    text: "" // - optional to be placed above/under the note
+                      //    textPosition: "top|bottom"
                      // }
                   ]
               }
@@ -102,6 +104,16 @@ export const notationInfoToVtString = notationInfo => {
                           vtString += ` ${note.keys[0]} `;
                       } else {
                           vtString += ` :${note.duration.replace(/\./g, "d")} ${noteString.replace(/b/g, "@")}`; // for any case, VexFlow->VexTab: dot -> d, (flat) b - > @
+                      }
+                      if (note.hasOwnProperty("text")) {
+                          let positionString = ".top.";
+                          if (note.hasOwnProperty("textPosition")) {
+                              if (note.textPosition === "bottom") {
+                                  positionString = ".bottom.";
+                              }
+                          }
+                          vtString += ` \$${positionString}${note.text}\$ `;
+                          //console.log("Added text to vtString: ", vtString);
                       }
                   }
               }

@@ -285,20 +285,20 @@
             `,
      },
 
-     // TODO: T S D kui tekst nootide järel -> add support for -"TEXT" to parseLilypondString
+     //  -"TEXT" text under note ^ -  above note
      { category: "classical_level1", title: "13", soundFile: "/sounds/dictations/classical/level1/13_classical_level1.mp3",
          credits: "Marc-Antoine Charpentier \"Te Deum\"",
          instructions: "",
          notation: `
          \\clef "treble" \\key d \\major \\time 4/4   
-a'4 | d''4 -"T" d''8 e''8 fis''4 d''4 |  
-a''2 -"D" fis''4. -"T" fis''8 | 
-g''4 -"S" a''8 g''8 fis''8 -"T" g''8 a''4 | 
-e''8 -"D" d''8 e''8 fis''8 e''4 a'4 | 
-d''4 -"T" d''8 e''8 fis''4 d''4 | 
-a''2 -"D" fis''4. -"T"  fis''8 | 
-g''8 -"S" a''8 fis''8 -"T" g''8 e''4. -"D"  d''8 | 
-d''2. -"T"  \\bar "|."    
+a'4 | d''4 ^"T" d''8 e''8 fis''4 d''4 |  
+a''2 ^"D" fis''4. ^"T" fis''8 | 
+g''4 ^"S" a''8 g''8 fis''8 ^"T" g''8 a''4 | 
+e''8 ^"D" d''8 e''8 fis''8 e''4 a'4 | 
+d''4 ^"T" d''8 e''8 fis''4 d''4 | 
+a''2 ^"D" fis''4. ^"T"  fis''8 | 
+g''8 ^"S" a''8 fis''8 ^"T" g''8 e''4. ^"D"  d''8 | 
+d''2. ^"T"  \\bar "|."    
         `,
          show: `
             \\clef "treble" \\key d \\major \\time 4/4
@@ -395,10 +395,10 @@ d''2. -"T"  \\bar "|."
     fis''2~ fis''8.
     g''32 fis''32 | 
     e''2 a''4 | 
-    d''2 d''4 h'8 a'8 ~ a'2 | 
-    fis''2 ~ fis''8. g''32 fis''32 | 
+    d''2 d''4 h'8 a'8~ a'2 | 
+    fis''2~ fis''8. g''32 fis''32 | 
     e''2 a''4 | 
-    h''8 d'''8 ~ d'''2 | 
+    h''8 d'''8~ d'''2 | 
     r4 d''2 \\bar "|."
 				
 				`,
