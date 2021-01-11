@@ -46,6 +46,16 @@ const Notation = (props) => {
 
         if (selectedNoteSet && artist) {
             const note = artist.staves[0].note_notes[selectedNote.index];
+
+            if (previousSelectedNote.index === selectedNote.index) {    // Clicked-on note is the same as previously selected note
+                dispatch(setSelectedNoteSet(false));
+            } else {
+                highlightNote(note);
+            }
+        }
+    }, [inputNotation, selectedNoteSet, previousSelectedNote, selectedNote]);
+
+    // not sure if this is necessary
     useEffect(() => {
         if (props.name === "inputNotation" && vexTab) {
             redraw(notationInfoToVtString(inputNotation));
