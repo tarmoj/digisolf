@@ -84,11 +84,11 @@ const Notation = (props) => {
         }
     }, [inputNotation, selectedNoteSet, previousSelectedNote, selectedNote]);
 
-    useEffect(() => {
-        if (props.name === "correctNotation" && correctNotation && vexTab) {
-            redraw(notationInfoToVtString(correctNotation));
-        }
-    }, [correctNotation, vexTab]);
+    // useEffect(() => {
+    //     if (props.name === "correctNotation" && correctNotation && vexTab) {
+    //         redraw(notationInfoToVtString(correctNotation));
+    //     }
+    // }, [correctNotation, vexTab]);
 
     useEffect(() => {
         if (props.wrongNoteIndexes) {
@@ -210,7 +210,7 @@ const Notation = (props) => {
         currentNote.index = noteIndex;
         //tarmo test:
         currentNote.staff = currentStaff;
-        currentNote.clef = staveNote.clef;
+        currentNote.clef = note.clef;
 
         dispatch(setSelectedNote(currentNote));
     }
