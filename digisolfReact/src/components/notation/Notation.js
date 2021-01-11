@@ -40,6 +40,7 @@ const Notation = (props) => {
     }, [props.width]);
 
     useEffect(() => {
+        console.warn("inputNotation changed", inputNotation)
         if (props.name === "inputNotation" && (inputNotation || !selectedNoteSet || previousSelectedNote.index !== selectedNote.index )) {
             redraw(notationInfoToVtString(inputNotation));
         }

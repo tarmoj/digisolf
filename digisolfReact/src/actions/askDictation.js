@@ -74,6 +74,12 @@ export const setCurrentAccidental = (accidental) => {
   }
 };
 
+export const setCurrentHeld = () => {
+  return {
+    type: "SET_CURRENT_HELD"
+  }
+};
+
 export const setAllowInput = (allowInput) => {
   return {
     type: "SET_ALLOW_INPUT",
