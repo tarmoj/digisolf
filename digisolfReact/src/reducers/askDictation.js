@@ -13,12 +13,12 @@ const initialState = {
   previousSelectedNote: null,
   inputNotation: deepClone(defaultNotationInfo),
   correctNotation: deepClone(defaultNotationInfo),
-  selectedStaff: 0,
+  selectedStaff: 0,  // was: staveIndex
   selectedNoteSet: false,
   allowInput: false,
   currentOctave: defaultOctave,
   currentAccidental: defaultAccidental
-}
+};
 
 export const askDictationReducer = (state = initialState, action) => {
   //const staff = (action.payload && action.payload.staff) ? action.payload.staff : 0;
@@ -42,6 +42,9 @@ export const askDictationReducer = (state = initialState, action) => {
         if (isCorrectNoteProperty(property)) {
           currentSelectedNote[property] = value;
           if (state.selectedNoteSet) {
+            if (!currentSelectedNote.duration) {
+              currentSelectedNote.duration = defaultSelectedNote.duration;
+            }
             vtNote = buildVtNoteString(currentSelectedNote, state.currentOctave, state.currentAccidental);
             duration = buildVtDurationString(currentSelectedNote);
   
@@ -62,6 +65,8 @@ export const askDictationReducer = (state = initialState, action) => {
         if (isCorrectNote(action.payload)) {
           return {
             ...state,
+            currentOctave: action.payload.octave ?? state.currentOctave,
+            currentAccidental: action.payload.accidental ?? state.currentAccidental,
             selectedNote: action.payload,
             selectedNoteSet: true,
             previousSelectedNote: state.selectedNote
