@@ -4,13 +4,13 @@
  
 	{
 	 category: "popJazz", title: "Smilers", soundFile: "/sounds/dictations/Smilers.mp3",
-            credits: "Hendriks Sal-Saller \"Käime katuseid mööda\"",
+            credits: "Hendrik Sal-Saller \"Käime katuseid mööda\"",
             notation:
                 `
                 \\time 4/4 \\key g \major
-                r8 h16 h  h a g a~  a8 h r4 |
-                r8 h16 h  h16 h h8 d'16 d'8 d'16~ d'16 d e8~ |
-                e4 r4 r r \\bar "|."  
+                r8 h'16 h'  h' a' g' a'~  a'8 h' r4 |
+                r8 h'16 h'  h'16 h' h'8 d''16 d''8 d''16~ d''16 d' e'8~ |
+                e4' r4 r r \\bar "|."  
         `,
             chords: [
                 {bar: 1, beat: 1, chord: "G"},

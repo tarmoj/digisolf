@@ -15,7 +15,8 @@ export const dictations = [
                 `
                 \\time 3/4
                 a8 h c' c' h c' | a4 a r | a8 h c' h c' d' | e'4 e' r \\bar "|."   
-                `
+                `,
+            show: ` \\time 3/4 a8 `
         },
 		
 // lihtsad 11-20 viiul
@@ -28,7 +29,8 @@ export const dictations = [
     a'8 gis'8 a'8 h'8 | 
     e'4 r4 \\bar "|."  
                    
-        `
+        `,
+            show: `\\time 2/4  a4`
         },
 		
 		{ category: "1voice_level1", title: "12", soundFile: "/sounds/dictations/1voice/level1/12_1voice_level1.mp3", notation:
@@ -39,7 +41,8 @@ export const dictations = [
     e''8 d''8 c''8 a'8 | 
     h'4 r4 \\bar "|."
                    
-        `
+        `,
+            show: `\\time 2/4 a'8`
         },
 		
 		{ category: "1voice_level1", title: "13", soundFile: "/sounds/dictations/1voice/level1/13_1voice_level1.mp3", notation:
@@ -50,7 +53,9 @@ export const dictations = [
     a'8 h'8 c''4 r4 | 
     h'8 c''8 a'4 r4 \\bar "|."    
                    
-        `
+        `,
+            show: `\\time 3/4  
+    a'8`
         },
 		
 		{ category: "1voice_level1", title: "14", soundFile: "/sounds/dictations/1voice/level1/14_1voice_level1.mp3", notation:
@@ -61,7 +66,9 @@ export const dictations = [
     h'8 h'8 r8 e'8 | 
     e'8 a'8 r8 a'8 \\bar "|."
                    
-        `
+        `,
+            show: `\\time 2/4  
+    a'8`
         },
 		
 		{ category: "1voice_level1", title: "15", soundFile: "/sounds/dictations/1voice/level1/15_1voice_level1.mp3", notation:

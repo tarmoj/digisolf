@@ -47,7 +47,7 @@ const AskDictation = () => {
     const [answered, setAnswered] = useState(false);
     const [showCorrectNotation, setShowCorrectNotation] =  useState(false);
 
-    const [notesEnteredByUser, setNotesEnteredByUser] = useState("");
+    const [lyUserInput, setLyUserInput] = useState("");
     const [degreesEnteredByUser, setDegreesEnteredByUser] = useState("");
 
     const [notationInfo, setNotationInfo] = useState(defaultNotationInfo); // do we need it?
@@ -82,6 +82,8 @@ const AskDictation = () => {
     //const correctNotation = useSelector(state => state.askDictationReducer.correctNotation);
     const allowInput = useSelector(state => state.askDictationReducer.allowInput);
 
+    //TODO visually impaired support -  ask it on main page and put to reducer to dispatch from anywhere
+    const visuallyImpairedSupport = true;  // true for testing text input etc
 
 
     // EXERCISE LOGIC ======================================
@@ -118,7 +120,7 @@ const AskDictation = () => {
     const renew = (dictationIndex) => {
         console.log("Renew: ", dictationIndex);
         setAnswered(false);
-        setNotesEnteredByUser("");
+        setLyUserInput("");
         setDegreesEnteredByUser("");
         //hideAnswer();
         setShowCorrectNotation(false);
@@ -328,6 +330,9 @@ const AskDictation = () => {
         if (dictation.hasOwnProperty("show")) {
             notationInfo = parseLilypondDictation(dictation.show);
             dispatch( setInputNotation(notationInfo));
+            if (visuallyImpairedSupport) {
+                setLyUserInput(dictation.show.trim().replace(/\s\s+/g, ' ') );
+            }
         } else {
             notationInfo = parseLilypondDictation(dictation.notation);
             if (notationInfo.staves.length>=1) {
@@ -339,6 +344,7 @@ const AskDictation = () => {
                 }
                 console.log("Calling dispatch -> setInputNotation");
                 dispatch( setInputNotation(notationInfo)); // or this arrives Notation one render cycle too late (ie dictation shows the note of previous one
+                // TODO: how to find first note and show until first note? for visuallyImpaired?
             } else {
                 console.log("No staves in correctNotation");
             }
@@ -363,11 +369,6 @@ const AskDictation = () => {
         if (showCorrectNotation) {
             setWrongNoteIndexes(null);
         }
-    };
-
-    const renderNotes = () => {
-        //const notationInfo = parseLilypondString(notesEnteredByUser);//  noteStringToVexTabChord(notesEnteredByUser);
-        //setNotationInfo(notationInfo);
     };
 
     const checkDegrees = () => checkResponse( {degrees: stringToIntArray(degreesEnteredByUser) } );
@@ -542,7 +543,7 @@ const AskDictation = () => {
                     </Grid.Column>
                     { dictationType!=="degrees" && <Grid.Column>
                          <Button className={"fullWidth marginTopSmall"}
-                                onClick={() => /*showDictation()*/  checkResponse(null)}>{capitalizeFirst(t("check"))}
+                                onClick={() => checkResponse(null)}>{capitalizeFirst(t("check"))}
                         </Button>
                     </Grid.Column> }
                     {/*Järgnev nupp peaks olema nähtav ainult diktaadiharjutuste puhul:  - kirjuta ümber: dictationType==="degrees" && ... */}
@@ -654,17 +655,51 @@ const AskDictation = () => {
         ) : null;
     };
 
+    const handleLilypondInput = () => {
+        const notationInfo = parseLilypondDictation( lyUserInput );
+        console.log("ly notationinfo");
+        //setInputNotation( notationInfo);
+        setInputVtString(notationInfoToVtString(notationInfo));
+        // TODO: two voice
+    };
+
+    const createNotationTextInput = () => { // for visually impaired
+        return (exerciseHasBegun && visuallyImpairedSupport) ? (
+            <div>
+            <Grid.Row>
+                <label className={"marginRight"}>{  capitalizeFirst( t("enterNotationInLilypond") ) + " " }</label>
+                <Input
+                    className={"marginRight"}
+                    onChange={e => {  setLyUserInput(e.target.value) } }
+                    onKeyPress={ e=> {
+                        if (e.key === 'Enter') {
+                            handleLilypondInput()
+                        }
+                    }
+                    }
+                    placeholder={`nt: \\time 4/4 c' e' g`}
+                    value={lyUserInput}
+                />
+                <Button onClick={handleLilypondInput}>
+                    {capitalizeFirst(t("show"))}
+                </Button>
+
+            </Grid.Row>
+            <Grid.Row>
+                Feedback row
+            </Grid.Row>
+            </div>
+        ) : null;
+
+    };
+
     const createNotationInputBlock =  () => {
         if (exerciseHasBegun && dictationType!=="degrees" /*&& selectedDictation.title !== ""*/) { // allow showing notation also in the beginning, otherwise setting "show" does not work...
             return (
                 <Notation  className={"marginTopSmall"}
                            scale={1}
-                           //notes={notationInfo.vtNotes} // this makes little sense, rework
                            vtString={inputVtString}
-                    /*time={notationInfo.time}
-                    clef={notationInfo.clef}
-                    keySignature={notationInfo.keySignature}*/
-                           showInput={true}
+                           showInput={!visuallyImpairedSupport}
                            wrongNoteIndexes={wrongNoteIndexes}
                            name={"inputNotation"}
                            width={getWidth(inputNotation)}
@@ -678,7 +713,6 @@ const AskDictation = () => {
             return (
                 <Notation className={"marginTopSmall center"}
                           scale={1}
-                          // notes={correctNotation} // this has no meaning in degree dictations
                           vtString={correctVtString}
                           showInput={false}
                           name={"correctNotation"}
@@ -752,6 +786,7 @@ const AskDictation = () => {
                 <ScoreRow/>
                 {createSelectionMenu()}
                 {createDegreeDictationInput()}
+                {visuallyImpairedSupport && createNotationTextInput()}
                 {createNotationInputBlock()}
                 {createCorrectNotationBlock()}
                 {createVolumeRow()}
