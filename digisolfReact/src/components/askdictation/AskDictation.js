@@ -699,70 +699,92 @@ const AskDictation = () => {
         //setInputVtString(notationInfoToVtString(notationInfo));
     };
 
-    const createLilypondInput = () => { // for visually impaired - or maybe also for seers?
+    const createLilypondInput = () => {
         return (exerciseHasBegun && showTextInput) ? (
             <>
                 <Grid.Row>
                     {  capitalizeFirst( t("enterNotationInLilypond") )  }
                 </Grid.Row>
-            <Grid.Row>
-                <label>{  capitalizeFirst( t("firstVoice") ) + ": " }</label>
-                <Input
-                    className={"marginRight"}
-                    onChange={e => {  setLyUserInput(e.target.value) } }
-                    onKeyPress={ e=> {
-                        if (e.key === 'Enter') {
-                            handleLilypondInput()
-                        }
-                    }
-                    }
-                    placeholder={`nt: \\time 4/4 c' e' g`}
-                    value={lyUserInput}
-                />
-                <Button onClick={handleLilypondInput}>
-                    {capitalizeFirst(t("show"))}
-                </Button>
-
-            </Grid.Row>
-                { selectedDictation.notation.hasOwnProperty("stave2") &&
-                <Grid.Row>
-                    <label>{  capitalizeFirst( t("secondVoice") ) + ": " }</label>
-                    <Input
-                        className={"marginRight"}
-                        onChange={e => {  setLyUserInput2(e.target.value) } }
-                        onKeyPress={ e=> {
-                            if (e.key === 'Enter') {
-                                handleLilypondInput()
+                <Grid.Row columns={3}>
+                    <Grid.Column  width={3}>{ capitalizeFirst( t("firstVoice") ) + ": " }</Grid.Column>
+                    <Grid.Column width={10} >
+                        <Input
+                            className={"fullWidth"}
+                            style={{ width: "100%" }}
+                            onChange={e => {  setLyUserInput(e.target.value) } }
+                            onKeyPress={ e=> {
+                                if (e.key === 'Enter') {
+                                    handleLilypondInput()
+                                }
                             }
-                        }
-                        }
-                        placeholder={`nt: \\clef bass \\time 4/4 c' e' g`}
-                        value={lyUserInput2}
-                    />
+                            }
+                            placeholder={`nt: \\time 4/4 c' e' g`}
+                            value={lyUserInput}
+                        />
+                    </Grid.Column>
+                    <Grid.Column width={1}>
+                        <Button onClick={handleLilypondInput}>
+                            {capitalizeFirst(t("show"))}
+                        </Button>
+                    </Grid.Column>
+
+                </Grid.Row>
+                { selectedDictation.notation.hasOwnProperty("stave2") &&
+                <Grid.Row columns={3}>
+                    <Grid.Column width={3}>
+                        {  capitalizeFirst( t("secondVoice") ) + ":" }
+                    </Grid.Column>
+                    <Grid.Column width={10}>
+                        <Input
+                            className={"marginRight"}
+                            style={{ width: "100%" }}
+                            onChange={e => {  setLyUserInput2(e.target.value) } }
+                            onKeyPress={ e=> {
+                                if (e.key === 'Enter') {
+                                    handleLilypondInput()
+                                }
+                            }
+                            }
+                            placeholder={`nt: \\clef bass \\time 4/4 c' e' g`}
+                            value={lyUserInput2}
+                        />
+                    </Grid.Column>
+                    <Grid.Column width={1}></Grid.Column>
                 </Grid.Row>
 
                 }
-            { showCorrectNotation &&
-            <>
-                <label className={"marginRight"}>{  capitalizeFirst( t("correct") ) + ": " }</label>
-                {  selectedDictation.notation.hasOwnProperty("stave2") ?
-                    (
-                        <>
-                        <Grid.Row>
-                            <Input value={simplify(selectedDictation.notation.stave1)}  />
-                        </Grid.Row>
-                            <Grid.Row>
-                            <Input value={simplify(selectedDictation.notation.stave2)}  />
+                { showCorrectNotation &&
+                <>
+                    <label className={"marginRight"}>{  capitalizeFirst( t("correct") ) + ": " }</label>
+                    {  selectedDictation.notation.hasOwnProperty("stave2") ?
+                        (
+                            <>
+                                <Grid.Row columns={2}>
+                                    <Grid.Column width={3}>{ capitalizeFirst( t("firstVoice") )}</Grid.Column>
+                                    <Grid.Column width={12}>
+                                        <Input value={simplify(selectedDictation.notation.stave1)}  style={{width: "100%"}} />
+                                    </Grid.Column>
+                                </Grid.Row>
+                                <Grid.Row columns={2}>
+                                    <Grid.Column width={3}>{ capitalizeFirst( t("secondVoice") )}</Grid.Column>
+                                    <Grid.Column width={12}>
+                                        <Input value={simplify(selectedDictation.notation.stave2)} style={{width: "100%"}} />
+                                    </Grid.Column>
+                                </Grid.Row>
+                            </>
+                        ) : (
+                            <Grid.Row columns={2}>
+                                <Grid.Column width={3} />
+                                <Grid.Column width={12}>
+                                    <Input  value={simplify(selectedDictation.notation) } style={{width: "100%"}} />
+                                </Grid.Column>
                             </Grid.Row>
-                        </>
-                    ) : (
-                    <Input value={simplify(selectedDictation.notation)} />
-                )
+                        )
 
 
+                    }
+                </>
                 }
-            </>
-            }
             </>
         ) : null;
 
@@ -814,6 +836,7 @@ const AskDictation = () => {
         return (name.includes("random") || !exerciseHasBegun) ? null :  (
             <Grid.Row>
                 <Grid.Column>
+                    <label className={"marginRight "}>{ capitalizeFirst(t("chooseDictation")) }</label>
             <Select
                 className={"marginTopSmall fullwidth"}
                 placeholder={t("chooseDictation")}
@@ -857,7 +880,7 @@ const AskDictation = () => {
                     <p>Loading...</p>
                 </div>
             ) : (
-            <Grid>
+            <Grid celled={true}>
                 <ScoreRow/>
                 {createSelectionMenu()}
                 {createDegreeDictationInput()}
