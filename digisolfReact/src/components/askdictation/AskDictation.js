@@ -4,7 +4,7 @@ import {Slider} from "react-semantic-ui-range";
 
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
-import {arraysAreEqual, capitalizeFirst, deepClone, weightedRandom} from "../../util/util";
+import {arraysAreEqual, capitalizeFirst, deepClone, simplify, weightedRandom} from "../../util/util";
 import {parseLilypondString, parseLilypondDictation} from "../../util/notes";
 //import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../../actions/headerMessage";
@@ -48,6 +48,7 @@ const AskDictation = () => {
     const [showCorrectNotation, setShowCorrectNotation] =  useState(false);
 
     const [lyUserInput, setLyUserInput] = useState("");
+    const [lyUserInput2, setLyUserInput2] = useState("");
     const [degreesEnteredByUser, setDegreesEnteredByUser] = useState("");
 
     const [notationInfo, setNotationInfo] = useState(defaultNotationInfo); // do we need it?
@@ -83,7 +84,7 @@ const AskDictation = () => {
     const allowInput = useSelector(state => state.askDictationReducer.allowInput);
 
     //TODO visually impaired support -  ask it on main page and put to reducer to dispatch from anywhere
-    const visuallyImpairedSupport = true;  // true for testing text input etc
+    const showTextInput = true;  // true for testing text input etc
 
 
     // EXERCISE LOGIC ======================================
@@ -121,6 +122,7 @@ const AskDictation = () => {
         console.log("Renew: ", dictationIndex);
         setAnswered(false);
         setLyUserInput("");
+        setLyUserInput2("");
         setDegreesEnteredByUser("");
         //hideAnswer();
         setShowCorrectNotation(false);
@@ -322,29 +324,60 @@ const AskDictation = () => {
         }
     };
 
+    const isLyNote = chunk => ['c','d','e','f','g','a','b','h'].includes(chunk.charAt(0));
+
+    const getLyBeginning = (lyString) => { // return the beginning of dictation in Lilypond until first note
+        const chunks = simplify(lyString).split(" ");
+        for (let i=1; i<chunks.length-1; i++) {
+            //console.log("Chunk, is Lynote: ", chunks[i], isLyNote(chunks[i]) );
+            if (isLyNote(chunks[i]) && isLyNote(chunks[i+1])) { // usually in the header there are keywords like \time 4/4 \clef violint \key g \major, if there are two notes in a row, this is most likely first note
+                const beginning = chunks.slice(0, i+1).join(" ");
+                console.log("ly found first note: ", i, chunks[i]);
+                console.log("ly beginning: ", beginning);
+                return beginning;
+            }
+        }
+        return "";
+    }
+
     // some dictation may have property show (in lilypond), if not, copy stave definitions and stave's first notes to inputNotation
-    // TODO: this does not work on first call from renew, probably since Notation and its vexTab are not created yet...
     const showFirstNote= (dictation) => {
         console.log("Show first note")
         let notationInfo = {};
         if (dictation.hasOwnProperty("show")) {
             notationInfo = parseLilypondDictation(dictation.show);
             dispatch( setInputNotation(notationInfo));
-            if (visuallyImpairedSupport) {
-                setLyUserInput(dictation.show.trim().replace(/\s\s+/g, ' ') );
+            if (showTextInput) {
+                if (dictation.notation.hasOwnProperty("stave2")) {
+                    setLyUserInput(simplify(dictation.show.stave1));
+                    setLyUserInput2(simplify(dictation.show.stave2));
+
+                } else {
+                    setLyUserInput(dictation.show.trim().replace(/\s\s+/g, ' '));
+                }
             }
         } else {
             notationInfo = parseLilypondDictation(dictation.notation);
-            if (notationInfo.staves.length>=1) {
+            if (notationInfo.staves.length>0) {
                 for (let stave of notationInfo.staves) {
                     for (let voice of stave.voices) {
                         voice.notes.splice(1); // leave only the first note
-                        //console.log("remaining notes: ", voice.notes);
                     }
                 }
-                console.log("Calling dispatch -> setInputNotation");
                 dispatch( setInputNotation(notationInfo)); // or this arrives Notation one render cycle too late (ie dictation shows the note of previous one
-                // TODO: how to find first note and show until first note? for visuallyImpaired?
+                if (showTextInput) {
+                    if (dictation.notation.hasOwnProperty("stave2")) {
+                        const beginning1 = getLyBeginning(dictation.notation.stave1);
+                        const beginning2 = getLyBeginning(dictation.notation.stave2);
+                        setLyUserInput(beginning1);
+                        setLyUserInput2(beginning2);
+                    } else {
+                        const beginning = getLyBeginning(dictation.notation);
+                        setLyUserInput(beginning);
+
+                    }
+                }
+
             } else {
                 console.log("No staves in correctNotation");
             }
@@ -656,18 +689,24 @@ const AskDictation = () => {
     };
 
     const handleLilypondInput = () => {
-        const notationInfo = parseLilypondDictation( lyUserInput );
-        console.log("ly notationinfo");
-        //setInputNotation( notationInfo);
-        setInputVtString(notationInfoToVtString(notationInfo));
-        // TODO: two voice
+        let notationInfo = null;
+        if (selectedDictation.notation.hasOwnProperty("stave2")) { // two voiced dictation
+            notationInfo = parseLilypondDictation( { stave1: lyUserInput, stave2: lyUserInput2} );
+        } else {
+            notationInfo = parseLilypondDictation( lyUserInput );  // one voiced
+        }
+        dispatch( setInputNotation(notationInfo));
+        //setInputVtString(notationInfoToVtString(notationInfo));
     };
 
-    const createNotationTextInput = () => { // for visually impaired
-        return (exerciseHasBegun && visuallyImpairedSupport) ? (
-            <div>
+    const createLilypondInput = () => { // for visually impaired - or maybe also for seers?
+        return (exerciseHasBegun && showTextInput) ? (
+            <>
+                <Grid.Row>
+                    {  capitalizeFirst( t("enterNotationInLilypond") )  }
+                </Grid.Row>
             <Grid.Row>
-                <label className={"marginRight"}>{  capitalizeFirst( t("enterNotationInLilypond") ) + " " }</label>
+                <label>{  capitalizeFirst( t("firstVoice") ) + ": " }</label>
                 <Input
                     className={"marginRight"}
                     onChange={e => {  setLyUserInput(e.target.value) } }
@@ -685,10 +724,46 @@ const AskDictation = () => {
                 </Button>
 
             </Grid.Row>
-            <Grid.Row>
-                Feedback row
-            </Grid.Row>
-            </div>
+                { selectedDictation.notation.hasOwnProperty("stave2") &&
+                <Grid.Row>
+                    <label>{  capitalizeFirst( t("secondVoice") ) + ": " }</label>
+                    <Input
+                        className={"marginRight"}
+                        onChange={e => {  setLyUserInput2(e.target.value) } }
+                        onKeyPress={ e=> {
+                            if (e.key === 'Enter') {
+                                handleLilypondInput()
+                            }
+                        }
+                        }
+                        placeholder={`nt: \\clef bass \\time 4/4 c' e' g`}
+                        value={lyUserInput2}
+                    />
+                </Grid.Row>
+
+                }
+            { showCorrectNotation &&
+            <>
+                <label className={"marginRight"}>{  capitalizeFirst( t("correct") ) + ": " }</label>
+                {  selectedDictation.notation.hasOwnProperty("stave2") ?
+                    (
+                        <>
+                        <Grid.Row>
+                            <Input value={simplify(selectedDictation.notation.stave1)}  />
+                        </Grid.Row>
+                            <Grid.Row>
+                            <Input value={simplify(selectedDictation.notation.stave2)}  />
+                            </Grid.Row>
+                        </>
+                    ) : (
+                    <Input value={simplify(selectedDictation.notation)} />
+                )
+
+
+                }
+            </>
+            }
+            </>
         ) : null;
 
     };
@@ -699,7 +774,7 @@ const AskDictation = () => {
                 <Notation  className={"marginTopSmall"}
                            scale={1}
                            vtString={inputVtString}
-                           showInput={!visuallyImpairedSupport}
+                           showInput={!showTextInput}
                            wrongNoteIndexes={wrongNoteIndexes}
                            name={"inputNotation"}
                            width={getWidth(inputNotation)}
@@ -786,7 +861,7 @@ const AskDictation = () => {
                 <ScoreRow/>
                 {createSelectionMenu()}
                 {createDegreeDictationInput()}
-                {visuallyImpairedSupport && createNotationTextInput()}
+                {showTextInput && createLilypondInput()}
                 {createNotationInputBlock()}
                 {createCorrectNotationBlock()}
                 {createVolumeRow()}

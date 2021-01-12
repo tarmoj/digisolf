@@ -110,5 +110,7 @@
   "level_2": "2. tase",
   "level_3": "3. tase",
   "1voice": "ühehäälsed",
-  "2voice": "kahehäälsed"
+  "2voice": "kahehäälsed",
+  "firstVoice": "esimene hääl",
+  "secondVoice": "teine hääl"
 }

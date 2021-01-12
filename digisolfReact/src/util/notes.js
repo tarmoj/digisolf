@@ -1,5 +1,5 @@
 import {defaultNotationInfo} from "../components/notation/notationUtils";
-import {deepClone} from "./util";
+import {deepClone, simplify} from "./util";
 
 
 // Think about different conventions: classical german - b,h, classical scandinavian (bes, b), syllabic (do, re mi), syllabic russian
@@ -196,8 +196,7 @@ export const parseLilypondDictation = (lyDictation) => { // returns returns nota
 };
 
 export const parseLilypondString = (lyString) => { //NB! (slight) rewrite 2!  returns notatationInfo for one stave, one voice
-	const chunks = lyString.trim().replace(/\s\s+/g, ' ').split(" "); // simplify string
-	//let notationInfo = deepClone(defaultNotationInfo);
+	const chunks = simplify(lyString).split(" ");
 	let stave=deepClone(defaultNotationInfo.staves[0]);
 	let notes = [] ; // each note has format {keys:[], duration: "", [optional-  chord: ""]}
 	let useTie = false;

@@ -57,3 +57,11 @@ export const arraysAreEqual = (a, b) => {
         a.length === b.length &&
         a.every((val) => b.includes(val));
 };
+
+export const simplify = (string) => {
+    if (typeof(string)==="string") {
+     return string.trim().replace(/\s\s+/g, ' ');
+    } else {
+        return string;
+    }
+}

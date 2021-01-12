@@ -51,19 +51,19 @@
 				`
 			},
 			
-		show:
-            {
-				stave1: 
-				`
-		\\clef treble \\key g \\major \\time 4/4 
-		h'4 
-				`,
-				stave2: 
-				`
-		\\clef bass \\key g \\major \\time 4/4 
-		g4 
-				`
-			},
+		// show:
+        //     {
+		// 		stave1:
+		// 		`
+		// \\clef treble \\key g \\major \\time 4/4
+		// h'4
+		// 		`,
+		// 		stave2:
+		// 		`
+		// \\clef bass \\key g \\major \\time 4/4
+		// g4
+		// 		`
+		// 	},
         
         },
 
