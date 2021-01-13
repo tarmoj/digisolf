@@ -469,14 +469,17 @@ const AskDictation = () => {
                     */
 
                     for (let k = 0, n = correctNotation.staves[i].voices[j].notes.length; k < n - 1; k++) { // Skip end barline
-                        if (!inputNotation.staves[i].voices[j].notes[k] ||
-                            !arraysAreEqual(correctNotation.staves[i].voices[j].notes[k].keys, inputNotation.staves[i].voices[j].notes[k].keys) ||
-                            correctNotation.staves[i].voices[j].notes[k].duration !== inputNotation.staves[i].voices[j].notes[k].duration ) {
-                            incorrectNotes.push({
-                                staveIndex: i,
-                                voiceIndex: j,
-                                noteIndex: k
-                            });
+                        // ignore barlines
+                        if (inputNotation.staves[i].voices[j].notes[k] && !inputNotation.staves[i].voices[j].notes[k].keys[0].includes("|") ) {
+                            if (!inputNotation.staves[i].voices[j].notes[k] ||
+                                !arraysAreEqual(correctNotation.staves[i].voices[j].notes[k].keys, inputNotation.staves[i].voices[j].notes[k].keys) ||
+                                correctNotation.staves[i].voices[j].notes[k].duration !== inputNotation.staves[i].voices[j].notes[k].duration) {
+                                incorrectNotes.push({
+                                    staveIndex: i,
+                                    voiceIndex: j,
+                                    noteIndex: k
+                                });
+                            }
                         }
                     }
                 }
