@@ -456,6 +456,8 @@ const AskDictation = () => {
                 return;
             }
 
+            // TODO: now when also duration is checked, barlines are marked in inputNotatios, since if inserted via NotationINput, they have duration, but that should be "0"
+            // best is just to ignore
             for (let i = 0, n = correctNotation.staves.length; i < n; i++) {
                 for (let j = 0, n = correctNotation.staves[i].voices.length; j < n; j++) {
                     /*   started removing barlines from check

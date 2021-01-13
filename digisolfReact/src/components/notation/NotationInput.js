@@ -2,9 +2,21 @@ import React, {useState, useEffect} from 'react';
 import {Table, Image, Button, Popup, Accordion, Icon} from 'semantic-ui-react';
 import {vtNames, octaveData, octaveNoToName, defaultAccidental} from './notationUtils';
 import {useSelector, useDispatch} from 'react-redux';
-import {setSelected, insertNote, removeNote, setSelectedNoteSet, setCurrentOctave, setCurrentAccidental, selectPreviousSelectedNote} from '../../actions/askDictation';
+import {
+  setSelected,
+  insertNote,
+  removeNote,
+  setSelectedNoteSet,
+  setCurrentOctave,
+  setCurrentAccidental,
+  selectPreviousSelectedNote,
+  insertVtNote
+} from '../../actions/askDictation';
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../../util/util";
+import { Piano, KeyboardShortcuts, MidiNumbers } from 'react-piano';
+import 'react-piano/dist/styles.css';
+import {getVtNoteByMidiNoteInKey} from "../../util/notes";
 
 const NotationInput = ({selectLastNote}) => {
   const [showTable, setShowTable] = useState(false);
@@ -15,6 +27,8 @@ const NotationInput = ({selectLastNote}) => {
   const allowInput = useSelector(state => state.askDictationReducer.allowInput);
   const currentOctave = useSelector(state => state.askDictationReducer.currentOctave);
   const currentAccidental = useSelector(state => state.askDictationReducer.currentAccidental);
+  //tarmo test to get the key of selected dictation
+  const currentKey = useSelector(state => state.askDictationReducer.inputNotation.staves[0].key);
 
   const dispatch = useDispatch();
   const { t } = useTranslation();
@@ -181,8 +195,56 @@ const NotationInput = ({selectLastNote}) => {
     return vtNames[name] === selectedNote.duration;
   };
 
+  // for piano keyboard
+  const firstNote = MidiNumbers.fromNote('c3');
+  const lastNote = MidiNumbers.fromNote('f5');
+  // see https://github.com/kevinsqi/react-piano/blob/master/src/KeyboardShortcuts.js for redfining
+  const keyboardShortcuts = KeyboardShortcuts.create({
+    firstNote: firstNote,
+    lastNote: lastNote,
+    keyboardConfig:  [ // lower row for first octava && qwerty row for second
+      { natural: 'z', flat: 'a', sharp: 's' },
+      { natural: 'x', flat: 's', sharp: 'd' },
+      { natural: 'c', flat: 'd', sharp: 'f' },
+      { natural: 'v', flat: 'f', sharp: 'g' },
+      { natural: 'b', flat: 'g', sharp: 'h' },
+      { natural: 'n', flat: 'h', sharp: 'j' },
+      { natural: 'm', flat: 'j', sharp: 'k' },
+
+      { natural: 'q', flat: '1', sharp: '2' },
+      { natural: 'w', flat: '2', sharp: '3' },
+      { natural: 'e', flat: '3', sharp: '4' },
+      { natural: 'r', flat: '4', sharp: '5' },
+      { natural: 't', flat: '5', sharp: '6' },
+      { natural: 'y', flat: '6', sharp: '7' },
+      { natural: 'u', flat: '7', sharp: '8' },
+      { natural: 'i', flat: '8', sharp: '9' },
+      { natural: 'o', flat: '9', sharp: '0' },
+      { natural: 'p', flat: '0', sharp: '-' }
+
+    ]
+  });
+
+  const handlePlayNote = midiNote => {
+    // how to get current key Signature
+    console.log ("We are in key: ",  currentKey);
+    const key = currentKey ? currentKey : "C"
+    const vtNote = getVtNoteByMidiNoteInKey(midiNote, key); // suggests correct enharmonic note for black key depening on the tonality
+    if (vtNote) {
+      dispatch(insertVtNote(vtNote));
+    }
+  }
+
   return(
     <div className={"center"} style={{paddingTop: '1rem'}}>
+      { showTable && <Piano
+          className = {"center"}
+          noteRange={{ first: firstNote, last: lastNote }}
+          playNote={handlePlayNote}
+          stopNote={(midiNumber) => {}}
+          width={500}  // how is it on mobile screen
+          keyboardShortcuts={keyboardShortcuts}
+      /> }
       <Accordion styled active="{showTable}">
         <Accordion.Title onClick={onTitleClick} >
           <Icon className={'chevron down ' + iconClass} id={'toggleTableIcon'} />

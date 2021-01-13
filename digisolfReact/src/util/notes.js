@@ -162,6 +162,35 @@ export const bassClefNotes = [   // line - line number in staff: 0 upper, 4 - lo
 	
 export const trebleClefNotes = violinClefNotes; // convenience overload;
 
+export const getVtNoteByMidiNoteInKey = (midiNote, key="C") => { // key as tonality like C major, given as 'A' for A major, 'Am' for minor
+	const pitchClass = midiNote%12;
+	const octave = Math.floor(midiNote/12) - 1;
+	let vtNote = "";
+	switch (pitchClass) {
+		case 0: vtNote = "C"; break;
+		case 1: vtNote =  [ "F", "Bb", "Eb", "Cm", "Ab", "Fm", "Db", "Bbm", "Gb", "Ebm", "Cb", "Abm"].includes(key) ? "D@" : "C#" ; break;
+		case 2: vtNote = "D"; break;
+		case 3: vtNote =  [ "C", "F", "Bb", "Gm", "Eb", "Cm", "Ab", "Fm", "Db", "Bbm", "Gb", "Ebm", "Cb", "Abm"].includes(key) ? "E@" : "D#" ; break;
+		case 4: vtNote = "E"; break;
+		case 5: vtNote = "F"; break;
+		case 6: vtNote = [ "F", "Bb", "Eb", "Ab", "Fm", "Db", "Bbm", "Gb", "Ebm", "Cb", "Abm"].includes(key) ? "G@" : "F#";  break;
+		case 7: vtNote = "G"; break;
+		case 8: vtNote = [ "F", "Bb", "Gm", "Eb", "Cm", "Ab", "Fm", "Db", "Bbm", "Gb", "Ebm", "Cb", "Abm"].includes(key) ? "A@" : "G#";  break;
+		case 9: vtNote = "A"; break;
+		case 10: vtNote = [ "G", "D", "F", "Dm", "Bb", "Gm", "Eb", "Cm", "Ab", "Fm", "Db", "Bbm", "Gb", "Ebm", "Cb", "Abm"].includes(key) ? "B@" : "A#";  break;
+		case 11: vtNote = "B"; break;
+		default: vtNote = "";
+	}
+	if (!vtNote) {
+		return "";
+	}  else {
+		vtNote += "/" + octave;
+		console.log("Detected vtNote: ", vtNote, pitchClass, octave, key);
+		return vtNote;
+	}
+
+}
+
 export const getNoteByName = (name, noteArray=trebleClefNotes) =>  noteArray.find(note => note.name === name);
 
 export const getNotesByMidiNote = (midiNote, noteArray=trebleClefNotes) => { // return an array of note objects, i.e cis and des for 61

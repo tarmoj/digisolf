@@ -22,10 +22,17 @@ export const selectPreviousSelectedNote = (includeAccidental = true) => {
 }
 }
 
-export const insertNote = note => {
+export const insertNote = note => { // this does not actually use the note but constructs it from selecteNote
   return {
     type: "INSERT_NOTE",
     payload: note
+  }
+};
+
+export const insertVtNote = vtNote => {
+  return {
+    type: "INSERT_VT_NOTE",
+    payload: vtNote
   }
 };
 

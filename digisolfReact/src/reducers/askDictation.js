@@ -47,7 +47,8 @@ export const askDictationReducer = (state = initialState, action) => {
             }
             vtNote = buildVtNoteString(currentSelectedNote, state.currentOctave, state.currentAccidental);
             duration = buildVtDurationString(currentSelectedNote);
-  
+
+            // this is insert at current position:
             currentInputNotation.staves[staff].voices[voice].notes.splice(selectedNoteIndex, 1, {keys:[vtNote], duration: duration});
           }
           return {
@@ -84,7 +85,7 @@ export const askDictationReducer = (state = initialState, action) => {
           selectedNote: state.previousSelectedNote,
           currentAccidental: includeAccidental ? state.currentAccidental : defaultAccidental
         }
-      case "INSERT_NOTE":
+    case "INSERT_NOTE":  // this is basically append, not insert
         vtNote = buildVtNoteString(currentSelectedNote, state.currentOctave, state.currentAccidental);
         duration = buildVtDurationString(currentSelectedNote);
 
@@ -95,6 +96,21 @@ export const askDictationReducer = (state = initialState, action) => {
           inputNotation: currentInputNotation,
           selectedNoteSet: false
         };
+    case "INSERT_VT_NOTE":
+      vtNote = action.payload;
+      duration = buildVtDurationString(currentSelectedNote);
+
+      if (state.selectedNoteSet) {
+        currentInputNotation.staves[staff].voices[voice].notes.splice(selectedNoteIndex, 1, {keys:[vtNote], duration: duration});
+      } else {
+        currentInputNotation.staves[staff].voices[voice].notes.push({keys:[vtNote], duration: duration});
+      }
+
+      return {
+        ...state,
+        inputNotation: currentInputNotation,
+        //selectedNoteSet: false
+      };
       case "REMOVE_NOTE":
         const currentNotesLength = currentInputNotation.staves[staff].voices[voice].notes.length;
         if (currentNotesLength === 0) {
