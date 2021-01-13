@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Button, Dropdown, Grid, Header, Input, Label, Popup} from 'semantic-ui-react'
+import {Button, Checkbox, Dropdown, Grid, Header, Input, Label, Popup} from 'semantic-ui-react'
 import {Slider} from "react-semantic-ui-range";
 
 import {useDispatch, useSelector} from "react-redux";
@@ -60,6 +60,7 @@ const AskDictation = () => {
     const [correctVtString, setCorrectVtString] = useState( "stave\n");
     const [correctNotationWidth, setCorrectNotationWidth] = useState (400);
     const [correctNotation, setCorrectNotation] = useState (defaultNotationInfo);
+    const [showTextInput, setShowTextInput] = useState(false);
 
 
     useEffect(() => {
@@ -83,8 +84,6 @@ const AskDictation = () => {
     //const correctNotation = useSelector(state => state.askDictationReducer.correctNotation);
     const allowInput = useSelector(state => state.askDictationReducer.allowInput);
 
-    //TODO visually impaired support -  ask it on main page and put to reducer to dispatch from anywhere
-    const showTextInput = false;  // <- put a switch for it
 
 
     // EXERCISE LOGIC ======================================
@@ -579,9 +578,22 @@ const AskDictation = () => {
                                 onClick={() => checkResponse(null)}>{capitalizeFirst(t("check"))}
                         </Button>
                     </Grid.Column> }
-                    {/*Järgnev nupp peaks olema nähtav ainult diktaadiharjutuste puhul:  - kirjuta ümber: dictationType==="degrees" && ... */}
-                    {createRenewButton()}
-                    {createTonicButton()}
+
+                    {/* Following buttons only for degree dictations */}
+                    {  name.toString().startsWith("degrees_random") &&
+                    <Grid.Column>
+                        <Button className={"fullWidth marginTopSmall"}
+                                onClick={() => renew(0)}>{capitalizeFirst(t("new"))}
+                        </Button>
+                    </Grid.Column>
+                    }
+
+                    { dictationType ==="degrees" &&
+                    <Grid.Column>
+                        <Button className={"fullWidth marginTopSmall"}
+                                onClick={() => playTonic(selectedDictation.tonicVtNote)}>{capitalizeFirst(t("tonic"))}
+                        </Button>
+                    </Grid.Column>}
 
                 </Grid.Row>
 
@@ -668,25 +680,6 @@ const AskDictation = () => {
 
     };
 
-    const createTonicButton = () => {
-        return (exerciseHasBegun && dictationType==="degrees") ? (
-            <Grid.Column>
-                <Button className={"fullWidth marginTopSmall"}
-                        onClick={() => playTonic(selectedDictation.tonicVtNote)}>{capitalizeFirst(t("tonic"))}
-                </Button>
-            </Grid.Column>
-        ) : null;
-    };
-
-    const createRenewButton = () => {
-        return (exerciseHasBegun && name.toString().startsWith("degrees_random")) ? (
-            <Grid.Column>
-                <Button className={"fullWidth marginTopSmall"}
-                        onClick={() => renew(0)}>{capitalizeFirst(t("new"))}
-                </Button>
-            </Grid.Column>
-        ) : null;
-    };
 
     const handleLilypondInput = () => {
         let notationInfo = null;
@@ -834,7 +827,7 @@ const AskDictation = () => {
         }
 
         return (name.includes("random") || !exerciseHasBegun) ? null :  (
-            <Grid.Row>
+            <Grid.Row columns={2} centered={true}>
                 <Grid.Column>
                     <label className={"marginRight "}>{ capitalizeFirst(t("chooseDictation")) }</label>
             <Select
@@ -854,6 +847,15 @@ const AskDictation = () => {
                 }
             />
                 </Grid.Column>
+                {(dictationType!=="degrees") &&
+                <Grid.Column>
+                    <Checkbox toggle
+                              label={ t("useTextInput")}
+                              defaultChecked={false}
+                              className={"marginTop"}
+                              onChange={ (e, {checked}) => setShowTextInput(checked) }
+                    />
+                </Grid.Column> }
             </Grid.Row>
         );
 

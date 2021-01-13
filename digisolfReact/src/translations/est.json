@@ -112,5 +112,6 @@
   "1voice": "ühehäälsed",
   "2voice": "kahehäälsed",
   "firstVoice": "esimene hääl",
-  "secondVoice": "teine hääl"
+  "secondVoice": "teine hääl",
+  "useTextInput": "sisesta tekstina"
 }
