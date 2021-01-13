@@ -111,6 +111,7 @@
     h''8 g''8 d''4 \\bar "|."
         `,
             show: `
+            \\clef "treble" \\key g \\major \\time 2/4
             d'''2~ | 
     d'''4 d'''4~ | 
     d'''4 d'''4~ | 

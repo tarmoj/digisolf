@@ -84,7 +84,7 @@ const AskDictation = () => {
     const allowInput = useSelector(state => state.askDictationReducer.allowInput);
 
     //TODO visually impaired support -  ask it on main page and put to reducer to dispatch from anywhere
-    const showTextInput = true;  // true for testing text input etc
+    const showTextInput = false;  // <- put a switch for it
 
 
     // EXERCISE LOGIC ======================================
@@ -880,7 +880,7 @@ const AskDictation = () => {
                     <p>Loading...</p>
                 </div>
             ) : (
-            <Grid celled={true}>
+            <Grid celled={false}>
                 <ScoreRow/>
                 {createSelectionMenu()}
                 {createDegreeDictationInput()}
