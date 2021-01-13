@@ -24,8 +24,7 @@ export const vtNames = {
   "rest": "##",
   "bb": "@@",
   "b": "@",
-  "barline": "|",
-  "held": " h " // remove these very important spaces only at your own peril
+  "barline": "|"
 }
 
 // tarmo: temporary just allow bigger range to make bass clef range possible
@@ -60,7 +59,6 @@ export const octaveNoToName = {
 };
 
 export const defaultAccidental = "";
-export const defaultHeld = "";
 
 // this is basic structure to keep all the score
 // score includes staves,  staves include voices, voices include notes

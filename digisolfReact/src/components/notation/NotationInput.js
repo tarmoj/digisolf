@@ -1,17 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import {Table, Image, Button, Popup, Accordion, Icon} from 'semantic-ui-react';
-import {vtNames, octaveData, octaveNoToName, defaultHeld} from './notationUtils';
+import {vtNames, octaveData, octaveNoToName, defaultAccidental} from './notationUtils';
 import {useSelector, useDispatch} from 'react-redux';
-import {
-  setSelected, 
-  insertNote, 
-  removeNote, 
-  setSelectedNoteSet, 
-  setCurrentOctave, 
-  setCurrentAccidental, 
-  selectPreviousSelectedNote,
-  setCurrentHeld
-} from '../../actions/askDictation';
+import {setSelected, insertNote, removeNote, setSelectedNoteSet, setCurrentOctave, setCurrentAccidental, selectPreviousSelectedNote} from '../../actions/askDictation';
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../../util/util";
 
@@ -24,7 +15,6 @@ const NotationInput = ({selectLastNote}) => {
   const allowInput = useSelector(state => state.askDictationReducer.allowInput);
   const currentOctave = useSelector(state => state.askDictationReducer.currentOctave);
   const currentAccidental = useSelector(state => state.askDictationReducer.currentAccidental);
-  const currentHeld = useSelector(state => state.askDictationReducer.currentHeld);
 
   const dispatch = useDispatch();
   const { t } = useTranslation();
@@ -115,10 +105,6 @@ const NotationInput = ({selectLastNote}) => {
 
   const onDotClick = () => {
     dispatch(setSelected("dot", !selectedNote.dot));
-  };
-
-  const onHeldClick = () => {
-    dispatch(setCurrentHeld());
   };
 
   const onBarlineClick = () => {
@@ -213,7 +199,6 @@ const NotationInput = ({selectLastNote}) => {
                 <NotationTableCell name={'eighth'} handleClick={onNoteDurationClick} checkIfSelected={(isNoteDurationSelected)} />
                 <NotationTableCell name={'sixteenth'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
                 <NotationTableCell name={'dot'} handleClick={onDotClick} checkIfSelected={() => selectedNote.dot} />
-                <NotationTableCell name={'held'} handleClick={onHeldClick} checkIfSelected={() => currentHeld !== defaultHeld} popupContent={'Pide'} />
               </Table.Row>
               <Table.Row>
                 <NotationTableCell name={'C'} handleClick={onNoteClick} checkIfSelected={isNoteSelected} isImageCell={false} />
