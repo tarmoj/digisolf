@@ -4,7 +4,7 @@ import {Slider} from "react-semantic-ui-range";
 
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
-import {arraysAreEqual, capitalizeFirst, deepClone, simplify, weightedRandom} from "../../util/util";
+import {arraysAreEqual, capitalizeFirst, deepClone, isDigit, simplify, weightedRandom} from "../../util/util";
 import {parseLilypondString, parseLilypondDictation} from "../../util/notes";
 //import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../../actions/headerMessage";
@@ -433,11 +433,19 @@ const AskDictation = () => {
             return;
         }
 
-        let feedBack = "";
-        let correct = true;
+
 
         if (dictationType === "degrees" ) {
+            let feedBack = ""; // feedback and correct only for degree dictations
+            let correct = true;
             correct = checkDegreesResponse(response.degrees); // Tarmo: not sure if different function makes sense -  more difficult to form the feedback in future
+            if ( correct ) {
+                dispatch(setPositiveMessage(feedBack, 5000));
+                dispatch(incrementCorrectAnswers());
+            } else {
+                dispatch(setNegativeMessage(feedBack, 5000));
+                dispatch(incrementIncorrectAnswers());
+            }
         } else { // all other dictations are with note input
             let incorrectNotes = [];
 
@@ -450,8 +458,18 @@ const AskDictation = () => {
 
             for (let i = 0, n = correctNotation.staves.length; i < n; i++) {
                 for (let j = 0, n = correctNotation.staves[i].voices.length; j < n; j++) {
+                    /*   started removing barlines from check
+                    // filter out barlines and other notes with no duration
+                    const inputNotes =  inputNotation.staves[i].voices[j].notes.filter(note => note.duration != "0");
+                    const correctNotes =  correctNotation.staves[i].voices[j].notes.filter(note => note.duration != "0");
+                    console.log("correct notes filtered: ", correctNotes);
+                    // TODO: problem this way the indexes get wrong, should we use findIndex in inPutnotation to find the right index
+                    */
+
                     for (let k = 0, n = correctNotation.staves[i].voices[j].notes.length; k < n - 1; k++) { // Skip end barline
-                        if (!inputNotation.staves[i].voices[j].notes[k] || !arraysAreEqual(correctNotation.staves[i].voices[j].notes[k].keys, inputNotation.staves[i].voices[j].notes[k].keys)) {
+                        if (!inputNotation.staves[i].voices[j].notes[k] ||
+                            !arraysAreEqual(correctNotation.staves[i].voices[j].notes[k].keys, inputNotation.staves[i].voices[j].notes[k].keys) ||
+                            correctNotation.staves[i].voices[j].notes[k].duration !== inputNotation.staves[i].voices[j].notes[k].duration ) {
                             incorrectNotes.push({
                                 staveIndex: i,
                                 voiceIndex: j,
@@ -476,13 +494,6 @@ const AskDictation = () => {
             correct = false;
         }*/
 
-        if ( correct ) {
-            dispatch(setPositiveMessage(feedBack, 5000));
-            dispatch(incrementCorrectAnswers());
-        } else {
-            dispatch(setNegativeMessage(feedBack, 5000));
-            dispatch(incrementIncorrectAnswers());
-        }
     };
 
 
@@ -580,13 +591,6 @@ const AskDictation = () => {
                     </Grid.Column> }
 
                     {/* Following buttons only for degree dictations */}
-                    {  name.toString().startsWith("degrees_random") &&
-                    <Grid.Column>
-                        <Button className={"fullWidth marginTopSmall"}
-                                onClick={() => renew(0)}>{capitalizeFirst(t("new"))}
-                        </Button>
-                    </Grid.Column>
-                    }
 
                     { dictationType ==="degrees" &&
                     <Grid.Column>
@@ -594,6 +598,14 @@ const AskDictation = () => {
                                 onClick={() => playTonic(selectedDictation.tonicVtNote)}>{capitalizeFirst(t("tonic"))}
                         </Button>
                     </Grid.Column>}
+
+                    {  name.toString().startsWith("degrees_random") &&
+                    <Grid.Column>
+                        <Button className={"fullWidth marginTopSmall"}
+                                onClick={() => renew(0)}>{capitalizeFirst(t("new"))}
+                        </Button>
+                    </Grid.Column>
+                    }
 
                 </Grid.Row>
 
@@ -650,7 +662,6 @@ const AskDictation = () => {
             </Grid.Row>
         ) : null;
     };
-
     const createDegreeDictationInput = () => { // if degreedictation, Input for  degrees (text), otherwise lilypondINpute + Notation
         return (exerciseHasBegun && dictationType==="degrees") ? (
             <div>
@@ -658,13 +669,20 @@ const AskDictation = () => {
                     {name.includes("random") ? t("inMode") : ""} <b>{ t(selectedDictation.scale) }</b>: </label>
                 <Input
                     className={"marginRight"}
-                    onChange={e => {  setDegreesEnteredByUser(e.target.value) } }
+                    onChange={e => {
+                        let input = e.target.value;
+                        const index = input.length-1;
+                        // if two last symbols are digits, insert a space in between of them
+                        if (index>=1) {
+                            if (isDigit(input.charAt(index)) && isDigit(input.charAt(index-1))) {
+                                input = input.substr(0, index) + " " + input.substr(index);
+                                console.log("Inserted space: ", input, index, input.substr(0, index));
+                            }
+                        }
+                        setDegreesEnteredByUser(input);
+                    } }
                     onKeyPress={ e=> {
-
-                        /*if (['0','1','2','3','4','5','6','7','8'].includes(e.key)) { // does not work on android chrome
-                            console.log("this is a number key", e.key);
-                            setDegreesEnteredByUser(degreesEnteredByUser + " "+ e.key);
-                        } else*/ if (e.key === 'Enter') {
+                        if (e.key === 'Enter') {
                             checkDegrees();
                         }
                     }
@@ -679,6 +697,9 @@ const AskDictation = () => {
         ) : null;
 
     };
+
+
+
 
 
     const handleLilypondInput = () => {

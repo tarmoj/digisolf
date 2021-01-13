@@ -65,3 +65,5 @@ export const simplify = (string) => {
         return string;
     }
 }
+
+export const isDigit = char => /^\d+$/.test(char);
