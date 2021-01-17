@@ -61,9 +61,8 @@ export const askDictationReducer = (state = initialState, action) => {
         }
       case "SET_SELECTED_NOTE":
         if (isCorrectNote(action.payload)) {
-          const newSelectedNoteIndex = action.payload.index;
-          const newSelectedNote = currentInputNotation.staves[staff].voices[voice].notes[newSelectedNoteIndex];
-          currentInputNotation.staves[staff].voices[voice].notes.splice(selectedNoteIndex, 1, {keys:[vtNote], duration: duration});
+          const newSelectedNote = currentInputNotation.staves[staff].voices[voice].notes[action.payload.index];
+
           return {
             ...state,
             currentOctave: action.payload.octave ?? state.currentOctave,
@@ -134,7 +133,8 @@ export const askDictationReducer = (state = initialState, action) => {
         ...state,
         selectedNoteSet: action.payload,
         selectedNote: defaultSelectedNote,
-        currentAccidental: defaultAccidental
+        currentAccidental: defaultAccidental,
+        currentHeld: defaultHeld
       };
     case "SET_CURRENT_OCTAVE":
       vtNote = buildVtNoteString(currentSelectedNote, action.payload, state.currentAccidental, state.currentHeld);
