@@ -218,7 +218,7 @@ export const askDictationReducer = (state = initialState, action) => {
     case "SET_INPUT_NOTATION":
       return {
         ...state,
-        correctNotation: newCorrectNotation,
+        //correctNotation: newCorrectNotation,
         inputNotation: currentInputNotation
       };
     case "SET_SELECTED_STAFF":

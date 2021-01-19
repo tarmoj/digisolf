@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Table, Image, Button, Popup, Accordion, Icon} from 'semantic-ui-react';
+import {Table, Image, Button, Popup, Accordion, Icon, Grid} from 'semantic-ui-react';
 import {vtNames, octaveData, octaveNoToName, defaultHeld} from './notationUtils';
 import {useSelector, useDispatch} from 'react-redux';
 
@@ -18,6 +18,7 @@ import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../../util/util";
 import { Piano, KeyboardShortcuts, MidiNumbers } from 'react-piano';
 import 'react-piano/dist/styles.css';
+import classNames from 'classnames'
 import {getVtNoteByMidiNoteInKey} from "../../util/notes";
 
 const NotationInput = ({selectLastNote}) => {
@@ -202,9 +203,13 @@ const NotationInput = ({selectLastNote}) => {
     return vtNames[name] === selectedNote.duration;
   };
 
+  //TODO: move up
+
+  const [keyboardStartingOctave, setKeyboardStartingOctave ] = useState(3);
+
   // for piano keyboard
-  const firstNote = MidiNumbers.fromNote('c3');
-  const lastNote = MidiNumbers.fromNote('f5');
+  const firstNote = (keyboardStartingOctave+1)*12; // default - c3
+  const lastNote = (keyboardStartingOctave+3)*12 + 4; // for now range is fixed to 2 octaves + maj. third
   // see https://github.com/kevinsqi/react-piano/blob/master/src/KeyboardShortcuts.js for redfining
   const keyboardShortcuts = KeyboardShortcuts.create({
     firstNote: firstNote,
@@ -233,8 +238,7 @@ const NotationInput = ({selectLastNote}) => {
   });
 
   const handlePlayNote = midiNote => {
-    // how to get current key Signature
-    console.log ("We are in key: ",  currentKey);
+    //console.log ("We are in key: ",  currentKey);
     const key = currentKey ? currentKey : "C"
     const vtNote = getVtNoteByMidiNoteInKey(midiNote, key); // suggests correct enharmonic note for black key depening on the tonality
     if (vtNote) {
@@ -242,16 +246,60 @@ const NotationInput = ({selectLastNote}) => {
     }
   }
 
+
+  // extended from: https://github.com/kevinsqi/react-piano/blob/a8fac9f1ab0aab8fd21658714f1ad9f14568feee/src/ControlledPiano.js#L29
+  const renderNoteLabel =  ({ keyboardShortcut, midiNumber, isActive, isAccidental }) => {
+    const isC = midiNumber%12===0
+
+    return keyboardShortcut || isC ? (
+        <div
+            className={classNames('ReactPiano__NoteLabel', {
+              'ReactPiano__NoteLabel--active': isActive,
+              'ReactPiano__NoteLabel--accidental': isAccidental,
+              'ReactPiano__NoteLabel--natural': !isAccidental,
+            })}
+        >
+          {keyboardShortcut}
+          { midiNumber%12===0 &&
+            <p style={{color:"black", fontSize:"0.5em", textAlign:"left", marginLeft:"3px" }}>C{(midiNumber/12-1)}</p>
+          } {/*C3, C4 etc on C keys*/}
+        </div>
+    ) : null;
+  }
+
+  const changeStartingOctave = (change=0) => {
+    const startingOctave = keyboardStartingOctave;
+    if (change>0 && keyboardStartingOctave < octaveData.maxOctave-2 ) {
+        setKeyboardStartingOctave(startingOctave+1);
+    } else if (change<0 && keyboardStartingOctave > octaveData.minOctave) {
+      setKeyboardStartingOctave(startingOctave-1);
+    }
+  }
+
   return(
     <div className={"center"} style={{paddingTop: '1rem'}}>
-      { showTable && <Piano
-          className = {"center"}
-          noteRange={{ first: firstNote, last: lastNote }}
-          playNote={handlePlayNote}
-          stopNote={(midiNumber) => {}}
-          width={500}  // how is it on mobile screen
-          keyboardShortcuts={keyboardShortcuts}
-      /> }
+      { showTable &&
+      <Grid padded={true}>
+        <Grid.Row centered={true} columns={3} verticalAlign={"middle"}>
+          <Grid.Column width={2} ><Button onClick={()=>changeStartingOctave(-1)}>{"<"}</Button></Grid.Column>
+
+          <Grid.Column  width={12}>
+         <div className={"vtDiv center"}>  {/*make it scrollable like notation, if does not fit*/}
+          <Piano
+              /*className = {"center"}*/
+              noteRange={{ first: firstNote, last: lastNote }}
+              playNote={handlePlayNote}
+              stopNote={(midiNumber) => {}}
+              width={420}  // how is it on mobile screen
+              keyboardShortcuts={keyboardShortcuts}
+              renderNoteLabel={renderNoteLabel}
+          />
+         </div>
+          </Grid.Column>
+          <Grid.Column width={2}><Button onClick={()=>changeStartingOctave(1)}>{">"}</Button></Grid.Column>
+        </Grid.Row>
+      </Grid>
+      }
       <Accordion styled active="{showTable}">
         <Accordion.Title onClick={onTitleClick} >
           <Icon className={'chevron down ' + iconClass} id={'toggleTableIcon'} />
