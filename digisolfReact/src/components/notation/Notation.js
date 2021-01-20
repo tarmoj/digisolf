@@ -45,9 +45,11 @@ const Notation = (props) => {
             redraw(notationInfoToVtString(inputNotation));
         }
 
-        if (selectedNoteSet && artist) {
-            const note = artist.staves[0].note_notes[selectedNote.index];
+        if (selectedNoteSet && artist && props.name==="inputNotation") {
+            const note = artist.staves[currentStaff].note_notes[selectedNote.index];
 
+            // if two staves, just index is not enough.
+            // TODO: selecting on lower staff selects also on upper one.
             if (previousSelectedNote.index === selectedNote.index) {    // Clicked-on note is the same as previously selected note
                 dispatch(setSelectedNoteSet(false));
             } else {
@@ -187,8 +189,8 @@ const Notation = (props) => {
 
     const selectLastNote = () => {
         if (!selectedNoteSet) {
-            const lastNoteIndex = artist.staves[0].note_notes.length - 1;
-            let lastNote = artist.staves[0].note_notes[lastNoteIndex];
+            const lastNoteIndex = artist.staves[currentStaff].note_notes.length - 1;
+            let lastNote = artist.staves[currentStaff].note_notes[lastNoteIndex];
             setCurrentNote(lastNoteIndex, lastNote);
         }
     }
