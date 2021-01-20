@@ -383,7 +383,7 @@ const AskDictation = () => {
 
         }
         // do we need both setVtString and dispatch?
-        if (notationInfo && title) {
+        if (notationInfo && title) {  // set with dispatch(setInputNotation) if dication is not set by title (via URL)
             setInputVtString(notationInfoToVtString(notationInfo));
         } // this is necessary, if the dictation is opened via url like askdictation/1voice/11
     };

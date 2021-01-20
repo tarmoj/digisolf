@@ -218,8 +218,10 @@ export const askDictationReducer = (state = initialState, action) => {
     case "SET_INPUT_NOTATION":
       return {
         ...state,
+        // commented out the following from rewriting branch, since otherwise overwrites the beginning entered by showFirstNote()
         //correctNotation: newCorrectNotation,
-        inputNotation: currentInputNotation
+        //inputNotation: currentInputNotation
+        inputNotation: action.payload // currentInputNotation
       };
     case "SET_SELECTED_STAFF":
       //test:
