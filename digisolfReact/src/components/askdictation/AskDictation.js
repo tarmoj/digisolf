@@ -382,10 +382,10 @@ const AskDictation = () => {
             }
 
         }
-        // do we need both setVtString and dispatch?
-        if (notationInfo && title) {  // set with dispatch(setInputNotation) if dication is not set by title (via URL)
+        // do we need both setVtString and dispatch? - yes, since Notation will be cerated later and it needs input to show
+        if (notationInfo ) {
             setInputVtString(notationInfoToVtString(notationInfo));
-        } // this is necessary, if the dictation is opened via url like askdictation/1voice/11
+        }
     };
 
     const showDictation = () => {
@@ -810,11 +810,9 @@ const AskDictation = () => {
     };
 
     const createNotationInputBlock =  () => {
-        const display =   selectedDictation.title==="" ? "none" : "inline";
 
-        if (exerciseHasBegun && dictationType!=="degrees" /*&& selectedDictation.title !== ""*/) { // allow showing notation also in the beginning, otherwise setting "show" does not work...
+        if (exerciseHasBegun && dictationType!=="degrees" && selectedDictation.title !== "") { // allow showing notation also in the beginning, otherwise setting "show" does not work...
             return (
-                <div style={{display: display}}>
                 <Notation  className={"marginTopSmall"}
                            scale={1}
                            vtString={inputVtString}
@@ -823,7 +821,6 @@ const AskDictation = () => {
                            name={"inputNotation"}
                            width={getWidth(inputNotation)}
                 />
-                </div>
             )
         }
     };

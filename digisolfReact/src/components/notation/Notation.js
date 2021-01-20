@@ -40,7 +40,7 @@ const Notation = (props) => {
     }, [props.width]);
 
     useEffect(() => {
-        console.warn("inputNotation changed", inputNotation)
+        // console.warn("inputNotation changed", inputNotation)
         if (props.name === "inputNotation" && (inputNotation || !selectedNoteSet || previousSelectedNote.index !== selectedNote.index )) {
             redraw(notationInfoToVtString(inputNotation));
         }
@@ -149,6 +149,7 @@ const Notation = (props) => {
             }
 
             // correct x must be after correct stave has been chosen. y seems to be correct
+            // NB! this will not work if Notation will be inside of a parent <div>
             x = x - artist.staves[currentStaff].note.getBoundingBox().x;
             //console.log("Click: ", x, artist.staves[currentStaff].note.getBoundingBox().x );
 
@@ -156,6 +157,7 @@ const Notation = (props) => {
             if (closestIndex >= 0) {
 
                 const note = artist.staves[currentStaff].note_notes[closestIndex];
+                console.log("Closest note is: ", note.keys[0], closestIndex, x, note.getAbsoluteX());
                 setCurrentNote(closestIndex, note);
             }
         }
