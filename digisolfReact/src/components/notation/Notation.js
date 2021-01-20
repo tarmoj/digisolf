@@ -113,7 +113,6 @@ const Notation = (props) => {
     }, [props.notes, vexTab]);*/
 
     useEffect(() => {
-        console.log("New vtString", props.vtString, props.name);
         if (props.vtString) {
             redraw(props.vtString);
         }

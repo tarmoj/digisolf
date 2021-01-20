@@ -810,8 +810,11 @@ const AskDictation = () => {
     };
 
     const createNotationInputBlock =  () => {
+        const display =   selectedDictation.title==="" ? "none" : "inline";
+
         if (exerciseHasBegun && dictationType!=="degrees" /*&& selectedDictation.title !== ""*/) { // allow showing notation also in the beginning, otherwise setting "show" does not work...
             return (
+                <div style={{display: display}}>
                 <Notation  className={"marginTopSmall"}
                            scale={1}
                            vtString={inputVtString}
@@ -820,6 +823,7 @@ const AskDictation = () => {
                            name={"inputNotation"}
                            width={getWidth(inputNotation)}
                 />
+                </div>
             )
         }
     };
