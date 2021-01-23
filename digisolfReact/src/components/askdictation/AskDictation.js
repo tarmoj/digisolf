@@ -855,27 +855,27 @@ const AskDictation = () => {
 
         return (name.includes("random") || !exerciseHasBegun) ? null :  (
             <Grid.Row columns={2} centered={true}>
-                <Grid.Column>
-                    <label className={"marginRight "}>{ capitalizeFirst(t("chooseDictation")) }</label>
-            <Select
-                className={"marginTopSmall fullwidth"}
-                placeholder={t("chooseDictation")}
-                options={options}
-                defaultValue= {title ? title : "" }
-                onChange={(e, {value}) => {
-                    // if (!exerciseHasBegun) {
-                    //     startExercise();
-                    // }
-                    // moved these to renew():
-                    // dispatch(resetState());
-                    // dispatch(setAllowInput(true));
-                    renew(value);
-                }
-                }
-            />
+                <Grid.Column computer={"8"} tablet={"8"} mobile={"16"}>
+                  <label className={"marginRight "}>{ capitalizeFirst(t("chooseDictation")) }</label>
+                  <Select
+                        className={"marginTopSmall fullwidth"}
+                        placeholder={t("chooseDictation")}
+                        options={options}
+                        defaultValue= {title ? title : "" }
+                        onChange={(e, {value}) => {
+                            // if (!exerciseHasBegun) {
+                            //     startExercise();
+                            // }
+                            // moved these to renew():
+                            // dispatch(resetState());
+                            // dispatch(setAllowInput(true));
+                            renew(value);
+                        }
+                        }
+                    />
                 </Grid.Column>
                 {(dictationType!=="degrees") &&
-                <Grid.Column>
+                <Grid.Column  computer={"8"} tablet={"8"} mobile={"16"}>
                     <Checkbox toggle
                               label={ t("useTextInput")}
                               defaultChecked={false}

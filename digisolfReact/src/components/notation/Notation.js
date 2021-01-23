@@ -12,6 +12,7 @@ import {
     setSelectedStaff
 } from "../../actions/askDictation";
 import {scale, createVexTabString, width} from "./vextabUtils";
+import {Button} from 'semantic-ui-react';
 
 const Notation = (props) => {
     const vtDiv = useRef(null);
@@ -19,6 +20,8 @@ const Notation = (props) => {
     const [renderer, setRenderer] = useState(null);
     const [artist, setArtist] = useState(null);
     const [vexTab, setVexTab] = useState(null);
+
+    const [inputType, setInputType] = useState("piano");
 
     const inputNotation = useSelector(state => state.askDictationReducer.inputNotation);
     const selectedNote = useSelector(state => state.askDictationReducer.selectedNote);
@@ -288,8 +291,14 @@ const Notation = (props) => {
     return (
         <React.Fragment>
             <div id={props.name} className={'vtDiv center'} ref={vtDiv} />
-            {props.showInput && <div className={'notationBlock'}>
-                <NotationInputPiano selectLastNote={selectLastNote} />
+            {props.showInput && 
+            <div className={'notationBlock'}>
+                <Button.Group>
+                    <Button onClick={() => setInputType("piano")} active={inputType === "piano"}>Klaver</Button>
+                    <Button.Or text={'või'} />
+                    <Button onClick={() => setInputType("table")} active={inputType === "table"}>Tabel</Button>
+                </Button.Group>
+                {inputType === "table" ? <NotationInputTable selectLastNote={selectLastNote} /> : <NotationInputPiano />}
             </div>}
         </React.Fragment>
 
