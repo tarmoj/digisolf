@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Artist, Flow, VexTab} from 'vextab/releases/vextab-div';
-import NotationInput from "./NotationInput";
+import NotationInputTable from "./NotationInputTable";
+import NotationInputPiano from "./NotationInputPiano";
 import {vtNames, notationInfoToVtString} from "./notationUtils";
 import {useSelector, useDispatch} from "react-redux";
 import {
@@ -287,7 +288,9 @@ const Notation = (props) => {
     return (
         <React.Fragment>
             <div id={props.name} className={'vtDiv center'} ref={vtDiv} />
-            {props.showInput && <div className={'notationBlock'}><NotationInput selectLastNote={selectLastNote} /></div>}
+            {props.showInput && <div className={'notationBlock'}>
+                <NotationInputPiano selectLastNote={selectLastNote} />
+            </div>}
         </React.Fragment>
 
     );

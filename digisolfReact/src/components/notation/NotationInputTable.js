@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from 'react';
-import {Table, Image, Button, Popup, Accordion, Icon, Grid} from 'semantic-ui-react';
+import {Table, Button, Accordion, Icon} from 'semantic-ui-react';
 import {vtNames, octaveData, octaveNoToName, defaultHeld} from './notationUtils';
 import {useSelector, useDispatch} from 'react-redux';
+import NotationTableCell from './NotationTableCell';
 
 import {
   setSelected,
@@ -11,17 +12,12 @@ import {
   setCurrentOctave,
   setCurrentAccidental,
   selectPreviousSelectedNote,
-  insertVtNote,
   setCurrentHeld
 } from '../../actions/askDictation';
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../../util/util";
-import { Piano, KeyboardShortcuts, MidiNumbers } from 'react-piano';
-import 'react-piano/dist/styles.css';
-import classNames from 'classnames'
-import {getVtNoteByMidiNoteInKey} from "../../util/notes";
 
-const NotationInput = ({selectLastNote}) => {
+const NotationInputTable = ({selectLastNote}) => {
   const [showTable, setShowTable] = useState(false);
   const [iconClass, setIconClass] = useState("iconDown");
 
@@ -30,8 +26,6 @@ const NotationInput = ({selectLastNote}) => {
   const allowInput = useSelector(state => state.askDictationReducer.allowInput);
   const currentOctave = useSelector(state => state.askDictationReducer.currentOctave);
   const currentAccidental = useSelector(state => state.askDictationReducer.currentAccidental);
-  //tarmo test to get the key of selected dictation
-  const currentKey = useSelector(state => state.askDictationReducer.inputNotation.staves[0].key);
   const currentHeld = useSelector(state => state.askDictationReducer.currentHeld);
 
   const dispatch = useDispatch();
@@ -203,103 +197,8 @@ const NotationInput = ({selectLastNote}) => {
     return vtNames[name] === selectedNote.duration;
   };
 
-  //TODO: move up
-
-  const [keyboardStartingOctave, setKeyboardStartingOctave ] = useState(3);
-
-  // for piano keyboard
-  const firstNote = (keyboardStartingOctave+1)*12; // default - c3
-  const lastNote = (keyboardStartingOctave+3)*12 + 4; // for now range is fixed to 2 octaves + maj. third
-  // see https://github.com/kevinsqi/react-piano/blob/master/src/KeyboardShortcuts.js for redfining
-  const keyboardShortcuts = KeyboardShortcuts.create({
-    firstNote: firstNote,
-    lastNote: lastNote,
-    keyboardConfig:  [ // lower row for first octava && qwerty row for second
-      { natural: 'z', flat: 'a', sharp: 's' },
-      { natural: 'x', flat: 's', sharp: 'd' },
-      { natural: 'c', flat: 'd', sharp: 'f' },
-      { natural: 'v', flat: 'f', sharp: 'g' },
-      { natural: 'b', flat: 'g', sharp: 'h' },
-      { natural: 'n', flat: 'h', sharp: 'j' },
-      { natural: 'm', flat: 'j', sharp: 'k' },
-
-      { natural: 'q', flat: '1', sharp: '2' },
-      { natural: 'w', flat: '2', sharp: '3' },
-      { natural: 'e', flat: '3', sharp: '4' },
-      { natural: 'r', flat: '4', sharp: '5' },
-      { natural: 't', flat: '5', sharp: '6' },
-      { natural: 'y', flat: '6', sharp: '7' },
-      { natural: 'u', flat: '7', sharp: '8' },
-      { natural: 'i', flat: '8', sharp: '9' },
-      { natural: 'o', flat: '9', sharp: '0' },
-      { natural: 'p', flat: '0', sharp: '-' }
-
-    ]
-  });
-
-  const handlePlayNote = midiNote => {
-    //console.log ("We are in key: ",  currentKey);
-    const key = currentKey ? currentKey : "C"
-    const vtNote = getVtNoteByMidiNoteInKey(midiNote, key); // suggests correct enharmonic note for black key depening on the tonality
-    if (vtNote) {
-      dispatch(insertVtNote(vtNote));
-    }
-  }
-
-
-  // extended from: https://github.com/kevinsqi/react-piano/blob/a8fac9f1ab0aab8fd21658714f1ad9f14568feee/src/ControlledPiano.js#L29
-  const renderNoteLabel =  ({ keyboardShortcut, midiNumber, isActive, isAccidental }) => {
-    const isC = midiNumber%12===0
-
-    return keyboardShortcut || isC ? (
-        <div
-            className={classNames('ReactPiano__NoteLabel', {
-              'ReactPiano__NoteLabel--active': isActive,
-              'ReactPiano__NoteLabel--accidental': isAccidental,
-              'ReactPiano__NoteLabel--natural': !isAccidental,
-            })}
-        >
-          {keyboardShortcut}
-          { midiNumber%12===0 &&
-            <p style={{color:"black", fontSize:"0.5em", textAlign:"left", marginLeft:"3px" }}>C{(midiNumber/12-1)}</p>
-          } {/*C3, C4 etc on C keys*/}
-        </div>
-    ) : null;
-  }
-
-  const changeStartingOctave = (change=0) => {
-    const startingOctave = keyboardStartingOctave;
-    if (change>0 && keyboardStartingOctave < octaveData.maxOctave-2 ) {
-        setKeyboardStartingOctave(startingOctave+1);
-    } else if (change<0 && keyboardStartingOctave > octaveData.minOctave) {
-      setKeyboardStartingOctave(startingOctave-1);
-    }
-  }
-
   return(
     <div className={"center"} style={{paddingTop: '1rem'}}>
-      { showTable &&
-      <Grid padded={true}>
-        <Grid.Row centered={true} columns={3} verticalAlign={"middle"}>
-          <Grid.Column width={2} ><Button onClick={()=>changeStartingOctave(-1)}>{"<"}</Button></Grid.Column>
-
-          <Grid.Column  width={12}>
-         <div className={"vtDiv center"}>  {/*make it scrollable like notation, if does not fit*/}
-          <Piano
-              /*className = {"center"}*/
-              noteRange={{ first: firstNote, last: lastNote }}
-              playNote={handlePlayNote}
-              stopNote={(midiNumber) => {}}
-              width={420}  // how is it on mobile screen
-              keyboardShortcuts={keyboardShortcuts}
-              renderNoteLabel={renderNoteLabel}
-          />
-         </div>
-          </Grid.Column>
-          <Grid.Column width={2}><Button onClick={()=>changeStartingOctave(1)}>{">"}</Button></Grid.Column>
-        </Grid.Row>
-      </Grid>
-      }
       <Accordion styled active="{showTable}">
         <Accordion.Title onClick={onTitleClick} >
           <Icon className={'chevron down ' + iconClass} id={'toggleTableIcon'} />
@@ -357,22 +256,7 @@ const NotationInput = ({selectLastNote}) => {
   );
 };
 
-export default NotationInput;
+export default NotationInputTable;
 
-const NotationTableCell = ({name, handleClick, checkIfSelected, isImageCell=true, popupContent}) => {
 
-  const isActive = checkIfSelected && checkIfSelected(name);
-
-  const cell = <Table.Cell selectable active={isActive} onClick={() => handleClick(name)} textAlign='center' width='2' style={{cursor: 'pointer'}}>
-                {isImageCell ? 
-                  <Image src={require('../../images/notes/' + name + '.png')} style={{margin: 'auto', padding: '5px'}}/> :
-                  <div style={{padding: '10px'}}>{name}</div>}
-              </Table.Cell>
-  
-  return(
-    <React.Fragment>
-          {popupContent ? <Popup content={popupContent} trigger={cell} position={'top center'} /> : cell}
-    </React.Fragment>
-  );
-};
 
