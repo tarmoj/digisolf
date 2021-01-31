@@ -209,7 +209,16 @@ export const askDictationReducer = (state = initialState, action) => {
         ...initialState,
         inputNotation: deepClone(defaultNotationInfo)
       };
+    case "SET_CHORD":
+      const chord = action.payload;
+      currentSelectedNote = currentInputNotation.staves[staff].voices[voice].notes[selectedNoteIndex];
+      currentSelectedNote.text = chord;
+      currentSelectedNote.textPosition = "top";
 
+      return {
+        ...state,
+        inputNotation: currentInputNotation
+      };
     // case "SET_CORRECT_NOTATION":
     //   return {
     //     ...state,

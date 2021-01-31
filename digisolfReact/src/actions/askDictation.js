@@ -87,6 +87,14 @@ export const setAllowInput = (allowInput) => {
   }
 };
 
+
+export const setChord = (chord) => {
+  return {
+    type: "SET_CHORD",
+    payload: chord
+  }
+};
+
 export const resetState = () => {
   return {
     type: "RESET_STATE"

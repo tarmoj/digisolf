@@ -73,6 +73,7 @@ body {
     z-index: 2;
     margin-bottom: 0 !important;
     margin-top: 0 !important;
+    position: sticky !important;
 }
 
 .headerText {

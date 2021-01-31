@@ -64,8 +64,8 @@ function App() {
                 <div className={"appHeader"}>
                     <Header className={"headerText"} size='huge'>{t("digisolfeggio")}</Header>
                     <LanguageSelect/>
-                    <HeaderMessage/>
                 </div>
+                <HeaderMessage />
                 <div className={"appBody"}>
                     {renderComponent()}
                     <AppFooter/>
