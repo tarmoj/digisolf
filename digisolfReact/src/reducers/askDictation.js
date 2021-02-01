@@ -225,12 +225,14 @@ export const askDictationReducer = (state = initialState, action) => {
     //     correctNotation: action.payload
     //   };
     case "SET_INPUT_NOTATION":
+      let notation = action.payload;
+      markFirstNoteChord(notation); // TODO 1.02.2021: remove when VexFlow is in use and chord marking is complete
       return {
         ...state,
         // commented out the following from rewriting branch, since otherwise overwrites the beginning entered by showFirstNote()
         //correctNotation: newCorrectNotation,
         //inputNotation: currentInputNotation
-        inputNotation: action.payload // currentInputNotation
+        inputNotation: notation // currentInputNotation
       };
     case "SET_SELECTED_STAFF":
       //test:
@@ -289,4 +291,11 @@ const buildVtDurationString = selectedNote => {
 
 const hasNoteBeenHeld = note => {
   return note.keys[0].startsWith(vtNames["held"]);
+}
+
+const markFirstNoteChord = (notationInfo) => {
+  let firstNote = notationInfo.staves[0].voices[0].notes[0];
+
+  firstNote.text = "?";
+  firstNote.textPosition = "top";
 }

@@ -328,30 +328,32 @@ const NotationInput = ({selectLastNote}) => {
           </Grid.Row>
         </Grid>
         }
-        <Table unstackable>
-          <Table.Body>
-            <Table.Row>
-              <NotationTableCell name={'whole'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
-              <NotationTableCell name={'half'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
-              <NotationTableCell name={'quarter'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
-              <NotationTableCell name={'eighth'} handleClick={onNoteDurationClick} checkIfSelected={(isNoteDurationSelected)} />
-              <NotationTableCell name={'sixteenth'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
-            </Table.Row>
-            <Table.Row>
-              <NotationTableCell name={'dot'} handleClick={onDotClick} checkIfSelected={() => selectedNote.dot} />
-              <NotationTableCell name={'held'} handleClick={onHeldClick} checkIfSelected={() => currentHeld !== defaultHeld} popupContent={'Pide'} />
-              <NotationTableCell name={'rest'} handleClick={onRestClick} checkIfSelected={isRestSelected} />
-              <NotationTableCell name={'barline'} handleClick={onBarlineClick} checkIfSelected={isNoteSelected} />
-              <Table.Cell />
-            </Table.Row>
-            <Table.Row textAlign={"center"}>
-              <Table.Cell colSpan="9">
-                {markChordButton()}
-                {removeNoteButton()}
-              </Table.Cell>
-            </Table.Row>
-          </Table.Body>
-        </Table>
+        {allowInput &&
+                  <Table unstackable>
+                  <Table.Body>
+                    <Table.Row>
+                      <NotationTableCell name={'whole'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
+                      <NotationTableCell name={'half'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
+                      <NotationTableCell name={'quarter'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
+                      <NotationTableCell name={'eighth'} handleClick={onNoteDurationClick} checkIfSelected={(isNoteDurationSelected)} />
+                      <NotationTableCell name={'sixteenth'} handleClick={onNoteDurationClick} checkIfSelected={isNoteDurationSelected} />
+                    </Table.Row>
+                    <Table.Row>
+                      <NotationTableCell name={'dot'} handleClick={onDotClick} checkIfSelected={() => selectedNote.dot} />
+                      <NotationTableCell name={'held'} handleClick={onHeldClick} checkIfSelected={() => currentHeld !== defaultHeld} popupContent={'Pide'} />
+                      <NotationTableCell name={'rest'} handleClick={onRestClick} checkIfSelected={isRestSelected} />
+                      <NotationTableCell name={'barline'} handleClick={onBarlineClick} checkIfSelected={isNoteSelected} />
+                      <Table.Cell />
+                    </Table.Row>
+                    <Table.Row textAlign={"center"}>
+                      <Table.Cell colSpan="9">
+                        {markChordButton()}
+                        {removeNoteButton()}
+                      </Table.Cell>
+                    </Table.Row>
+                  </Table.Body>
+                </Table>
+        }
       </div>
     );
   };
@@ -419,11 +421,11 @@ const NotationInput = ({selectLastNote}) => {
 
   return(
     <div className={'notationBlock'}>
-      <Button.Group>
+      {allowInput && <Button.Group>
         <Button onClick={() => setInputType("piano")} active={inputType === "piano"}>Klaver</Button>
         <Button.Or text={'või'} />
         <Button onClick={() => setInputType("table")} active={inputType === "table"}>Tabel</Button>
-      </Button.Group>
+      </Button.Group>}
       {inputType === "table" ? showTableInput() : showPianoInput()}
     </div>
   );
