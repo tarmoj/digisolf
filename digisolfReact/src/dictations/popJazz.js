@@ -35,7 +35,88 @@
      {}
     ],
 
- },
+    },
+
+     {
+         category: "popJazz", title: "Siin me kokku saime", soundFile: "/sounds/dictations/popJazz/level1/Siin-me-kokku-saime.mp3 ",
+         credits: "Muusika/sõnad: Ott Lepland 01:00 - 01:06 https://youtu.be/5dKfSe3y6UY",
+ // NB! double dot not supported in VexTab changed here to normal dot...
+         notation:
+             `
+            \\clef "treble" \\key des \\major \\time 4/4 r4. r16
+    des'16~ des'8 c'8 b8 as8 | 
+    b8. b16 r4 b8. b16~ b4 | 
+    b8. b16~ b2 r4 \\bar "|."    
+        `,
+         show: ` \\clef "treble" \\key des \\major \\time 4/4 r4. r16
+    des'16~ des'8`,
+         chords: [
+             {   },
+             {}
+         ],
+/*         \chordmode {
+    // siit algusest vist Bbm puudu
+     s16*7 s16 s8 s8 s8 s8 | % 2
+     ges8.:5.2 s16 s4 as8.:sus4 s16 s4 | % 3
+     b8.:m7 s16 s2 s4 \bar "|."  }*/
+     },
+
+     {
+         category: "popJazz", title: "Parem veelgi", soundFile: "/sounds/dictations/popJazz/level1/Parem-veelgi-ref.mp3 ",
+         credits: "Tanel Padar",
+         notation:
+             `
+            \\clef "treble" \\key es \\major \\time 4/4 
+    r2 g8 c'8 es'8 g'8 | 
+    es'4 c'4 as4 f'8. d'16~ | 
+    d'2 r2 | 
+    d'8 d'16 d'16~ d'8 d'8 es'16 d'8 d'16~ d'8 es'8 \\bar "|."     
+        `,
+         show: `\\clef "treble" \\key es \\major \\time 4/4 
+    r2 g8`,
+         chords: [
+             {},
+             {}
+         ],
+
+         /*
+          \chordmode {
+    | % 1
+    c2:m5 s8 s8 s8 s8 | % 2
+    as4:5.2 s4 s4 s8. s16 | % 3
+    b2:5 s2 | % 4
+    s8 s16 s16 s8 s8 g16:m7 s8 s16 s8 s8 \bar "|."
+    }
+         */
+
+
+     },
+
+     {
+         category: "popJazz", title: "Segased lood", soundFile: "/sounds/dictations/popJazz/level1/Segased-lood-ref.mp3 ",
+         credits: "s: T. Padar / m: T. Padar, K. Kalluste, T. Kull youtube: https://youtu.be/ZtfLzUHH93I?t=58 0:58 - 1:04",
+         notation:
+             `
+             \\clef "treble" \\key a \\major \\time 4/4 
+    r2 r8 e'16 e'16 e'8 e'8 | 
+    e'8 fis'8 a8 a8 e'8 d'8 cis'16 h8 cis'16( | 
+    h2) r2 \\bar "|."   
+        `,
+         show: `\\clef "treble" \\key a \\major \\time 4/4 
+    r2 r8 e'16 e'16`,
+         chords: [
+             {},
+             {}
+         ],
+
+         /*
+\chordmode {
+    cis2:m7 s8 s16 s16 s8 s8 | % 2
+    d8:5.2 s8 s8 s8 s8 s8 s16 s8 s16 | % 3
+    e2:sus4 s2 \bar "|."
+          */
+
+     },
 
 
  
