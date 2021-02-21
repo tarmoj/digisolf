@@ -16,9 +16,6 @@
                 {bar: 1, beat: 1, chord: "G"},
                 {bar: 3, beat: 1, chord: "C"}
             ],
-            melody: ",33,3212_,23/33,333,555_,556_/1,,,", // miks lõpus 1, pekas ju 6 olema
-            rhythm: "34,1234_,13,/34,123,124_,123_/1,,,/"
-
     },
 
      {
@@ -30,10 +27,6 @@
     g'8 f'8 g'4 r4. g'8 | 
     g'16 f'8. f'16 d'8. d'16 f'8. f'8 d'8 \\bar "|."            
         `,
-     chords: [
-     {},
-     {}
-    ],
 
     },
 
@@ -50,10 +43,7 @@
         `,
          show: ` \\clef "treble" \\key des \\major \\time 4/4 r4. r16
     des'16~ des'8`,
-         chords: [
-             {   },
-             {}
-         ],
+
 /*         \chordmode {
     // siit algusest vist Bbm puudu
      s16*7 s16 s8 s8 s8 s8 | % 2
@@ -74,10 +64,7 @@
         `,
          show: `\\clef "treble" \\key es \\major \\time 4/4 
     r2 g8`,
-         chords: [
-             {},
-             {}
-         ],
+
 
          /*
           \chordmode {
@@ -104,10 +91,7 @@
         `,
          show: `\\clef "treble" \\key a \\major \\time 4/4 
     r2 r8 e'16 e'16`,
-         chords: [
-             {},
-             {}
-         ],
+
 
          /*
 \chordmode {
@@ -119,5 +103,90 @@
      },
 
 
- 
+
+     {
+         category: "popJazz_level1",
+         title: "I - Tuuled tulid",
+         soundFile: "/sounds/dictations/popJazz/level1/Tuuled-tulid.mp3 ",
+         credits: "s: A. Ilves / m: O. Lepland youtube: https://youtu.be/T7BaTBe0UD8?t=123 2:03-2:17",
+         notation:
+             `
+    \\clef "treble" \\key c \\major \\time 4/4 
+    e'8 e'8 e'8 e'8 e'8 f'8 g'8 c'8~ | 
+    c'8 r8 c'8 a8 c'8 d'8 e'8 a8 | 
+    r4 a8 g8 a8 c'8~ c'8 a8 | 
+    a8 g4. r2 \\bar "|."  
+        `,
+
+
+         /*
+\chordmode {
+    c8:5 s8 s8 s8 s8 s8 s8 s8 | % 2
+    a8:m7 s8 s8 s8 s8 s8 s8 s8 | % 3
+    f4:5.2 s8 s8 s8 s8 s8 s8 | % 4
+    f8:5/+g s4. s2 \bar "|."
+    }
+          */
+
+     },
+
+
+ // Level 2 --------------------------------
+
+     {
+         category: "popJazz", title: "II Siin me kokku saime", soundFile: "/sounds/dictations/popJazz/level2/Siin-me-kokku-saime-2.mp3 ",
+         credits: "Muusika/sõnad: Ott Lepland youtube: https://youtu.be/5dKfSe3y6UY?t=75  1:15 - 1:24",
+         // NB! double dot not supported in VexTab changed here to normal dot...
+         notation:
+             `
+            \\clef "treble" \\key b \\minor \\time 4/4 
+    r8. b16 des'16 b8 des'16~ des'4 des'16 es'8. |
+    c'8 b16 b16~ b16 as16 as8~ as8 r16 f16 as16 f8 as16~ | 
+    as8 b8 r4 r16 f'8. es'8 des'16 f'16~ | 
+    f'8 f'4. r8 des'4. \\bar "|."    
+        `,
+         show: ` \\clef "treble" \\key b \\minor \\time 4/4 
+    r8. b16 des'16 `,
+
+         /*         \chordmode {
+             es8.:m7 s16 s16 s8 s16 s4 s16 s8. | % 2
+    as8:5.2 s16 s16 s16 s16 s8 s8 s16 s16 s16 s8 s16 | % 3
+    b8:m7 s8 s4 s16 s8. s8 s16 s16 | % 4
+    s8 s4. s8 s4. \bar "||"
+    }
+    */
+     },
+
+ // Level 3 ---------------------
+
+     {
+         category: "popJazz_level3",
+         title: "III - Kuula",
+         soundFile: "/sounds/dictations/popJazz/level3/Ott-Lepland-Kuula.mp3 ",
+         credits: "m: T. Tennille / s: V. Tamm youtube: https://youtu.be/vVFOoqqmnaY?t=23 0:23 - 0:34",
+         notation:
+             `
+    \\clef "treble" \\key f \\major \\time 4/4
+    d'8 c'16 d'16~ d'16 c'16 d'8 r8 c'16 d'16~ d'16 f'16 e'16 e'16~ |
+    e'8 c'16 e'16~ e'16 e'16 r8 e'8 e'16 e'16~ e'16 g'8 g'16~ |
+    g'1~ |
+    g'2. r4 \\bar "|."   
+        `,
+
+
+         /*
+\chordmode {
+| % 1
+    b8:5.2 s16 s16 s16 s16 s8 s8 s16 s16 s16 s16 s16 s16 | % 2
+    f8:5.2/+a s16 s16 s16 s16 s8 s8 s16 s16 s16 s8 s16 | % 3
+    c1:sus4 | % 4
+    c2..:5 s8 \bar "||"
+    }
+          */
+
+     },
+
+
+
+
  ]
