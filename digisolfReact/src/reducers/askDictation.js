@@ -226,7 +226,7 @@ export const askDictationReducer = (state = initialState, action) => {
     //   };
     case "SET_INPUT_NOTATION":
       let notation = action.payload;
-      markFirstNoteChord(notation); // TODO 1.02.2021: remove when VexFlow is in use and chord marking is complete
+      //markFirstNoteChord(notation); // TODO 1.02.2021: remove when VexFlow is in use and chord marking is complete
       return {
         ...state,
         // commented out the following from rewriting branch, since otherwise overwrites the beginning entered by showFirstNote()

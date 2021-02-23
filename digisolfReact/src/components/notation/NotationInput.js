@@ -239,6 +239,7 @@ const NotationInput = ({selectLastNote}) => {
   const firstNote = (keyboardStartingOctave+1)*12; // default - c3
   const lastNote = (keyboardStartingOctave+3)*12 + 4; // for now range is fixed to 2 octaves + maj. third
   // see https://github.com/kevinsqi/react-piano/blob/master/src/KeyboardShortcuts.js for redfining
+
   const keyboardShortcuts = KeyboardShortcuts.create({
     firstNote: firstNote,
     lastNote: lastNote,
@@ -319,7 +320,7 @@ const NotationInput = ({selectLastNote}) => {
                 playNote={handlePlayNote}
                 stopNote={(midiNumber) => {}}
                 width={420}  // how is it on mobile screen
-                keyboardShortcuts={keyboardShortcuts}
+                keyboardShortcuts={[]/*keyboardShortcuts*/}
                 renderNoteLabel={renderNoteLabel}
             />
            </div>
@@ -347,7 +348,7 @@ const NotationInput = ({selectLastNote}) => {
                     </Table.Row>
                     <Table.Row textAlign={"center"}>
                       <Table.Cell colSpan="9">
-                        {markChordButton()}
+                        {/*{markChordButton()}*/}
                         {removeNoteButton()}
                       </Table.Cell>
                     </Table.Row>
