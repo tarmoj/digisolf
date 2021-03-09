@@ -443,6 +443,228 @@
 			 }
 	 },
 
+// III -  rasked ------------------------------------------------------
+
+	 { category: "2voice_level3",
+		 title: "III - 61",
+		 soundFile: "/sounds/dictations/2voice/level3/61a.mp3",
+		 notation:
+			 {
+				 stave1:
+					 `
+		  \\key c \\minor \\time 3/4 
+    c'4. d'8 es'8 f'8 | g'2~ g'8 a'8 |  
+    h'8 c''8 d''4. es''8 | d''4 c''4 r4 \\bar "|."
+				`,
+				 stave2:
+					 `
+	\\clef bass  
+	\\key c \\minor \\time 3/4 
+	r2. | c4. d8 es8 f8 | 
+	g4. a8 h4~ | h8 c'8 c4 r4 \\bar "|."
+				`
+			 }
+	 },
+
+	 { category: "2voice_level3",
+		 title: "III - 62",
+		 soundFile: "/sounds/dictations/2voice/level3/62a.mp3",
+		 notation:
+			 {
+				 stave1:
+					 `
+		 \\key f \\major \\time 4/4 
+    a'4  g'4 f'8. g'16 a'8 b'8 | 
+    c''16 d''16 c''8 b'16 c''16 b'8 a'16 g'16 f'16 e'16 f'8 c'8 |
+    b8. c'16 d'8. e'16 f'8. g'16 a'8 b8 | 
+    a4 c'4 f'2 \\bar "|."
+				`,
+				 stave2:
+					 `
+	\\key f \\major \\time 4/4 
+    f'4  c'4 a8. c'16 f'8 g'8 | 
+    f'4 c'4~ c'16 b16 a16 g16  a4 | 
+    b4 b4 a4 f8 g8 | 
+    f4 g8. f16 f2 \\bar "|."
+				`
+			 }
+	 },
+
+	 { category: "2voice_level3",
+		 title: "III - 64",
+		 soundFile: "/sounds/dictations/2voice/level3/64a.mp3",
+		 notation:
+			 {
+				 stave1:
+					 `
+		  \\time 5/8  
+    h'8  cis''8 d''8 cis''8 fis''8 | 
+    cis''8 d''8 h'8 cis''8 fis'8 |
+    h'4.~ h'4 | fis'4.~ fis'4 
+		  \\bar "|."
+				`,
+				 stave2:
+					 `
+	\\clef bass \\time 5/8  
+	fis8 h8 d'8 h8 d'8 | fis8 h8 d'8 h8 cis'8 |
+	fis8 h8 d'8 cis'8  d'8 | 
+    r8 cis'8 d'8 h8 fis8 
+	\\bar "|."
+				`
+			 }
+	 },
+
+	 { category: "2voice_level3",
+		 title: "III - 65",
+		 soundFile: "/sounds/dictations/2voice/level3/65.mp3",
+		 notation:
+			 {
+				 stave1:
+					 `
+		  \\key d \\major \\time 4/4 
+    r4  a8 h8 cis'8 d'8 e'8 fis'8 | 
+    g'2~ g'8 fis'8 g'8 a'8 |
+    h'8 a'8 h'8 cis''8 d''8 e''8 fis''8 g''8  | 
+    a''1~ | 
+    a''8 a''8 h''8 cis'''8 d'''2 \\bar "|."
+				`,
+// NB! võtmevahetus keset lugu fist pole toetatud...
+				 stave2:
+					 `
+	\\clef bass  
+	\\key d \\major \\time 4/4 
+	r1 | 
+	r4 a,8 h,8 cis8 d8 e8 fis8 |
+	g2 fis8 g8 a8 h8 |
+ 
+    cis'8 h8 cis'8 d'8 e'8 d'8 e'8 fis'8 |
+     g'4 a'8 g'8 g'4 fis'4 |
+	\\bar "|."
+				`
+			 },
+	show: {
+		stave1:
+			`
+		  \\key d \\major \\time 4/4 
+    r4  a8 h8
+				`,
+		stave2:
+			`
+	\\clef bass  
+	\\key d \\major \\time 4/4 
+	r1 | 
+	r4 a,8 h,8 
+				`
+
+	}
+	 },
+
+	 { category: "2voice_level3",
+		 title: "III - 66",
+		 soundFile: "/sounds/dictations/2voice/level3/66a.mp3",
+		 notation:
+			 {
+				 stave1:
+					 `
+		  \\key b \\major \\time 2/4  
+    b'8  a'8 a'8 b'8 | b'2~ |
+    b'8 a'8 a'8 b'8|  b'2~ | b'4 r4 \\bar "|."
+				`,
+				 stave2:
+					 `
+	\\clef treble \\key b \\major  \\time 2/4  
+    g'2~  | g'8 d'8 es'8 d'8 |
+    es'2~ | es'8 g8 a8 g8 | a4 r4 \\bar "|."
+				`
+			 }
+	 },
+
+	 { category: "2voice_level3",
+		 title: "III - 67",
+		 soundFile: "/sounds/dictations/2voice/level3/67a.mp3",
+		 notation:
+			 {
+				 stave1:
+					 `
+		  \\key a \\major \\time 4/4 
+    cis''1 |  h''1 | d''1 | cis'''1 \\bar "|."
+				`,
+				 stave2:
+					 `
+	\\key a \\major \\time 4/4 
+    a4 e'4  a'4 e'4 |
+    a4 e'4 gis'4 e'4  | 
+    a4 fis'4 a'4 fis'4 |
+    a4 a'4 e''2 	\\bar "|."
+	
+				`
+			 }
+	 },
+
+	 { category: "2voice_level3",
+		 title: "III - 68",
+		 soundFile: "/sounds/dictations/2voice/level3/68a.mp3",
+		 notation:
+			 {
+				 stave1:
+					 `
+		  \\key a \\major \\time 3/4
+    h'8  cis''8 a'4 gis'8 a'8 |
+    fis'8 cis''8 h'2~ | h'2 r4 \\bar "|."
+				`,
+				 stave2:
+					 `
+	\\key a \\major \\time 3/4 
+    gis'4 fis'4 cis'4 | 
+    d'4. e'8 d'8 cis'8 |
+    h8 d'8 cis'4 r4 \\bar "|."
+				`
+			 }
+	 },
+
+	 { category: "2voice_level3",
+		 title: "III - 69",
+		 soundFile: "/sounds/dictations/2voice/level3/69a.mp3",
+		 notation:
+			 {
+				 stave1:
+					 `
+		\\key a \\major \\time 3/4
+    	cis''2. |  e'2.~ | e'4 cis''4 d''4 | h'4 e''2 \\bar "|."
+				`,
+				 stave2:
+					 `
+	\\clef bass \\key a \\major \\time 3/4 
+	a,8  e8 cis'8 e8 cis'8 e8 | 
+	a,8 fis8 d'8 fis8 d'8 fis8 |
+	a,8 e8 cis'8 e8 cis'8 e8  |
+    a,8 fis8 d'2  \\bar "|."
+				`
+			 }
+	 },
+
+	 { category: "2voice_level3",
+		 title: "III - 70",
+		 soundFile: "/sounds/dictations/2voice/level3/70a.mp3",
+		 notation:
+			 {
+				 stave1:
+					 `
+		  \\key c \\major \\time 2/4
+    a'8  d''8 d''8 d''8 |
+    c''16 d''16 c''16 h'16 a'8 d'8 | 
+    a8 d'8 c'4 \\bar "|."
+				`,
+				 stave2:
+					 `
+	\\clef bass  
+	 \\key c \\major \\time 2/4 
+	 d4 r8 d8 | e4 r8 e8 | 
+    f16 g16 f16 d16 e4 
+	\\bar "|."
+				`
+			 }
+	 },
 
 
 
