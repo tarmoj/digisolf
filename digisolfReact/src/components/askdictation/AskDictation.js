@@ -841,7 +841,14 @@ const AskDictation = () => {
     };
 
     const getWidth = (notation) => {
-        return  Math.max( notation.staves[0].voices[0].notes.length * 30, 400);  // TODO: if more staves, one may have more notes
+        let noteCount = 0;
+        // find the number of notes on the stave that has the most notes;
+        for (let stave of notation.staves) {
+            if (stave.voices[0].notes.length>noteCount) {
+                noteCount = stave.voices[0].notes.length;
+            }
+        }
+        return  Math.max( noteCount * 30, 400);
     };
 
     const createSelectionMenu = () => {
