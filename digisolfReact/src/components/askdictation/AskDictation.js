@@ -829,13 +829,18 @@ const AskDictation = () => {
     const createCorrectNotationBlock = () => {
         if (exerciseHasBegun && selectedDictation.title !== "" && showCorrectNotation) {
             return (
-                <Notation className={"marginTopSmall center"}
+                <>
+                    { selectedDictation.hasOwnProperty("credits") &&
+                    <Grid.Row className={"marginTopSmall"}>{ capitalizeFirst(t("credits")) }: {selectedDictation.credits}</Grid.Row>
+                    }
+                    <Notation className={"marginTopSmall center"}
                           scale={1}
                           vtString={correctVtString}
                           showInput={false}
                           name={"correctNotation"}
                           width={correctNotationWidth}
-                />
+                    />
+                </>
             )
         }
     };
@@ -850,6 +855,10 @@ const AskDictation = () => {
         }
         return  Math.max( noteCount * 30, 400);
     };
+
+    /*const createCreditsRow = () => {
+
+    };*/
 
     const createSelectionMenu = () => {
         const options = [];
@@ -920,6 +929,7 @@ const AskDictation = () => {
             <Grid celled={false}>
                 <ScoreRow/>
                 {createSelectionMenu()}
+                {}
                 {createDegreeDictationInput()}
                 {showTextInput && createLilypondInput()}
                 {createNotationInputBlock()}
