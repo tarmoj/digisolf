@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {Button, Checkbox, Grid, Header, Input} from 'semantic-ui-react'
+import {Button, Checkbox, Dropdown, Grid, Header, Input} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst} from "../util/util";
@@ -13,6 +13,9 @@ import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/sco
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import {useParams} from "react-router-dom";
 import { useHotkeys } from 'react-hotkeys-hook';
+import CsoundObj from "@kunstmusik/csound";
+import {dictationOrchestra as orc} from "../csound/orchestras";
+import {Slider} from "react-semantic-ui-range";
 
 
 // tüüp 1: antakse ette noot ja suund, mängitakse akord
@@ -46,6 +49,8 @@ const AskChord = () => {
 
     const [notesEnteredByUser, setNotesEnteredByUser] = useState(""); // test
 
+    const [volume, setVolume] = useState(0.6);
+
     //const userEnteredNotes = useSelector(state => state.exerciseReducer.userEnteredNotes);
 
     // const shortcutManager = new ShortcutManager(keymap);
@@ -59,9 +64,15 @@ const AskChord = () => {
     // EXERCISE LOGIC ======================================
 
     const startExercise = () => {
+        console.log("startExercise");
         setExerciseHasBegun(true);
+        // stat Csound
+        if (!csoundStarted) {
+            startCsound();
+        }
+
         // what is right place for setting the volume?
-        midiSounds.current.setMasterVolume(0.3); // not too loud TODO: add control slider
+        //midiSounds.current.setMasterVolume(0.3); // not too loud TODO: add control slider
 
         let possibleChords = [];
 
@@ -132,8 +143,15 @@ const AskChord = () => {
         for (let midiInterval of selectedChord.midiIntervals) { // nootide kaupa basenote + interval
             midiNotes.push(baseMidiNote + midiInterval);
         }
+        // Csound implementation:
+        const compileString = `giNotes[] fillarray ${midiNotes.join(",")}`;
+        console.log("Compile: ", compileString);
+        csound.compileOrc(compileString);
+        //csound.setControlChannel("beatLength", beatLength);
+        csound.readScore(`i "PlayChord" 0 0 `);
+
         //console.log("Midinotes played: ", midiNotes, baseMidiNote, selectedChord.shortName);
-        midiSounds.current.playChordNow(3, midiNotes, duration);
+        //midiSounds.current.playChordNow(3, midiNotes, duration);
     };
 
     const checkNotation = () => {
@@ -228,9 +246,109 @@ const AskChord = () => {
         }
     }
 
+    // TEMPORARY -  need rewrite (clef, proper parsing etc)
+    const noteStringToVexTabChord =  (noteString) => { // input as c1 es1 ci2 -  will be converted to vextab chord for now
+        const noteNames = noteString.trim().split(" ");
+        const chordNotes = [];
+        for (let name of noteNames) {
+            const lastChar = name.charAt(name.length-1);
+            // better use regexp in future
+            if (lastChar === "\'") { // sign for 2nd octava for now add 2 to notename
+                name = name.slice(0, -1) + "2";
+            } else if  ( !(lastChar >= '0' && lastChar <= '9' ) ) { // if octave number is not set, add 1 for 1st octave ( octave 4 in English system)
+                name += '1';
+            }
+            const note = getNoteByName(name);
+            if (note !== undefined) {
+                chordNotes.push(note);
+            } else {
+                console.log("Could not find note according to: ", name)
+            }
+        }
+        if (chordNotes.length>0) {
+            return makeVexTabChord(chordNotes);
+        } else {
+            return "";
+        }
+    };
+
+    const renderNotes = () => {
+        const vexTabString = noteStringToVexTabChord(notesEnteredByUser);
+        //dispatch(setUserEnteredNotes(vexTabString));
+        setVexTabChord(vexTabString);
+    };
+
+    // Csound functions =============================================
+    // TODO: separate component for Csound business
+    const [csoundStarted, setCsoundStarted] = useState(false);
+    const [csound, setCsound] = useState(null);
+
+    useEffect(() => {
+        console.log("Csound effect 1");
+        if (csound === null) {  // if you go back to main menu and enter again, then stays "Loading"
+            let audioContext = CsoundObj.CSOUND_AUDIO_CONTEXT;
+            if ( typeof (audioContext) == "undefined") {
+                CsoundObj.initialize().then(() => {
+                    const cs = new CsoundObj();
+                    setCsound(cs);
+                });
+            } else { // do not initialize if audio context is already created
+                const cs = new CsoundObj();
+                setCsound(cs);
+            }
+
+        } else { // tried to have the second effect here, but resets sometimes too early...
+            csound.reset();
+        }
+    }, [csound]);
+
+    // useEffect(() => {
+    //     // console.log("Csound effect 2");
+    //     return () => {
+    //         if (csound) {
+    //             csound.reset();
+    //         }
+    //     }
+    // }, [csound]);
+
+    //TODO: long or short notes...
+    async function loadResources(csound,  startinNote=60, endingNote=84, instrument="oboe") {
+        if (!csound) {
+            return false;
+        }
+        console.log("LOAD RESOURCES")
+        for (let i = startinNote; i <= endingNote; i++) {
+            const fileUrl = "sounds/instruments/" + instrument + "/2sec/" + i + ".ogg"; // longer notes for chords
+            const serverUrl = `${process.env.PUBLIC_URL}/${fileUrl}`;
+            const f = await fetch(serverUrl);
+            const fName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+            const path = `${fName}`;
+            const buffer = await f.arrayBuffer();
+            // console.log(path, buffer);
+            await csound.writeToFS(path, buffer);
+        }
+        return true;
+    }
+
+    const startCsound = async () => {
+        console.log('start csound')
+        if (csound) {
+            await loadResources(csound, 60, 84, "oboe");
+
+            csound.setOption("-m0d")
+            csound.compileOrc(orc);
+            csound.start();
+            csound.audioContext.resume();
+            setCsoundStarted(true);
+        } else {
+            console.log("StartCsound: csound is null.");
+        }
+    };
+
 
 
     // UI ======================================================
+
 
     const createPlaySoundButton = () => {
         console.log("Begun: ", exerciseHasBegun);
@@ -283,9 +401,54 @@ const AskChord = () => {
         return (
             <Grid.Column>
                 <Button className={"fullWidth marginTopSmall" /*<- kuvab ok. oli: "exerciseBtn"*/}
+                        key = {chord.shortName}
                         onClick={() => checkResponse({shortName: chord.shortName})}>{ capitalizeFirst( t(chord.longName) )}</Button>
             </Grid.Column>
         )
+    };
+
+    const createVolumeRow = () => {
+        return (exerciseHasBegun)  ? (
+            <Grid.Row centered={true} columns={3}>
+                <Grid.Column>
+                    {capitalizeFirst(t("instrument"))+": "}
+                    <Dropdown
+                        //placeholder={capitalizeFirst(t("sound"))}
+                        onChange={ async (event, data) => {
+                            //console.log("New sound is: ", data.value)
+                            if (csound) {
+                                await loadResources(csound,  60, 84, data.value);
+                            }
+                        }
+                        }
+                        options ={ [
+                            {text: t("flute"), value:"flute"},
+                            {text: t("oboe"), value:"oboe"},
+                            {text: t("violin"), value:"violin"},
+                            {text: t("guitar"), value:"guitar"}
+                        ]  }
+                        defaultValue={1}
+                    />
+                </Grid.Column>
+
+                <Grid.Column>
+                    {capitalizeFirst(t("volume"))}
+                    <Slider value={volume} color="blue"
+                            settings={ {
+                                min:0, max:1, step:0.01,
+                                start: {volume},
+                                onChange: (value) => {
+                                    if (csound) {
+                                        csound.setControlChannel("volume", value);
+                                    }
+                                    setVolume(value);
+                                }
+                            } }
+                    />
+                </Grid.Column>
+                <Grid.Column />
+            </Grid.Row>
+        ) : null;
     };
 
     const createNotationBlock = () => {
@@ -308,37 +471,6 @@ const AskChord = () => {
         }
     }
 
-    // TEMPORARY -  need rewrite (clef, proper parsing etc)
-    const noteStringToVexTabChord =  (noteString) => { // input as c1 es1 ci2 -  will be converted to vextab chord for now
-        const noteNames = noteString.trim().split(" ");
-        const chordNotes = [];
-        for (let name of noteNames) {
-            const lastChar = name.charAt(name.length-1);
-            // better use regexp in future
-            if (lastChar === "\'") { // sign for 2nd octava for now add 2 to notename
-                name = name.slice(0, -1) + "2";
-            } else if  ( !(lastChar >= '0' && lastChar <= '9' ) ) { // if octave number is not set, add 1 for 1st octave ( octave 4 in English system)
-                name += '1';
-            }
-            const note = getNoteByName(name);
-            if (note !== undefined) {
-                chordNotes.push(note);
-            } else {
-                console.log("Could not find note according to: ", name)
-            }
-        }
-        if (chordNotes.length>0) {
-            return makeVexTabChord(chordNotes);
-        } else {
-            return "";
-        }
-    };
-
-    const renderNotes = () => {
-         const vexTabString = noteStringToVexTabChord(notesEnteredByUser);
-        //dispatch(setUserEnteredNotes(vexTabString));
-        setVexTabChord(vexTabString);
-    };
 
 
     return (
@@ -361,6 +493,7 @@ const AskChord = () => {
                 {createNotationBlock()}
                 {createResponseButtons()}
                 {createPlaySoundButton()}
+                {createVolumeRow()}
                 <Grid.Row>
                     <Grid.Column>
 
@@ -368,7 +501,7 @@ const AskChord = () => {
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
-            <MIDISounds ref={midiSounds} appElementName="root" instruments={[3]} />
+            {/*<MIDISounds ref={midiSounds} appElementName="root" instruments={[3]} />*/}
         </div>
 
     );

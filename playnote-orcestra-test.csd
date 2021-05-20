@@ -52,7 +52,7 @@ instr PlayChord ; plays the notes (MIDI NN) from array giNotes as chord; middle 
 	
 	index = 0
 	iNotes = lenarray(giNotes)
-	iAttenuation = 1/sqrt(iNotes) ; to avoid over 0
+	iAttenuation = 1/iNotes; ) *0.6 ; to avoid over 0
 	while index<iNotes do
 		if index==0 then
 			iAmp = 1 ; lowest note strongest
@@ -103,7 +103,7 @@ endif
 ;prints Sfile
 ;p3 filelen Sfile
 aSignal[] diskin2 Sfile
-aSignal *= gkVolume*linenr:a(1, 0.05,0.1, 0.001)
+aSignal *= gkVolume*linenr:a(0.5, 0.05,0.1, 0.001)
 gaSignal = aSignal
 out aSignal
 endin
