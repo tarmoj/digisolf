@@ -1,7 +1,7 @@
 export const dictationOrchestra = `
 
 sr=44100
-ksmps=128
+ksmps=100
 0dbfs=1
 nchnls=2
 

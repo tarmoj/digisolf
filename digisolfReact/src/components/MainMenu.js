@@ -54,6 +54,8 @@ const MainMenu = () => {
                         <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askchord/MmTriad")}>{capitalizeFirst(t("MmTriad"))}</Button><br/>
                         <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askchord/MmdaTriad")}>{capitalizeFirst(t("MmdaTriad"))}</Button><br/>
                         <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askchord/MmdaInversions")}>{capitalizeFirst(t("MmdaInversions"))}</Button><br/>
+                        <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askchord/septachords")}>{capitalizeFirst(t("septachords"))}</Button><br/>
+
                     </div>
                 </Grid.Column>
             </Grid.Row>

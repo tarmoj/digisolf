@@ -103,6 +103,15 @@ const AskChord = () => {
                     chordDefinitions.find( chord => chord.shortName === "aug" ),
                 );
                 break;
+            case "septachords":
+                possibleChords.push(
+                    chordDefinitions.find( chord => chord.shortName === "7" ),
+                    chordDefinitions.find( chord => chord.shortName === "m7" ),
+                    chordDefinitions.find( chord => chord.shortName === "M7" ),
+                    chordDefinitions.find( chord => chord.shortName === "hdim7" ),
+                    //chordDefinitions.find( chord => chord.shortName === "dim7" ),
+                );
+                break;
             default:
                 console.log("no exercise found");
                 return;
@@ -398,7 +407,7 @@ const AskChord = () => {
 
     const createResponseButtons = () => {
         let rows = [];
-
+        //TODO: NB! does not support odd number of chords
         for (let i = 0, n = possibleChords.length; i < n; i += 2) {
             const row = createResponseButtonRow(possibleChords[i], possibleChords[i + 1]);
             rows.push(row);

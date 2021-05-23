@@ -27,8 +27,6 @@ export const chordDefinitions = [
         midiIntervals: [0, 4, 7] }, // intervals from lower note
     { shortName: "m", longName: "minorTriad", intervalsUp: ["v3", "p5"], intervalsDown: ["s3", "p5"],
         midiIntervals: [0, 3, 7] },
-    { shortName: "7", longName: "majorMinorSeventh", intervalsUp: ["s3", "p5", "v7"],
-        intervalsDown: ["v3", "<5", "v7" ], midiIntervals: [0, 4, 7, 10]  },
     { shortName: "dim", longName: "diminishedTriad", intervalsUp: ["v3", "<5"], intervalsDown: ["v3", "<5"],
         midiIntervals: [0, 3, 6] },
     { shortName: "aug", longName: "augmentedTriad", intervalsUp: ["s3", ">5"], intervalsDown: ["s3", ">5"],
@@ -44,6 +42,17 @@ export const chordDefinitions = [
     { shortName: "m64", longName: "minorSixFour", intervalsUp: ["s3", "p5"], intervalsDown: ["v3", "p5"],
         midiIntervals: [0, 5, 8] },
 
+    // septachords
+    { shortName: "7", longName: "majorMinorSeventh", intervalsUp: ["s3", "p5", "v7"], intervalsDown: ["v3", ">5", "v7"],
+        midiIntervals: [0,4,7,10] },
+    { shortName: "m7", longName: "minorSeventh", intervalsUp: ["s3", "p5", "v7"], intervalsDown: ["v3", "p5", "v7"],
+        midiIntervals: [0,3,7,10] },
+    { shortName: "M7", longName: "majorSeventh", intervalsUp: ["s3", "p5", "s7"], intervalsDown: ["v3", "p5", "s7"],
+        midiIntervals: [0,4,7,11] },
+    { shortName: "hdim7", longName: "halfDiminishedSeventh", intervalsUp: ["v3", ">5", "v7"], intervalsDown: ["v3", ">5", "v7"],
+        midiIntervals: [0,3,6,10] },
+    { shortName: "dim7", longName: "diminishedSeventh", intervalsUp: ["v3", ">5", ">7"], intervalsDown: ["v3", ">5", ">7"],
+        midiIntervals: [0,3,6,9] },
 ];
 
 export const scaleDefinitions = { // defined by intervals from tonic
