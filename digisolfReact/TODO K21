@@ -1,0 +1,85 @@
+DigiSolfedžo projekt kevad 2021
+
+
+## Tegevus -  Harjutuste loomine 2 (materjal, programmeerinime): intervallid, akordid (1.01.21-30.06.21)
+
+## Ametlikud eesmärgid
+Valminud intervalliharjutused (vähemalt) 30
+Valminud akordiharjutused (vähemalt) 30
+
+(Taotlusest)
+Tegevuse täpsustus:
+Valitakse helifailid akordide ja intervallide kuulamiseks, vajadusel toimub järeltöötlus
+Sisestatakse õiged vastused
+Arendatakse edasi akordide ja intervallide moodulit vastavalt vajadustele
+Õpilaste testgrupi rakendamine (mh nägemispuudega õpilased)
+Avastatud puuduste parandamine, silumine
+
+
+Eelarve:
+
+Eelarve rea täpsustus:
+Koosolekud (töötasu) 720 (4 koosolekut, 6 inimest)
+Harjutuste koostamine 2160 (3 inimest, a 24 tundi)
+Arendamine 2400 (8 tundi tööd nädalas (1 inimene), 6 nädalat)
+Muud kulud (salvestus, bürookulud) 350 ( stuudio: 5 tundi a 40 €, bürookulud ja tarvikud 50 € kuus x3 ).
+Projektijuhtimine 480 (2 tundi nädalas, 8 nädalat)
+KOKKU 6110
+
+
+
+## Intervalliharjutuste tüübid
+
+1) Meloodiline -  
+
+Harmooniline - 
+
+
+
+2) 
+
+
+
+
+
+## Akordiharjutste tüübid
+
+
+Tõnu näidismaterjalis 9 tüüpi -  saab lisada ka noodisisetusega (määra/noteeri), samuti: üles/alla
+
+
+
+
+
+
+
+
+
+## TODO:
+
+
+* intervallid pillidega
+* kas vaja salvestada (mh meloodiaid, kust ära tunda)
+* Akordimooduli kiirvastused ja notatsioon
+
+
+* Tõlge -  vene, inglise?
+
+* Pimedate tugi (shortcuts)
+
+* Diktaatide töö jaätkaminie
+
+
+* Uuri E-koolikoti ja H5P kohta
+
+
+
+
+
+------
+
+build jaoks (JavaScript Heap Overflow korral):
+export NODE_OPTIONS=--max_old_space_size=4096
+npm run-script build
+
+

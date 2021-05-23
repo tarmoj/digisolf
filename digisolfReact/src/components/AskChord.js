@@ -218,6 +218,13 @@ const AskChord = () => {
             dispatch(setNegativeMessage(feedBack, 5000));
             dispatch(incrementIncorrectAnswers());
         }
+
+        // if not notation, ask new:
+        if (! useNotation) {
+            setTimeout( () => renew(possibleChords), 1000  );
+        }
+
+
     };
 
     // progression exercises
