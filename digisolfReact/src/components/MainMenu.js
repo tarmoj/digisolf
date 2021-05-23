@@ -53,15 +53,13 @@ const MainMenu = () => {
                         <Header size='large'>{t("chords")}</Header>
                         <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askchord/MmTriad")}>{capitalizeFirst(t("MmTriad"))}</Button><br/>
                         <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askchord/MmdaTriad")}>{capitalizeFirst(t("MmdaTriad"))}</Button><br/>
-                        {/*<Button className={"marginTopSmall mainMenuBtn"} onClick={() => startChord("MmTriad")}>{t("MmTriad")}</Button><br/>*/}
-                        {/*<Button className={"marginTopSmall mainMenuBtn"} onClick={() => startChord("MmdaTriad")}>{t("MmdaTriad")}</Button><br/>*/}
+                        <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askchord/MmdaInversions")}>{capitalizeFirst(t("MmdaInversions"))}</Button><br/>
                     </div>
                 </Grid.Column>
             </Grid.Row>
             <Grid.Row columns={2}>
                 <Grid.Column>
                     <Header size='large'>{t("dictations")}</Header>
-                    {/*siia oleks vaja teha tegelikult Dropdown sorti menüü*/}
                     <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/1voice")}>{capitalizeFirst(t("oneVoice"))}</Button><br/>
                     <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/2voice")}>{capitalizeFirst(t("twoVoice"))}</Button><br/>
                     <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/popJazz")}>{capitalizeFirst(t("popJazz"))}</Button><br/>

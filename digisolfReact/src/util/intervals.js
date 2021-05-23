@@ -32,7 +32,17 @@ export const chordDefinitions = [
     { shortName: "dim", longName: "diminishedTriad", intervalsUp: ["v3", "<5"], intervalsDown: ["v3", "<5"],
         midiIntervals: [0, 3, 6] },
     { shortName: "aug", longName: "augmentedTriad", intervalsUp: ["s3", ">5"], intervalsDown: ["s3", ">5"],
-        midiIntervals: [0, 4, 8] }
+        midiIntervals: [0, 4, 8] },
+
+    { shortName: "M6", longName: "majorSixThree", intervalsUp: ["v3", "v6"], intervalsDown: ["p4", "v6"],
+        midiIntervals: [0, 3, 8] },
+    { shortName: "m6", longName: "minorSixThree", intervalsUp: ["s3", "s6"], intervalsDown: ["p4", "s6"],
+        midiIntervals: [0, 4, 9] },
+
+    { shortName: "M64", longName: "majorSixFour", intervalsUp: ["p4", "s6"], intervalsDown: ["s3", "s6"],
+        midiIntervals: [0, 5, 9] },
+    { shortName: "m64", longName: "minorSixFour", intervalsUp: ["s3", "p5"], intervalsDown: ["v3", "p5"],
+        midiIntervals: [0, 5, 8] },
 
 ];
 

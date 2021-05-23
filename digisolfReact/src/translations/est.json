@@ -29,6 +29,11 @@
   "goBack": "Tagasi",
   "MmTriad": "Mažoorne ja minoorne kolmkõla",
   "MmdaTriad": "M, m, >, < kolmkõla",
+  "MmdaInversions": "M, m, M6, m6, M64, m64, >, <",
+  "majorSixThree": "mažoorne sektsakord",
+  "minorSixThree": "minoorne sekstakord",
+  "majorSixFour": "mažoorne kvartsekstakord",
+  "minorSixFour": "minoorne kvartsekstakord",
   "majorTriad": "mažoorne kolmkõla",
   "minorTriad": "minoorne kolmkõla",
   "diminishedTriad": "vähendatud kolmkõla",
@@ -116,4 +121,5 @@
   "secondVoice": "teine hääl",
   "useTextInput": "sisesta tekstina",
   "credits": "allikas"
+
 }

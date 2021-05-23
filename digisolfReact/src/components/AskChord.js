@@ -91,6 +91,18 @@ const AskChord = () => {
                     chordDefinitions.find( chord => chord.shortName === "aug" ),
                 );
                 break;
+            case "MmdaInversions":
+                possibleChords.push(
+                    chordDefinitions.find( chord => chord.shortName === "M" ),
+                    chordDefinitions.find( chord => chord.shortName === "m" ),
+                    chordDefinitions.find( chord => chord.shortName === "M6" ),
+                    chordDefinitions.find( chord => chord.shortName === "m6" ),
+                    chordDefinitions.find( chord => chord.shortName === "M64" ),
+                    chordDefinitions.find( chord => chord.shortName === "m64" ),
+                    chordDefinitions.find( chord => chord.shortName === "dim" ),
+                    chordDefinitions.find( chord => chord.shortName === "aug" ),
+                );
+                break;
             default:
                 console.log("no exercise found");
                 return;
@@ -397,7 +409,7 @@ const AskChord = () => {
 
     const createResponseButtonRow = (chord1, chord2) => {
         return (
-            <Grid.Row columns={2}>
+            <Grid.Row columns={2} className={"exerciseRow"}>
                 {createResponseButtonColumn(chord1)}
                 {createResponseButtonColumn(chord2)}
             </Grid.Row>
@@ -420,7 +432,6 @@ const AskChord = () => {
                 <Grid.Column>
                     {capitalizeFirst(t("instrument"))+": "}
                     <Dropdown
-                        //placeholder={capitalizeFirst(t("sound"))}
                         onChange={ async (event, data) => {
                             //console.log("New sound is: ", data.value)
                             if (csound) {
@@ -434,7 +445,8 @@ const AskChord = () => {
                             {text: t("violin"), value:"violin"},
                             {text: t("guitar"), value:"guitar"}
                         ]  }
-                        defaultValue={1}
+                        defaultValue={"oboe"}
+
                     />
                 </Grid.Column>
 
