@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {Button, Checkbox, Dropdown, Grid, Header, Input} from 'semantic-ui-react'
+import {Button, Checkbox, Dropdown, Grid, Header, Input, Loader} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst} from "../util/util";
@@ -16,6 +16,10 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import CsoundObj from "@kunstmusik/csound";
 import {dictationOrchestra as orc} from "../csound/orchestras";
 import {Slider} from "react-semantic-ui-range";
+
+// test
+import {setIsLoading} from "../actions/component";
+
 
 
 // tüüp 1: antakse ette noot ja suund, mängitakse akord
@@ -68,7 +72,8 @@ const AskChord = () => {
         setExerciseHasBegun(true);
         // stat Csound
         if (!csoundStarted) {
-            startCsound();
+            //setIsLoading(true); // does not work
+            startCsound().then(r => {console.log("Started Csound")/*setIsLoading(false)*/});
         }
 
         // what is right place for setting the volume?
@@ -76,50 +81,70 @@ const AskChord = () => {
 
         let possibleChords = [];
 
-        switch(name) {
-            case "MmTriad":
-                possibleChords.push(
-                    chordDefinitions.find( chord => chord.shortName === "M" ),
-                    chordDefinitions.find( chord => chord.shortName === "m" )
-                );
-                break;
-            case "MmdaTriad":
-                possibleChords.push(
-                    chordDefinitions.find( chord => chord.shortName === "M" ),
-                    chordDefinitions.find( chord => chord.shortName === "m" ),
-                    chordDefinitions.find( chord => chord.shortName === "dim" ),
-                    chordDefinitions.find( chord => chord.shortName === "aug" ),
-                );
-                break;
-            case "MmdaInversions":
-                possibleChords.push(
-                    chordDefinitions.find( chord => chord.shortName === "M" ),
-                    chordDefinitions.find( chord => chord.shortName === "m" ),
-                    chordDefinitions.find( chord => chord.shortName === "M6" ),
-                    chordDefinitions.find( chord => chord.shortName === "m6" ),
-                    chordDefinitions.find( chord => chord.shortName === "M64" ),
-                    chordDefinitions.find( chord => chord.shortName === "m64" ),
-                    chordDefinitions.find( chord => chord.shortName === "dim" ),
-                    chordDefinitions.find( chord => chord.shortName === "aug" ),
-                );
-                break;
-            case "septachords":
-                possibleChords.push(
-                    chordDefinitions.find( chord => chord.shortName === "7" ),
-                    chordDefinitions.find( chord => chord.shortName === "m7" ),
-                    chordDefinitions.find( chord => chord.shortName === "M7" ),
-                    chordDefinitions.find( chord => chord.shortName === "hdim7" ),
-                    //chordDefinitions.find( chord => chord.shortName === "dim7" ),
-                );
-                break;
-            default:
-                console.log("no exercise found");
+        if (name.includes(".")) { // allow giving the chord names (via shortName) as name via URL like /M.m.M6.m6
+            console.log("Extract possible chors from name: ");
+            const shortNames = name.toString().split(".");
+            console.log(shortNames);
+            for (let shortName of shortNames) {
+                const chord = chordDefinitions.find( chord => chord.shortName === shortName );
+                console.log("Chord:", chord);
+                if (chord) {
+                    possibleChords.push(chord);
+                }
+            }
+            if (possibleChords.length==0) {
+                console.log("No valid chord found!");
                 return;
+            } else {
+                console.log("Number of chords being used: ", possibleChords.length);
+            }
+        } else {
+
+            switch(name) {
+                case "MmTriad":
+                    possibleChords.push(
+                        chordDefinitions.find( chord => chord.shortName === "M" ),
+                        chordDefinitions.find( chord => chord.shortName === "m" )
+                    );
+                    break;
+                case "MmdaTriad":
+                    possibleChords.push(
+                        chordDefinitions.find( chord => chord.shortName === "M" ),
+                        chordDefinitions.find( chord => chord.shortName === "m" ),
+                        chordDefinitions.find( chord => chord.shortName === "dim" ),
+                        chordDefinitions.find( chord => chord.shortName === "aug" ),
+                    );
+                    break;
+                case "MmdaInversions":
+                    possibleChords.push(
+                        chordDefinitions.find( chord => chord.shortName === "M" ),
+                        chordDefinitions.find( chord => chord.shortName === "m" ),
+                        chordDefinitions.find( chord => chord.shortName === "M6" ),
+                        chordDefinitions.find( chord => chord.shortName === "m6" ),
+                        chordDefinitions.find( chord => chord.shortName === "M64" ),
+                        chordDefinitions.find( chord => chord.shortName === "m64" ),
+                        chordDefinitions.find( chord => chord.shortName === "dim" ),
+                        chordDefinitions.find( chord => chord.shortName === "aug" ),
+                    );
+                    break;
+                case "septachords":
+                    possibleChords.push(
+                        chordDefinitions.find( chord => chord.shortName === "7" ),
+                        chordDefinitions.find( chord => chord.shortName === "m7" ),
+                        chordDefinitions.find( chord => chord.shortName === "M7" ),
+                        chordDefinitions.find( chord => chord.shortName === "hdim7" ),
+                        //chordDefinitions.find( chord => chord.shortName === "dim7" ),
+                    );
+                    break;
+                default:
+                    console.log("no exercise found");
+                    return;
+            }
         }
 
         setPossibleChords(possibleChords);
 
-        renew(possibleChords);
+        //renew(possibleChords);
 
     };
 
@@ -228,7 +253,7 @@ const AskChord = () => {
             feedBack += capitalizeFirst(t("chord")) + " "  + t("correct") + ": " + correctChord;
             correct = correct && true;
         } else {
-            feedBack += capitalizeFirst(t("chord")) + " "  + t("wrong") + ". " + capitalizeFirst(t("correct")) + t("is") + " " + correctChord;
+            feedBack += capitalizeFirst(t("chord")) + " "  + t("wrong") + ". " + capitalizeFirst(t("correct")) + " " + t("is") + " " + correctChord;
             correct = false;
         }
 
@@ -313,7 +338,7 @@ const AskChord = () => {
 
     useEffect(() => {
         console.log("Csound effect 1");
-        if (csound === null) {  // if you go back to main menu and enter again, then stays "Loading"
+        if (csound === null) {
             let audioContext = CsoundObj.CSOUND_AUDIO_CONTEXT;
             if ( typeof (audioContext) == "undefined") {
                 CsoundObj.initialize().then(() => {
@@ -325,21 +350,11 @@ const AskChord = () => {
                 setCsound(cs);
             }
 
-        } else { // tried to have the second effect here, but resets sometimes too early...
+        } else {
             csound.reset();
         }
     }, [csound]);
 
-    // useEffect(() => {
-    //     // console.log("Csound effect 2");
-    //     return () => {
-    //         if (csound) {
-    //             csound.reset();
-    //         }
-    //     }
-    // }, [csound]);
-
-    //TODO: long or short notes...
     async function loadResources(csound,  startinNote=60, endingNote=84, instrument="oboe") {
         if (!csound) {
             return false;
@@ -359,7 +374,7 @@ const AskChord = () => {
     }
 
     const startCsound = async () => {
-        console.log('start csound')
+        console.log('start csound');
         if (csound) {
             await loadResources(csound, 60, 84, "oboe");
 
@@ -398,7 +413,12 @@ const AskChord = () => {
             return(
                 <Grid.Row  >
                     <Grid.Column>
-                    <Button color={"green"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>
+                    <Button color={"green"}
+                            disabled={(csound === null)}
+                            onClick={startExercise}
+                            className={"fullWidth marginTopSmall"}>{t("startExercise")}>
+                        <Loader active={(csound === null)} size={"tiny"} inline='centered' />
+                    </Button>
                     </Grid.Column>
                 </Grid.Row>
             );
@@ -407,13 +427,17 @@ const AskChord = () => {
 
     const createResponseButtons = () => {
         let rows = [];
+        //let columns = [];
         //TODO: NB! does not support odd number of chords
         for (let i = 0, n = possibleChords.length; i < n; i += 2) {
             const row = createResponseButtonRow(possibleChords[i], possibleChords[i + 1]);
             rows.push(row);
         }
-
         return rows;
+        // for (let chord of possibleChords) {
+        //     columns.push(createResponseButtonColumn(chord));
+        // }
+        // return columns;
     };
 
     const createResponseButtonRow = (chord1, chord2) => {
@@ -426,13 +450,15 @@ const AskChord = () => {
     };
 
     const createResponseButtonColumn = (chord) => {
-        return (
+        console.log("Chord for button: ", chord);
+        return (chord) ?
+            (
             <Grid.Column>
                 <Button className={"fullWidth marginTopSmall" /*<- kuvab ok. oli: "exerciseBtn"*/}
                         key = {chord.shortName}
                         onClick={() => checkResponse({shortName: chord.shortName})}>{ capitalizeFirst( t(chord.longName) )}</Button>
             </Grid.Column>
-        )
+        ) : (<Grid.Column></Grid.Column>)
     };
 
     const createVolumeRow = () => {
@@ -464,7 +490,7 @@ const AskChord = () => {
                     <Slider value={volume} color="blue"
                             settings={ {
                                 min:0, max:1, step:0.01,
-                                start: {volume},
+                                /*start: {volume},*/
                                 onChange: (value) => {
                                     if (csound) {
                                         csound.setControlChannel("volume", value);

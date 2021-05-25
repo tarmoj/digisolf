@@ -75,6 +75,8 @@ body {
     margin-top: 0 !important;
     position: sticky !important;
 }
+/*Try absolute and other parameters for Header message that it would not scorll other content*/
+
 
 .headerText {
     position: absolute;
