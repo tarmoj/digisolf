@@ -144,7 +144,7 @@ const AskChord = () => {
 
         setPossibleChords(possibleChords);
 
-        //renew(possibleChords);
+        renew(possibleChords);
 
     };
 

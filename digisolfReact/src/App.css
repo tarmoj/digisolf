@@ -65,15 +65,22 @@ body {
     color: green;
 }
 
+/*TODO: These parameters is a mess and should be reworked:*/
 .headerMessage {
     width: 100%;
     top: 0;
-    left: 0;
+    left: auto;
+    right: auto;
     text-align: center;
-    z-index: 2;
+    z-index: 1;
     margin-bottom: 0 !important;
-    margin-top: 0 !important;
-    position: sticky !important;
+    margin-top: 2rem !important;
+    position: fixed !important;
+    max-width: 630px !important;
+    align-items: center;
+    justify-content: center;
+
+
 }
 /*Try absolute and other parameters for Header message that it would not scorll other content*/
 
