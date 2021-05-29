@@ -9,7 +9,7 @@ nchnls=2
 giShort = 1
 giLong = 2
 
-giNotes[] array 60, 65, 67, 62, 60
+giNotes[] init 8
 gaSignal[] init 2
 
 gkBeatLength chnexport "beatLength", 1
@@ -40,10 +40,7 @@ endif
 
 endin
 
-; TODO: playInterval some pasting problems
 
-;giNotes[] fillarray 60, 64, 67, 69
-;schedule "PlayChord", 0, 0
 instr PlayChord ; plays the notes (MIDI NN) from array giNotes as chord; middle ones softer
 	
 	index = 0

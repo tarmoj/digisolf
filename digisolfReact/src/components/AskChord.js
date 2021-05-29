@@ -133,7 +133,7 @@ const AskChord = () => {
                         chordDefinitions.find( chord => chord.shortName === "m7" ),
                         chordDefinitions.find( chord => chord.shortName === "M7" ),
                         chordDefinitions.find( chord => chord.shortName === "hdim7" ),
-                        //chordDefinitions.find( chord => chord.shortName === "dim7" ),
+                        chordDefinitions.find( chord => chord.shortName === "dim7" ),
                     );
                     break;
                 default:
@@ -144,7 +144,7 @@ const AskChord = () => {
 
         setPossibleChords(possibleChords);
 
-        renew(possibleChords);
+        //renew(possibleChords);
 
     };
 
@@ -152,32 +152,49 @@ const AskChord = () => {
     const renew = (possibleChords) =>  {
 
         setAnswered(false);
+        // take care that the chord and basenote are not exactyl the same as last time
+        let thisBaseNote = baseNote;
+        let chord = selectedChord;
+        let midiNote = 0;
 
-        const baseNote = getNoteByVtNote( getRandomElementFromArray(possibleBaseVtNotes) );
-        if (baseNote === undefined) {
-            console.log("Failed finding basenote");
-            return;
-        } else {
-            setBaseNote(baseNote);
+        while (thisBaseNote===baseNote && chord===selectedChord) {
+            thisBaseNote = getNoteByVtNote( getRandomElementFromArray(possibleBaseVtNotes) );
+            if (thisBaseNote === undefined) {
+                console.log("Failed finding basenote");
+                return;
+            }
+            midiNote = thisBaseNote.midiNote;
+            chord = getRandomElementFromArray(possibleChords);
         }
-        const midiNote = baseNote.midiNote; // getRandomInt(53, 72); // TODO: make the range configurable
-        const selectedChord = getRandomElementFromArray(possibleChords);
-        setSelectedChord(selectedChord);
-        console.log("Selected chord: ", t(selectedChord.longName), baseNote.midiNote );
-        const answer = {shortName: selectedChord.shortName}; // may be different in different exercised, might need switch/case
+
+        //
+        // const thisBaseNote = getNoteByVtNote( getRandomElementFromArray(possibleBaseVtNotes) );
+        // if (thisBaseNote === undefined) {
+        //     console.log("Failed finding basenote");
+        //     return;
+        // } else {
+        //     setBaseNote(thisBaseNote);
+        // }
+        // const midiNote = thisBaseNote.midiNote; // getRandomInt(53, 72); // TODO: make the range configurable
+        // const selectedChord = getRandomElementFromArray(possibleChords);
+        //
+        setSelectedChord(chord);
+        setBaseNote(thisBaseNote);
+        console.log("Selected chord: ", t(selectedChord.longName), thisBaseNote.midiNote );
+        const answer = {shortName: chord.shortName}; // may be different in different exercises, might need switch/case
         setAnswer(answer);
 
-        const chordNotes = makeChord( baseNote, selectedChord.shortName  );
+        const chordNotes = makeChord( thisBaseNote, chord.shortName  );
         setChordNotes(chordNotes);
         const up = getRandomBoolean();
         if ( up ) {
-            setVexTabChord(":4 (" + baseNote.vtNote + ")$.top." + capitalizeFirst(t("up")) + "$");
+            setVexTabChord(":4 (" + thisBaseNote.vtNote + ")$.top." + capitalizeFirst(t("up")) + "$");
         } else {
             setVexTabChord(":4 (" + chordNotes[chordNotes.length-1].vtNote + ")$.top." + capitalizeFirst(t("down")) + "$"); // upper note, last one in the array
         }
         //setUserEnteredNotes("");
 
-        play(selectedChord, midiNote);
+        play(chord, midiNote);
 
 
 
@@ -194,7 +211,7 @@ const AskChord = () => {
         console.log("Compile: ", compileString);
         csound.compileOrc(compileString);
         //csound.setControlChannel("beatLength", beatLength);
-        csound.readScore(`i "PlayChord" 0 0 `);
+        csound.readScore(`i "PlayChord" 0 0 `);  // if called startExercise->renew->playChord, the giNotes are not there yet, later OK
 
         //console.log("Midinotes played: ", midiNotes, baseMidiNote, selectedChord.shortName);
         //midiSounds.current.playChordNow(3, midiNotes, duration);
@@ -378,7 +395,7 @@ const AskChord = () => {
         if (csound) {
             await loadResources(csound, 60, 84, "oboe");
 
-            csound.setOption("-m0d")
+            csound.setOption("-m0d"); // does not affect the output... also --logfile=null not
             csound.compileOrc(orc);
             csound.start();
             csound.audioContext.resume();
@@ -395,8 +412,6 @@ const AskChord = () => {
 
     const createPlaySoundButton = () => {
         console.log("Begun: ", exerciseHasBegun);
-        // console.log("Begun: ", exerciseHasBegun());
-        // if (exerciseHasBegun()) {
         if (exerciseHasBegun) {
             return (
                 <Grid.Row  columns={2} centered={true}>
@@ -416,8 +431,9 @@ const AskChord = () => {
                     <Button color={"green"}
                             disabled={(csound === null)}
                             onClick={startExercise}
-                            className={"fullWidth marginTopSmall"}>{t("startExercise")}>
-                        <Loader active={(csound === null)} size={"tiny"} inline='centered' />
+                            className={"fullWidth marginTopSmall"}>
+                        {t("startExercise")}
+                        <Loader active={(csound === null)} size={"tiny"} inline='centered'/>
                     </Button>
                     </Grid.Column>
                 </Grid.Row>
@@ -427,17 +443,11 @@ const AskChord = () => {
 
     const createResponseButtons = () => {
         let rows = [];
-        //let columns = [];
-        //TODO: NB! does not support odd number of chords
         for (let i = 0, n = possibleChords.length; i < n; i += 2) {
             const row = createResponseButtonRow(possibleChords[i], possibleChords[i + 1]);
             rows.push(row);
         }
         return rows;
-        // for (let chord of possibleChords) {
-        //     columns.push(createResponseButtonColumn(chord));
-        // }
-        // return columns;
     };
 
     const createResponseButtonRow = (chord1, chord2) => {
@@ -450,7 +460,6 @@ const AskChord = () => {
     };
 
     const createResponseButtonColumn = (chord) => {
-        console.log("Chord for button: ", chord);
         return (chord) ?
             (
             <Grid.Column>
@@ -533,7 +542,7 @@ const AskChord = () => {
                 name='AskChord'
                 handler={handleShortcuts}
             />*/}
-            <Header size='large'>{`${t(name)} `}</Header>
+            <Header size='large'>{`${ capitalizeFirst( t(name) )} `}</Header>
 
             <Grid>
                 <Checkbox toggle
