@@ -114,6 +114,10 @@ body {
     margin-left: 40px !important;
 }
 
+.marginLeft {
+    margin-left: 20px !important;
+}
+
 .marginTopSmall {
     margin-top: 10px !important;
 }

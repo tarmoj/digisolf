@@ -1,5 +1,18 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {Button, Checkbox, Dropdown, Grid, Header, Input, Loader} from 'semantic-ui-react'
+import {
+    Accordion, AccordionContent,
+    Button,
+    Checkbox,
+    Dropdown,
+    Form,
+    FormButton,
+    FormCheckbox,
+    Grid,
+    Header, Icon,
+    Input,
+    Loader,
+    Modal
+} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst} from "../util/util";
@@ -41,7 +54,8 @@ const AskChord = () => {
     const midiSounds = useRef(null);
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
-    const [possibleChords, setPossibleChords] = useState([]);
+    const [possibleChords, setPossibleChords] = useState([]); // possibleChors -  whole set to choose from
+    const [chordSelection, setChordSelection] = useState ([]); // selected (checked on UI) by user
     const [selectedChord, setSelectedChord] = useState([]);
     const [answer, setAnswer] = useState(null);
     const [answered, setAnswered] = useState(false);
@@ -141,7 +155,8 @@ const AskChord = () => {
                     return;
             }
         }
-
+        // test: add field which shows if to use this in selection or not:
+        possibleChords.map(item => item.active=true);
         setPossibleChords(possibleChords);
 
         //renew(possibleChords);
@@ -156,6 +171,7 @@ const AskChord = () => {
         let thisBaseNote = baseNote;
         let chord = selectedChord;
         let midiNote = 0;
+        const activeChords = possibleChords.filter(c => c.active);
 
         while (thisBaseNote===baseNote && chord===selectedChord) {
             thisBaseNote = getNoteByVtNote( getRandomElementFromArray(possibleBaseVtNotes) );
@@ -164,7 +180,7 @@ const AskChord = () => {
                 return;
             }
             midiNote = thisBaseNote.midiNote;
-            chord = getRandomElementFromArray(possibleChords);
+            chord = getRandomElementFromArray(activeChords);
         }
 
         //
@@ -443,8 +459,10 @@ const AskChord = () => {
 
     const createResponseButtons = () => {
         let rows = [];
-        for (let i = 0, n = possibleChords.length; i < n; i += 2) {
-            const row = createResponseButtonRow(possibleChords[i], possibleChords[i + 1]);
+        const activeChords = possibleChords.filter(item => item.active);
+        console.log(activeChords);
+        for (let i = 0, n = activeChords.length; i < n; i += 2) {
+            const row = createResponseButtonRow(activeChords[i], activeChords[i + 1]);
             rows.push(row);
         }
         return rows;
@@ -534,6 +552,84 @@ const AskChord = () => {
         }
     }
 
+    //move up later
+    const [open, setOpen] = React.useState(false);
+    //maybe this should not be part of state but outside?? otherwise too
+    //const [chordSelection, setChordSelection] = useState([]); // array of chord.shortNames like ["M", "m6"]
+
+
+    // test -  for selecting chord via checkbox
+/*
+    const chordData = [
+        {shortName: "M", checked: false},
+        {shortName:"M6", checked: true}, { shortName: "M64", checked: false}
+    ]; // later take shortNames from chordDefinitions
+    const [selectedChords, setSelectedChords] = useState(chordData);
+*/
+
+    const handleChordSelection = (e,data) => {
+        console.log(e,data);
+        const shortName = data.name;
+        const checked = data.checked;
+
+        //console.log("handleChordSelection: ", shortName, checked);
+
+        let chords = possibleChords;
+        chords.find(c => c.shortName==shortName).active = checked;
+        setPossibleChords(chords);
+
+        // not shure but see if it works:
+        renew(chords);
+
+        // test which are selected
+        // console.log("Selected chords are: ");
+        // for (let c of chords)  {
+        //     if (c.active) {
+        //         console.log(c.shortName)
+        //     }
+        // }
+     }
+
+
+
+
+    const createChordSelection = () => {
+        return exerciseHasBegun && (
+            <Grid.Row >
+                <div className={"marginLeft"}>
+                    {possibleChords.map( item =>  (
+
+                            <Checkbox label={item.shortName} name={item.shortName}
+                                      onChange={ handleChordSelection }
+                                      defaultChecked={item.active}
+                                      className={"marginRight"}
+                            />
+
+                    ))}
+                </div>
+            </Grid.Row>
+/* Later rewrite with Accordion
+            <Accordion styled active="{showTable}">
+                {<Accordion.Title onClick={onTitleClick} >
+                    <Icon className={'chevron down ' + iconClass} id={'toggleTableIcon'} />
+                </Accordion.Title>}
+                <Accordion.Content active={showTable} id={'notationTableContent'}>
+                    <Grid>
+                        {selectedChords.map( item =>  (
+                            <Grid.Column>
+                            <Checkbox label={item.shortName} name={item.shortName}
+                                      onChange={ handleChordSelection }
+                                checked={item.checked}/>
+                            </Grid.Column>
+                        ))}
+                    </Grid>
+                </Accordion.Content>
+            </Accordion>
+            */
+        )
+
+    }
+
 
 
     return (
@@ -545,15 +641,18 @@ const AskChord = () => {
             <Header size='large'>{`${ capitalizeFirst( t(name) )} `}</Header>
 
             <Grid>
-                <Checkbox toggle
+
+                {/*<Checkbox toggle
                           label={"Noteeri"}
                           defaultChecked={false}
-                          className={"/*floatLeft */marginTop"}
+                          className={"marginTop"}
                           onChange={ (e, {checked}) => setUseNotation(checked) }
-                />
+                />*/}
+
                 <ScoreRow/>
                 {/*Vaja rida juhiseks (exerciseDescriptio). div selleks ilmselt kehv, sest kattub teistega...*/}
                 {createNotationBlock()}
+                {createChordSelection()}
                 {createResponseButtons()}
                 {createPlaySoundButton()}
                 {createVolumeRow()}

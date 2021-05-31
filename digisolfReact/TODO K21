@@ -78,6 +78,7 @@ Csoundi laadimise ajaks mingi vahend OK
 vastuste kast paneb nupud-üles-alla (võibolla seda ei sulekski) või siis kõik vastavalt allapoole (Gridis)
 Luba paarituarvulist akordide hulka (createResponseButtons)
 ? Csound heli mobiilides ? luba suuremast ksmps ja puhvrit?
+Rewrite to Tone.js? -  tee eraldiseisev test
 
 
 
