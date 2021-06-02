@@ -126,6 +126,7 @@
   "firstVoice": "esimene hääl",
   "secondVoice": "teine hääl",
   "useTextInput": "sisesta tekstina",
-  "credits": "allikas"
+  "credits": "allikas",
+  "functions":  "funktsioonid"
 
 }

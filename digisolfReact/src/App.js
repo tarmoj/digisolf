@@ -6,7 +6,7 @@ import AskInterval from "./components/AskInterval";
 import AskChord from "./components/AskChord";
 import AskIntonation from "./components/AskIntonation";
 import AskTuning from "./components/AskTuning";
-//import AskDictation from "./components/AskDictation";
+import AskFunctions from "./components/AskFunctions";
 import AskDictation from "./components/askdictation/AskDictation";
 import MainMenu from "./components/MainMenu";
 import AppFooter from "./components/AppFooter";
@@ -41,7 +41,8 @@ function App() {
                 <Switch>
                     <Route exact path='/digisolf' component={MainMenu}/>
                     <Route path='/digisolf/askinterval/:exerciseName' component={AskInterval} />}/>
-                    <Route path='/digisolf/askchord/:name' component={AskChord}/>
+                    <Route path='/digisolf/askchord/:name/' component={AskChord}/>
+                    <Route path='/digisolf/askfunctions/:title' component={AskFunctions}/>
                     <Route path='/digisolf/askdictation/:name/:title?' component={AskDictation}/>
                     <Route path='/digisolf/askintonation/:name/:cents' component={AskIntonation}/>
                     <Route path='/digisolf/asktuning' component={AskTuning}/>
