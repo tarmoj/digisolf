@@ -56,6 +56,36 @@ const AskFunctions = () => {
         },
 
         {
+            title: "5",
+            soundFile: "/sounds/chords/functions/Fun1-5.mp3",
+            functions: [ ["T"],	["D"],	["T"],	["T"],	["D"],	["T"],	["D"] ]
+        },
+
+        {
+            title: "6",
+            soundFile: "/sounds/chords/functions/Fun1-6.mp3",
+            functions: [ ["T"],	["D"],	["T"],	["D"],	["T"],	["T"],	["D"], ["D"] ]
+        },
+
+        {
+            title: "7",
+            soundFile: "/sounds/chords/functions/Fun1-7.mp3",
+            functions: [ ["T"],	["D"],	["T"],	["D"],	["T"],	["T"],	["D"], ["T"] ]
+        },
+
+        {
+            title: "8",
+            soundFile: "/sounds/chords/functions/Fun1-8.mp3",
+            functions: [ ["T"],	["T"],	["D"],	["D"],	["T"],	["D"],	["T"], ["D"] ]
+        },
+
+        {
+            title: "9",
+            soundFile: "/sounds/chords/functions/Fun1-9.mp3",
+            functions: [ ["T"],	["D"],	["T"],	["D"],	["T"],	["T"],	["T"], ["D"] ]
+        },
+
+        {
             title: "10",
             soundFile: "/sounds/chords/functions/Fun1-10.mp3",
             functions: [ ["T",  "D"],	["T"],	["T"], ["D"]]
@@ -248,7 +278,6 @@ const AskFunctions = () => {
         return (
             <React.Fragment>
             <Dropdown
-
                 options={functionOptions}
                 className={  answered ?  (answer[index]===response[index] ? "green" : "red")  : ""  }
                 style = { {marginLeft:2, marginRight:2}}
