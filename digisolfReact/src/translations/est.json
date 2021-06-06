@@ -127,6 +127,7 @@
   "secondVoice": "teine hääl",
   "useTextInput": "sisesta tekstina",
   "credits": "allikas",
-  "functions":  "funktsioonid"
+  "functions":  "funktsioonid",
+  "enterFunctions": "sisestage fuktsioonid"
 
 }

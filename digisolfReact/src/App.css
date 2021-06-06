@@ -134,6 +134,10 @@ body {
     color: red;
 }
 
+.green {
+    color: green;
+}
+
 .vtDiv {
     display: block;
     overflow-x: auto;

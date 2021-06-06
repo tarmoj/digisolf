@@ -44,6 +44,23 @@ const AskFunctions = () => {
             soundFile: "/sounds/chords/functions/Fun1-2.mp3",
             functions: [ ["T"], ["T"], ["D"] ]
         },
+        {
+            title: "3",
+            soundFile: "/sounds/chords/functions/Fun1-3.mp3",
+            functions: [ ["T"],	["T"],	["D"],	["D"],	["T"],	["T"],	["D"] ]
+        },
+        {
+            title: "4",
+            soundFile: "/sounds/chords/functions/Fun1-4.mp3",
+            functions: [ ["T"],	["D"],	["T"],	["T"],	["D"],	["D"],	["T"] ]
+        },
+
+        {
+            title: "10",
+            soundFile: "/sounds/chords/functions/Fun1-10.mp3",
+            functions: [ ["T",  "D"],	["T"],	["T"], ["D"]]
+        },
+
 
     ]
 
@@ -233,6 +250,8 @@ const AskFunctions = () => {
             <Dropdown
 
                 options={functionOptions}
+                className={  answered ?  (answer[index]===response[index] ? "green" : "red")  : ""  }
+                style = { {marginLeft:2, marginRight:2}}
                 defaultValue={response[index] ? response[index] : "--"}
                 onChange={ (event, data) => {
                     let r = response;
@@ -263,7 +282,7 @@ const AskFunctions = () => {
 
         return exerciseHasBegun &&  selectedDictation.title && (
             <div className={"marginLeft"}>
-                <span className={"marginLeft marginRight"}>Sisesta fuktsioonid:</span>
+                <span className={"marginLeft marginRight"}>{capitalizeFirst(t("enterFunctions"))}: </span>
                 { elements }
             </div>
         );
