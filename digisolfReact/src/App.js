@@ -42,7 +42,7 @@ function App() {
                     <Route exact path='/digisolf' component={MainMenu}/>
                     <Route path='/digisolf/askinterval/:exerciseName' component={AskInterval} />}/>
                     <Route path='/digisolf/askchord/:name/' component={AskChord}/>
-                    <Route path='/digisolf/askfunctions/:title' component={AskFunctions}/>
+                    <Route path='/digisolf/askfunctions/:title?' component={AskFunctions}/>
                     <Route path='/digisolf/askdictation/:name/:title?' component={AskDictation}/>
                     <Route path='/digisolf/askintonation/:name/:cents' component={AskIntonation}/>
                     <Route path='/digisolf/asktuning' component={AskTuning}/>

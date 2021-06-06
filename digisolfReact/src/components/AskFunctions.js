@@ -14,13 +14,7 @@ import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import Sound from 'react-sound';
 import Select from "semantic-ui-react/dist/commonjs/addons/Select";
 import {useParams} from "react-router-dom";
-//import CsoundObj from "@kunstmusik/csound";
-//import {makeInterval,  scaleDefinitions, getIntervalByShortName} from "../../util/intervals";
-//import * as notes from "../../util/notes";
 import {stringToIntArray, getRandomElementFromArray } from "../util/util"
-//import {dictationOrchestra as orc} from "../../csound/orchestras";
-//import {resetState, setAllowInput, setInputNotation} from "../../actions/askDictation";
-//import {notationInfoToVtString} from "../notation/notationUtils";
 
 
 const AskFunctions = () => {
@@ -33,16 +27,10 @@ const AskFunctions = () => {
     const [selectedDictation, setSelectedDictation] = useState({title:"", soundFile:"", functions:[]});
     const [answer, setAnswer] = useState(null);
     const [answered, setAnswered] = useState(false);
-
-    //const [showCorrectNotation, setShowCorrectNotation] =  useState(false);
-
+    const [response, setResponse] = useState([]); //array of string like "T", "S, "D"
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
     const [volume, setVolume] = useState(0.6);
 
-
-    // useEffect(() => {
-    //     dispatch(resetState());
-    // }, []);
 
     const dictations = [ // use variable "dictations" here, as in coincides with older code later
         {
@@ -65,7 +53,7 @@ const AskFunctions = () => {
 
     const startExercise = () => {
         setExerciseHasBegun(true);
-        if (title && dictations) {
+        if (/*title && */dictations) {
             //find index of that dictation
             let index = dictations.findIndex( element => {
                 if (element.title === title) {
@@ -87,17 +75,18 @@ const AskFunctions = () => {
 
         const dictation = dictations[dictationIndex];
         setSelectedDictation(dictation);
-        const answer = {functions: dictation.functions};
+        const answer = dictation.functions.flat(); // array of cuntions
         setAnswer(answer);
+        setResponse(Array(answer.length).fill("--")); // cannot be empty array, otherwise clears response on every new render
 
         if (exerciseHasBegun) {
-            play(dictation);
+            play();
         }
 
     };
 
 
-    const play = (dictation) => {
+    const play = () => {
         stop(); // need a stop here  - take care, that it does not kill already started event
         setPlayStatus(Sound.status.PLAYING);
     };
@@ -107,17 +96,38 @@ const AskFunctions = () => {
         setPlayStatus(Sound.status.STOPPED);
     };
 
-    const checkResponse = (response) => { // response is an object {key: value [, key2: value, ...]}
+    const checkResponse = () => { // response is an object {key: value [, key2: value, ...]}
 
         if (!exerciseHasBegun) {
             alert(t("pressStartExsercise"));
             return;
         }
 
-        if (selectedDictation.notation.length === 0 ) {
+        if (!selectedDictation.title ) {
             alert( t("chooseDictation"));
             return;
         }
+
+        setAnswered(true);
+        let correct = true;
+
+        for (let i=0; i<answer.length; i++) {
+            if (response[i]==answer[i]) {
+                console.log("Correct! ", i, response[i]);
+            } else {
+                console.log(response[i], " is wrong!  Should be: ", answer[i]);
+                correct = false;
+            }
+        }
+
+        if ( correct ) {
+            //dispatch(setPositiveMessage(feedBack, 5000));
+            dispatch(incrementCorrectAnswers());
+        } else {
+            //dispatch(setNegativeMessage(feedBack, 5000));
+            dispatch(incrementIncorrectAnswers());
+        }
+
     };
 
 
@@ -126,7 +136,6 @@ const AskFunctions = () => {
     // UI ======================================================
 
     const createControlButtons = () => {
-        // console.log("Begun: ", exerciseHasBegun);
 
         if (exerciseHasBegun) {
             return  (
@@ -144,26 +153,6 @@ const AskFunctions = () => {
                                 onClick={() => checkResponse(null)}>{capitalizeFirst(t("check"))}
                         </Button>
                     </Grid.Column>
-
-                    {/* Following buttons only for degree dictations */}
-
-
-
-                    {/*{ dictationType ==="degrees" &&
-                    <Grid.Column>
-                        <Button className={"fullWidth marginTopSmall"}
-                                onClick={() => playTonic(selectedDictation.tonicVtNote)}>{capitalizeFirst(t("tonic"))}
-                        </Button>
-                    </Grid.Column>}
-
-                    {  name.toString().startsWith("degrees_random") &&
-                    <Grid.Column>
-                        <Button className={"fullWidth marginTopSmall"}
-                                onClick={() => renew(0)}>{capitalizeFirst(t("new"))}
-                        </Button>
-                    </Grid.Column>
-                    }*/}
-
                 </Grid.Row>
 
             );
@@ -177,16 +166,16 @@ const AskFunctions = () => {
             );
         }
     };
+
     const createVolumeRow = () => {
         return exerciseHasBegun && (
             <Grid.Row centered={true} columns={3}>
-
+                <Grid.Column />
                 <Grid.Column>
                     {capitalizeFirst(t("volume"))}
                     <Slider value={volume} color="blue"
                             settings={ {
                                 min:0, max:1, step:0.01,
-                                /*start: {volume},*/
                                 value: {volume},
                                 onChange: (value) => {
                                     setVolume(value);
@@ -217,7 +206,8 @@ const AskFunctions = () => {
                         placeholder={t("chooseDictation")}
                         options={options}
                         defaultValue= {title ? title : "" }
-                        onChange={(e, {value}) => {
+                        onChange={(e, {value, text}) => {
+                            //title = text;
                             renew(value);
                         }
                         }
@@ -228,9 +218,74 @@ const AskFunctions = () => {
 
     } ;
 
-    const handleDictationFinishedPlaying = () => {
-        setPlayStatus(Sound.status.STOPPED);
-    };
+    const FunctionBox = (props) => {
+        // good for visible impaired, for touch screens all buttons visible is better
+        const index = props.index;
+        const functionOptions = [
+            { key: 'none', text: '--', value: '--'},
+            { key: 'T', text: 'T', value: 'T'},
+            { key: 'S', text: 'S', value: 'S'},
+            { key: 'D', text: 'D', value: 'D'},
+            { key: 'M', text: 'M', value: 'M'}
+        ];
+        return (
+            <React.Fragment>
+            <Dropdown
+
+                options={functionOptions}
+                defaultValue={response[index] ? response[index] : "--"}
+                onChange={ (event, data) => {
+                    let r = response;
+                    if (r.length>index) {
+                        r[index] = data.value;
+                        setResponse(r);
+                        //console.log("Setting response: ", r, response);
+                    }
+                }
+                }
+            />
+            </React.Fragment>
+        );
+    }
+
+    const createResponseBlock = () => {
+        let index = 0;
+        let elements = [];
+
+        for (let measure of selectedDictation.functions ) {
+            for (let f of measure ) {
+                console.log("Creating element : ", index, f );
+                elements.push(<FunctionBox index={index}/>);
+                index++;
+            }
+            elements.push(" | ");
+        }
+
+        return exerciseHasBegun &&  selectedDictation.title && (
+            <div className={"marginLeft"}>
+                <span className={"marginLeft marginRight"}>Sisesta fuktsioonid:</span>
+                { elements }
+            </div>
+        );
+    }
+
+    const createCorrectAnswerBlock = () => {
+        let functionsString = "";
+        for (let measure of selectedDictation.functions ) {
+            for (let f of measure ) {
+                functionsString += " " + f + " ";
+            }
+            functionsString += " | ";
+        }
+
+        return exerciseHasBegun &&  answered && (
+            <div className={"marginLeft"}>
+                <span className={"marginLeft marginRight"}>
+                    {capitalizeFirst(t("correctAnswerIs"))}: {functionsString}
+                </span>
+            </div>
+        );
+    }
 
     return (
         <div>
@@ -241,15 +296,17 @@ const AskFunctions = () => {
                 volume={volume*100}
                 loop={false}
                 playStatus={playStatus}
-                onFinishedPlaying={handleDictationFinishedPlaying}
+
+                onFinishedPlaying={()=>stop()}
+
             />
 
 
             <Grid celled={false}>
                 <ScoreRow/>
                 {createSelectionMenu()}
-
-
+                {createResponseBlock()}
+                {createCorrectAnswerBlock()}
                 {createVolumeRow()}
                 {createControlButtons()}
                 <Grid.Row>
