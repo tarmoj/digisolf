@@ -87,6 +87,7 @@ const AskInterval = () => {
 
         const isMajor = getRandomBoolean();
 
+        // ? seprate function for setting the key?
         const changeKey = selectedTonicNote !== null;
         let newSelectedTonicNote = getTonicNote();  //getRandomElementFromArray(tonicNotes);	// Select random note from tonic notes
 
@@ -112,7 +113,21 @@ const AskInterval = () => {
         // if between triad notes:
         //if (exerciseName === "XXX") {}
         setIsMajor(isMajor);
-        const intervalData = getIntervalFromScale(isMajor ? "major" : "minor", tonicNote.vtNote, [1,3,5,8] );
+        let possibleDegrees = [];
+        // should it be here or in startExercise? starExercise makes more sense... think about forwarding the data
+        if (exerciseName==="tonicTriad") {
+            possibleDegrees = [1,3,5,8];
+        } else if (exerciseName==="tonicAllScaleDegrees") {
+            possibleDegrees = [2,3,4,5,6,7,8]; // siin peaks olema, et esimene noot on alati toonika
+        } else if (exerciseName==="allScaleDegrees") {
+            possibleDegrees = [1,2,3,4,5,6,7,8];
+        } else {
+
+        }
+
+
+
+        const intervalData = getIntervalFromScale(isMajor ? "major" : "minor", tonicNote.vtNote, possibleDegrees );
         //console.log("renew got: ", intervalData.degrees, intervalData.notes, intervalData.interval.shortName);
         setIntervalData(intervalData);
         setAnswered(false);
@@ -178,8 +193,16 @@ const AskInterval = () => {
     const getIntervalFromScale = (scale="major", tonicVtNote="C/4", possibleDegrees=[]  ) => {
         //const scaleDefinition = scaleDefinitions[scale];
         const scaleNotes = makeScale(tonicVtNote, scale);
-        //console.log(" getIntervalFromScale: Scalenotes are: ", scaleNotes);
-        const degree1 = getRandomElementFromArray(possibleDegrees);
+        console.log(" getIntervalFromScale: degrees ", possibleDegrees);
+        let degree1;
+        if (exerciseName==="tonicAllScaleDegrees") {
+            degree1 = 1;
+        } else {
+            degree1 = getRandomElementFromArray(possibleDegrees);
+        }
+
+        // TODO: kuidas lubada, et võib minna ka üle oktavi piiri? Või kas on seda vaja?
+
         let degree2= degree1;
         while (degree2==degree1) { // not to be the same
             degree2 = getRandomElementFromArray(possibleDegrees);
@@ -395,8 +418,8 @@ const AskInterval = () => {
     const createDegreeInputBlock = () => {
         return exerciseHasBegun && (
             <Grid.Row>
-                <Grid.Column >
-                    Sisesta astmed:
+                <Grid.Column className={"fullWidth"}>
+                    { capitalizeFirst( t("enterDegrees") )}
                     <Input
                         className={"marginLeft"}
                         onChange={e => {
