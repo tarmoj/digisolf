@@ -28,30 +28,6 @@ KOKKU 6110
 
 
 
-## Intervalliharjutuste tüübid
-
-1) Meloodiline -  
-
-Harmooniline - 
-
-
-
-2) 
-
-
-
-
-
-## Akordiharjutste tüübid
-
-
-Tõnu näidismaterjalis 9 tüüpi -  saab lisada ka noodisisetusega (määra/noteeri), samuti: üles/alla
-
-
-
-
-
-
 
 
 
@@ -67,18 +43,24 @@ Tõnu näidismaterjalis 9 tüüpi -  saab lisada ka noodisisetusega (määra/not
 
 * Pimedate tugi (shortcuts)
 
-* Diktaatide töö jaätkaminie
+* Diktaatide töö jätkaminie
 
 
 * Uuri E-koolikoti ja H5P kohta
 ----
 TODO 16.05:
-Akordides:
-Csoundi laadimise ajaks mingi vahend OK
-vastuste kast paneb nupud-üles-alla (võibolla seda ei sulekski) või siis kõik vastavalt allapoole (Gridis)
-Luba paarituarvulist akordide hulka (createResponseButtons)
+
 ? Csound heli mobiilides ? luba suuremast ksmps ja puhvrit?
 Rewrite to Tone.js? -  tee eraldiseisev test
+
+TODO: 12.06:
+
+Intervallid -
+- esita meloodilisena, seejärel koos
+- näita ainult neid nuppe, mis intervallid kasutusel (possibleIntervals)
+- heli esitus pillidega. Proovi Tone.js?
+- mitu järjest -  mõtle harjutuse struktuur
+- vastus numbritena nt (1 3)
 
 
 

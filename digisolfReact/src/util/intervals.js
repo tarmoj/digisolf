@@ -69,8 +69,13 @@ export const makeScale = (tonicVtNote, scale) => { // returns array of vtNotes
         const baseNote = notes.getNoteByVtNote(tonicVtNote);
         for (let interval of scaleDefinitions[scale]) {
             const degreeNote = makeInterval(baseNote, interval, "up"); // what if bass clef?
-            console.log("Tonic, Interval, note: ", tonicVtNote, interval, degreeNote.vtNote );
-            vtNotes.push(degreeNote.vtNote);
+
+            if (degreeNote) {
+                vtNotes.push(degreeNote.vtNote);
+                console.log("Tonic, Interval, note: ", tonicVtNote, interval, degreeNote.vtNote );
+            } else {
+                console.log("Could not build iterval from: ", interval, tonicVtNote);
+            }
         }
         return vtNotes;
 

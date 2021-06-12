@@ -1,12 +1,12 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {Button, Divider, Grid, Header, Icon, Input, Popup, Radio, Transition} from 'semantic-ui-react'
+import {Button, Divider, Grid, Header, Icon, Popup, Radio, Transition} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {setComponent} from "../actions/component";
 import MainMenu from "./MainMenu";
-import {getNoteByVtNote, violinClefNotes} from "../util/notes";
-import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst, isDigit} from "../util/util";
-import {getInterval, makeInterval, makeScale, scaleDefinitions, simplifyIfAugmentedIntervals} from "../util/intervals";
+import {violinClefNotes} from "../util/notes";
+import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst} from "../util/util";
+import {getInterval, simplifyIfAugmentedIntervals} from "../util/intervals";
 import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
@@ -17,7 +17,6 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import Sound from 'react-sound';
 import correctSound from "../sounds/varia/correct.mp3"
 import wrongSound from "../sounds/varia/wrong.mp3"
-import * as notes from "../util/notes";
 
 const AskInterval = () => {
     const { exerciseName } = useParams();
@@ -39,14 +38,10 @@ const AskInterval = () => {
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
     const [soundFile, setSoundFile] = useState("");
-    const [answer, setAnswer] = useState(null); // <- maybe not necessary.. in format: {degrees:[], shortName: interval.shortName}
-    const [answered, setAnswered] = useState(false);
-    const [intervalData, setIntervalData] = useState({degrees:[], notes:[], interval: null}); // {degrees: []}
-    const [degreesEnteredByUser, setDegreesEnteredByUser] = useState("");
+
     // TODO: for blind support -  result with voice in setAnswer
     // keyboard shortcuts
     // TODO: support for other languages
-    // setAnswer is wrong here, rewrite!!
     useHotkeys('v+2', () => setAnswer("v2"), [exerciseHasBegun, interval, intervalButtonsClicked]); // letter's case does not matter
     useHotkeys('s+2', () => setAnswer("s2"), [exerciseHasBegun, interval, intervalButtonsClicked]);
     useHotkeys('v+3', () => setAnswer("v3"), [exerciseHasBegun, interval, intervalButtonsClicked]);
@@ -65,7 +60,7 @@ const AskInterval = () => {
     useHotkeys('shift+right', () => {
         console.log("Next", exerciseHasBegun);
         if (exerciseHasBegun) {
-            renew(isMajor, selectedTonicNote);
+            getNewInterval(isMajor, selectedTonicNote);
         }
     }, [, exerciseHasBegun, interval, isMajor, selectedTonicNote]);
     useHotkeys('shift+up', () => {console.log("Change key/Start exercise"); startExercise() }, [exerciseHasBegun, interval]);
@@ -79,68 +74,28 @@ const AskInterval = () => {
     // probleem on, et kui siit kutsuda setAnswer, siis exerciseHasBegun on tema jaoks alati false
     useHotkeys('shift+ctrl+3', () => { console.log("Trying s3"); setAnswer("s3"); }, [exerciseHasBegun]);
 
-    const possibleTonicVtNotes = ["C/4", "D/4",  "E@/4", "E/4", "F/4",
-        "G/4", "A/4", "B@/4", "C/5" ];
-
     const startExercise = () => {
         setExerciseHasBegun(true);
 
+        const octaveNotes = violinClefNotes.slice(0, 21);	// First octave
+        const tonicNote =  getRandomElementFromArray(octaveNotes);	// Select random note from octave as tonic note
+        const tonicNotes = getAllNotesWithSameName(tonicNote, violinClefNotes);	// Get all tonic notes
         const isMajor = getRandomBoolean();
 
         const changeKey = selectedTonicNote !== null;
-        let newSelectedTonicNote = getTonicNote();  //getRandomElementFromArray(tonicNotes);	// Select random note from tonic notes
+        let newSelectedTonicNote = getRandomElementFromArray(tonicNotes);	// Select random note from tonic notes
 
         while (changeKey && newSelectedTonicNote === selectedTonicNote) {
-            newSelectedTonicNote = getTonicNote(); //getRandomElementFromArray(tonicNotes);
+            newSelectedTonicNote = getRandomElementFromArray(tonicNotes);
         }
-        setSelectedTonicNote(newSelectedTonicNote); // is it right place to do it?
 
         midiSounds.current.setMasterVolume(0.4); // not too loud TODO: add control slider
-
-        //new:
-        renew(isMajor,newSelectedTonicNote);
+        getNewInterval(isMajor, newSelectedTonicNote);
     };
 
-
-    const getTonicNote = () => { // returns note object by random element in possible
-        const tonicNote = getNoteByVtNote(getRandomElementFromArray(possibleTonicVtNotes));
-        console.log("New tonic note is: ", tonicNote.vtNote );
-        return tonicNote;
-    }
-
-    const renew = (isMajor, tonicNote) => {
-        // if between triad notes:
-        //if (exerciseName === "XXX") {}
-        setIsMajor(isMajor);
-        const intervalData = getIntervalFromScale(isMajor ? "major" : "minor", tonicNote.vtNote, [1,3,5,8] );
-        //console.log("renew got: ", intervalData.degrees, intervalData.notes, intervalData.interval.shortName);
-        setIntervalData(intervalData);
-        setAnswered(false);
-        setDegreesEnteredByUser("");
-        play(intervalData.notes[0].midiNote, intervalData.notes[1].midiNote);
-
-
-    }
-
-    const play = (midiNote1, midiNote2) => {
-        // melodic
-        const duration = 1; //TODO: change
-        console.log("Midinotes: ", midiNote1, midiNote2);
-        playNote(midiNote1, 0, duration);
-        playNote(midiNote2, duration, duration);
-
-        playNote(midiNote1, 3*duration, duration*2);
-        playNote(midiNote2, 3*duration, duration*2);
-    }
-
-/*
     const getNewInterval = (isMajor, selectedTonicNote) => {
-        // to test:
-        console.log("getNewInterval -  selectedTonicNote", selectedTonicNote)
-        getIntervalFromScale(isMajor ? "major" : "minor", selectedTonicNote.vtNote, [1,3,5,8] );
-
         setIsMajor(isMajor);
-        //setSelectedTonicNote(selectedTonicNote);
+        setSelectedTonicNote(selectedTonicNote);
 
         let firstNote;
         let possibleSecondNotes;
@@ -174,24 +129,6 @@ const AskInterval = () => {
         setTimeout( () => playInterval(newInterval), 4 * smallWait + chordDuration*1000 );
 
     };
-*/
-    const getIntervalFromScale = (scale="major", tonicVtNote="C/4", possibleDegrees=[]  ) => {
-        //const scaleDefinition = scaleDefinitions[scale];
-        const scaleNotes = makeScale(tonicVtNote, scale);
-        //console.log(" getIntervalFromScale: Scalenotes are: ", scaleNotes);
-        const degree1 = getRandomElementFromArray(possibleDegrees);
-        let degree2= degree1;
-        while (degree2==degree1) { // not to be the same
-            degree2 = getRandomElementFromArray(possibleDegrees);
-        }
-        const note1 = getNoteByVtNote(scaleNotes[degree1-1]); // index in the array is degree-1
-        const note2 = getNoteByVtNote(scaleNotes[degree2-1]);
-        const intervalData = getInterval(note1, note2);
-        console.log("getIntervalFromScale: Degrees, interval: ", degree1, degree2, note1.vtNote, note2.vtNote, intervalData.interval.shortName);
-        return { degrees:[degree1, degree2], notes: [note1, note2], interval: intervalData.interval }
-    };
-
-
 
     const playTonicTriad = (rootMidiNote, isMajor, duration) => {
         const third =  rootMidiNote + ((isMajor) ? 4 : 3);
@@ -204,7 +141,7 @@ const AskInterval = () => {
         console.log("Tonic notes: ", rootMidiNote, third, fifth);
     }
 
-    const playInterval = (interval, isHarmonic=false) => {
+    const playInterval = (interval) => {
 
         //setTimeout(() => {
             if (isHarmonic) {
@@ -222,7 +159,6 @@ const AskInterval = () => {
     const playNote = (midiNote, start, duration) => { // start peaks olema sekundites
         midiSounds.current.playChordAt (midiSounds.current.contextTime()+start, 3, [midiNote], duration); // millegipärast ei tööta, kui korrata intervalli
     };
-/*
 
     const getSecondNote = (tonicNote, possibleNotes) => {
         let newNote;
@@ -297,61 +233,17 @@ const AskInterval = () => {
 
         return notes;
     };
-*/
 
-    // ilmselt vaja eraldi - checkDegrees, checkIntserval
-
-    const checkInterval= (intervalShortName) =>  {
-        let correct = true;
-        if (intervalData.interval) {
-            if (intervalData.interval.shortName !== intervalShortName) {
-                correct = false;
-                console.log("Vale intervall, õige peaks olema: ", intervalData.interval.shortName)
-            } else {
-                console.log("Intervall õige ", intervalShortName);
-            }
-        } else correct = false;
-        return correct;
-    }
-
-    const checkDegrees = () => {
-        const degrees = degreesEnteredByUser.split(" ");
-        console.log("Degrees to check: ", degrees);
-        let correct = true;
-        if (intervalData.degrees) {
-             for (let i=0; i<intervalData.degrees.length; i++) {
-                 if (parseInt(degrees[i]) !== intervalData.degrees[i]) {
-                     console.log("Vale aste, õige peaks olema: ", degrees[i], intervalData.degrees[i]  );
-                 } else {
-                     console.log("Aste õige!", degrees[i] );
-                 }
-             }
-        } else correct = false;
-        return correct;
-    }
-
-    const checkResponse = (response) => { // võibolla peaks olema objektina {shortName="", degrees=[]}, mida saab mitme intervalli puhul siis laiendada
+    const setAnswer = (answer) => {
         if (exerciseHasBegun) {
             // const correctInterval = getIntervalTranslation(interval.interval.longName);
-            setIntervalButtonsClicked(intervalButtonsClicked.concat([response]));
-            const intervalShortName = response.shortName;
-            let correct = true;
+            setIntervalButtonsClicked(intervalButtonsClicked.concat([answer]));
 
-            if (response.hasOwnProperty("shortName")) {
-                correct = correct && checkInterval(response.shortName);
-            }
-
-            if (response.hasOwnProperty("degrees")) {
-                correct = correct && checkDegrees(response.degrees);
-            }
-
-
-            if ( correct /*response === simplifyIfAugmentedIntervals(interval.interval.shortName)*/) {  // uuri seda, see on veidi jama
+            if (answer === simplifyIfAugmentedIntervals(interval.interval.shortName)) {
                 // dispatch(setPositiveMessage(`${t("correctAnswerIs")} ${correctInterval}`, 5000));
-                //getNewInterval(isMajor, selectedTonicNote);
-                renew(isMajor, selectedTonicNote);
+                getNewInterval(isMajor, selectedTonicNote);
 
-                colorCorrectAnswerGreen(intervalShortName);
+                colorCorrectAnswerGreen(answer);
                 setIntervalButtonsClicked([]);
                 dispatch(incrementCorrectAnswers());
                 // maybe it is better to move the sound part to ScoreRow component
@@ -373,13 +265,18 @@ const AskInterval = () => {
         }, 2000)
     };
 
+    const getIntervalTranslation = (longName) => {
+        const parts = longName.split(" ");
+        return `${t(parts[0])} ${t(parts[1])}`
+    };
+
     const createButtons = () => {
         let buttons = [];
 
         const startExerciseButton = <Button key={"startExercise"} color={"green"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>;
         const changeKeyButton = <Button key={"changeKey"} primary onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("changeKey")}</Button>;
-        const playNextIntervalButton = <Button key={"playNext"} color={"olive"} onClick={() => renew(isMajor, selectedTonicNote)} className={"fullWidth marginTopSmall"}>{t("playNext")}</Button>;
-        const repeatIntervalButton = <Button key={"repeat"} color={"green"} onClick={() => play(intervalData.notes[0].midiNote, intervalData.notes[1].midiNote)} className={"fullWidth marginTopSmall"}>{t("repeat")}</Button>;
+        const playNextIntervalButton = <Button key={"playNext"} color={"olive"} onClick={() => getNewInterval(isMajor, selectedTonicNote)} className={"fullWidth marginTopSmall"}>{t("playNext")}</Button>;
+        const repeatIntervalButton = <Button key={"repeat"} color={"green"} onClick={() => playInterval(interval)} className={"fullWidth marginTopSmall"}>{t("repeat")}</Button>;
 
         if (exerciseHasBegun) {
             buttons.push(repeatIntervalButton, playNextIntervalButton, changeKeyButton);
@@ -391,39 +288,6 @@ const AskInterval = () => {
 
         return buttons;
     };
-
-    const createDegreeInputBlock = () => {
-        return exerciseHasBegun && (
-            <Grid.Row>
-                <Grid.Column >
-                    Sisesta astmed:
-                    <Input
-                        className={"marginLeft"}
-                        onChange={e => {
-                            let input = e.target.value;
-                            const index = input.length-1;
-                            // if two last symbols are digits, insert a space in between of them
-                            if (index>=1) {
-                                if (isDigit(input.charAt(index)) && isDigit(input.charAt(index-1))) {
-                                    input = input.substr(0, index) + " " + input.substr(index);
-                                    console.log("Inserted space: ", input, index, input.substr(0, index));
-                                }
-                            }
-                            setDegreesEnteredByUser(input);
-                        } }
-                        onKeyPress={ e=> {
-                            if (e.key === 'Enter') {
-                                checkDegrees();
-                            }
-                        }
-                        }
-                        placeholder={'nt: 1 3'}
-                        value={degreesEnteredByUser}
-                    />
-                </Grid.Column>
-            </Grid.Row>
-        );
-    }
 
     const getExerciseType = () => {
         return isHarmonic ? t("harmonic") : t("melodic");
@@ -446,7 +310,7 @@ const AskInterval = () => {
     const createIntervalButton = (interval, displayedName) => {
         return (
             <Grid.Column>
-                <Button color={getButtonColor(interval)} onClick={() => checkResponse({shortName: interval})} className={"exerciseBtn"}>{displayedName}</Button>
+                <Button color={getButtonColor(interval)} onClick={() => setAnswer(interval)} className={"exerciseBtn"}>{displayedName}</Button>
             </Grid.Column>
         )
     };
@@ -477,7 +341,6 @@ const AskInterval = () => {
                         </Popup>
                     </Grid.Column>
                 </Grid.Row>
-                {createDegreeInputBlock()}
                 <Grid.Row className={"exerciseRow"} columns={3}>
                     {/*TODO: support translation*/}
                     {createIntervalButton("v2", "v2")} {/*was: ${capitalizeFirst(t("minor"))} ${t("second")}*/}
