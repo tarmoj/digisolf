@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Button, Checkbox, Dropdown, Grid, Header, Input, Label, Popup} from 'semantic-ui-react'
+import {Button, Checkbox, Dropdown, Grid, Header, Input, Label, Modal, Popup} from 'semantic-ui-react'
 import {Slider} from "react-semantic-ui-range";
 
 import {useDispatch, useSelector} from "react-redux";
@@ -237,9 +237,7 @@ const AskFunctions = () => {
 
     const createSelectionMenu = () => {
         const options = [];
-        // console.log("createSelectionMenu for: ", currentCategory, name);
-        //const dictationsByCategory =  dictations.filter(dict =>  dict.category=== currentCategory);
-        //TODO: rewtite in more modern style?
+
         for (let i=0; i< dictations.length; i++) {
                 options.push( { value: i, text: dictations[i].title  } );
         }
@@ -265,6 +263,19 @@ const AskFunctions = () => {
 
     } ;
 
+    const handleFunctionChange = (index, value, closeDialog=true) => {
+        let r = response.slice();
+        if (r.length>index) {
+            r[index] = value;
+            setResponse(r); // somehow this does not cause rerender
+            //setVolume(volume + 0.01);
+            console.log("Setting response: ", index, response);
+            if (closeDialog) {
+                setDialogOpen(false);
+            }
+        }
+    }
+
     const FunctionBox = (props) => {
         // good for visible impaired, for touch screens all buttons visible is better
         const index = props.index;
@@ -283,15 +294,49 @@ const AskFunctions = () => {
                 style = { {marginLeft:2, marginRight:2}}
                 defaultValue={response[index] ? response[index] : "--"}
                 onChange={ (event, data) => {
-                    let r = response;
-                    if (r.length>index) {
-                        r[index] = data.value;
-                        setResponse(r);
-                        //console.log("Setting response: ", r, response);
-                    }
+                    handleFunctionChange(index, data.value)
                 }
                 }
             />
+            </React.Fragment>
+        );
+    }
+
+
+
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const FunctionBox2 = (props) => {
+        const index = props.index ? props.index : 0;
+        const label = response[index] ? response[index] : "?";
+        return (
+            <React.Fragment>
+                <Popup
+                    content={
+                        <Button.Group toggle={true} >
+                            <Button
+                                onClick={ (event, data) =>
+                                    handleFunctionChange(index,"T", true) }
+                            >T</Button>
+                            <Button
+                                onClick={ () =>
+                                    handleFunctionChange(index,"S", true) }
+                            >S</Button>
+                            <Button
+                                onClick={ () =>
+                                    handleFunctionChange(index,"D", true) }
+                            >D</Button>
+                            <Button
+                                onClick={ () =>
+                                    handleFunctionChange(index,"M", true) }
+                            >M</Button>
+                        </Button.Group>
+                    }
+                    on='click'
+                    trigger={<Button content={response[index]}
+                                     className={  answered ?  (answer[index]===response[index] ? "green" : "red")  : ""  }
+                    />}
+                />
+
             </React.Fragment>
         );
     }
@@ -302,7 +347,6 @@ const AskFunctions = () => {
 
         for (let measure of selectedDictation.functions ) {
             for (let f of measure ) {
-                console.log("Creating element : ", index, f );
                 elements.push(<FunctionBox index={index}/>);
                 index++;
             }
@@ -312,6 +356,26 @@ const AskFunctions = () => {
         return exerciseHasBegun &&  selectedDictation.title && (
             <div className={"marginLeft"}>
                 <span className={"marginLeft marginRight"}>{capitalizeFirst(t("enterFunctions"))}: </span>
+                { elements }
+            </div>
+        );
+    }
+
+    const createResponseBlock2 = () => {
+        let index = 0;
+        let elements = [];
+
+        for (let measure of selectedDictation.functions ) {
+            for (let f of measure ) {
+                elements.push(<FunctionBox2 index={index}/>);
+                index++;
+            }
+            elements.push(" | ");
+        }
+
+        return exerciseHasBegun &&  selectedDictation.title && (
+            <div className={"marginLeft"}>
+                <span className={"marginLeft marginRight"}>{capitalizeFirst(t("enterFunctions"))} nuppudena: </span>
                 { elements }
             </div>
         );
@@ -354,6 +418,7 @@ const AskFunctions = () => {
                 <ScoreRow/>
                 {createSelectionMenu()}
                 {createResponseBlock()}
+                {createResponseBlock2()}
                 {createCorrectAnswerBlock()}
                 {createVolumeRow()}
                 {createControlButtons()}
