@@ -324,14 +324,25 @@ const AskInterval = () => {
         const repeatIntervalButton = <Button key={"repeat"} color={"green"} onClick={() => play(intervalData.notes[0].midiNote, intervalData.notes[1].midiNote)} className={"fullWidth marginTopSmall"}>{t("repeat")}</Button>;
         const playTonicButton = <Button key={"playTonic"} color={"teal"} className={"fullWidth marginTopSmall"} onClick = {()=> playTonicTriad(selectedTonicNote.midiNote, isMajor, 1)}>{capitalizeFirst( t("tonic") )}</Button>
         if (exerciseHasBegun) {
-            buttons.push(repeatIntervalButton, playNextIntervalButton, changeKeyButton, playTonicButton);
+            return (
+                <>
+                    <Grid.Row className={"exerciseRow"} columns={2}>
+                        <Grid.Column>{playNextIntervalButton}</Grid.Column>
+                        <Grid.Column>{repeatIntervalButton}</Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row className={"exerciseRow"} columns={2}>
+                        <Grid.Column>{playTonicButton}</Grid.Column>
+                        <Grid.Column>{changeKeyButton}</Grid.Column>
+                    </Grid.Row>
+                </>
+            )
         } else {
-            buttons.push(startExerciseButton);
+            return (<Grid.Row><Grid.Column> {startExerciseButton}</Grid.Column></Grid.Row>);
         }
 
-        buttons.push(<GoBackToMainMenuBtn key={"goBack"}/>);
+        //buttons.push(<GoBackToMainMenuBtn key={"goBack"}/>);
 
-        return buttons;
+        //return buttons;
     };
 
     const createDegreeInputBlock = () => {
@@ -447,9 +458,10 @@ const AskInterval = () => {
                 </Grid.Row>
                 {createDegreeInputBlock()}
                 {createInervalButtons()}
-                <Grid.Row className={"exerciseRow"}>
+                {createButtons()}
+                <Grid.Row>
                     <Grid.Column>
-                        {createButtons()}
+                        <GoBackToMainMenuBtn/>
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
