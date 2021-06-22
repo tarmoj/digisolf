@@ -162,6 +162,134 @@ export const bassClefNotes = [   // line - line number in staff: 0 upper, 4 - lo
 	
 export const trebleClefNotes = violinClefNotes; // convenience overload;
 
+// actually violinCkefNotes and bassClefNotes are not needed any more, since the notation (field "line") is never used
+// drop them after tests
+// actually this is stupid, if notation is not involved, it should be calculated by notes defined in one octave
+// seee Vex.Flow.Music (or something=
+export const  noteDefinitions = [
+	{vtNote:"C@/2",  midiNote: 35, degree: 0},
+	{vtNote:"C/2",  midiNote: 36, degree: 0},
+	{vtNote:"C#/2", midiNote: 37, degree: 0},
+
+	{vtNote:"D@/2", midiNote: 37, degree: 1},
+	{vtNote:"D/2",  midiNote: 38, degree: 1},
+	{vtNote:"D#/2", midiNote: 39, degree: 1},
+
+	{vtNote:"E@/2", midiNote: 39, degree: 2},
+	{vtNote:"E/2",  midiNote: 40, degree: 2},
+	{vtNote:"E#/2", midiNote: 41, degree: 2},
+
+	{vtNote:"F@/2", midiNote:40, degree: 3},
+	{vtNote:"F/2",  midiNote:41, degree: 3},
+	{vtNote:"F#/2", midiNote:42, degree: 3},
+
+	{vtNote:"G@/2", midiNote: 42, degree: 4},
+	{vtNote:"G/2",  midiNote: 43, degree: 4},
+	{vtNote:"G#/2", midiNote: 44, degree: 4},
+
+	{vtNote:"A@/2", midiNote: 44, degree: 5},
+	{vtNote:"A/2",  midiNote: 45, degree: 5},
+	{vtNote:"A#/2", midiNote: 46, degree: 5},
+
+	{vtNote:"B@/2", midiNote: 46, degree: 6},
+	{vtNote:"B/2",  midiNote: 47, degree: 6},
+	{vtNote:"B#/2", midiNote: 48, degree: 6},
+
+
+	{vtNote:"C@/3", midiNote: 47, degree: 0},
+	{vtNote:"C/3",  midiNote: 48, degree: 0},
+	{vtNote:"C#/3", midiNote: 49, degree: 0},
+
+	{vtNote:"D@/3", midiNote: 49, degree: 1},
+	{vtNote:"D/3",  midiNote: 50, degree: 1},
+	{vtNote:"D#/3", midiNote: 51, degree: 1},
+
+	{vtNote:"E@/3", midiNote: 51, degree: 2},
+	{vtNote:"E/3",  midiNote: 52, degree: 2},
+	{vtNote:"E#/3", midiNote: 53, degree: 2},
+
+	{vtNote:"F@/3", midiNote: 52, degree: 3},
+	{vtNote:"F/3",  midiNote: 53, degree: 3},
+	{vtNote:"F#/3", midiNote: 54, degree: 3},
+
+	{vtNote:"G@/3",  midiNote: 54, degree: 4},
+	{vtNote:"G/3",  midiNote: 55, degree: 4},
+	{vtNote:"G#/3", midiNote: 56, degree: 4},
+
+	{vtNote:"A@/3", midiNote: 56, degree: 5},
+	{vtNote:"A/3", midiNote: 57, degree: 5},
+	{vtNote:"A#/3",  midiNote: 58, degree: 5},
+
+	{vtNote:"B@/3",  midiNote: 58, degree: 6},
+	{vtNote:"B/3",  midiNote: 59, degree: 6},
+	{vtNote:"B#/3", midiNote: 60, degree: 6},
+
+	{vtNote:"C@/4", midiNote: 59, degree: 0 }, // degrees (astmed) -  scale degrees (Ces/C/Cis - 0,  Des/D/Dis - 1 etc)
+	{vtNote:"C/4",  midiNote: 60, degree: 0},
+	{vtNote:"C#/4", midiNote: 61, degree: 0},
+
+	{vtNote:"D@/4",  midiNote: 61, degree: 1},
+	{vtNote:"D/4",  midiNote: 62, degree: 1},
+	{vtNote:"D#/4",  midiNote: 63, degree: 1},
+
+	{vtNote:"E@/4",  midiNote: 63, degree: 2},
+	{vtNote:"E/4",  midiNote: 64, degree: 2},
+	{vtNote:"E#/4",  midiNote: 65, degree: 2},
+
+	{vtNote:"F@/4",  midiNote:64, degree: 3},
+	{vtNote:"F/4",  midiNote:65, degree: 3},
+	{vtNote:"F#/4",  midiNote:66, degree: 3 },
+
+	{vtNote:"G@/4",  midiNote: 66, degree: 4},
+	{vtNote:"G/4",  midiNote: 67, degree: 4},
+	{vtNote:"G#/4",  midiNote: 68, degree: 4},
+
+	{vtNote:"A@/4",  midiNote: 68, degree: 5},
+	{vtNote:"A/4",  midiNote: 69, degree: 5},
+	{vtNote:"A#/4",  midiNote: 70, degree: 5},
+
+	{vtNote:"B@@/4",  midiNote: 69, degree: 6}, // test duubelbemolliks
+	{vtNote:"B@/4",  midiNote: 70, degree: 6},
+	{vtNote:"B/4",  midiNote: 71, degree: 6},
+	{vtNote:"B#/4",  midiNote: 72, degree: 6},
+
+
+	{vtNote:"C@/5",  midiNote: 71, degree: 0},
+	{vtNote:"C/5",  midiNote: 72, degree: 0},
+	{vtNote:"C#/5",  midiNote: 73, degree: 0},
+
+	{vtNote:"D@/5",  midiNote: 73, degree: 1},
+	{vtNote:"D/5",  midiNote: 74, degree: 1},
+	{vtNote:"D#/5",  midiNote: 75, degree: 1},
+
+	{vtNote:"E@/5",  midiNote: 75, degree: 2},
+	{vtNote:"E/5",  midiNote: 76, degree: 2},
+	{vtNote:"E#/5",  midiNote: 77, degree: 2},
+
+	{vtNote:"F@/5",  midiNote: 76, degree: 3},
+	{vtNote:"F/5",  midiNote: 77, degree: 3},
+	{vtNote:"F#/5",  midiNote: 78, degree: 3},
+
+	{vtNote:"G@/5",  midiNote: 78, degree: 4},
+	{vtNote:"G/5",  midiNote: 79, degree: 4},
+	{vtNote:"G#/5",  midiNote: 80, degree: 4},
+
+	{vtNote:"A@/5",  midiNote: 80, degree: 5},
+	{vtNote:"A/5",  midiNote: 81, degree: 5},
+	{vtNote:"A#/5",  midiNote: 82, degree: 5},
+
+	{vtNote:"B@/5",  midiNote: 82, degree: 6},
+	{vtNote:"B/5",  midiNote: 83, degree: 6},
+	{vtNote:"B#/5",  midiNote: 84, degree: 6},
+
+	{vtNote:"C@/6",  midiNote: 83, degree: 0},
+	{vtNote:"C/6",  midiNote: 84, degree: 0},
+	{vtNote:"C#/6", midiNote: 85, degree: 0}
+
+
+
+];
+
 export const getVtNoteByMidiNoteInKey = (midiNote, key="C") => { // key as tonality like C major, given as 'A' for A major, 'Am' for minor
 	const pitchClass = midiNote%12;
 	const octave = Math.floor(midiNote/12) - 1;
@@ -191,13 +319,13 @@ export const getVtNoteByMidiNoteInKey = (midiNote, key="C") => { // key as tonal
 
 }
 
-export const getNoteByName = (name, noteArray=trebleClefNotes) =>  noteArray.find(note => note.name === name);
+export const getNoteByName = (name, noteArray=noteDefinitions) =>  noteArray.find(note => note.name === name);
 
-export const getNotesByMidiNote = (midiNote, noteArray=trebleClefNotes) => { // return an array of note objects, i.e cis and des for 61
+export const getNotesByMidiNote = (midiNote, noteArray=noteDefinitions) => { // return an array of note objects, i.e cis and des for 61
 	return noteArray.find(note => note.midiNote === midiNote);
 };
 
-export const getNoteByVtNote = (vtNote, noteArray=trebleClefNotes) => {
+export const getNoteByVtNote = (vtNote, noteArray=noteDefinitions) => {
 	return noteArray.find(note => note.vtNote === vtNote);
 };
 

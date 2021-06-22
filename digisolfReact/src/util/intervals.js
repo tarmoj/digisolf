@@ -88,6 +88,15 @@ export const makeScale = (tonicVtNote, scale) => { // returns array of vtNotes
 
 export const getInterval = (note1, note2) => {
     const semitones = note2.midiNote - note1.midiNote;
+    // find out difference in degrees, take octave into account:
+    const oct1 = parseInt(note1.vtNote.split("/")[1]); // 4 for first octava etc
+    const degree1 = note1.degree + oct1*7 ;
+    const oct2 = parseInt(note2.vtNote.split("/")[1]); // 4 for first octava etc
+    const degree2 = note2.degree + oct2*7 ;
+
+    const degrees = Math.abs(degree2-degree1);
+
+    //console.log("getInterval semitones, degrees: ", semitones, degrees);
 
     let direction;
     if (semitones > 0) {
@@ -98,8 +107,9 @@ export const getInterval = (note1, note2) => {
         direction = "down";
     }
 
-    let interval = getIntervalBySemitones(Math.abs(semitones));
-    return {note1: note1, note2: note2, interval: interval, direction: direction};
+    const interval = intervalDefinitions.find(interval => (interval.semitones === Math.abs(semitones)  && interval.degrees === degrees));
+    //let interval = getIntervalBySemitones(Math.abs(semitones)); // TODO: this is wrong, should take account also degrees
+    return {interval: interval, direction: direction}; // ? Why should it return the notes that are parameters???
 };
 
 export const getIntervalBySemitones = (semitones) => {	// Return first interval found
@@ -108,7 +118,7 @@ export const getIntervalBySemitones = (semitones) => {	// Return first interval 
 
 export const getIntervalByShortName = (shortName) => intervalDefinitions.find(interval => interval.shortName === shortName);
 
-export const makeInterval = (baseNote, shortName, direction="up", possibleNotes= notes.trebleClefNotes) => { // possibleNotes -  array of note objects
+export const makeInterval = (baseNote, shortName, direction="up", possibleNotes= notes.noteDefinitions) => { // possibleNotes -  array of note objects
     // return found note as object or undefined otherwise
 
     const interval = getIntervalByShortName(shortName);
@@ -143,7 +153,7 @@ export const makeInterval = (baseNote, shortName, direction="up", possibleNotes=
 
 //makeChord -  build given chord from given note up/down
 // return array of notes (objects)
-export const makeChord = (baseNote, shortName, direction="up", possibleNotes = notes.trebleClefNotes) => {
+export const makeChord = (baseNote, shortName, direction="up", possibleNotes = notes.noteDefinitions) => {
     const chord = chordDefinitions.find(chord => chord.shortName === shortName);
     const intervals = (direction === "up") ? chord.intervalsUp : chord.intervalsDown; // these are shortnames of itnervals
     console.log("chord is: ", chord.shortName, intervals);

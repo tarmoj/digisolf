@@ -4,7 +4,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {setComponent} from "../actions/component";
 import MainMenu from "./MainMenu";
-import {getNoteByVtNote, violinClefNotes} from "../util/notes";
+import {getNoteByVtNote} from "../util/notes";
 import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst, isDigit} from "../util/util";
 import {getInterval, makeInterval, makeScale, scaleDefinitions, simplifyIfAugmentedIntervals} from "../util/intervals";
 import MIDISounds from 'midi-sounds-react';
@@ -43,6 +43,9 @@ const AskInterval = () => {
     const [answered, setAnswered] = useState(false);
     const [intervalData, setIntervalData] = useState({degrees:[], notes:[], interval: null}); // {degrees: []}
     const [degreesEnteredByUser, setDegreesEnteredByUser] = useState("");
+    const [voiceFeedback, setVoiceFeedback] = useState(false); // for visibly impaired support
+
+
     // TODO: for blind support -  result with voice in setAnswer
     // keyboard shortcuts
     // TODO: support for other languages
@@ -110,11 +113,21 @@ const AskInterval = () => {
     }
 
     const renew = (isMajor, tonicNote) => {
+
+        // test -  something wrong in testInterval -  v6 gives >5 sometimes..
+        const note1 = getNoteByVtNote("B/3");
+        const note2 = getNoteByVtNote("F/4");
+        const interval = getInterval(note1, note2);
+        console.log("getInterval test: ", note1.vtNote, note2.vtNote, interval.interval.shortName);
+
         // if between triad notes:
         //if (exerciseName === "XXX") {}
         setIsMajor(isMajor);
+        setIntervalButtonsClicked([]); // reset clicked buttons
+        setGreenIntervalButton(null);
+
         let possibleDegrees = [];
-        // should it be here or in startExercise? starExercise makes more sense... think about forwarding the data
+
         if (exerciseName==="tonicTriad") {
             possibleDegrees = [1,3,5,8];
         } else if (exerciseName==="tonicAllScaleDegrees") {
@@ -126,7 +139,7 @@ const AskInterval = () => {
         }
 
 
-
+        // TODO: v6 asemel vahel millegipärast <5 ib õige???
         const intervalData = getIntervalFromScale(isMajor ? "major" : "minor", tonicNote.vtNote, possibleDegrees );
         //console.log("renew got: ", intervalData.degrees, intervalData.notes, intervalData.interval.shortName);
         setIntervalData(intervalData);
@@ -191,17 +204,14 @@ const AskInterval = () => {
     };
 */
     const getIntervalFromScale = (scale="major", tonicVtNote="C/4", possibleDegrees=[]  ) => {
-        //const scaleDefinition = scaleDefinitions[scale];
         const scaleNotes = makeScale(tonicVtNote, scale);
-        console.log(" getIntervalFromScale: degrees ", possibleDegrees);
+        //console.log(" getIntervalFromScale: degrees ", possibleDegrees);
         let degree1;
         if (exerciseName==="tonicAllScaleDegrees") {
             degree1 = 1;
         } else {
             degree1 = getRandomElementFromArray(possibleDegrees);
         }
-
-        // TODO: kuidas lubada, et võib minna ka üle oktavi piiri? Või kas on seda vaja?
 
         let degree2= degree1;
         while (degree2==degree1) { // not to be the same
@@ -344,47 +354,71 @@ const AskInterval = () => {
         if (intervalData.degrees) {
              for (let i=0; i<intervalData.degrees.length; i++) {
                  if (parseInt(degrees[i]) !== intervalData.degrees[i]) {
-                     console.log("Vale aste, õige peaks olema: ", degrees[i], intervalData.degrees[i]  );
+                     console.log("Wrong degree, correct should be: ", degrees[i], intervalData.degrees[i]  );
+                     correct = false;
                  } else {
-                     console.log("Aste õige!", degrees[i] );
+                     console.log("Degree is correct!", degrees[i] );
                  }
              }
         } else correct = false;
         return correct;
     }
 
+    //TODO: Luba siiski ainult ühe korra vastata, mitte proovida ja uuesti. // siis vaja öelda ka õige intervall
     const checkResponse = (response) => { // võibolla peaks olema objektina {shortName="", degrees=[]}, mida saab mitme intervalli puhul siis laiendada
+
+        console.log("checkResponse: ", response);
         if (exerciseHasBegun) {
             // const correctInterval = getIntervalTranslation(interval.interval.longName);
-            setIntervalButtonsClicked(intervalButtonsClicked.concat([response]));
+            setIntervalButtonsClicked(intervalButtonsClicked.concat([response.shortName]));
             const intervalShortName = response.shortName;
-            let correct = true;
+            let correct = true, feedBack="";
 
             if (response.hasOwnProperty("shortName")) {
                 correct = correct && checkInterval(response.shortName);
+                if (checkInterval(response.shortName)) {
+                    feedBack += `${capitalizeFirst(t("interval"))} ${t("correct")}. `;
+                    correct = true;
+                } else {
+                    feedBack += capitalizeFirst(t("interval")) + " "  + t("wrong") + ". ";
+                    correct = false;
+                }
             }
 
-            if (response.hasOwnProperty("degrees")) {
-                correct = correct && checkDegrees(response.degrees);
+            if (degreesEnteredByUser) {
+                const degreesCorrect = checkDegrees(response.degrees);
+                correct = correct && degreesCorrect;
+                if (degreesCorrect) {
+                    feedBack += `${capitalizeFirst(t("degrees"))} - ${t("correct")}. `;
+                    correct = correct && true;
+                } else {
+                    feedBack += `${capitalizeFirst(t("degrees"))}: ${intervalData.degrees.join(" ")}`;
+                    correct = false;
+                }
             }
 
 
-            if ( correct /*response === simplifyIfAugmentedIntervals(interval.interval.shortName)*/) {  // uuri seda, see on veidi jama
-                // dispatch(setPositiveMessage(`${t("correctAnswerIs")} ${correctInterval}`, 5000));
-                //getNewInterval(isMajor, selectedTonicNote);
+            if ( correct ) {
+                dispatch(setPositiveMessage(feedBack, 5000));
                 renew(isMajor, selectedTonicNote);
 
                 colorCorrectAnswerGreen(intervalShortName);
                 setIntervalButtonsClicked([]);
                 dispatch(incrementCorrectAnswers());
+
+
                 // maybe it is better to move the sound part to ScoreRow component
-                setSoundFile(correctSound);
-                setPlayStatus(Sound.status.PLAYING);
+                if (voiceFeedback) {
+                    setSoundFile(correctSound);
+                    setPlayStatus(Sound.status.PLAYING);
+                }
             } else {
-                // dispatch(setNegativeMessage(`${t("correctAnswerIs")} ${correctInterval}`, 5000));
+                dispatch(setNegativeMessage(feedBack, 5000));
                 dispatch(incrementIncorrectAnswers());
-                setSoundFile(wrongSound);
-                setPlayStatus(Sound.status.PLAYING);
+                if (voiceFeedback) {
+                    setSoundFile(wrongSound);
+                    setPlayStatus(Sound.status.PLAYING);
+                }
             }
         }
     };
@@ -393,7 +427,7 @@ const AskInterval = () => {
         setGreenIntervalButton(interval);
         setTimeout(() => {  // Set button color grey after some time
             setGreenIntervalButton(null);
-        }, 2000)
+        }, 2000);
     };
 
     const createButtons = () => {
@@ -403,9 +437,9 @@ const AskInterval = () => {
         const changeKeyButton = <Button key={"changeKey"} primary onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("changeKey")}</Button>;
         const playNextIntervalButton = <Button key={"playNext"} color={"olive"} onClick={() => renew(isMajor, selectedTonicNote)} className={"fullWidth marginTopSmall"}>{t("playNext")}</Button>;
         const repeatIntervalButton = <Button key={"repeat"} color={"green"} onClick={() => play(intervalData.notes[0].midiNote, intervalData.notes[1].midiNote)} className={"fullWidth marginTopSmall"}>{t("repeat")}</Button>;
-
+        const playTonicButton = <Button key={"playTonic"} color={"teal"} className={"fullWidth marginTopSmall"} onClick = {()=> playTonicTriad(selectedTonicNote.midiNote, isMajor, 1)}>{capitalizeFirst( t("tonic") )}</Button>
         if (exerciseHasBegun) {
-            buttons.push(repeatIntervalButton, playNextIntervalButton, changeKeyButton);
+            buttons.push(repeatIntervalButton, playNextIntervalButton, changeKeyButton, playTonicButton);
         } else {
             buttons.push(startExerciseButton);
         }
@@ -448,6 +482,22 @@ const AskInterval = () => {
         );
     }
 
+    const createCorrectDegreesBlock = () => {
+        const correctDegrees = intervalData.degrees ? intervalData.degrees.join(" ") : "";
+
+        return exerciseHasBegun && (
+            <Grid.Row>
+                <Grid.Column className={"fullWidth"}>
+                    { `${capitalizeFirst( t("correctDegrees"))}  ${t("are")}: ` }
+                    <Input
+                        className={"marginLeft"}
+                        value={correctDegrees}
+                    />
+                </Grid.Column>
+            </Grid.Row>
+        );
+    }
+
     const getExerciseType = () => {
         return isHarmonic ? t("harmonic") : t("melodic");
     };
@@ -474,33 +524,9 @@ const AskInterval = () => {
         )
     };
 
-    return (
-        <div>
-            {/*Sound for giving feedback on anwers (for visually impaired support)*/}
-            <Sound
-                url={soundFile}
-                loop={false}
-                playStatus={playStatus}
-                onFinishedPlaying={ () => setSoundFile("") }
-            />
-            <Header size='large'>{`${t("setInterval")} ${t(exerciseName)} - ${getExerciseType()}`}</Header>
-            <Grid>
-                <ScoreRow showRadioButtons={true}/>
-                <Grid.Row>
-                    <Grid.Column></Grid.Column>
-                    <Grid.Column className={"marginRight"}  floated='right' > {/*Võiks olla joondatud nuppude parema servaga */}
-                        <Popup on='click' position='bottom right' trigger={<Button content='?'/>}>
-                            <h3>Klahvikombinatsioonid</h3>
-                            <p>Intervallid: v+2, s+2, jne (täht enne, siis number, hoida samaaegselt). </p>
-                            <p>NB! Tritoon (vähendatud kvint) - d+5 (diminished)</p>
-                            <p>Mängi järgmine: shift+paremale</p>
-                            <p>Korda: shift+alla</p>
-                            <p>Alusta harjutust/Muuda helistikku: shift+üles</p>
-                            <p>Tagasi peamenüüsse - veel pole</p>
-                        </Popup>
-                    </Grid.Column>
-                </Grid.Row>
-                {createDegreeInputBlock()}
+    const createInervalButtons = () => {
+        return exerciseHasBegun && (
+            <>
                 <Grid.Row className={"exerciseRow"} columns={3}>
                     {/*TODO: support translation*/}
                     {createIntervalButton("v2", "v2")} {/*was: ${capitalizeFirst(t("minor"))} ${t("second")}*/}
@@ -524,6 +550,42 @@ const AskInterval = () => {
                     {createIntervalButton("p8", "p8")}
                     {createIntervalButton("s7", "s7")}
                 </Grid.Row>
+            </>
+        );
+    }
+
+    return (
+        <div>
+            {/*Sound for giving feedback on anwers (for visually impaired support)*/}
+            <Sound
+                url={soundFile}
+                loop={false}
+                playStatus={playStatus}
+                onFinishedPlaying={ () => setSoundFile("") }
+            />
+            <Header size='large'>{`${t("setInterval")} ${t(exerciseName)}`}</Header>
+            <Grid>
+                <ScoreRow showRadioButtons={false}/>
+                <Grid.Row>
+                    <Grid.Column></Grid.Column>
+                    <Grid.Column className={"marginRight"}  floated='right' > {/*Võiks olla joondatud nuppude parema servaga */}
+                        <Popup on='click' position='bottom right' trigger={<Button content='?'/>}>
+                            <h3>Klahvikombinatsioonid</h3>
+                            <p>Intervallid: v+2, s+2, jne (täht enne, siis number, hoida samaaegselt). </p>
+                            <p>NB! Tritoon (vähendatud kvint) - d+5 (diminished)</p>
+                            <p>Mängi järgmine: shift+paremale</p>
+                            <p>Korda: shift+alla</p>
+                            <p>Alusta harjutust/Muuda helistikku: shift+üles</p>
+                            <p>Tagasi peamenüüsse - veel pole</p>
+                        </Popup>
+                    </Grid.Column>
+                </Grid.Row>
+                {createDegreeInputBlock()}
+{/*
+                {createCorrectDegreesBlock()}
+*/}
+
+                {createInervalButtons()}
                 <Grid.Row className={"exerciseRow"}>
                     <Grid.Column>
                         {createButtons()}
