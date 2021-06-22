@@ -161,48 +161,6 @@ const AskInterval = () => {
         playNote(midiNote2, 3*duration, duration*2);
     }
 
-/*
-    const getNewInterval = (isMajor, selectedTonicNote) => {
-        // to test:
-        console.log("getNewInterval -  selectedTonicNote", selectedTonicNote)
-        getIntervalFromScale(isMajor ? "major" : "minor", selectedTonicNote.vtNote, [1,3,5,8] );
-
-        setIsMajor(isMajor);
-        //setSelectedTonicNote(selectedTonicNote);
-
-        let firstNote;
-        let possibleSecondNotes;
-        if (exerciseName === "allScaleDegrees") {
-            firstNote = getRandomNoteInKey(selectedTonicNote);
-            possibleSecondNotes = violinClefNotes.filter(note =>
-                Math.abs(note.midiNote - firstNote.midiNote) < 12 &&    // Interval is less than octave
-                note.midiNote !== firstNote.midiNote)                      // Interval is not unison
-        } else {
-            firstNote = selectedTonicNote;
-            possibleSecondNotes = violinClefNotes;
-        }
-
-        const secondNote = getSecondNote(selectedTonicNote, possibleSecondNotes);
-        const newInterval = getInterval(firstNote, secondNote);
-
-        console.log("Key:", selectedTonicNote.vtNote, isMajor ? "major" : "minor");
-        console.log("Note1", firstNote.vtNote);
-        console.log("Note2", secondNote.vtNote);
-        console.log("Played interval:", newInterval.interval.shortName);
-        setInterval(newInterval);
-
-        setIntervalButtonsClicked([]); // reset clicked buttons
-        setGreenIntervalButton(null);
-        const chordDuration = 1; // duration in second
-        const smallWait = 300; // delay in ms
-        setTimeout(() => {
-            playTonicTriad(selectedTonicNote.midiNote, isMajor, chordDuration); // are they set properly in the sate or they are still old...
-        }, smallWait);
-
-        setTimeout( () => playInterval(newInterval), 4 * smallWait + chordDuration*1000 );
-
-    };
-*/
     const getIntervalFromScale = (scale="major", tonicVtNote="C/4", possibleDegrees=[]  ) => {
         const scaleNotes = makeScale(tonicVtNote, scale);
         //console.log(" getIntervalFromScale: degrees ", possibleDegrees);
@@ -255,84 +213,7 @@ const AskInterval = () => {
     const playNote = (midiNote, start, duration) => { // start peaks olema sekundites
         midiSounds.current.playChordAt (midiSounds.current.contextTime()+start, 3, [midiNote], duration); // millegipärast ei tööta, kui korrata intervalli
     };
-/*
 
-    const getSecondNote = (tonicNote, possibleNotes) => {
-        let newNote;
-        let newNoteDiffersFromPrevious = false;
-
-        while (newNote === undefined || !newNoteDiffersFromPrevious) {
-            const newNoteMidiDifference = getRandomMidiDifference();
-            const newNoteMidiValue = tonicNote.midiNote + newNoteMidiDifference;
-            newNote = possibleNotes.find(note => note.midiNote === newNoteMidiValue);
-
-            if (newNote !== undefined) {
-                newNoteDiffersFromPrevious = true;
-                const previousIntervalExists = Object.keys(interval).length > 0;
-
-                if (previousIntervalExists && newNote.midiNote === interval.note2.midiNote) {
-                    newNoteDiffersFromPrevious = false;
-                }
-            }
-        }
-
-        return newNote;
-    };
-
-    const getRandomMidiDifference = () => {
-        let possibleDifferences;
-        if (exerciseName === "tonicTriad") {
-            possibleDifferences = getPossibleTriadNoteMidiDifferences();
-        } else if (exerciseName === "tonicAllScaleDegrees" || exerciseName === "allScaleDegrees") {
-            possibleDifferences = getPossibleScaleNoteMidiDifferences();
-        }
-
-        return getRandomElementFromArray(possibleDifferences);
-    };
-
-    const getRandomNoteInKey = (tonicNote) => {
-        let note;
-        while (note === undefined) {
-            const possibleSemitoneDifferences = getPossibleScaleNoteMidiDifferences().concat([0]);   // Include tonic note
-            const semiToneDifferenceFromTonicNote = getRandomElementFromArray(possibleSemitoneDifferences);
-            const noteMidiValue = tonicNote.midiNote + semiToneDifferenceFromTonicNote;
-            note = violinClefNotes.find(note => note.midiNote === noteMidiValue);
-        }
-
-        return note;
-    };
-
-    // const getRandomSemitoneDifference = (maxDifference, includeNegative = true) => {
-    //     let differenceInSemitones = Math.floor(Math.random() * maxDifference) + 1;
-    //     if (includeNegative) {
-    //         differenceInSemitones *= Math.floor(Math.random() * 2) === 1 ? 1 : -1;
-    //     }
-    //
-    //     return differenceInSemitones;
-    // };
-
-    const getPossibleTriadNoteMidiDifferences = () => {
-        return isMajor ? [4, 7, -5, -8] : [3, 7, -5, -9];
-    };
-
-    const getPossibleScaleNoteMidiDifferences = () => {
-        return isMajor ? [2, 4, 5, 7, 9, 11, -1, -3, -5, -7, -8, -10] : [2, 3, 5, 7, 8, 11, -1, -4, -5, -7, -9, -10]; // Kõrge 7. aste minoori puhul
-    };
-
-    const getAllNotesWithSameName = (note, noteArray) => {
-        let notes = [];
-
-        for (let i = 0; i < noteArray.length; i++) {
-            if (noteArray[i].vtNote.substring(0, noteArray[i].vtNote.length - 1) === note.vtNote.substring(0, note.vtNote.length - 1)) {
-                notes.push(noteArray[i]);
-            }
-        }
-
-        return notes;
-    };
-*/
-
-    // ilmselt vaja eraldi - checkDegrees, checkIntserval
 
     const checkInterval= (intervalShortName) =>  {
         let correct = true;
@@ -367,7 +248,11 @@ const AskInterval = () => {
     //TODO: Luba siiski ainult ühe korra vastata, mitte proovida ja uuesti. // siis vaja öelda ka õige intervall
     const checkResponse = (response) => { // võibolla peaks olema objektina {shortName="", degrees=[]}, mida saab mitme intervalli puhul siis laiendada
 
-        console.log("checkResponse: ", response);
+        if (answered) {
+            alert(t("alreadyAnswered"));
+            return;
+        }
+
         if (exerciseHasBegun) {
             // const correctInterval = getIntervalTranslation(interval.interval.longName);
             setIntervalButtonsClicked(intervalButtonsClicked.concat([response.shortName]));
@@ -380,7 +265,7 @@ const AskInterval = () => {
                     feedBack += `${capitalizeFirst(t("interval"))} ${t("correct")}. `;
                     correct = true;
                 } else {
-                    feedBack += capitalizeFirst(t("interval")) + " "  + t("wrong") + ". ";
+                    feedBack += `${capitalizeFirst(t("interval"))}: ${intervalData.interval.shortName} `;
                     correct = false;
                 }
             }
@@ -482,26 +367,6 @@ const AskInterval = () => {
         );
     }
 
-    const createCorrectDegreesBlock = () => {
-        const correctDegrees = intervalData.degrees ? intervalData.degrees.join(" ") : "";
-
-        return exerciseHasBegun && (
-            <Grid.Row>
-                <Grid.Column className={"fullWidth"}>
-                    { `${capitalizeFirst( t("correctDegrees"))}  ${t("are")}: ` }
-                    <Input
-                        className={"marginLeft"}
-                        value={correctDegrees}
-                    />
-                </Grid.Column>
-            </Grid.Row>
-        );
-    }
-
-    const getExerciseType = () => {
-        return isHarmonic ? t("harmonic") : t("melodic");
-    };
-
     const getButtonColor = (buttonInterval) => {
         let color = "grey";
         const buttonHasBeenClicked = intervalButtonsClicked.some(interval => interval === buttonInterval);
@@ -581,10 +446,6 @@ const AskInterval = () => {
                     </Grid.Column>
                 </Grid.Row>
                 {createDegreeInputBlock()}
-{/*
-                {createCorrectDegreesBlock()}
-*/}
-
                 {createInervalButtons()}
                 <Grid.Row className={"exerciseRow"}>
                     <Grid.Column>
