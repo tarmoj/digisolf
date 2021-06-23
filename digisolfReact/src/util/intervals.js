@@ -72,7 +72,7 @@ export const makeScale = (tonicVtNote, scale) => { // returns array of vtNotes
 
             if (degreeNote) {
                 vtNotes.push(degreeNote.vtNote);
-                console.log("Tonic, Interval, note: ", tonicVtNote, interval, degreeNote.vtNote );
+                //console.log("Tonic, Interval, note: ", tonicVtNote, interval, degreeNote.vtNote );
             } else {
                 console.log("Could not build iterval from: ", interval, tonicVtNote);
             }

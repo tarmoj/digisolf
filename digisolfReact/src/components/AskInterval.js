@@ -26,7 +26,7 @@ const AskInterval = () => {
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
 
-    const isHarmonic = useSelector(state => state.exerciseReducer.isHarmonic);
+    //const isHarmonic = useSelector(state => state.exerciseReducer.isHarmonic);
     // const exerciseName = useSelector(state => state.exerciseReducer.name);
 
     const midiSounds = useRef(null);
@@ -39,7 +39,7 @@ const AskInterval = () => {
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
     const [soundFile, setSoundFile] = useState("");
-    const [answer, setAnswer] = useState(null); // <- maybe not necessary.. in format: {degrees:[], shortName: interval.shortName}
+    //const [answer, setAnswer] = useState(null); // <- maybe not necessary.. in format: {degrees:[], shortName: interval.shortName}
     const [answered, setAnswered] = useState(false);
     const [intervalData, setIntervalData] = useState({degrees:[], notes:[], interval: null}); // {degrees: []}
     const [degreesEnteredByUser, setDegreesEnteredByUser] = useState("");
@@ -49,20 +49,19 @@ const AskInterval = () => {
     // TODO: for blind support -  result with voice in setAnswer
     // keyboard shortcuts
     // TODO: support for other languages
-    // setAnswer is wrong here, rewrite!!
-    useHotkeys('v+2', () => setAnswer("v2"), [exerciseHasBegun, interval, intervalButtonsClicked]); // letter's case does not matter
-    useHotkeys('s+2', () => setAnswer("s2"), [exerciseHasBegun, interval, intervalButtonsClicked]);
-    useHotkeys('v+3', () => setAnswer("v3"), [exerciseHasBegun, interval, intervalButtonsClicked]);
-    useHotkeys('s+3', () => setAnswer("s3"), [exerciseHasBegun, interval,intervalButtonsClicked]);
-    useHotkeys('p+4', () => setAnswer("p4"), [exerciseHasBegun, interval, intervalButtonsClicked]);
-    //useHotkeys('<+4', () => setAnswer("<4"), [exerciseHasBegun, interval]);
-    useHotkeys('d+5', () => setAnswer(">5"), [exerciseHasBegun, interval, intervalButtonsClicked]); // NB! d+5 (diminshed
-    useHotkeys('p+5', () => setAnswer("p5"), [exerciseHasBegun, interval, intervalButtonsClicked]);
-    useHotkeys('v+6', () => setAnswer("v6"), [exerciseHasBegun, interval, intervalButtonsClicked]);
-    useHotkeys('s+6', () => setAnswer("s6"), [exerciseHasBegun, interval, intervalButtonsClicked]);
-    useHotkeys('v+7', () => setAnswer("v7"), [exerciseHasBegun, interval, intervalButtonsClicked]);
-    useHotkeys('s+7', () => setAnswer("s7"), [exerciseHasBegun, interval, intervalButtonsClicked]);
-    useHotkeys('p+8', () => setAnswer("p8"), [exerciseHasBegun, interval, intervalButtonsClicked]);
+    useHotkeys('v+2', () => checkResponse("v2"), [exerciseHasBegun, intervalData, intervalButtonsClicked]); // letter's case does not matter
+    useHotkeys('s+2', () => checkResponse("s2"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
+    useHotkeys('v+3', () => checkResponse("v3"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
+    useHotkeys('s+3', () => checkResponse("s3"), [exerciseHasBegun, intervalData,intervalButtonsClicked]);
+    useHotkeys('p+4', () => checkResponse("p4"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
+    //useHotkeys('<+4', () => checkResponse("<4"), [exerciseHasBegun, interval]);
+    useHotkeys('d+5', () => checkResponse(">5"), [exerciseHasBegun, intervalData, intervalButtonsClicked]); // NB! d+5 (diminshed
+    useHotkeys('p+5', () => checkResponse("p5"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
+    useHotkeys('v+6', () => checkResponse("v6"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
+    useHotkeys('s+6', () => checkResponse("s6"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
+    useHotkeys('v+7', () => checkResponse("v7"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
+    useHotkeys('s+7', () => checkResponse("s7"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
+    useHotkeys('p+8', () => checkResponse("p8"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
 
     useHotkeys('shift+left', () => {console.log("Back"); /* how to call goBack() from GoBackMnu Button? */}, [exerciseHasBegun, interval]); // call somehow GoBackBtn onClick function
     useHotkeys('shift+right', () => {
@@ -70,17 +69,17 @@ const AskInterval = () => {
         if (exerciseHasBegun) {
             renew(isMajor, selectedTonicNote);
         }
-    }, [, exerciseHasBegun, interval, isMajor, selectedTonicNote]);
+    }, [, exerciseHasBegun, intervalData, isMajor, selectedTonicNote]);
     useHotkeys('shift+up', () => {console.log("Change key/Start exercise"); startExercise() }, [exerciseHasBegun, interval]);
     useHotkeys('shift+down', () => {  // repeat
         if (exerciseHasBegun) {
-            playInterval(interval);
+            play(intervalData.notes[0].midiNote, intervalData.notes[1].midiNote)
         }
         }, [exerciseHasBegun, interval]);
 
-    useHotkeys('shift+ctrl+2', () => console.log("CTRL+2"));
-    // probleem on, et kui siit kutsuda setAnswer, siis exerciseHasBegun on tema jaoks alati false
-    useHotkeys('shift+ctrl+3', () => { console.log("Trying s3"); setAnswer("s3"); }, [exerciseHasBegun]);
+    //useHotkeys('shift+ctrl+2', () => console.log("CTRL+2"));
+    // probleem on, et kui siit kutsuda checkResponse, siis exerciseHasBegun on tema jaoks alati false
+    //useHotkeys('shift+ctrl+3', () => { console.log("Trying s3"); setAnswer("s3"); }, [exerciseHasBegun]);
 
     const possibleTonicVtNotes = ["C/4", "D/4",  "E@/4", "E/4", "F/4",
         "G/4", "A/4", "B@/4", "C/5" ];
@@ -88,41 +87,36 @@ const AskInterval = () => {
     const startExercise = () => {
         setExerciseHasBegun(true);
 
-        const isMajor = getRandomBoolean();
-
-        // ? seprate function for setting the key?
-        const changeKey = selectedTonicNote !== null;
-        let newSelectedTonicNote = getTonicNote();  //getRandomElementFromArray(tonicNotes);	// Select random note from tonic notes
-
-        while (changeKey && newSelectedTonicNote === selectedTonicNote) {
-            newSelectedTonicNote = getTonicNote(); //getRandomElementFromArray(tonicNotes);
-        }
-        setSelectedTonicNote(newSelectedTonicNote); // is it right place to do it?
-
         midiSounds.current.setMasterVolume(0.4); // not too loud TODO: add control slider
-
-        //new:
-        renew(isMajor,newSelectedTonicNote);
+        changeKey(); // calls also renew()
     };
 
 
-    const getTonicNote = () => { // returns note object by random element in possible
-        const tonicNote = getNoteByVtNote(getRandomElementFromArray(possibleTonicVtNotes));
-        console.log("New tonic note is: ", tonicNote.vtNote );
-        return tonicNote;
+
+    const changeKey = () => {
+        let tonicNote = selectedTonicNote; // to select different  from previous
+        const isMajor = getRandomBoolean();
+
+        while (tonicNote === selectedTonicNote) {
+            tonicNote = getNoteByVtNote(getRandomElementFromArray(possibleTonicVtNotes));
+        }
+        console.log("isMajor, new tonic note is: ", isMajor, tonicNote.vtNote );
+
+        setSelectedTonicNote(tonicNote);
+        setIsMajor(isMajor);
+        // also play tonic
+        const triadDuration = 1.5;
+        playTonicTriad(tonicNote.midiNote, isMajor, triadDuration);
+
+        setTimeout( ()=>renew(isMajor, tonicNote), triadDuration*1000 + 300 ) ; // new exercise after the chord
+
     }
 
     const renew = (isMajor, tonicNote) => {
 
-        // test -  something wrong in testInterval -  v6 gives >5 sometimes..
-        const note1 = getNoteByVtNote("B/3");
-        const note2 = getNoteByVtNote("F/4");
-        const interval = getInterval(note1, note2);
-        console.log("getInterval test: ", note1.vtNote, note2.vtNote, interval.interval.shortName);
-
         // if between triad notes:
         //if (exerciseName === "XXX") {}
-        setIsMajor(isMajor);
+
         setIntervalButtonsClicked([]); // reset clicked buttons
         setGreenIntervalButton(null);
 
@@ -139,7 +133,6 @@ const AskInterval = () => {
         }
 
 
-        // TODO: v6 asemel vahel millegipärast <5 ib õige???
         const intervalData = getIntervalFromScale(isMajor ? "major" : "minor", tonicNote.vtNote, possibleDegrees );
         //console.log("renew got: ", intervalData.degrees, intervalData.notes, intervalData.interval.shortName);
         setIntervalData(intervalData);
@@ -147,17 +140,16 @@ const AskInterval = () => {
         setDegreesEnteredByUser("");
         play(intervalData.notes[0].midiNote, intervalData.notes[1].midiNote);
 
-
     }
 
     const play = (midiNote1, midiNote2) => {
         // melodic
         const duration = 1; //TODO: change
         console.log("Midinotes: ", midiNote1, midiNote2);
-        playNote(midiNote1, 0, duration);
+        playNote(midiNote1, 0, duration); // melodic - one after another
         playNote(midiNote2, duration, duration);
 
-        playNote(midiNote1, 3*duration, duration*2);
+        playNote(midiNote1, 3*duration, duration*2); // harmonic - together
         playNote(midiNote2, 3*duration, duration*2);
     }
 
@@ -196,8 +188,6 @@ const AskInterval = () => {
     }
 
     const playInterval = (interval, isHarmonic=false) => {
-
-        //setTimeout(() => {
             if (isHarmonic) {
                 playNote(interval.note1.midiNote, 0, 2);
                 playNote(interval.note2.midiNote, 0, 2);
@@ -205,7 +195,6 @@ const AskInterval = () => {
                 playNote(interval.note1.midiNote, 0, 1);
                 playNote(interval.note2.midiNote, 1, 1); // start sekundites
             }
-        //}, 300);    // Short user-friendly delay before start
     };
 
 
@@ -246,7 +235,7 @@ const AskInterval = () => {
     }
 
     //TODO: Luba siiski ainult ühe korra vastata, mitte proovida ja uuesti. // siis vaja öelda ka õige intervall
-    const checkResponse = (response) => { // võibolla peaks olema objektina {shortName="", degrees=[]}, mida saab mitme intervalli puhul siis laiendada
+    const checkResponse = (shortName) => { // võibolla peaks olema objektina {shortName="", degrees=[]}, mida saab mitme intervalli puhul siis laiendada
 
         if (answered) {
             alert(t("alreadyAnswered"));
@@ -255,13 +244,14 @@ const AskInterval = () => {
 
         if (exerciseHasBegun) {
             // const correctInterval = getIntervalTranslation(interval.interval.longName);
-            setIntervalButtonsClicked(intervalButtonsClicked.concat([response.shortName]));
-            const intervalShortName = response.shortName;
+            setIntervalButtonsClicked(intervalButtonsClicked.concat([shortName]));
+            const intervalShortName = shortName;
             let correct = true, feedBack="";
 
-            if (response.hasOwnProperty("shortName")) {
-                correct = correct && checkInterval(response.shortName);
-                if (checkInterval(response.shortName)) {
+            if (shortName) {
+                const intervalCorrect = checkInterval(shortName);
+                correct = correct && intervalCorrect;
+                if (intervalCorrect) {
                     feedBack += `${capitalizeFirst(t("interval"))} ${t("correct")}. `;
                     correct = true;
                 } else {
@@ -271,7 +261,7 @@ const AskInterval = () => {
             }
 
             if (degreesEnteredByUser) {
-                const degreesCorrect = checkDegrees(response.degrees);
+                const degreesCorrect = checkDegrees();
                 correct = correct && degreesCorrect;
                 if (degreesCorrect) {
                     feedBack += `${capitalizeFirst(t("degrees"))} - ${t("correct")}. `;
@@ -319,7 +309,7 @@ const AskInterval = () => {
         let buttons = [];
 
         const startExerciseButton = <Button key={"startExercise"} color={"green"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>;
-        const changeKeyButton = <Button key={"changeKey"} primary onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("changeKey")}</Button>;
+        const changeKeyButton = <Button key={"changeKey"} primary onClick={changeKey} className={"fullWidth marginTopSmall"}>{t("changeKey")}</Button>;
         const playNextIntervalButton = <Button key={"playNext"} color={"olive"} onClick={() => renew(isMajor, selectedTonicNote)} className={"fullWidth marginTopSmall"}>{t("playNext")}</Button>;
         const repeatIntervalButton = <Button key={"repeat"} color={"green"} onClick={() => play(intervalData.notes[0].midiNote, intervalData.notes[1].midiNote)} className={"fullWidth marginTopSmall"}>{t("repeat")}</Button>;
         const playTonicButton = <Button key={"playTonic"} color={"teal"} className={"fullWidth marginTopSmall"} onClick = {()=> playTonicTriad(selectedTonicNote.midiNote, isMajor, 1)}>{capitalizeFirst( t("tonic") )}</Button>
@@ -395,7 +385,7 @@ const AskInterval = () => {
     const createIntervalButton = (interval, displayedName) => {
         return (
             <Grid.Column>
-                <Button color={getButtonColor(interval)} onClick={() => checkResponse({shortName: interval})} className={"exerciseBtn"}>{displayedName}</Button>
+                <Button color={getButtonColor(interval)} onClick={() => checkResponse(interval)} className={"exerciseBtn"}>{displayedName}</Button>
             </Grid.Column>
         )
     };
