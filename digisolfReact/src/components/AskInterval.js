@@ -7,6 +7,7 @@ import MainMenu from "./MainMenu";
 import {getNoteByVtNote} from "../util/notes";
 import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst, isDigit, getRandomInt} from "../util/util";
 import {
+    chordDefinitions,
     getInterval, getIntervalBySemitones,
     getIntervalByShortName,
     makeInterval,
@@ -27,7 +28,7 @@ import wrongSound from "../sounds/varia/wrong.mp3"
 import * as notes from "../util/notes";
 
 const AskInterval = () => {
-    const { exerciseName } = useParams();
+    const { exerciseName, intervals } = useParams();
 
 
     const { t, i18n } = useTranslation();
@@ -95,17 +96,22 @@ const AskInterval = () => {
         setExerciseHasBegun(true);
         midiSounds.current.setMasterVolume(0.4); // not too loud TODO: add control slider
 
-
-        // if interval from note, set possible intervals:
-        if (exerciseName === "randomInterval") { // later: allow setting from URL
-            const possibleIntervalShortNames = ["v2", "s2", "v3", "s3", "p4", "p5", "v6", "s6", "v7", "s7"]; // etc
+        if (exerciseName === "randomInterval") { //        // if interval from note, set possible intervals:
+            let possibleIntervalShortNames = [];
+            console.log("intervals from parameters: ", intervals);
+            if (intervals.includes(".")) { // allow giving the interval names (via shortName) as name via URL like /M.m.M6.m6
+                console.log("Extract possible intervals from name: ");
+                // filter out elements that now interval can be found with
+                possibleIntervalShortNames = intervals.toString().split(".").filter( shortName => getIntervalByShortName(shortName) );
+                console.log(possibleIntervalShortNames);
+            } else {
+                possibleIntervalShortNames = ["v2", "s2", "v3", "s3", "p4", ">5", "p5", "v6", "s6", "v7", "s7", "p8"];
+            }
             setPossibleIntervalShortNames(possibleIntervalShortNames);
             //TODO: later display selection with checkboxes - see AskChord
-            //renew();
-            // we need more general renew() that allows interval in key and also form note / random
             renewRandom(possibleIntervalShortNames);
 
-        } else {
+        } else { // intervals in key
             changeKey(); // calls also renewInKey()
         }
 
@@ -231,7 +237,6 @@ const AskInterval = () => {
 
         let interval = intervalData.interval;
         while (interval === intervalData.interval) {
-            console.log("while loop")
             interval = getIntervalByShortName(getRandomElementFromArray(possibleShortNames));
             if (!interval) {
                 console.log("Failed finding interval");
