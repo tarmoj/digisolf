@@ -5,8 +5,15 @@ import {useTranslation} from "react-i18next";
 import {setComponent} from "../actions/component";
 import MainMenu from "./MainMenu";
 import {getNoteByVtNote} from "../util/notes";
-import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst, isDigit} from "../util/util";
-import {getInterval, makeInterval, makeScale, scaleDefinitions, simplifyIfAugmentedIntervals} from "../util/intervals";
+import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst, isDigit, getRandomInt} from "../util/util";
+import {
+    getInterval, getIntervalBySemitones,
+    getIntervalByShortName,
+    makeInterval,
+    makeScale,
+    scaleDefinitions,
+    simplifyIfAugmentedIntervals
+} from "../util/intervals";
 import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
@@ -44,7 +51,7 @@ const AskInterval = () => {
     const [intervalData, setIntervalData] = useState({degrees:[], notes:[], interval: null}); // {degrees: []}
     const [degreesEnteredByUser, setDegreesEnteredByUser] = useState("");
     const [voiceFeedback, setVoiceFeedback] = useState(false); // for visibly impaired support
-
+    const [possibleIntervalShortNames, setPossibleIntervalShortNames] = useState([]);
 
     // TODO: for blind support -  result with voice in setAnswer
     // keyboard shortcuts
@@ -67,7 +74,7 @@ const AskInterval = () => {
     useHotkeys('shift+right', () => {
         console.log("Next", exerciseHasBegun);
         if (exerciseHasBegun) {
-            renew(isMajor, selectedTonicNote);
+            renew();
         }
     }, [, exerciseHasBegun, intervalData, isMajor, selectedTonicNote]);
     useHotkeys('shift+up', () => {console.log("Change key/Start exercise"); startExercise() }, [exerciseHasBegun, interval]);
@@ -86,9 +93,24 @@ const AskInterval = () => {
 
     const startExercise = () => {
         setExerciseHasBegun(true);
-
         midiSounds.current.setMasterVolume(0.4); // not too loud TODO: add control slider
-        changeKey(); // calls also renew()
+
+
+        // if interval from note, set possible intervals:
+        if (exerciseName === "randomInterval") { // later: allow setting from URL
+            const possibleIntervalShortNames = ["v2", "s2", "v3", "s3", "p4", "p5", "v6", "s6", "v7", "s7"]; // etc
+            setPossibleIntervalShortNames(possibleIntervalShortNames);
+            //TODO: later display selection with checkboxes - see AskChord
+            //renew();
+            // we need more general renew() that allows interval in key and also form note / random
+            renewRandom(possibleIntervalShortNames);
+
+        } else {
+            changeKey(); // calls also renewInKey()
+        }
+
+
+
     };
 
 
@@ -108,17 +130,34 @@ const AskInterval = () => {
         const triadDuration = 1.5;
         playTonicTriad(tonicNote.midiNote, isMajor, triadDuration);
 
-        setTimeout( ()=>renew(isMajor, tonicNote), triadDuration*1000 + 300 ) ; // new exercise after the chord
+        setTimeout( ()=>renewInKey(isMajor, tonicNote), triadDuration*1000 + 300 ) ; // new exercise after the chord
 
     }
 
-    const renew = (isMajor, tonicNote) => {
+    const renew = () => {
+        setIntervalButtonsClicked([]); // reset clicked buttons
+        setGreenIntervalButton(null);
+        setAnswered(false);
+        midiSounds.current.cancelQueue();
+
+        if (exerciseName.includes("random")) {
+            renewRandom(possibleIntervalShortNames);
+        } else {
+            renewInKey(isMajor, selectedTonicNote);
+;        }
+
+
+
+
+    }
+    const renewInKey = (isMajor, tonicNote) => {
 
         // if between triad notes:
         //if (exerciseName === "XXX") {}
 
-        setIntervalButtonsClicked([]); // reset clicked buttons
-        setGreenIntervalButton(null);
+        // setIntervalButtonsClicked([]); // reset clicked buttons
+        // setGreenIntervalButton(null);
+        // setAnswered(false);
 
         let possibleDegrees = [];
 
@@ -136,8 +175,14 @@ const AskInterval = () => {
         const intervalData = getIntervalFromScale(isMajor ? "major" : "minor", tonicNote.vtNote, possibleDegrees );
         //console.log("renew got: ", intervalData.degrees, intervalData.notes, intervalData.interval.shortName);
         setIntervalData(intervalData);
-        setAnswered(false);
         setDegreesEnteredByUser("");
+        play(intervalData.notes[0].midiNote, intervalData.notes[1].midiNote);
+
+    }
+
+    const renewRandom = (possibleShortNames) => {
+        const intervalData = getRandomInterval(possibleShortNames);
+        setIntervalData(intervalData);
         play(intervalData.notes[0].midiNote, intervalData.notes[1].midiNote);
 
     }
@@ -169,10 +214,47 @@ const AskInterval = () => {
         }
         const note1 = getNoteByVtNote(scaleNotes[degree1-1]); // index in the array is degree-1
         const note2 = getNoteByVtNote(scaleNotes[degree2-1]);
+
+        // avoid getting same result twice:
+        // probably does not work, since correct value is not returned to the first caller...
+        // should be while loop...
+        // if (note1 === intervalData.notes[0] && note2 === intervalData.notes[1] ) {
+        //     getIntervalFromScale(scale="major", tonicVtNote="C/4", possibleDegrees=[] )
+        // }
+
         const intervalData = getInterval(note1, note2);
         console.log("getIntervalFromScale: Degrees, interval: ", degree1, degree2, note1.vtNote, note2.vtNote, intervalData.interval.shortName);
         return { degrees:[degree1, degree2], notes: [note1, note2], interval: intervalData.interval }
     };
+
+    const getRandomInterval = (possibleShortNames) => {
+
+        let interval = intervalData.interval;
+        while (interval === intervalData.interval) {
+            console.log("while loop")
+            interval = getIntervalByShortName(getRandomElementFromArray(possibleShortNames));
+            if (!interval) {
+                console.log("Failed finding interval");
+                return;
+            }
+        }
+
+        // TODO: võta juhuslik suund
+        const up = getRandomBoolean(); // direction
+        let midiNote1, midiNote2;
+        midiNote1 = up ? getRandomInt(60, 80-interval.semitones)  : getRandomInt(60+interval.semitones, 80);
+        midiNote2 = up ? midiNote1 + interval.semitones : midiNote1 - interval.semitones;
+
+        console.log("getRandomInterval interval, midinote1, midinote2", interval.shortName, midiNote1, midiNote2);
+        const data = {interval: interval, notes: [{midiNote:midiNote1}, {midiNote:midiNote2} ]}; // no notenames needed here so far
+        //play(midiNote1,midiNote2);
+
+        // kui üles, siis midiNote1 = random(60+interval.semiTones, c3.midiNote-interval.semitones)
+        // midiNote2 = midiNote +/ interval.semiTones
+
+        return data;
+
+    }
 
 
 
@@ -187,15 +269,15 @@ const AskInterval = () => {
         console.log("Tonic notes: ", rootMidiNote, third, fifth);
     }
 
-    const playInterval = (interval, isHarmonic=false) => {
-            if (isHarmonic) {
-                playNote(interval.note1.midiNote, 0, 2);
-                playNote(interval.note2.midiNote, 0, 2);
-            } else {
-                playNote(interval.note1.midiNote, 0, 1);
-                playNote(interval.note2.midiNote, 1, 1); // start sekundites
-            }
-    };
+    // const playInterval = (interval, isHarmonic=false) => {
+    //         if (isHarmonic) {
+    //             playNote(interval.note1.midiNote, 0, 2);
+    //             playNote(interval.note2.midiNote, 0, 2);
+    //         } else {
+    //             playNote(interval.note1.midiNote, 0, 1);
+    //             playNote(interval.note2.midiNote, 1, 1); // start sekundites
+    //         }
+    // };
 
 
 
@@ -241,6 +323,8 @@ const AskInterval = () => {
             alert(t("alreadyAnswered"));
             return;
         }
+
+        setAnswered(true);
 
         if (exerciseHasBegun) {
             // const correctInterval = getIntervalTranslation(interval.interval.longName);
@@ -306,13 +390,12 @@ const AskInterval = () => {
     };
 
     const createButtons = () => {
-        let buttons = [];
-
         const startExerciseButton = <Button key={"startExercise"} color={"green"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>;
         const changeKeyButton = <Button key={"changeKey"} primary onClick={changeKey} className={"fullWidth marginTopSmall"}>{t("changeKey")}</Button>;
-        const playNextIntervalButton = <Button key={"playNext"} color={"olive"} onClick={() => renew(isMajor, selectedTonicNote)} className={"fullWidth marginTopSmall"}>{t("playNext")}</Button>;
+        const playNextIntervalButton = <Button key={"playNext"} color={"olive"} onClick={() => renew()} className={"fullWidth marginTopSmall"}>{t("playNext")}</Button>;
         const repeatIntervalButton = <Button key={"repeat"} color={"green"} onClick={() => play(intervalData.notes[0].midiNote, intervalData.notes[1].midiNote)} className={"fullWidth marginTopSmall"}>{t("repeat")}</Button>;
-        const playTonicButton = <Button key={"playTonic"} color={"teal"} className={"fullWidth marginTopSmall"} onClick = {()=> playTonicTriad(selectedTonicNote.midiNote, isMajor, 1)}>{capitalizeFirst( t("tonic") )}</Button>
+        const playTonicButton = exerciseName.includes("random")  ? null :
+            <Button key={"playTonic"} color={"teal"} className={"fullWidth marginTopSmall"} onClick = {()=> playTonicTriad(selectedTonicNote.midiNote, isMajor, 1)}>{capitalizeFirst( t("tonic") )}</Button>
         if (exerciseHasBegun) {
             return (
                 <>
@@ -336,7 +419,7 @@ const AskInterval = () => {
     };
 
     const createDegreeInputBlock = () => {
-        return exerciseHasBegun && (
+        return exerciseHasBegun && !exerciseName.includes("random") && (
             <Grid.Row>
                 <Grid.Column className={"fullWidth"}>
                     { capitalizeFirst( t("enterDegrees") )}

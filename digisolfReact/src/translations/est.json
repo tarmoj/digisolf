@@ -130,6 +130,7 @@
   "functions":  "funktsioonid",
   "enterFunctions": "sisestage fuktsioonid",
   "correctIntervalIs": "õige intervall on",
-  "degrees": "astmed"
+  "degrees": "astmed",
+  "intervalFromNote": "intervall antud noodist"
 
 }

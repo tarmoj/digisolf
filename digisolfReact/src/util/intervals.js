@@ -2,6 +2,10 @@ import * as notes from "./notes"
 
 //TODO: shortNames to English -  check. perhams m, M, d, a ?
 // + translations
+// english abbreviations see https://hellomusictheory.com/learn/intervals/ (Music Interval Chart)
+// m2, M2, D5, A4, P4, P5 etc
+// vt ka Vex.Flow.Music.intervals
+// küsi Theodore...
 const intervalDefinitions = [
     { shortName: "p1", inversion: "p8", longName: "unison", semitones: 0, degrees: 0 }, // degrees (astmeid) -  difference in scale degrees (Ces/C/Cis - 0,  Des/D/Dis - 1 etc)
     { shortName: "v2", inversion: "s7",longName: "minor second", semitones: 1, degrees: 1 },
@@ -22,6 +26,7 @@ const intervalDefinitions = [
 
 // TODO: into English! check abbreviations and correct terms
 // also shortNames of intervals to English
+// chord names and theory: https://luffykudo.wordpress.com/2020/08/19/how-chords-are-made/
 export const chordDefinitions = [
     { shortName: "M", longName: "majorTriad", intervalsUp: ["s3", "p5"], intervalsDown: ["v3", "p5"],
         midiIntervals: [0, 4, 7] }, // intervals from lower note
@@ -108,7 +113,6 @@ export const getInterval = (note1, note2) => {
     }
 
     const interval = intervalDefinitions.find(interval => (interval.semitones === Math.abs(semitones)  && interval.degrees === degrees));
-    //let interval = getIntervalBySemitones(Math.abs(semitones)); // TODO: this is wrong, should take account also degrees
     return {interval: interval, direction: direction}; // ? Why should it return the notes that are parameters???
 };
 

@@ -56,11 +56,20 @@ Rewrite to Tone.js? -  tee eraldiseisev test
 TODO: 12.06:
 
 Intervallid -
-- esita meloodilisena, seejärel koos
+- esita meloodilisena, seejärel koos OK
 - näita ainult neid nuppe, mis intervallid kasutusel (possibleIntervals)
 - heli esitus pillidega. Proovi Tone.js?
 - mitu järjest -  mõtle harjutuse struktuur
-- vastus numbritena nt (1 3)
+- vastus numbritena nt (1 3) OK
+
+TODO 23.05
+
+Intervallid helistikuta (intervall noodist): luba võimalikke intervalle anda anda parameetritest (nagu akordided p5.p6
+- intervall noodist -  valiklikkukesed nagu akrodidelgi
+Pimedate ja nägijate erinevad sisestusviisid:
+näigjatele astmete jaoks nupud
+Pimedatele nii astmed kui intervall tekstiväljana
+
 
 
 

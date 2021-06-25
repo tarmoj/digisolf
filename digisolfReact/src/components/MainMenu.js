@@ -44,9 +44,7 @@ const MainMenu = () => {
                     <Button className={"mainMenuBtn"} onClick={() => history.push("/digisolf/askinterval/tonicTriad")}>{capitalizeFirst(t("tonicTriad"))}</Button><br/>
                     <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askinterval/tonicAllScaleDegrees")}>{capitalizeFirst(t("tonicAllScaleDegrees"))}</Button><br/>
                     <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askinterval/allScaleDegrees")}>{capitalizeFirst(t("allScaleDegrees"))}</Button><br/>
-                    {/*<Button className={"mainMenuBtn"} onClick={() => startIntervalExercise("tonicTriad")}>{capitalizeFirst(t("tonicTriad"))}</Button><br/>*/}
-                    {/*<Button className={"marginTopSmall mainMenuBtn"} onClick={() => startIntervalExercise("tonicAllScaleDegrees")}>{capitalizeFirst(t("tonicAllScaleDegrees"))}</Button><br/>*/}
-                    {/*<Button className={"marginTopSmall mainMenuBtn"} onClick={() => startIntervalExercise("allScaleDegrees")}>{capitalizeFirst(t("allScaleDegrees"))}</Button><br/>*/}
+                    <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askinterval/randomInterval")}>{capitalizeFirst(t("intervalFromNote"))}</Button><br/>
                 </Grid.Column>
                 <Grid.Column>
                     <div>
