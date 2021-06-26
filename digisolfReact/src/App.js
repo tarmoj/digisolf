@@ -40,7 +40,7 @@ function App() {
             <Router>
                 <Switch>
                     <Route exact path='/digisolf' component={MainMenu}/>
-                    <Route path='/digisolf/askinterval/:exerciseName/:intervals?' component={AskInterval} />}/>
+                    <Route path='/digisolf/askinterval/:exerciseName/:parameters?' component={AskInterval} />}/>
                     <Route path='/digisolf/askchord/:name/' component={AskChord}/>
                     <Route path='/digisolf/askfunctions/:title?' component={AskFunctions}/>
                     <Route path='/digisolf/askdictation/:name/:title?' component={AskDictation}/>
