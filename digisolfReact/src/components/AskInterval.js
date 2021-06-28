@@ -1,11 +1,18 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {Button, Divider, Grid, Header, Icon, Input, Popup, Radio, Transition} from 'semantic-ui-react'
+import {Button, Divider, Grid, Header, Icon, Input, Label, Popup, Radio, Transition} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {setComponent} from "../actions/component";
 import MainMenu from "./MainMenu";
 import {getNoteByVtNote} from "../util/notes";
-import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst, isDigit, getRandomInt} from "../util/util";
+import {
+    getRandomElementFromArray,
+    getRandomBoolean,
+    capitalizeFirst,
+    isDigit,
+    getRandomInt,
+    deepClone
+} from "../util/util";
 import {
     chordDefinitions,
     getInterval, getIntervalBySemitones,
@@ -29,7 +36,7 @@ import * as notes from "../util/notes";
 
 const AskInterval = () => {
     const { exerciseName, parameters } = useParams();
-
+    const intervalCount = isDigit(parameters) ? parseInt(parameters) : 1;
 
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
@@ -54,8 +61,8 @@ const AskInterval = () => {
     const [voiceFeedback, setVoiceFeedback] = useState(false); // for visibly impaired support
     const [possibleIntervalShortNames, setPossibleIntervalShortNames] = useState([]);
     const [currentResponseIndex, setCurrentResponseIndex] = useState(0); // in case there are several intervals
+    const [response, setResponse] = useState( Array(intervalCount)); //.fill({degrees:[], intervalShortName:""}));
 
-    const intervalCount = isDigit(parameters) ? parseInt(parameters) : 1;
 
     // TODO: for blind support -  result with voice in setAnswer
     // keyboard shortcuts
@@ -135,6 +142,7 @@ const AskInterval = () => {
 
         setSelectedTonicNote(tonicNote);
         setIsMajor(isMajor);
+        midiSounds.current.cancelQueue();
         // also play tonic
         const triadDuration = 1.5;
         playTonicTriad(tonicNote.midiNote, isMajor, triadDuration);
@@ -146,7 +154,11 @@ const AskInterval = () => {
     const renew = () => {
         setIntervalButtonsClicked([]); // reset clicked buttons
         setGreenIntervalButton(null);
+
+        // delete response after a while if answered to let the user see the result
+        setTimeout( () => setResponse(Array(intervalCount)) , 2000 );
         setAnswered(false);
+        setCurrentResponseIndex(0);
         midiSounds.current.cancelQueue();
 
         if (exerciseName.includes("random")) {
@@ -320,8 +332,30 @@ const AskInterval = () => {
         midiSounds.current.playChordAt (midiSounds.current.contextTime()+start, 3, [midiNote], duration); // millegipärast ei tööta, kui korrata intervalli
     };
 
+    const setResponseInterval = (shortName) => {
+        const currentResponse = response;
+        console.log("response now: ", response);
+        currentResponse[currentResponseIndex] = {intervalShortName:shortName}
+        // let currentResponse = deepClone(response); // or deepcopy?
+        // const index = currentResponseIndex;
+        // if (currentResponse[index].hasOwnProperty("intervalShortName")) {
+        //     currentResponse[index].intervalShortName = shortName;
+        // } else {
+        //     currentResponse[index] = {intervalShortName:shortName}; // TODO -  aga kui astmed on seatud? see on jama kood.
+        // }
+        //
+        console.log("Setting interval: ", shortName, currentResponseIndex, currentResponse)
+        setResponse(currentResponse);
+    }
 
-    const checkInterval= (intervalShortName, index=0) =>  {
+    const setResponseDegrees = (degrees=[]) => {
+        const currentResponse = response;
+        currentResponse[currentResponseIndex].degrees = degrees;
+        setResponse(currentResponse);
+    }
+
+
+    const checkInterval= (intervalShortName, index=0) =>  { // TODO: rewrite without first parameter as it an be read from response[index
         let correct = true;
         if (intervalData[index].interval) {
             if (intervalData[index].interval.shortName !== intervalShortName) {
@@ -352,7 +386,9 @@ const AskInterval = () => {
     }
 
     //TODO: Luba siiski ainult ühe korra vastata, mitte proovida ja uuesti. // siis vaja öelda ka õige intervall
-    const checkResponse = (shortName) => { // võibolla peaks olema objektina {shortName="", degrees=[]}, mida saab mitme intervalli puhul siis laiendada
+    const checkResponse = () => {
+
+        console.log("response now: ", currentResponseIndex, response);
 
         if (answered) {
             alert(t("alreadyAnswered"));
@@ -360,34 +396,44 @@ const AskInterval = () => {
         }
 
         setAnswered(true);
+        let correct = true, feedBack="";
 
         if (exerciseHasBegun) {
-            // const correctInterval = getIntervalTranslation(interval.interval.longName);
-            setIntervalButtonsClicked(intervalButtonsClicked.concat([shortName]));
-            const intervalShortName = shortName;
-            let correct = true, feedBack="";
 
-            if (shortName) {
-                const intervalCorrect = checkInterval(shortName);
-                correct = correct && intervalCorrect;
-                if (intervalCorrect) {
-                    feedBack += `${capitalizeFirst(t("interval"))} ${t("correct")}. `;
-                    correct = true;
-                } else {
-                    feedBack += `${capitalizeFirst(t("interval"))}: ${intervalData[currentResponseIndex].interval.shortName} `;
-                    correct = false;
+            for (let i=0; i<intervalCount; i++) {
+                const shortName = response[i].intervalShortName;
+                setIntervalButtonsClicked(intervalButtonsClicked.concat([shortName]));
+                console.log("checkResponse ", i, shortName)
+                // TODO: feedback via labels or similar, if several intervals
+
+
+                if (shortName) {
+                    const intervalCorrect = checkInterval(shortName,i);
+                    correct = correct && intervalCorrect;
+                    if (intervalCorrect) {
+                        feedBack += `${capitalizeFirst(t("interval"))} ${t("correct")}. `;
+                        correct = true;
+                    } else {
+                        feedBack += `${capitalizeFirst(t("interval"))}: ${intervalData[currentResponseIndex].interval.shortName} `;
+                        correct = false;
+                    }
                 }
-            }
 
-            if (degreesEnteredByUser) {
-                const degreesCorrect = checkDegrees();
-                correct = correct && degreesCorrect;
-                if (degreesCorrect) {
-                    feedBack += `${capitalizeFirst(t("degrees"))} - ${t("correct")}. `;
-                    correct = correct && true;
-                } else {
-                    feedBack += `${capitalizeFirst(t("degrees"))}: ${intervalData[currentResponseIndex].degrees.join(" ")}`;
-                    correct = false;
+                if (degreesEnteredByUser) {
+                    const degreesCorrect = checkDegrees(i);
+                    correct = correct && degreesCorrect;
+                    if (degreesCorrect) {
+                        feedBack += `${capitalizeFirst(t("degrees"))} - ${t("correct")}. `;
+                        correct = correct && true;
+                    } else {
+                        feedBack += `${capitalizeFirst(t("degrees"))}: ${intervalData[currentResponseIndex].degrees.join(" ")}`;
+                        correct = false;
+                    }
+                }
+                // värvi märkimine peaks ka ilmselt siin toimuma
+                //try:
+                if (correct) {
+                    colorCorrectAnswerGreen(shortName);
                 }
             }
 
@@ -396,7 +442,7 @@ const AskInterval = () => {
                 dispatch(setPositiveMessage(feedBack, 5000));
                 renew(isMajor, selectedTonicNote);
 
-                colorCorrectAnswerGreen(intervalShortName);
+                //colorCorrectAnswerGreen(shortName);
                 setIntervalButtonsClicked([]);
                 dispatch(incrementCorrectAnswers());
 
@@ -424,6 +470,28 @@ const AskInterval = () => {
         }, 2000);
     };
 
+    const createIntervalLabelRow = () => {
+        const labels = [];
+        labels.push(<Grid.Column key={"intervalsColumn"}>{capitalizeFirst(t("intervals"))}: </Grid.Column>)
+        for (let i=0; i<intervalCount; i++ ) {
+            labels.push(
+                <Grid.Column key={i}>
+                    <Label as={'a'}
+                           onClick={() => setCurrentResponseIndex(i)}
+                           color = {currentResponseIndex===i ? "teal" : "grey" }
+
+                    > { response[i] ? (response[i].intervalShortName ? response[i].intervalShortName : "?") : "?" }
+                    </Label>
+
+                </Grid.Column>
+            );
+        }
+        return exerciseHasBegun && (
+
+          <Grid.Row>{labels}</Grid.Row>
+        );
+    }
+
     const createButtons = () => {
         const startExerciseButton = <Button key={"startExercise"} color={"green"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>;
         const changeKeyButton = exerciseName.includes("random")  ? null :
@@ -443,15 +511,16 @@ const AskInterval = () => {
                         <Grid.Column>{playTonicButton}</Grid.Column>
                         <Grid.Column>{changeKeyButton}</Grid.Column>
                     </Grid.Row>
+                    <Grid.Row className={"exerciseRow"} columns={2}>
+                        <Grid.Column><Button onClick={checkResponse} className={"fullWidth marginTopSmall"}>{capitalizeFirst(t("check"))}</Button></Grid.Column>
+                        <Grid.Column></Grid.Column>
+                    </Grid.Row>
                 </>
             )
         } else {
             return (<Grid.Row><Grid.Column> {startExerciseButton}</Grid.Column></Grid.Row>);
         }
 
-        //buttons.push(<GoBackToMainMenuBtn key={"goBack"}/>);
-
-        //return buttons;
     };
 
     const createDegreeInputBlock = () => {
@@ -472,10 +541,11 @@ const AskInterval = () => {
                                 }
                             }
                             setDegreesEnteredByUser(input);
+                            setResponseDegrees(input.split(" "))
                         } }
                         onKeyPress={ e=> {
                             if (e.key === 'Enter') {
-                                checkDegrees();
+                                checkDegrees(); // setResponseDegrees
                             }
                         }
                         }
@@ -504,7 +574,20 @@ const AskInterval = () => {
     const createIntervalButton = (interval, displayedName) => {
         return (
             <Grid.Column>
-                <Button color={getButtonColor(interval)} onClick={() => checkResponse(interval)} className={"exerciseBtn"}>{displayedName}</Button>
+                <Button color={getButtonColor(interval)}
+                        className={"exerciseBtn"}
+                        onClick={() => {
+                            setResponseInterval(interval) /*checkResponse(interval)*/
+                            if (currentResponseIndex+1===intervalCount) {
+                                console.log("Last interval");
+                                checkResponse();
+                            } else {
+                                setCurrentResponseIndex(currentResponseIndex+1);
+                                console.log("incrementing responseIndex");
+                            }
+                        }
+                        }
+                >{displayedName}</Button>
             </Grid.Column>
         )
     };
@@ -565,7 +648,9 @@ const AskInterval = () => {
                         </Popup>
                     </Grid.Column>
                 </Grid.Row>
+
                 {createDegreeInputBlock()}
+                {createIntervalLabelRow()}
                 {createInervalButtons()}
                 {createButtons()}
                 <Grid.Row>
