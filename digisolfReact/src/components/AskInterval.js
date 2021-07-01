@@ -63,7 +63,6 @@ const AskInterval = () => {
     const [currentResponseIndex, setCurrentResponseIndex] = useState(0); // in case there are several intervals
     const [response, setResponse] = useState( Array(intervalCount)); //.fill({degrees:[], intervalShortName:""}));
 
-
     // TODO: for blind support -  result with voice in setAnswer
     // keyboard shortcuts
     // TODO: support for other languages
@@ -335,22 +334,22 @@ const AskInterval = () => {
     const setResponseInterval = (shortName) => {
         const currentResponse = response;
         console.log("response now: ", response);
-        currentResponse[currentResponseIndex] = {intervalShortName:shortName}
-        // let currentResponse = deepClone(response); // or deepcopy?
-        // const index = currentResponseIndex;
-        // if (currentResponse[index].hasOwnProperty("intervalShortName")) {
-        //     currentResponse[index].intervalShortName = shortName;
-        // } else {
-        //     currentResponse[index] = {intervalShortName:shortName}; // TODO -  aga kui astmed on seatud? see on jama kood.
-        // }
-        //
+        if (typeof(currentResponse[currentResponseIndex])==="object") {
+            currentResponse[currentResponseIndex].intervalShortName = shortName;
+        } else {
+            currentResponse[currentResponseIndex] = {intervalShortName: shortName}
+        }
         console.log("Setting interval: ", shortName, currentResponseIndex, currentResponse)
         setResponse(currentResponse);
     }
 
-    const setResponseDegrees = (degrees=[]) => {
+    const setResponseDegrees = (degrees=[], index=0) => {
         const currentResponse = response;
-        currentResponse[currentResponseIndex].degrees = degrees;
+        if (typeof(currentResponse[index])==="object") {
+            currentResponse[index].degrees = degrees;
+        } else {
+            currentResponse[index] = {degrees: degrees};
+        }
         setResponse(currentResponse);
     }
 
@@ -470,28 +469,7 @@ const AskInterval = () => {
         }, 2000);
     };
 
-    const createIntervalLabelRow = () => {
-        const labels = [];
-        labels.push(<Grid.Column key={"intervalsColumn"}>{capitalizeFirst(t("intervals"))}: </Grid.Column>)
-        for (let i=0; i<intervalCount; i++ ) {
-            labels.push(
-                <Grid.Column key={i}>
-                    <Label as={'a'}
-                           onClick={() => setCurrentResponseIndex(i)}
-                           color = {currentResponseIndex===i ? "teal" : "grey" }
-
-                    > { response[i] ? (response[i].intervalShortName ? response[i].intervalShortName : "?") : "?" }
-                    </Label>
-
-                </Grid.Column>
-            );
-        }
-        return exerciseHasBegun && (
-
-          <Grid.Row>{labels}</Grid.Row>
-        );
-    }
-
+   
     const createButtons = () => {
         const startExerciseButton = <Button key={"startExercise"} color={"green"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>;
         const changeKeyButton = exerciseName.includes("random")  ? null :
@@ -523,36 +501,67 @@ const AskInterval = () => {
 
     };
 
-    const createDegreeInputBlock = () => {
-        return exerciseHasBegun && !exerciseName.includes("random") && (
-            <Grid.Row>
-                <Grid.Column className={"fullWidth"}>
-                    { capitalizeFirst( t("enterDegrees") )}
+    const createIntervalLabelRow = () => {
+        const labels = [];
+        labels.push(<Grid.Column key={"intervalsColumn"}>{capitalizeFirst(t("intervals"))}: </Grid.Column>)
+        for (let i=0; i<intervalCount; i++ ) {
+            labels.push(
+                <Grid.Column key={i}>
+                    <Label as={'a'}
+                           onClick={() => setCurrentResponseIndex(i)}
+                           color = {currentResponseIndex===i ? "teal" : "grey" }
+
+                    > { response[i] ? (response[i].intervalShortName ? response[i].intervalShortName : "?") : "?" }
+                    </Label>
+
+                </Grid.Column>
+            );
+        }
+        return exerciseHasBegun && (
+
+            <Grid.Row>{labels}</Grid.Row>
+        );
+    }
+
+    const insertSpaces = (input) => { // iserts spaces between digits like 12 becomes 1 2
+        const index = input.length - 1;
+        // if two last symbols are digits, insert a space in between of them
+        if (index >= 1) {
+            if (isDigit(input.charAt(index)) && isDigit(input.charAt(index - 1))) {
+                input = input.substr(0, index) + " " + input.substr(index);
+                //console.log("Inserted space: ", input, index, input.substr(0, index));
+            }
+        }
+        return input;
+    }
+
+    const createDegreeInputRow = () => {
+        const inputs = [];
+        for (let i=0; i<intervalCount; i++ ) {
+            inputs.push(
+                <Grid.Column key={i}>
                     <Input
-                        className={"marginLeft"}
+                        style={{width:60}}
                         onChange={e => {
-                            let input = e.target.value;
-                            const index = input.length-1;
-                            // if two last symbols are digits, insert a space in between of them
-                            if (index>=1) {
-                                if (isDigit(input.charAt(index)) && isDigit(input.charAt(index-1))) {
-                                    input = input.substr(0, index) + " " + input.substr(index);
-                                    console.log("Inserted space: ", input, index, input.substr(0, index));
-                                }
-                            }
-                            setDegreesEnteredByUser(input);
-                            setResponseDegrees(input.split(" "))
-                        } }
-                        onKeyPress={ e=> {
-                            if (e.key === 'Enter') {
-                                checkDegrees(); // setResponseDegrees
-                            }
-                        }
-                        }
+                            const input = insertSpaces(e.target.value);
+                            e.target.value = input; // replace with added spaces
+                            setResponseDegrees(input.split(" "), i)
+                        }}
+                        // onKeyPress={ e=> {
+                        //     if (e.key === 'Enter') {
+                        //         checkDegrees(); // setResponseDegrees
+                        //     }
+                        // }
+                        // }
                         placeholder={'nt: 1 3'}
-                        value={degreesEnteredByUser}
                     />
                 </Grid.Column>
+            );
+        }
+        return exerciseHasBegun && !exerciseName.includes("random") && (
+            <Grid.Row columns={intervalCount+1}>
+                <Grid.Column width={2} key={"inputsLabel"}>{ capitalizeFirst( t("enterDegrees") )}</Grid.Column>
+                {inputs}
             </Grid.Row>
         );
     }
@@ -632,7 +641,7 @@ const AskInterval = () => {
                 onFinishedPlaying={ () => setSoundFile("") }
             />
             <Header size='large'>{`${t("setInterval")} ${t(exerciseName)}`}</Header>
-            <Grid>
+            <Grid celled={true}>
                 <ScoreRow showRadioButtons={false}/>
                 <Grid.Row>
                     <Grid.Column></Grid.Column>
@@ -649,7 +658,7 @@ const AskInterval = () => {
                     </Grid.Column>
                 </Grid.Row>
 
-                {createDegreeInputBlock()}
+                {createDegreeInputRow()}
                 {createIntervalLabelRow()}
                 {createInervalButtons()}
                 {createButtons()}
