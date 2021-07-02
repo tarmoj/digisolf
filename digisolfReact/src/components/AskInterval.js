@@ -2,7 +2,6 @@ import React, {useState, useRef, useEffect} from 'react';
 import {Button, Divider, Grid, Header, Icon, Input, Label, Popup, Radio, Transition} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
-import {setComponent} from "../actions/component";
 import MainMenu from "./MainMenu";
 import {getNoteByVtNote} from "../util/notes";
 import {
@@ -17,9 +16,7 @@ import {
     chordDefinitions,
     getInterval, getIntervalBySemitones,
     getIntervalByShortName,
-    makeInterval,
     makeScale,
-    scaleDefinitions,
     simplifyIfAugmentedIntervals
 } from "../util/intervals";
 import MIDISounds from 'midi-sounds-react';
@@ -32,11 +29,19 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import Sound from 'react-sound';
 import correctSound from "../sounds/varia/correct.mp3"
 import wrongSound from "../sounds/varia/wrong.mp3"
-import * as notes from "../util/notes";
+//import * as notes from "../util/notes";
 
 const AskInterval = () => {
     const { exerciseName, parameters } = useParams();
-    const intervalCount = isDigit(parameters) ? parseInt(parameters) : 1;
+    // parameters can be in form count=1&intervals=v2.s3.p4&mode=melodicHamonic
+    // put into object
+    const parameterDict = {};
+    if (parameters) {
+        // snippet from: https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
+        parameters.split("&").forEach(function(item) {parameterDict[item.split("=")[0]] = item.split("=")[1]});
+        //console.log("parameters: ", parameterDict);
+    }
+    const intervalCount = isDigit(parameterDict.count) ? parseInt(parameterDict.count) : 1;
 
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
@@ -62,7 +67,7 @@ const AskInterval = () => {
     const [possibleIntervalShortNames, setPossibleIntervalShortNames] = useState([]);
     const [currentResponseIndex, setCurrentResponseIndex] = useState(0); // in case there are several intervals
     const [response, setResponse] = useState( Array(intervalCount)); //.fill({degrees:[], intervalShortName:""}));
-
+    const [mode, setMode] = useState("melodicHarmonic") ; // melodic|harmonic|melodicHarmonic
     // TODO: for blind support -  result with voice in setAnswer
     // keyboard shortcuts
     // TODO: support for other languages
@@ -80,24 +85,20 @@ const AskInterval = () => {
     useHotkeys('s+7', () => checkResponse("s7"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
     useHotkeys('p+8', () => checkResponse("p8"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
 
-    useHotkeys('shift+left', () => {console.log("Back"); /* how to call goBack() from GoBackMnu Button? */}, [exerciseHasBegun, interval]); // call somehow GoBackBtn onClick function
+    useHotkeys('shift+left', () => {console.log("Back"); /* how to call goBack() from GoBackMnu Button? */}, [exerciseHasBegun, intervalData]); // call somehow GoBackBtn onClick function
     useHotkeys('shift+right', () => {
         console.log("Next", exerciseHasBegun);
         if (exerciseHasBegun) {
             renew();
         }
     }, [, exerciseHasBegun, intervalData, isMajor, selectedTonicNote]);
-    useHotkeys('shift+up', () => {console.log("Change key/Start exercise"); startExercise() }, [exerciseHasBegun, interval]);
+    useHotkeys('shift+up', () => {console.log("Change key/Start exercise"); startExercise() }, [exerciseHasBegun, intervalData]);
     useHotkeys('shift+down', () => {  // repeat
         if (exerciseHasBegun) {
-            // we need new play
             play(intervalData)
         }
-        }, [exerciseHasBegun, interval]);
+        }, [exerciseHasBegun, intervalData]);
 
-    //useHotkeys('shift+ctrl+2', () => console.log("CTRL+2"));
-    // probleem on, et kui siit kutsuda checkResponse, siis exerciseHasBegun on tema jaoks alati false
-    //useHotkeys('shift+ctrl+3', () => { console.log("Trying s3"); setAnswer("s3"); }, [exerciseHasBegun]);
 
     const possibleTonicVtNotes = ["C/4", "D/4",  "E@/4", "E/4", "F/4",
         "G/4", "A/4", "B@/4", "C/5" ];
@@ -106,14 +107,20 @@ const AskInterval = () => {
         setExerciseHasBegun(true);
         midiSounds.current.setMasterVolume(0.4); // not too loud TODO: add control slider
 
+        if (parameterDict.mode) {
+            setMode(parameterDict.mode);
+        }
+
         if (exerciseName === "randomInterval") { //        // if interval from note, set possible parameters:
             let possibleIntervalShortNames = [];
-            if (parameters.includes(".")) { // allow giving the interval names (via shortName) as name via URL like /M.m.M6.m6
-                console.log("Extract possible intervals from name: ");
-                // filter out elements that now interval can be found with
-                possibleIntervalShortNames = parameters.toString().split(".").filter( shortName => getIntervalByShortName(shortName) );
-                console.log(possibleIntervalShortNames);
-            } else {
+            if (parameterDict.intervals) {
+                if (parameterDict.intervals.includes(".")) { // allow giving the interval names (via shortName) as name via URL like /M.m.M6.m6
+                    console.log("Extract possible intervals from name: ");
+                    // filter out elements that now interval can be found with
+                    possibleIntervalShortNames = parameterDict.intervals.split(".").filter(shortName => getIntervalByShortName(shortName));
+                    console.log(possibleIntervalShortNames);
+                }
+            }else {
                 possibleIntervalShortNames = ["v2", "s2", "v3", "s3", "p4", ">5", "p5", "v6", "s6", "v7", "s7", "p8"];
             }
             setPossibleIntervalShortNames(possibleIntervalShortNames);
@@ -132,7 +139,7 @@ const AskInterval = () => {
 
     const changeKey = () => {
         let tonicNote = selectedTonicNote; // to select different  from previous
-        const isMajor = getRandomBoolean(); // TODO: later major|natMinor|harmMinor can be set from parameters
+        const isMajor = getRandomBoolean();
 
         while (tonicNote === selectedTonicNote) {
             tonicNote = getNoteByVtNote(getRandomElementFromArray(possibleTonicVtNotes));
@@ -221,35 +228,80 @@ const AskInterval = () => {
         const pause = 1;
         let start = 0;
         // kui mitu, siis vaja esitada meloodiliselt kaheksandikes (pausid vahel) VÕI harmooniliselt
-        if (intervalCount===1) {
-            const midiNote1 = intervalData[0].notes[0].midiNote;
-            const midiNote2 = intervalData[0].notes[1].midiNote;
-            playNote(midiNote1, start, noteDuration); // melodic - one after another
-            playNote(midiNote2, start + noteDuration, noteDuration);
-            start += noteDuration * 2 + pause;
 
-            playNote(midiNote1, start, chordDuration); // harmonic - together
-            playNote(midiNote2, start, chordDuration);
+        console.log("Mode: ", mode);
 
-        } else if (intervalCount>1) {
+        if (mode=="melodicHarmonic") {
 
-            for (let data of intervalData) { // first melodic
-                const midiNote1 = data.notes[0].midiNote;
-                const midiNote2 = data.notes[1].midiNote;
-                console.log("Midinotes: ", midiNote1, midiNote2);
+            if (intervalCount === 1) {
+                const midiNote1 = intervalData[0].notes[0].midiNote;
+                const midiNote2 = intervalData[0].notes[1].midiNote;
                 playNote(midiNote1, start, noteDuration); // melodic - one after another
                 playNote(midiNote2, start + noteDuration, noteDuration);
+                start += noteDuration * 2 + pause;
 
-                start += noteDuration*2 + pause;
-            }
-
-            for (let data of intervalData) {  // then harmonic (together)
-                const midiNote1 = data.notes[0].midiNote;
-                const midiNote2 = data.notes[1].midiNote;
-                playNote(midiNote1, start, chordDuration); // melodic - one after another
+                playNote(midiNote1, start, chordDuration); // harmonic - together
                 playNote(midiNote2, start, chordDuration);
 
-                start += chordDuration + pause;
+            } else if (intervalCount > 1) {
+
+                for (let data of intervalData) { // first melodic
+                    const midiNote1 = data.notes[0].midiNote;
+                    const midiNote2 = data.notes[1].midiNote;
+                    console.log("Midinotes: ", midiNote1, midiNote2);
+                    playNote(midiNote1, start, noteDuration); // melodic - one after another
+                    playNote(midiNote2, start + noteDuration, noteDuration);
+
+                    start += noteDuration * 2 + pause;
+                }
+
+                for (let data of intervalData) {  // then harmonic (together)
+                    const midiNote1 = data.notes[0].midiNote;
+                    const midiNote2 = data.notes[1].midiNote;
+                    playNote(midiNote1, start, chordDuration); // melodic - one after another
+                    playNote(midiNote2, start, chordDuration);
+
+                    start += chordDuration + pause;
+                }
+            }
+        } else if (mode==="melodic") {
+            if (intervalCount === 1) {
+                const midiNote1 = intervalData[0].notes[0].midiNote;
+                const midiNote2 = intervalData[0].notes[1].midiNote;
+                playNote(midiNote1, start, noteDuration); // melodic - one after another
+                playNote(midiNote2, start + noteDuration, noteDuration);
+            } else if (intervalCount > 1) {
+
+                for (let data of intervalData) { // first melodic
+                    const midiNote1 = data.notes[0].midiNote;
+                    const midiNote2 = data.notes[1].midiNote;
+                    console.log("Midinotes: ", midiNote1, midiNote2);
+                    playNote(midiNote1, start, noteDuration); // melodic - one after another
+                    playNote(midiNote2, start + noteDuration, noteDuration);
+
+                    start += noteDuration * 2 + pause;
+                }
+
+            }
+
+        } else { // else harmonic -  notes together
+            if (intervalCount === 1) {
+                const midiNote1 = intervalData[0].notes[0].midiNote;
+                const midiNote2 = intervalData[0].notes[1].midiNote;
+
+                playNote(midiNote1, start, chordDuration); // harmonic - together
+                playNote(midiNote2, start, chordDuration);
+
+            } else if (intervalCount > 1) {
+
+                for (let data of intervalData) {  // then harmonic (together)
+                    const midiNote1 = data.notes[0].midiNote;
+                    const midiNote2 = data.notes[1].midiNote;
+                    playNote(midiNote1, start, chordDuration); // melodic - one after another
+                    playNote(midiNote2, start, chordDuration);
+
+                    start += chordDuration + pause;
+                }
             }
         }
 
