@@ -42,6 +42,10 @@ body {
     float: left;
 }
 
+.floatRight {
+    float: right;
+}
+
 .score {
     height: 2rem;
     width: 100%;
