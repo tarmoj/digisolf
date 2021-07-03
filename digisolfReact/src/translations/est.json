@@ -85,7 +85,7 @@
   "degrees": "astmediktaadid",
   "level": "tase",
   "answer": "vasta",
-  "enterDegrees": "sisesta astmed",
+  "enterDegrees": "sisestage astmed",
   "enterNotationInLilypond": "sisesta Lilypond vormingus",
   "tonic": "toonika",
   "generated": "genereeritud",

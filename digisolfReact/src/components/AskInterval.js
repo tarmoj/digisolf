@@ -55,7 +55,9 @@ const AskInterval = () => {
     const [isMajor, setIsMajor] = useState(true);
     const [selectedTonicNote, setSelectedTonicNote] = useState(null);
     const [intervalButtonsClicked, setIntervalButtonsClicked] = useState([]);
-    const [greenIntervalButton, setGreenIntervalButton] = useState(null);
+    //const [greenIntervalButton, setGreenIntervalButton] = useState(null);
+    const [greenIntervalButtons, setGreenIntervalButtons] = useState([]);
+    const [redIntervalButtons, setRedIntervalButtons] = useState([]);
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
     const [soundFile, setSoundFile] = useState("");
@@ -168,7 +170,9 @@ const AskInterval = () => {
         setTimeout( () => {
             setResponse(Array(intervalCount));
             setDegreesEnteredByUser(Array(intervalCount));
-            setGreenIntervalButton(null);
+            //setGreenIntervalButton(null);
+            setGreenIntervalButtons([]);
+            setRedIntervalButtons([]);
             // ? setAnswered(false);
         } , 2000 );
         //try:
@@ -448,12 +452,14 @@ const AskInterval = () => {
     }
 
     const checkDegrees = (index=0) => {
-        let degrees= [];
+        //const degrees= response[index].degrees;
+        let degrees = [];
         if (degreesEnteredByUser[index]) {
             degrees = degreesEnteredByUser[index].split(" ");
         } else {
             console.log("Degrees not entered on index: ", index);
         }
+
         let correct = true;
         if (intervalData[index].degrees) {
              for (let i=0; i<intervalData[index].degrees.length; i++) {
@@ -475,6 +481,23 @@ const AskInterval = () => {
             return;
         }
 
+        if (!exerciseName.includes("random") ) { // demand degrees to be entered if key
+            let degreesNotEntered = false;
+            for (let r of response) {
+                if (!r) {
+                    degreesNotEntered = true;
+                } else if (!r.degrees) {
+                    degreesNotEntered = true;
+                } else if (r.degrees.length = 0) {
+                    degreesNotEntered = true;
+                }
+            }
+            if (degreesNotEntered) {
+                alert(capitalizeFirst( t("enterDegrees")));
+                return;
+            }
+        }
+
         // TODO -  check if degrees are eneterd if not random interval
 
         setAnswered(true);
@@ -493,10 +516,16 @@ const AskInterval = () => {
                     if (intervalCorrect) {
                         feedBack += `${capitalizeFirst(t("interval"))} ${t("correct")}. `;
                         correct = true;
-                        colorCorrectAnswerGreen(shortName);
+                        //colorCorrectAnswerGreen(shortName);
+                        const greenButtons = greenIntervalButtons;
+                        greenButtons.push(shortName);
+                        setGreenIntervalButtons(greenButtons);
                     } else {
-                        feedBack += `${capitalizeFirst(t("interval"))}: ${intervalData[currentResponseIndex].interval.shortName} `;
+                        feedBack += `${capitalizeFirst(t("interval"))}: ${intervalData[currentResponseIndex].interval.shortName} `; // see on vale
                         correct = false;
+                        const redButtons = redIntervalButtons;
+                        redButtons.push(shortName);
+                        setRedIntervalButtons(redButtons);
                     }
                 }
 
@@ -539,12 +568,12 @@ const AskInterval = () => {
         }
     };
 
-    const colorCorrectAnswerGreen = (interval) => {
-        setGreenIntervalButton(interval);
-        setTimeout(() => {  // Set button color grey after some time
-            setGreenIntervalButton(null);
-        }, 2000);
-    };
+    // const colorCorrectAnswerGreen = (interval) => {
+    //     setGreenIntervalButton(interval);
+    //     setTimeout(() => {  // Set button color grey after some time
+    //         setGreenIntervalButton(null);
+    //     }, 2000);
+    // };
 
    
     const createButtons = () => {
@@ -588,7 +617,8 @@ const AskInterval = () => {
                     <Label as={'a'}
                            key={i}
                            onClick={() => setCurrentResponseIndex(i)}
-                           color = {currentResponseIndex===i ? "teal" : "grey" }
+                           basic = {currentResponseIndex===i}
+                           /*color = {currentResponseIndex===i ? "teal" : "grey" }*/
 
                     > { response[i] ? (response[i].intervalShortName ? response[i].intervalShortName : "?") : "?" }
                     </Label>
@@ -650,13 +680,19 @@ const AskInterval = () => {
 
     const getButtonColor = (buttonInterval) => {
         let color = "grey";
-        const buttonHasBeenClicked = intervalButtonsClicked.some(interval => interval === buttonInterval);
-        const buttonWasCorrectAnswer = greenIntervalButton === buttonInterval;
+        // const buttonHasBeenClicked = intervalButtonsClicked.some(interval => interval === buttonInterval);
+        // const buttonWasCorrectAnswer = greenIntervalButton === buttonInterval;
 
-        if (buttonHasBeenClicked) {
+        /*if (buttonHasBeenClicked) {
             color = "red";
         } else if (buttonWasCorrectAnswer) {
             color = "green";
+        }*/
+
+        if (greenIntervalButtons.includes(buttonInterval)) {
+            color = "green";
+        } else if (redIntervalButtons.includes(buttonInterval)) {
+            color = "red";
         }
 
         return color;
