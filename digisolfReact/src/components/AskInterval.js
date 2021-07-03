@@ -201,29 +201,52 @@ const AskInterval = () => {
 
         }
 
-        // let's have intervalData as array of objects
-
-        const intervalData = [];
+        const newIntervalData = [];
 
         for (let i=0; i<intervalCount;i++ ) {
-            //TODO : check that second data is not the same as first JSON.stingify === ?
-            const data = getIntervalFromScale(isMajor ? "major" : "minor", tonicNote.vtNote, possibleDegrees );
-            intervalData.push(data);
+            let data = getIntervalFromScale(isMajor ? "major" : "minor", tonicNote.vtNote, possibleDegrees );
+            if (i===0 && intervalData[0]) { // check that the first interval is not the same as previous
+                if (JSON.stringify(data) === JSON.stringify(intervalData[0])) {
+                    while (JSON.stringify(data) === JSON.stringify(intervalData[0])) {
+                        console.log("Same interval as before, take it again");
+                        data = getIntervalFromScale(isMajor ? "major" : "minor", tonicNote.vtNote, possibleDegrees );
+                    }
+                }
+            } else if (i>0) {
+                while (JSON.stringify(data) === JSON.stringify(newIntervalData[i-1])) {
+                   console.log("Same interval, take it again");
+                    data = getIntervalFromScale(isMajor ? "major" : "minor", tonicNote.vtNote, possibleDegrees );
+                }
+            }
+            newIntervalData.push(data);
         }
-        console.log("renew got: ", intervalData);
-        setIntervalData(intervalData);
-        play(intervalData);
+        //console.log("renew got: ", newIntervalData);
+        setIntervalData(newIntervalData);
+        play(newIntervalData);
     }
 
     const renewRandom = (possibleShortNames) => {
-        const intervalData = [];
+        const newIntervalData = [];
         for (let i=0; i<intervalCount;i++ ) {
             //TODO : check that second data is not the same as first JSON.stingify === ?
-            const data = getRandomInterval(possibleShortNames);
-            intervalData.push(data);
+            let data = getRandomInterval(possibleShortNames);
+            if (i===0 && intervalData[0]) { // check that the first interval is not the same as previous
+                if (JSON.stringify(data.interval) === JSON.stringify(intervalData[0])) {
+                    while (JSON.stringify(data) === JSON.stringify(intervalData[0])) {
+                        console.log("Same interval as before, take it again");
+                        data = getRandomInterval(possibleShortNames);
+                    }
+                }
+            } else if (i>0) {
+                while (JSON.stringify(data) === JSON.stringify(newIntervalData[i-1])) {
+                    console.log("Same interval, take it again");
+                    data = getRandomInterval(possibleShortNames);
+                }
+            }
+            newIntervalData.push(data);
         }
-        setIntervalData(intervalData);
-        play(intervalData);
+        setIntervalData(newIntervalData);
+        play(newIntervalData);
 
     }
 
@@ -236,9 +259,8 @@ const AskInterval = () => {
         const chordDuration = 2*noteDuration;
         const pause = 1;
         let start = 0;
-        // kui mitu, siis vaja esitada meloodiliselt kaheksandikes (pausid vahel) VÕI harmooniliselt
 
-        console.log("Mode: ", mode);
+        //console.log("Mode: ", mode);
 
         if (mode=="melodicHarmonic" || exerciseName === "tonicTriad") { // in case of tonicTriad -  always melodic and harmonic
 
@@ -343,13 +365,10 @@ const AskInterval = () => {
 
     const getRandomInterval = (possibleShortNames, index=0) => { // index -  to check which interval we are renewing, if there are several asked
 
-        let interval = intervalData[index].interval; // not sure if it makes sense...
-        while (interval === intervalData[index].interval) {
-            interval = getIntervalByShortName(getRandomElementFromArray(possibleShortNames));
-            if (!interval) {
-                console.log("Failed finding interval");
-                return;
-            }
+        const    interval = getIntervalByShortName(getRandomElementFromArray(possibleShortNames));
+        if (!interval) {
+            console.log("Failed finding interval");
+            return;
         }
 
         const up = getRandomBoolean(); // direction
@@ -633,7 +652,6 @@ const AskInterval = () => {
         let color = "grey";
         const buttonHasBeenClicked = intervalButtonsClicked.some(interval => interval === buttonInterval);
         const buttonWasCorrectAnswer = greenIntervalButton === buttonInterval;
-        console.log("greenIntervalButton: ", greenIntervalButton,  buttonInterval);
 
         if (buttonHasBeenClicked) {
             color = "red";
