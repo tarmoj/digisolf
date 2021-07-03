@@ -75,8 +75,8 @@ const AskInterval = () => {
 
     // TODO 03.07: vastuste kontroll (tagasiside), intervallide värvimine - luba mitu võibolla array: correctButtons, wrongButtons
 
-    // TODO: for blind support -  result with voice in setAnswer
-    // keyboard shortcuts
+/*
+   // keyboard shortcuts
     // TODO: support for other languages
     useHotkeys('v+2', () => checkResponse("v2"), [exerciseHasBegun, intervalData, intervalButtonsClicked]); // letter's case does not matter
     useHotkeys('s+2', () => checkResponse("s2"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
@@ -92,7 +92,7 @@ const AskInterval = () => {
     useHotkeys('s+7', () => checkResponse("s7"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
     useHotkeys('p+8', () => checkResponse("p8"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
 
-    useHotkeys('shift+left', () => {console.log("Back"); /* how to call goBack() from GoBackMnu Button? */}, [exerciseHasBegun, intervalData]); // call somehow GoBackBtn onClick function
+    useHotkeys('shift+left', () => {console.log("Back"); }, [exerciseHasBegun, intervalData]); // call somehow GoBackBtn onClick function
     useHotkeys('shift+right', () => {
         console.log("Next", exerciseHasBegun);
         if (exerciseHasBegun) {
@@ -105,7 +105,7 @@ const AskInterval = () => {
             play(intervalData)
         }
         }, [exerciseHasBegun, intervalData]);
-
+*/
 
     const possibleTonicVtNotes = ["C/4", "D/4",  "E@/4", "E/4", "F/4",
         "G/4", "A/4", "B@/4", "C/5" ];
@@ -165,19 +165,13 @@ const AskInterval = () => {
         //temporary comment out
         //setGreenIntervalButton(null);
 
-        // delete response after a while if answered to let the user see the result
-        // maybe we beed setnswered later...
-        setTimeout( () => {
-            setResponse(Array(intervalCount));
-            setDegreesEnteredByUser(Array(intervalCount));
-            //setGreenIntervalButton(null);
-            setGreenIntervalButtons([]);
-            setRedIntervalButtons([]);
-            // ? setAnswered(false);
-        } , 2000 );
-        //try:
-
+        setResponse(Array(intervalCount));
+        setDegreesEnteredByUser(Array(intervalCount));
+        //setGreenIntervalButton(null);
+        setGreenIntervalButtons([]);
+        setRedIntervalButtons([]);
         setAnswered(false);
+
         setCurrentResponseIndex(0);
         midiSounds.current.cancelQueue();
 
@@ -185,12 +179,9 @@ const AskInterval = () => {
             renewRandom(possibleIntervalShortNames);
         } else {
             renewInKey(isMajor, selectedTonicNote);
-;        }
-
-
-
-
+        }
     }
+
     const renewInKey = (isMajor, tonicNote) => {
 
         let possibleDegrees = [];
@@ -416,19 +407,19 @@ const AskInterval = () => {
     };
 
     const setResponseInterval = (shortName) => {
-        const currentResponse = response;
-        console.log("response now: ", response);
+        const currentResponse = response.slice();
+        //console.log("response now: ", response);
         if (typeof(currentResponse[currentResponseIndex])==="object") {
             currentResponse[currentResponseIndex].intervalShortName = shortName;
         } else {
             currentResponse[currentResponseIndex] = {intervalShortName: shortName}
         }
-        console.log("Setting interval: ", shortName, currentResponseIndex, currentResponse)
+        //console.log("Setting interval: ", shortName, currentResponseIndex, currentResponse)
         setResponse(currentResponse);
     }
 
     const setResponseDegrees = (degrees=[], index=0) => {
-        const currentResponse = response;
+        const currentResponse = response.slice(); // NB! simple = response; creates just reference.
         if (typeof(currentResponse[index])==="object") {
             currentResponse[index].degrees = degrees;
         } else {
@@ -436,6 +427,45 @@ const AskInterval = () => {
         }
         setResponse(currentResponse);
     }
+
+    const getResponseIntervalShortName = (index=0) => {
+        if (response[index]) {
+            if (response[index].intervalShortName) {
+                return response[index].intervalShortName;
+            }
+        } else {
+            return "";
+        }
+    };
+
+    const getCorrectIntervalShortName = (index=0) => {
+        if (intervalData[index]) {
+            if (intervalData[index].interval) {
+                return intervalData[index].interval.shortName;
+            }
+        }
+        return "";
+    };
+
+    const getResponseDegrees = (index=0) => {
+        if (response[index]) {
+            if (response[index].degrees) {
+                return response[index].degrees;
+            }
+        }
+
+        return [];
+    };
+
+    const getCorrectDegrees = (index=0) => {
+        if (intervalData[index]) {
+            if (intervalData[index].degrees) {
+                return intervalData[index].degrees;
+            }
+        } else {
+            return [];
+        }
+    };
 
 
     const checkInterval= (intervalShortName, index=0) =>  { // TODO: rewrite without first parameter as it an be read from response[index
@@ -498,32 +528,30 @@ const AskInterval = () => {
             }
         }
 
-        // TODO -  check if degrees are eneterd if not random interval
-
         setAnswered(true);
         let correct = true, feedBack="";
 
         if (exerciseHasBegun) {
 
             for (let i=0; i<intervalCount; i++) {
-                const shortName = response[i].intervalShortName;
-                setIntervalButtonsClicked(intervalButtonsClicked.concat([shortName]));
+                const shortName = getResponseIntervalShortName(i); // response[i].intervalShortName;
+                //setIntervalButtonsClicked(intervalButtonsClicked.concat([shortName]));
                 console.log("checkResponse ", i, shortName)
 
                 if (shortName) {
                     const intervalCorrect = checkInterval(shortName,i);
                     correct = correct && intervalCorrect;
                     if (intervalCorrect) {
-                        feedBack += `${capitalizeFirst(t("interval"))} ${t("correct")}. `;
+                        //feedBack += `${capitalizeFirst(t("interval"))} ${t("correct")}. `;
                         correct = true;
                         //colorCorrectAnswerGreen(shortName);
-                        const greenButtons = greenIntervalButtons;
+                        const greenButtons = greenIntervalButtons.slice();
                         greenButtons.push(shortName);
                         setGreenIntervalButtons(greenButtons);
                     } else {
-                        feedBack += `${capitalizeFirst(t("interval"))}: ${intervalData[currentResponseIndex].interval.shortName} `; // see on vale
+                        //feedBack += `${capitalizeFirst(t("interval"))}: ${intervalData[currentResponseIndex].interval.shortName} `; // see on vale
                         correct = false;
-                        const redButtons = redIntervalButtons;
+                        const redButtons = redIntervalButtons.slice();
                         redButtons.push(shortName);
                         setRedIntervalButtons(redButtons);
                     }
@@ -533,10 +561,10 @@ const AskInterval = () => {
                     const degreesCorrect = checkDegrees(i);
                     correct = correct && degreesCorrect;
                     if (degreesCorrect) {
-                        feedBack += `${capitalizeFirst(t("degrees"))} - ${t("correct")}. `;
+                        //feedBack += `${capitalizeFirst(t("degrees"))} - ${t("correct")}. `;
                         correct = correct && true;
                     } else {
-                        feedBack += `${capitalizeFirst(t("degrees"))}: ${intervalData[currentResponseIndex].degrees.join(" ")}`;
+                        //feedBack += `${capitalizeFirst(t("degrees"))}: ${intervalData[currentResponseIndex].degrees.join(" ")}`;
                         correct = false;
                     }
                 }
@@ -544,13 +572,9 @@ const AskInterval = () => {
 
 
             if ( correct ) {
-                dispatch(setPositiveMessage(feedBack, 5000));
-                renew(isMajor, selectedTonicNote);
-
-                //colorCorrectAnswerGreen(shortName);
-                setIntervalButtonsClicked([]);
+                //dispatch(setPositiveMessage(feedBack, 5000));
                 dispatch(incrementCorrectAnswers());
-
+                setTimeout( ()=> renew(), 2000); // small delay to let user to see the answer -  maybe add this to cofig options
 
                 // maybe it is better to move the sound part to ScoreRow component
                 if (voiceFeedback) {
@@ -558,7 +582,7 @@ const AskInterval = () => {
                     setPlayStatus(Sound.status.PLAYING);
                 }
             } else {
-                dispatch(setNegativeMessage(feedBack, 5000));
+                //dispatch(setNegativeMessage(feedBack, 5000));
                 dispatch(incrementIncorrectAnswers());
                 if (voiceFeedback) {
                     setSoundFile(wrongSound);
@@ -607,21 +631,34 @@ const AskInterval = () => {
 
     };
 
+    const labelAnimationTime = 150;
+
     const createIntervalLabelRow = () => {
 
         if (intervalCount===1) return null;
 
         const elements = [];
         for (let i=0; i<intervalCount; i++ ) {
+            const responseShortName = getResponseIntervalShortName(i);
+            const correctShortName = getCorrectIntervalShortName(i);
+            const color =  answered ?  (responseShortName===correctShortName ? "green" : "red") :
+                (currentResponseIndex===i ? "teal" : "grey");
             elements.push( // was Grid.Column before
+                <>
                     <Label as={'a'}
                            key={i}
                            onClick={() => setCurrentResponseIndex(i)}
-                           basic = {currentResponseIndex===i}
-                           /*color = {currentResponseIndex===i ? "teal" : "grey" }*/
+                           /*basic = {currentResponseIndex===i}*/
+                           color = {color}
 
-                    > { response[i] ? (response[i].intervalShortName ? response[i].intervalShortName : "?") : "?" }
+                    > { responseShortName ? responseShortName : "?"}
                     </Label>
+                    {/*try animation:*/}
+                    <Transition visible={answered}  animation={"slide right"} duration={labelAnimationTime}>
+                        <Label tag color={color}>{correctShortName}</Label>
+                    </Transition>
+                    {/*{ answered && <Label tag color={color}>{correctShortName}</Label>}*/}
+                </>
             );
         }
 
@@ -651,23 +688,29 @@ const AskInterval = () => {
     const createDegreeInputRow = () => {
         const inputs = [];
         for (let i=0; i<intervalCount; i++ ) {
+            const responseDegreeString = degreesEnteredByUser[i]; //getResponseDegrees(i).join(" ");
+            const correctDegreeString = getCorrectDegrees(i).join(" ");
+            const labelColor =  responseDegreeString===correctDegreeString ? "green" : "red";
+            console.log("degreeInputs: i, responseDegreeString, correctDegreeStrinv, labelColor", i, responseDegreeString, correctDegreeString, labelColor);
             inputs.push(
-                /*<Grid.Column key={i}>*/
+                    <React.Fragment key={"degreeElement"+i}>
                     <Input
                         key={"degreeInput"+i}
                         style={{width:70, marginRight:5}}
                         onChange={e => {
                             const input = insertSpaces(e.target.value);
-                            //e.target.value = input; // replace with added spaces
-                            const currentUserDegrees = deepClone(degreesEnteredByUser);
+                            const currentUserDegrees = degreesEnteredByUser.slice();
                             currentUserDegrees[i] = input;
-                            setDegreesEnteredByUser(currentUserDegrees);
-                            setResponseDegrees(input.split(" "), i);
+                            setDegreesEnteredByUser(currentUserDegrees); // maybe: this works since it is string
+                            setResponseDegrees(input.split(" "), i); // this not since it is part of object... deepClone?
                         }}
-                        value={degreesEnteredByUser[i] ? degreesEnteredByUser[i] : ""}
+                        value={degreesEnteredByUser[i] ? degreesEnteredByUser[i] : ""} // can't we use getResponseDegrees here?
                         placeholder={'nt: 1 3'}
                     />
-                /*</Grid.Column>*/
+                        <Transition visible={answered}  animation={"slide right"} duration={labelAnimationTime}>
+                            <Label pointing={"left"} color={labelColor}>{correctDegreeString}</Label>
+                        </Transition>
+                    </React.Fragment>
             );
         }
         return exerciseHasBegun && !exerciseName.includes("random") && (
@@ -680,14 +723,6 @@ const AskInterval = () => {
 
     const getButtonColor = (buttonInterval) => {
         let color = "grey";
-        // const buttonHasBeenClicked = intervalButtonsClicked.some(interval => interval === buttonInterval);
-        // const buttonWasCorrectAnswer = greenIntervalButton === buttonInterval;
-
-        /*if (buttonHasBeenClicked) {
-            color = "red";
-        } else if (buttonWasCorrectAnswer) {
-            color = "green";
-        }*/
 
         if (greenIntervalButtons.includes(buttonInterval)) {
             color = "green";
@@ -710,8 +745,6 @@ const AskInterval = () => {
                             } else {
                                 if (currentResponseIndex<intervalCount-1) { // activate next interval label
                                     setCurrentResponseIndex(currentResponseIndex+1);
-                                } else {
-                                    setCurrentResponseIndex(0); // back to beginning
                                 }
                             }
                         }
@@ -751,6 +784,26 @@ const AskInterval = () => {
         );
     }
 
+    const createMenuRow = () => {
+        // old popup for shortcuts:
+        return (
+            <Grid.Row>
+            <Grid.Column></Grid.Column>
+            <Grid.Column className={"marginRight"}  floated='right' > {/*Võiks olla joondatud nuppude parema servaga */}
+                <Popup on='click' position='bottom right' trigger={<Button content='?'/>}>
+                    <h3>Klahvikombinatsioonid</h3>
+                    <p>Intervallid: v+2, s+2, jne (täht enne, siis number, hoida samaaegselt). </p>
+                    <p>NB! Tritoon (vähendatud kvint) - d+5 (diminished)</p>
+                    <p>Mängi järgmine: shift+paremale</p>
+                    <p>Korda: shift+alla</p>
+                    <p>Alusta harjutust/Muuda helistikku: shift+üles</p>
+                    <p>Tagasi peamenüüsse - veel pole</p>
+                </Popup>
+            </Grid.Column>
+        </Grid.Row>
+        );
+    }
+
     return (
         <div>
             {/*Sound for giving feedback on anwers (for visually impaired support)*/}
@@ -761,23 +814,8 @@ const AskInterval = () => {
                 onFinishedPlaying={ () => setSoundFile("") }
             />
             <Header size='large'>{`${t("setInterval")} ${t(exerciseName)}`}</Header>
-            <Grid celled={true}>
+            <Grid>
                 <ScoreRow showRadioButtons={false}/>
-                <Grid.Row>
-                    <Grid.Column></Grid.Column>
-                    <Grid.Column className={"marginRight"}  floated='right' > {/*Võiks olla joondatud nuppude parema servaga */}
-                        <Popup on='click' position='bottom right' trigger={<Button content='?'/>}>
-                            <h3>Klahvikombinatsioonid</h3>
-                            <p>Intervallid: v+2, s+2, jne (täht enne, siis number, hoida samaaegselt). </p>
-                            <p>NB! Tritoon (vähendatud kvint) - d+5 (diminished)</p>
-                            <p>Mängi järgmine: shift+paremale</p>
-                            <p>Korda: shift+alla</p>
-                            <p>Alusta harjutust/Muuda helistikku: shift+üles</p>
-                            <p>Tagasi peamenüüsse - veel pole</p>
-                        </Popup>
-                    </Grid.Column>
-                </Grid.Row>
-
                 {createDegreeInputRow()}
                 {createIntervalLabelRow()}
                 {createInervalButtons()}
