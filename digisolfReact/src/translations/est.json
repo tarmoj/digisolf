@@ -131,6 +131,7 @@
   "enterFunctions": "sisestage fuktsioonid",
   "correctIntervalIs": "õige intervall on",
   "degrees": "astmed",
-  "intervalFromNote": "intervall antud noodist"
+  "intervalFromNote": "intervall antud noodist",
+  "randomInterval": "juhuslik intervall"
 
 }

@@ -201,7 +201,8 @@ export const simplifyIfAugmentedIntervals = (interval) => {
         return "<5";
     } else if (interval === ">5") {
         return "v6";
+    } else if (interval === "<2") {
+        return "v3"
     }
-
     return interval;
 };

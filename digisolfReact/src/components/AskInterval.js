@@ -2,7 +2,6 @@ import React, {useState, useRef, useEffect} from 'react';
 import {Button, Divider, Grid, Header, Icon, Input, Label, Popup, Radio, Transition} from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
-import MainMenu from "./MainMenu";
 import {getNoteByVtNote} from "../util/notes";
 import {
     getRandomElementFromArray,
@@ -10,17 +9,14 @@ import {
     capitalizeFirst,
     isDigit,
     getRandomInt,
-    deepClone
 } from "../util/util";
 import {
-    chordDefinitions,
-    getInterval, getIntervalBySemitones,
+    getInterval,
     getIntervalByShortName,
     makeScale,
     simplifyIfAugmentedIntervals
 } from "../util/intervals";
 import MIDISounds from 'midi-sounds-react';
-import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import ScoreRow from "./ScoreRow";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
@@ -29,12 +25,11 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import Sound from 'react-sound';
 import correctSound from "../sounds/varia/correct.mp3"
 import wrongSound from "../sounds/varia/wrong.mp3"
-//import * as notes from "../util/notes";
 
 const AskInterval = () => {
     const { exerciseName, parameters } = useParams();
     // parameters can be in form count=1&intervals=v2.s3.p4&mode=melodicHamonic
-    // put into object
+    // put parameters into object
     const parameterDict = {};
     if (parameters) {
         // snippet from: https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
@@ -46,22 +41,16 @@ const AskInterval = () => {
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
 
-    //const isHarmonic = useSelector(state => state.exerciseReducer.isHarmonic);
-    // const exerciseName = useSelector(state => state.exerciseReducer.name);
-
     const midiSounds = useRef(null);
 
-    const [interval, setInterval] = useState({});
     const [isMajor, setIsMajor] = useState(true);
     const [selectedTonicNote, setSelectedTonicNote] = useState(null);
-    const [intervalButtonsClicked, setIntervalButtonsClicked] = useState([]);
-    //const [greenIntervalButton, setGreenIntervalButton] = useState(null);
     const [greenIntervalButtons, setGreenIntervalButtons] = useState([]);
     const [redIntervalButtons, setRedIntervalButtons] = useState([]);
+    const [correctIntervalButtons, setCorrectIntervalButtons] = useState([]);
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
     const [soundFile, setSoundFile] = useState("");
-    //const [answer, setAnswer] = useState(null); // <- maybe not necessary.. in format: {degrees:[], shortName: interval.shortName}
     const [answered, setAnswered] = useState(false);
     const [intervalData, setIntervalData] = useState([{degrees:[], notes:[], interval: null}]); //array of: {degrees: []}
     const [degreesEnteredByUser, setDegreesEnteredByUser] = useState(Array(intervalCount));
@@ -73,7 +62,6 @@ const AskInterval = () => {
         exerciseName === "tonicTriad" ? "melodicHarmonic" :
             (parameterDict.mode ? parameterDict.mode : "harmonic"  )) ; // melodic|harmonic|melodicHarmonic
 
-    // TODO 03.07: vastuste kontroll (tagasiside), intervallide värvimine - luba mitu võibolla array: correctButtons, wrongButtons
 
 /*
    // keyboard shortcuts
@@ -114,11 +102,11 @@ const AskInterval = () => {
         setExerciseHasBegun(true);
         midiSounds.current.setMasterVolume(0.4); // not too loud TODO: add control slider
 
-        if (exerciseName === "randomInterval") { //        // if interval from note, set possible parameters:
+        if (exerciseName === "randomInterval") { // if interval not in key, set possible intervals:
             let possibleIntervalShortNames = [];
             if (parameterDict.intervals) {
                 if (parameterDict.intervals.includes(".")) { // allow giving the interval names (via shortName) as name via URL like /M.m.M6.m6
-                    console.log("Extract possible intervals from name: ");
+                    //console.log("Extract possible intervals from name: ");
                     // filter out elements that now interval can be found with
                     possibleIntervalShortNames = parameterDict.intervals.split(".").filter(shortName => getIntervalByShortName(shortName));
                     console.log(possibleIntervalShortNames);
@@ -133,9 +121,6 @@ const AskInterval = () => {
         } else { // intervals in key
             changeKey(); // calls also renewInKey()
         }
-
-
-
     };
 
 
@@ -161,15 +146,11 @@ const AskInterval = () => {
     }
 
     const renew = () => {
-        setIntervalButtonsClicked([]); // reset clicked buttons
-        //temporary comment out
-        //setGreenIntervalButton(null);
-
         setResponse(Array(intervalCount));
         setDegreesEnteredByUser(Array(intervalCount));
-        //setGreenIntervalButton(null);
         setGreenIntervalButtons([]);
         setRedIntervalButtons([]);
+        setCorrectIntervalButtons([]);
         setAnswered(false);
 
         setCurrentResponseIndex(0);
@@ -189,11 +170,11 @@ const AskInterval = () => {
         if (exerciseName==="tonicTriad") {
             possibleDegrees = [1,3,5,8];
         } else if (exerciseName==="tonicAllScaleDegrees") {
-            possibleDegrees = [2,3,4,5,6,7,8]; // siin peaks olema, et esimene noot on alati toonika
+            possibleDegrees = [2,3,4,5,6,7,8];
         } else if (exerciseName==="allScaleDegrees") {
             possibleDegrees = [1,2,3,4,5,6,7,8];
         } else {
-
+            possibleDegrees = [1,2,3,4,5,6,7,8];
         }
 
         const newIntervalData = [];
@@ -242,7 +223,6 @@ const AskInterval = () => {
         }
         setIntervalData(newIntervalData);
         play(newIntervalData);
-
     }
 
 
@@ -297,17 +277,14 @@ const AskInterval = () => {
                 playNote(midiNote1, start, noteDuration); // melodic - one after another
                 playNote(midiNote2, start + noteDuration, noteDuration);
             } else if (intervalCount > 1) {
-
                 for (let data of intervalData) { // first melodic
                     const midiNote1 = data.notes[0].midiNote;
                     const midiNote2 = data.notes[1].midiNote;
                     console.log("Midinotes: ", midiNote1, midiNote2);
                     playNote(midiNote1, start, noteDuration); // melodic - one after another
                     playNote(midiNote2, start + noteDuration, noteDuration);
-
                     start += noteDuration * 2 + pause;
                 }
-
             }
 
         } else { // else harmonic -  notes together
@@ -319,7 +296,6 @@ const AskInterval = () => {
                 playNote(midiNote2, start, chordDuration);
 
             } else if (intervalCount > 1) {
-
                 for (let data of intervalData) {  // then harmonic (together)
                     const midiNote1 = data.notes[0].midiNote;
                     const midiNote2 = data.notes[1].midiNote;
@@ -347,20 +323,25 @@ const AskInterval = () => {
         while (degree2==degree1) { // not to be the same
             degree2 = getRandomElementFromArray(possibleDegrees);
         }
-        const note1 = getNoteByVtNote(scaleNotes[degree1-1]); // index in the array is degree-1
-        const note2 = getNoteByVtNote(scaleNotes[degree2-1]);
-
-        // TODO: avoid getting same result twice
-
+        
+        let degrees = [];
+        if (mode==="harmonic" && degree2 < degree1) { // take care that in harmonic mode the smaller degree is always first -  the user cannot know the direction
+            degrees = [degree2, degree1];
+        } else {
+            degrees = [degree1, degree2];
+        }
+        
+        const note1 = getNoteByVtNote(scaleNotes[degrees[0]-1]); // index in the array is degree-1
+        const note2 = getNoteByVtNote(scaleNotes[degrees[1]-1]);
 
         const intervalInfo = getInterval(note1, note2);
         console.log("getIntervalFromScale: Degrees, interval: ", degree1, degree2, note1.vtNote, note2.vtNote, intervalInfo.interval.shortName);
-        return { degrees:[degree1, degree2], notes: [note1, note2], interval: intervalInfo.interval }
+        return { degrees:degrees, notes: [note1, note2], interval: intervalInfo.interval }
     };
 
     const getRandomInterval = (possibleShortNames, index=0) => { // index -  to check which interval we are renewing, if there are several asked
 
-        const    interval = getIntervalByShortName(getRandomElementFromArray(possibleShortNames));
+        const    interval = simplifyIfAugmentedIntervals( getIntervalByShortName(getRandomElementFromArray(possibleShortNames)));
         if (!interval) {
             console.log("Failed finding interval");
             return;
@@ -387,34 +368,22 @@ const AskInterval = () => {
         playNote(rootMidiNote, 0, duration);
         playNote(third, timeInterval, duration - timeInterval);
         playNote(fifth, timeInterval*2, duration - 2*timeInterval);
-        console.log("Tonic notes: ", rootMidiNote, third, fifth);
+        //console.log("Tonic notes: ", rootMidiNote, third, fifth);
     }
 
-    // const playInterval = (interval, isHarmonic=false) => {
-    //         if (isHarmonic) {
-    //             playNote(interval.note1.midiNote, 0, 2);
-    //             playNote(interval.note2.midiNote, 0, 2);
-    //         } else {
-    //             playNote(interval.note1.midiNote, 0, 1);
-    //             playNote(interval.note2.midiNote, 1, 1); // start sekundites
-    //         }
-    // };
-
-
-
-    const playNote = (midiNote, start, duration) => { // start peaks olema sekundites
+     const playNote = (midiNote, start, duration) => {
         midiSounds.current.playChordAt (midiSounds.current.contextTime()+start, 3, [midiNote], duration); // millegipärast ei tööta, kui korrata intervalli
     };
 
     const setResponseInterval = (shortName) => {
-        const currentResponse = response.slice();
-        //console.log("response now: ", response);
+        const currentResponse = response; // was: .slice() - that seems to be correct way, but  did not work in randomInterval
+        console.log("response now: ", response);
         if (typeof(currentResponse[currentResponseIndex])==="object") {
             currentResponse[currentResponseIndex].intervalShortName = shortName;
         } else {
             currentResponse[currentResponseIndex] = {intervalShortName: shortName}
         }
-        //console.log("Setting interval: ", shortName, currentResponseIndex, currentResponse)
+        console.log("Setting interval: ", shortName, currentResponseIndex, currentResponse)
         setResponse(currentResponse);
     }
 
@@ -453,7 +422,6 @@ const AskInterval = () => {
                 return response[index].degrees;
             }
         }
-
         return [];
     };
 
@@ -462,20 +430,19 @@ const AskInterval = () => {
             if (intervalData[index].degrees) {
                 return intervalData[index].degrees;
             }
-        } else {
-            return [];
         }
+        return [];
     };
 
 
-    const checkInterval= (intervalShortName, index=0) =>  { // TODO: rewrite without first parameter as it an be read from response[index
+    const checkInterval= (intervalShortName, index=0) =>  {
         let correct = true;
         if (intervalData[index].interval) {
             if (intervalData[index].interval.shortName !== intervalShortName) {
                 correct = false;
-                console.log("Vale intervall, õige peaks olema: ", intervalData[index].interval.shortName)
+                console.log("Wrong interval, correct is: ", intervalData[index].interval.shortName)
             } else {
-                console.log("Intervall õige ", intervalShortName);
+                console.log("Interval correct: ", intervalShortName);
             }
         } else correct = false;
         return correct;
@@ -488,6 +455,10 @@ const AskInterval = () => {
             degrees = degreesEnteredByUser[index].split(" ");
         } else {
             console.log("Degrees not entered on index: ", index);
+        }
+        
+        if (mode==="harmonic") {
+            degrees.sort(); // take care that intervalData.degrees is sorted, too, in getIntervalFromScale
         }
 
         let correct = true;
@@ -511,7 +482,7 @@ const AskInterval = () => {
             return;
         }
 
-        if (!exerciseName.includes("random") ) { // demand degrees to be entered if key
+        if (!exerciseName.includes("random") ) { // demand degrees to be entered if in key
             let degreesNotEntered = false;
             for (let r of response) {
                 if (!r) {
@@ -530,13 +501,16 @@ const AskInterval = () => {
 
         setAnswered(true);
         let correct = true, feedBack="";
+        const correctButtons = []; // mybe use it only when intervalCount==1, and just a string, not array...
+        const greenButtons = [];
+        const redButtons = [];
 
         if (exerciseHasBegun) {
 
             for (let i=0; i<intervalCount; i++) {
                 const shortName = getResponseIntervalShortName(i); // response[i].intervalShortName;
-                //setIntervalButtonsClicked(intervalButtonsClicked.concat([shortName]));
-                console.log("checkResponse ", i, shortName)
+                console.log("checkResponse ", i, shortName);
+                correctButtons.push(getCorrectIntervalShortName(i));
 
                 if (shortName) {
                     const intervalCorrect = checkInterval(shortName,i);
@@ -544,18 +518,18 @@ const AskInterval = () => {
                     if (intervalCorrect) {
                         //feedBack += `${capitalizeFirst(t("interval"))} ${t("correct")}. `;
                         correct = true;
-                        //colorCorrectAnswerGreen(shortName);
-                        const greenButtons = greenIntervalButtons.slice();
                         greenButtons.push(shortName);
-                        setGreenIntervalButtons(greenButtons);
                     } else {
                         //feedBack += `${capitalizeFirst(t("interval"))}: ${intervalData[currentResponseIndex].interval.shortName} `; // see on vale
                         correct = false;
-                        const redButtons = redIntervalButtons.slice();
                         redButtons.push(shortName);
-                        setRedIntervalButtons(redButtons);
                     }
                 }
+
+                setGreenIntervalButtons(greenButtons);
+                setRedIntervalButtons(redButtons);
+                setCorrectIntervalButtons(correctButtons);
+
 
                 if (degreesEnteredByUser[i]) {
                     const degreesCorrect = checkDegrees(i);
@@ -576,7 +550,7 @@ const AskInterval = () => {
                 dispatch(incrementCorrectAnswers());
                 setTimeout( ()=> renew(), 2000); // small delay to let user to see the answer -  maybe add this to cofig options
 
-                // maybe it is better to move the sound part to ScoreRow component
+                // maybe it is better to move the sound part to ScoreRow component?
                 if (voiceFeedback) {
                     setSoundFile(correctSound);
                     setPlayStatus(Sound.status.PLAYING);
@@ -591,14 +565,6 @@ const AskInterval = () => {
             }
         }
     };
-
-    // const colorCorrectAnswerGreen = (interval) => {
-    //     setGreenIntervalButton(interval);
-    //     setTimeout(() => {  // Set button color grey after some time
-    //         setGreenIntervalButton(null);
-    //     }, 2000);
-    // };
-
    
     const createButtons = () => {
         const startExerciseButton = <Button key={"startExercise"} color={"green"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>;
@@ -619,10 +585,6 @@ const AskInterval = () => {
                         <Grid.Column>{playTonicButton}</Grid.Column>
                         <Grid.Column>{changeKeyButton}</Grid.Column>
                     </Grid.Row>
-                    {/*<Grid.Row className={"exerciseRow"} columns={2}>
-                        <Grid.Column><Button onClick={checkResponse} className={"fullWidth marginTopSmall"}>{capitalizeFirst(t("check"))}</Button></Grid.Column>
-                        <Grid.Column></Grid.Column>
-                    </Grid.Row>*/}
                 </>
             )
         } else {
@@ -644,7 +606,7 @@ const AskInterval = () => {
             const color =  answered ?  (responseShortName===correctShortName ? "green" : "red") :
                 (currentResponseIndex===i ? "teal" : "grey");
             elements.push( // was Grid.Column before
-                <>
+                <React.Fragment key={"intervalLabel"+i}>
                     <Label as={'a'}
                            key={i}
                            onClick={() => setCurrentResponseIndex(i)}
@@ -658,7 +620,7 @@ const AskInterval = () => {
                         <Label tag color={color}>{correctShortName}</Label>
                     </Transition>
                     {/*{ answered && <Label tag color={color}>{correctShortName}</Label>}*/}
-                </>
+                </React.Fragment>
             );
         }
 
@@ -688,10 +650,10 @@ const AskInterval = () => {
     const createDegreeInputRow = () => {
         const inputs = [];
         for (let i=0; i<intervalCount; i++ ) {
-            const responseDegreeString = degreesEnteredByUser[i]; //getResponseDegrees(i).join(" ");
+            const responseDegreeString = degreesEnteredByUser[i]; //getResponseDegrees(i).join(" "); -  somehow the  array/obect in responsedegrees get zeroed too soon
             const correctDegreeString = getCorrectDegrees(i).join(" ");
             const labelColor =  responseDegreeString===correctDegreeString ? "green" : "red";
-            console.log("degreeInputs: i, responseDegreeString, correctDegreeStrinv, labelColor", i, responseDegreeString, correctDegreeString, labelColor);
+            //console.log("degreeInputs: i, responseDegreeString, correctDegreeStrinv, labelColor", i, responseDegreeString, correctDegreeString, labelColor);
             inputs.push(
                     <React.Fragment key={"degreeElement"+i}>
                     <Input
@@ -705,7 +667,7 @@ const AskInterval = () => {
                             setResponseDegrees(input.split(" "), i); // this not since it is part of object... deepClone?
                         }}
                         value={degreesEnteredByUser[i] ? degreesEnteredByUser[i] : ""} // can't we use getResponseDegrees here?
-                        placeholder={'nt: 1 3'}
+                        placeholder={'e.g.: 1 3'}
                     />
                         <Transition visible={answered}  animation={"slide right"} duration={labelAnimationTime}>
                             <Label pointing={"left"} color={labelColor}>{correctDegreeString}</Label>
@@ -723,11 +685,12 @@ const AskInterval = () => {
 
     const getButtonColor = (buttonInterval) => {
         let color = "grey";
-
         if (greenIntervalButtons.includes(buttonInterval)) {
             color = "green";
         } else if (redIntervalButtons.includes(buttonInterval)) {
             color = "red";
+        } else if (correctIntervalButtons.includes(buttonInterval)) { // mark correct but not pressed buttons(s)
+            color = "teal";
         }
 
         return color;
@@ -739,12 +702,14 @@ const AskInterval = () => {
                 <Button color={getButtonColor(interval)}
                         className={"exerciseBtn"}
                         onClick={() => {
-                            setResponseInterval(interval); /* somehow this does not trigger re-render if last interval...*/
+                            setResponseInterval(interval);
                             if (intervalCount===1) {
                                 checkResponse();
                             } else {
                                 if (currentResponseIndex<intervalCount-1) { // activate next interval label
                                     setCurrentResponseIndex(currentResponseIndex+1);
+                                } else {
+                                    setCurrentResponseIndex(0); // back to beginning necessary for re-rendering and showing the label. Bad code.
                                 }
                             }
                         }
@@ -754,7 +719,7 @@ const AskInterval = () => {
         )
     };
 
-    const createInervalButtons = () => {
+    const createIntervalButtons = () => {
         return exerciseHasBegun && (
             <>
                 <Grid.Row className={"exerciseRow"} columns={3}>
@@ -784,6 +749,7 @@ const AskInterval = () => {
         );
     }
 
+    // temporary code, keep it here:
     const createMenuRow = () => {
         // old popup for shortcuts:
         return (
@@ -818,7 +784,7 @@ const AskInterval = () => {
                 <ScoreRow showRadioButtons={false}/>
                 {createDegreeInputRow()}
                 {createIntervalLabelRow()}
-                {createInervalButtons()}
+                {createIntervalButtons()}
                 {createButtons()}
                 <Grid.Row>
                     <Grid.Column>
@@ -831,4 +797,4 @@ const AskInterval = () => {
     );
 };
 
-export default AskInterval
+export default AskInterval;
