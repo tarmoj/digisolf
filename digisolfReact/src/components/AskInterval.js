@@ -323,6 +323,7 @@ const AskInterval = () => {
         while (degree2==degree1) { // not to be the same
             degree2 = getRandomElementFromArray(possibleDegrees);
         }
+
         
         let degrees = [];
         if (mode==="harmonic" && degree2 < degree1) { // take care that in harmonic mode the smaller degree is always first -  the user cannot know the direction
@@ -333,6 +334,9 @@ const AskInterval = () => {
         
         const note1 = getNoteByVtNote(scaleNotes[degrees[0]-1]); // index in the array is degree-1
         const note2 = getNoteByVtNote(scaleNotes[degrees[1]-1]);
+
+        if (degrees[0]===8)  degrees[0]=1; // in theory there is no degree 8, use 1 instead
+        if (degrees[1]===8)  degrees[1]=1;
 
         const intervalInfo = getInterval(note1, note2);
         console.log("getIntervalFromScale: Degrees, interval: ", degree1, degree2, note1.vtNote, note2.vtNote, intervalInfo.interval.shortName);
@@ -548,7 +552,8 @@ const AskInterval = () => {
             if ( correct ) {
                 //dispatch(setPositiveMessage(feedBack, 5000));
                 dispatch(incrementCorrectAnswers());
-                setTimeout( ()=> renew(), 2000); // small delay to let user to see the answer -  maybe add this to cofig options
+                const waitTime = intervalCount===1 ?  1000 : 2000; // one seond per interval  to give time to
+                setTimeout( ()=> renew(), waitTime); // small delay to let user to see the answer -  maybe add this to cofig options
 
                 // maybe it is better to move the sound part to ScoreRow component?
                 if (voiceFeedback) {

@@ -35,7 +35,7 @@ KOKKU 6110
 
 
 * intervallid pillidega
-* kas vaja salvestada (mh meloodiaid, kust ära tunda)
+
 * Akordimooduli kiirvastused ja notatsioon
 
 
@@ -53,24 +53,24 @@ TODO 16.05:
 ? Csound heli mobiilides ? luba suuremast ksmps ja puhvrit?
 Rewrite to Tone.js? -  tee eraldiseisev test
 
-TODO: 12.06:
+TODO:
 
 Intervallid -
-- esita meloodilisena, seejärel koos OK
-- näita ainult neid nuppe, mis intervallid kasutusel (possibleIntervals)
+- näita ainult neid nuppe, mis intervallid kasutusel (possibleIntervals) - ei tee
 - heli esitus pillidega. Proovi Tone.js?
-- mitu järjest -  mõtle harjutuse struktuur
-- vastus numbritena nt (1 3) OK
+- seadete menüü +  infomenüü?
 
 TODO 23.05
 
-Intervallid helistikuta (intervall noodist): luba võimalikke intervalle anda anda parameetritest (nagu akordided p5.p6
 - intervall noodist -  valiklikkukesed nagu akrodidelgi
 Pimedate ja nägijate erinevad sisestusviisid:
-näigjatele astmete jaoks nupud
+näigjatele astmete jaoks nupud - ?
 Pimedatele nii astmed kui intervall tekstiväljana
 
-
+AKORDID:
+Funktsiooniharjutused
+- Funktsiooni harjutused : järgmine nupp
+- eraldi sisestused (VI-support)
 
 
 ------
