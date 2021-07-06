@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Button, Checkbox, Dropdown, Grid, Header, Input, Label, Modal, Popup} from 'semantic-ui-react'
+import {Button, Checkbox, Dropdown, Grid, Header, Icon, Input, Label, Modal, Popup} from 'semantic-ui-react'
 import {Slider} from "react-semantic-ui-range";
 
 import {useDispatch, useSelector} from "react-redux";
@@ -26,6 +26,7 @@ const AskFunctions = () => {
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [selectedDictation, setSelectedDictation] = useState({title:"", soundFile:"", functions:[]});
+    const [dictationIndex, setDictationIndex] = useState(0);
     const [answer, setAnswer] = useState(null);
     const [answered, setAnswered] = useState(false);
     const [response, setResponse] = useState([]); //array of string like "T", "S, "D"
@@ -176,6 +177,15 @@ const AskFunctions = () => {
         );
     };
 
+    const handleIndexChange = (change = 1) => { // change can be positive or negative
+        let newIndex = dictationIndex + change;
+        if (newIndex>dictations.length-1) newIndex = dictations.length-1;
+        if (newIndex<0) newIndex = 0;
+        //console.log("dictationIndex is now: ", newIndex);
+        setDictationIndex(newIndex);
+        renew(newIndex);
+    }
+
     const createSelectionMenu = () => {
         const options = [];
 
@@ -184,20 +194,30 @@ const AskFunctions = () => {
         }
 
         return  exerciseHasBegun &&  (
-            <Grid.Row columns={2} centered={true}>
-                <Grid.Column computer={"8"} tablet={"8"} mobile={"16"}>
-                  <label className={"marginRight "}>{ capitalizeFirst(t("chooseDictation")) }</label>
+            <Grid.Row columns={3} centered={true}>
+                <Grid.Column>
+                    <Button circular icon={"chevron left"}
+                            className={"floatRight"}
+                            onClick={ () => handleIndexChange(-1)} />
+                </Grid.Column>
+                <Grid.Column>
+                  {/*<label className={"marginRight "}>{ capitalizeFirst(t("chooseDictation")) }</label>*/}
                   <Select
-                        className={"marginTopSmall fullwidth"}
+                        /*className={"fullwidth"}*/
+                        style={{ width:"100%", minWidth:"20px"  }}
                         placeholder={t("chooseDictation")}
                         options={options}
-                        defaultValue= {title ? title : "" }
+                        /*defaultValue= {title ? title : "" }*/
+                        value={dictationIndex}
                         onChange={(e, {value, text}) => {
-                            //title = text;
+                            setDictationIndex(value);
                             renew(value);
                         }
                         }
                     />
+                </Grid.Column>
+                <Grid.Column floated={"left"}>
+                    <Button circular icon={"chevron right"} onClick={ () => handleIndexChange(1)}/>
                 </Grid.Column>
             </Grid.Row>
         );
@@ -288,7 +308,7 @@ const AskFunctions = () => {
 
         for (let measure of selectedDictation.functions ) {
             for (let f of measure ) {
-                elements.push(<FunctionBox index={index}/>);
+                elements.push(<FunctionBox index={index} key={"FBox1"+index}/>);
                 index++;
             }
             elements.push(" | ");
@@ -308,7 +328,7 @@ const AskFunctions = () => {
 
         for (let measure of selectedDictation.functions ) {
             for (let f of measure ) {
-                elements.push(<FunctionBox2 index={index}/>);
+                elements.push(<FunctionBox2 index={index} key={"FBox2"+index}/>);
                 index++;
             }
             elements.push(" | ");
@@ -355,7 +375,7 @@ const AskFunctions = () => {
             />
 
 
-            <Grid celled={false}>
+            <Grid celled={true}>
                 <ScoreRow/>
                 {createSelectionMenu()}
                 {createResponseBlock()}
