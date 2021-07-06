@@ -21,12 +21,28 @@ import {stringToIntArray, getRandomElementFromArray } from "../util/util"
 const AskFunctions = () => {
     const { title } = useParams();
 
+    const getTitleIndex = () => {
+        let index = -1;
+        if (title && dictations) {
+            //find index of that dictation
+            index = dictations.findIndex( element => {
+                if (element.title === title) {
+                    return true;
+                }
+            });
+            //console.log("was able to find index for ", title, index);
+        }
+        return index;
+    }
+
+    const titleIndex = getTitleIndex();
+
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
-    const [selectedDictation, setSelectedDictation] = useState(dictations[0]);
-    const [dictationIndex, setDictationIndex] = useState(0);
+    const [selectedDictation, setSelectedDictation] = useState(dictations[titleIndex >=0 ? titleIndex : 0 ]);
+    const [dictationIndex, setDictationIndex] = useState(titleIndex >= 0 ? titleIndex  : 0);
     const [answer, setAnswer] = useState(null);
     const [answered, setAnswered] = useState(false);
     const [response, setResponse] = useState([]); //array of string like "T", "S, "D"
@@ -42,21 +58,12 @@ const AskFunctions = () => {
 
     const startExercise = () => {
         setExerciseHasBegun(true);
-        // TODO: get from parameters
-        // TODO: volume width on mobile (style: maxwidth cener vms)
-        if (/*title && */dictations) {
-            //find index of that dictation
-            let index = dictations.findIndex( element => {
-                if (element.title === title) {
-                    return true;
-                }
-            });
-            //console.log("was able to find index for ", title, index);
-            if (index>=0) {
-                renew(index);
-            } else {
-                renew(0);
-            }
+
+        if (titleIndex >= 0 ) {
+            setDictationIndex(titleIndex);
+            renew(titleIndex);
+        } else {
+            renew(0);
         }
 
     };
@@ -177,7 +184,6 @@ const AskFunctions = () => {
                                     setVolume(value);
                                 }
                             } }
-                            /*style={{maxWidth:200, justifyContent: "center"}}*/
                     />
                 </Grid.Column>
                 <Grid.Column width={1}/>
@@ -344,7 +350,7 @@ const AskFunctions = () => {
 
         return exerciseHasBegun &&  selectedDictation.title && (
             <div className={"marginLeft"}>
-                <span className={"marginLeft marginRight"}>{capitalizeFirst(t("enterFunctions"))} nuppudena: </span>
+                <span className={"marginLeft marginRight"}>{capitalizeFirst(t("enterFunctions"))}: </span>
                 { elements }
             </div>
         );
@@ -386,7 +392,7 @@ const AskFunctions = () => {
             <Grid celled={true}>
                 <ScoreRow/>
                 {createSelectionMenu()}
-                {createResponseBlock()}
+                {/*{createResponseBlock()} - chekcboxes, other is buttons */}
                 {createResponseBlock2()}
                 {createCorrectAnswerBlock()}
                 {createVolumeRow()}
