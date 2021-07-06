@@ -31,24 +31,27 @@ const intervalDefinitions = [
 // TODO: into English! check abbreviations and correct terms
 // also shortNames of intervals to English
 // chord names and theory: https://luffykudo.wordpress.com/2020/08/19/how-chords-are-made/
+// define names and shrtnames for both classical and popjazz vocabulary
 export const chordDefinitions = [
-    { shortName: "M", longName: "majorTriad", intervalsUp: ["s3", "p5"], intervalsDown: ["v3", "p5"],
+    { shortName: "M", shortNamePJ: "M", longName: "majorTriad", longNamePJ:"majorTriadPJ", intervalsUp: ["s3", "p5"], intervalsDown: ["v3", "p5"],
         midiIntervals: [0, 4, 7] }, // intervals from lower note
-    { shortName: "m", longName: "minorTriad", intervalsUp: ["v3", "p5"], intervalsDown: ["s3", "p5"],
+    { shortName: "m", shortNamePJ: "m" longName: "minorTriad", longNamePJ:"minorTriadPJ", intervalsUp: ["v3", "p5"], intervalsDown: ["s3", "p5"],
         midiIntervals: [0, 3, 7] },
-    { shortName: "dim", longName: "diminishedTriad", intervalsUp: ["v3", ">5"], intervalsDown: ["v3", ">5"],
+    { shortName: "dim", shortNamePJ: "o", longName: "diminishedTriad", longNamePJ: "diminishedTriad", intervalsUp: ["v3", ">5"], intervalsDown: ["v3", ">5"],
         midiIntervals: [0, 3, 6] },
-    { shortName: "aug", longName: "augmentedTriad", intervalsUp: ["s3", "<5"], intervalsDown: ["s3", "<5"],
+    { shortName: "aug", shortNamePJ:"+", longName: "augmentedTriad", longNamePJ:"augmentedTriad", intervalsUp: ["s3", "<5"], intervalsDown: ["s3", "<5"],
         midiIntervals: [0, 4, 8] },
 
-    { shortName: "M6", longName: "majorSixThree", intervalsUp: ["v3", "v6"], intervalsDown: ["p4", "v6"],
+    { shortName: "M6", shortNamePJ:"M/3", longName: "majorSixThree", longNamePJ: "firstInversionOfMajor", intervalsUp: ["v3", "v6"], intervalsDown: ["p4", "v6"],
         midiIntervals: [0, 3, 8] },
-    { shortName: "m6", longName: "minorSixThree", intervalsUp: ["s3", "s6"], intervalsDown: ["p4", "s6"],
+    { shortName: "m6", shortNamePJ:"m/3", longName: "minorSixThree", longNamePJ: "firstInversionMinor",intervalsUp: ["s3", "s6"], intervalsDown: ["p4", "s6"],
         midiIntervals: [0, 4, 9] },
+    { shortName: "dim6", shortNamePJ:"o/3", longName: "firstInversionDiminishedTriad", longNamePJ: "firstInversionDiminishedTriadPJ",intervalsUp: ["v3", "s6"], intervalsDown: ["<4", "s6"],
+        midiIntervals: [0, 3, 9] },
 
-    { shortName: "M64", longName: "majorSixFour", intervalsUp: ["p4", "s6"], intervalsDown: ["s3", "s6"],
+    { shortName: "M64", shortNamePJ:"M/5", longName: "majorSixFour", longNamePJ:"secondInversionMajor", intervalsUp: ["p4", "s6"], intervalsDown: ["s3", "s6"],
         midiIntervals: [0, 5, 9] },
-    { shortName: "m64", longName: "minorSixFour", intervalsUp: ["s3", "p5"], intervalsDown: ["v3", "p5"],
+    { shortName: "m64",  shortNamePJ:"m/5", longName: "minorSixFour", longNamePJ:"secondInversionMajor",intervalsUp: ["s3", "p5"], intervalsDown: ["v3", "p5"],
         midiIntervals: [0, 5, 8] },
 
     // septachords
