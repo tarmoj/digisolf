@@ -25,7 +25,7 @@ const AskFunctions = () => {
     const dispatch = useDispatch();
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
-    const [selectedDictation, setSelectedDictation] = useState({title:"", soundFile:"", functions:[]});
+    const [selectedDictation, setSelectedDictation] = useState(dictations[0]);
     const [dictationIndex, setDictationIndex] = useState(0);
     const [answer, setAnswer] = useState(null);
     const [answered, setAnswered] = useState(false);
@@ -42,6 +42,8 @@ const AskFunctions = () => {
 
     const startExercise = () => {
         setExerciseHasBegun(true);
+        // TODO: get from parameters
+        // TODO: volume width on mobile (style: maxwidth cener vms)
         if (/*title && */dictations) {
             //find index of that dictation
             let index = dictations.findIndex( element => {
@@ -52,6 +54,8 @@ const AskFunctions = () => {
             //console.log("was able to find index for ", title, index);
             if (index>=0) {
                 renew(index);
+            } else {
+                renew(0);
             }
         }
 
@@ -99,6 +103,8 @@ const AskFunctions = () => {
 
         setAnswered(true);
         let correct = true;
+
+        console.log("checkResponse answer: ", answer);
 
         for (let i=0; i<answer.length; i++) {
             if (response[i]==answer[i]) {
@@ -156,11 +162,12 @@ const AskFunctions = () => {
         }
     };
 
+    // TODO: layout for mobile and desktop needs work.
     const createVolumeRow = () => {
         return exerciseHasBegun && (
             <Grid.Row centered={true} columns={3}>
-                <Grid.Column />
-                <Grid.Column>
+                <Grid.Column width={1}/>
+                <Grid.Column computer={6} mobile={12} tablet={10}>
                     {capitalizeFirst(t("volume"))}
                     <Slider value={volume} color="blue"
                             settings={ {
@@ -170,9 +177,10 @@ const AskFunctions = () => {
                                     setVolume(value);
                                 }
                             } }
+                            /*style={{maxWidth:200, justifyContent: "center"}}*/
                     />
                 </Grid.Column>
-                <Grid.Column />
+                <Grid.Column width={1}/>
             </Grid.Row>
         );
     };
@@ -231,9 +239,9 @@ const AskFunctions = () => {
             setResponse(r); // somehow this does not cause rerender
             //setVolume(volume + 0.01);
             console.log("Setting response: ", index, response);
-            if (closeDialog) {
+            /*if (closeDialog) {
                 setDialogOpen(false);
-            }
+            }*/
         }
     }
 
