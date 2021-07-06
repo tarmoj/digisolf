@@ -35,7 +35,7 @@ const intervalDefinitions = [
 export const chordDefinitions = [
     { shortName: "M", shortNamePJ: "M", longName: "majorTriad", longNamePJ:"majorTriadPJ", intervalsUp: ["s3", "p5"], intervalsDown: ["v3", "p5"],
         midiIntervals: [0, 4, 7] }, // intervals from lower note
-    { shortName: "m", shortNamePJ: "m" longName: "minorTriad", longNamePJ:"minorTriadPJ", intervalsUp: ["v3", "p5"], intervalsDown: ["s3", "p5"],
+    { shortName: "m", shortNamePJ: "m", longName: "minorTriad", longNamePJ:"minorTriadPJ", intervalsUp: ["v3", "p5"], intervalsDown: ["s3", "p5"],
         midiIntervals: [0, 3, 7] },
     { shortName: "dim", shortNamePJ: "o", longName: "diminishedTriad", longNamePJ: "diminishedTriad", intervalsUp: ["v3", ">5"], intervalsDown: ["v3", ">5"],
         midiIntervals: [0, 3, 6] },
@@ -44,7 +44,7 @@ export const chordDefinitions = [
 
     { shortName: "M6", shortNamePJ:"M/3", longName: "majorSixThree", longNamePJ: "firstInversionOfMajor", intervalsUp: ["v3", "v6"], intervalsDown: ["p4", "v6"],
         midiIntervals: [0, 3, 8] },
-    { shortName: "m6", shortNamePJ:"m/3", longName: "minorSixThree", longNamePJ: "firstInversionMinor",intervalsUp: ["s3", "s6"], intervalsDown: ["p4", "s6"],
+    { shortName: "m6", shortNamePJ:"m/3", longName: "minorSixThree", longNamePJ: "firstInversionOfMinor",intervalsUp: ["s3", "s6"], intervalsDown: ["p4", "s6"],
         midiIntervals: [0, 4, 9] },
     { shortName: "dim6", shortNamePJ:"o/3", longName: "firstInversionDiminishedTriad", longNamePJ: "firstInversionDiminishedTriadPJ",intervalsUp: ["v3", "s6"], intervalsDown: ["<4", "s6"],
         midiIntervals: [0, 3, 9] },
@@ -55,15 +55,23 @@ export const chordDefinitions = [
         midiIntervals: [0, 5, 8] },
 
     // septachords
-    { shortName: "7", longName: "majorMinorSeventh", intervalsUp: ["s3", "p5", "v7"], intervalsDown: ["v3", ">5", "v7"],
+    { shortName: "V7", shortNamePJ:"7", longName: "dominantSeventh", longNamePJ:"dominantSeventhPJ", intervalsUp: ["s3", "p5", "v7"], intervalsDown: ["v3", ">5", "v7"],
         midiIntervals: [0,4,7,10] },
-    { shortName: "m7", longName: "minorSeventh", intervalsUp: ["s3", "p5", "v7"], intervalsDown: ["v3", "p5", "v7"],
+    { shortName: "V65", shortNamePJ:"7/3", longName: "firstInversionOfDominantSeventh", longNamePJ:"firstInversionOfDominantSeventhPJ", intervalsUp: ["v3", ">5", "v6"], intervalsDown: ["s2", "p4", "v6"],
+        midiIntervals: [0,3,6,8] },
+    { shortName: "V43", shortNamePJ:"7/5", longName: "secondInversionOfDominantSeventh", longNamePJ:"secondInversionOfDominantSeventhPJ", intervalsUp: ["v3", "p4", "s6"], intervalsDown: ["s3", "<4", "s6"],
+        midiIntervals: [0,3,5,9] },
+    { shortName: "V2", shortNamePJ:"7/7", longName: "thirdInversionOfDominantSeventh", longNamePJ:"thirdInversionOfDominantSeventhPJ", intervalsUp: ["s2", "<4", "s6"], intervalsDown: ["v3", "p5", "s6"],
+        midiIntervals: [0,2,6,9] },
+
+
+    { shortName: "m7", shortNamePJ:"m7", longName: "minorSeventh", longNamePJ:"minorSeventhPJ", intervalsUp: ["v3", "p5", "v7"], intervalsDown: ["v3", "p5", "v7"],
         midiIntervals: [0,3,7,10] },
-    { shortName: "M7", longName: "majorSeventh", intervalsUp: ["s3", "p5", "s7"], intervalsDown: ["v3", "p5", "s7"],
+    { shortName: "M7", shortNamePJ:"△", longName: "majorSeventh", longNamePJ:"majorSeventhPJ", intervalsUp: ["s3", "p5", "s7"], intervalsDown: ["v3", "p5", "s7"],
         midiIntervals: [0,4,7,11] },
-    { shortName: "hdim7", longName: "halfDiminishedSeventh", intervalsUp: ["v3", ">5", "v7"], intervalsDown: ["v3", ">5", "v7"],
+    { shortName: "hdim7", shortNamePJ:"ø", longName: "halfDiminishedSeventh", longNamePJ:"halfDiminishedSeventhPJ", intervalsUp: ["v3", ">5", "v7"], intervalsDown: ["v3", ">5", "v7"],
         midiIntervals: [0,3,6,10] },
-    { shortName: "dim7", longName: "diminishedSeventh", intervalsUp: ["v3", ">5", ">7"], intervalsDown: ["v3", ">5", ">7"],
+    { shortName: "dim7", shortNamePJ:"o7", longName: "diminishedSeventh", longNamePJ:"diminishedSeventhPJ", intervalsUp: ["v3", ">5", ">7"], intervalsDown: ["v3", ">5", ">7"],
         midiIntervals: [0,3,6,9] },
 ];
 

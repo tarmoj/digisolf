@@ -68,6 +68,7 @@ const AskChord = () => {
     const [notesEnteredByUser, setNotesEnteredByUser] = useState(""); // test
 
     const [volume, setVolume] = useState(0.6);
+    const [usePopJazzNaming, setUsePopJazzNaming] = useState(false);
 
     //const userEnteredNotes = useSelector(state => state.exerciseReducer.userEnteredNotes);
 
@@ -77,6 +78,10 @@ const AskChord = () => {
     // kui ehitada alla, siis peaks olema ilmselt teine valik
     const possibleBaseVtNotes = ["C/4", "D/4",  "E@/4", "E/4", "F/4",
         "G/4", "A/4", "B@/4", "C/5" ];
+
+    const shortName = usePopJazzNaming ? "shortNamePJ" : "shortName";
+    const longName = usePopJazzNaming ? "longNamePJ" : "longName";
+    console.log("short and long name are now: ", shortName, longName);
 
 
     // EXERCISE LOGIC ======================================
@@ -96,7 +101,7 @@ const AskChord = () => {
         let possibleChords = [];
 
         if (name.includes(".")) { // allow giving the chord names (via shortName) as name via URL like /M.m.M6.m6
-            console.log("Extract possible chors from name: ");
+            console.log("Extract possible chords from name: ");
             const shortNames = name.toString().split(".");
             console.log(shortNames);
             for (let shortName of shortNames) {
@@ -143,7 +148,7 @@ const AskChord = () => {
                     break;
                 case "septachords":
                     possibleChords.push(
-                        chordDefinitions.find( chord => chord.shortName === "7" ),
+                        chordDefinitions.find( chord => chord.shortName === "V7" ),
                         chordDefinitions.find( chord => chord.shortName === "m7" ),
                         chordDefinitions.find( chord => chord.shortName === "M7" ),
                         chordDefinitions.find( chord => chord.shortName === "hdim7" ),
@@ -156,6 +161,7 @@ const AskChord = () => {
             }
         }
         // test: add field which shows if to use this in selection or not:
+        console.log("possibleChords: ", possibleChords );
         possibleChords.map(item => item.active=true);
         setPossibleChords(possibleChords);
 
@@ -268,7 +274,7 @@ const AskChord = () => {
         let correct = true;
 
         //console.log(response);
-        const correctChord = t(selectedChord.longName);
+        const correctChord = t(selectedChord[longName]);
 
 
         if (useNotation) {
@@ -425,9 +431,21 @@ const AskChord = () => {
 
     // UI ======================================================
 
+    const createOptionsBlock = () => {
+        return exerciseHasBegun && (
+          <Grid.Row>
+              <Grid.Column>
+                  { ` ${capitalizeFirst(t("naming"))}:  ${t("classical")}`}
+                   <Checkbox slider={true} className={"marginTopSmall marginLeft marginRight"}
+                             onChange={ (e, data) =>
+                                 setUsePopJazzNaming(data.checked)}/>
+                  { ` ${t("popJazz")}` }
+              </Grid.Column>
+          </Grid.Row>
+        );
+    };
 
     const createPlaySoundButton = () => {
-        console.log("Begun: ", exerciseHasBegun);
         if (exerciseHasBegun) {
             return (
                 <Grid.Row  columns={2} centered={true}>
@@ -483,7 +501,7 @@ const AskChord = () => {
             <Grid.Column>
                 <Button className={"fullWidth marginTopSmall" /*<- kuvab ok. oli: "exerciseBtn"*/}
                         key = {chord.shortName}
-                        onClick={() => checkResponse({shortName: chord.shortName})}>{ capitalizeFirst( t(chord.longName) )}</Button>
+                        onClick={() => checkResponse({shortName: chord.shortName})}>{ capitalizeFirst( t(chord[longName]) )}</Button>
             </Grid.Column>
         ) : (<Grid.Column></Grid.Column>)
     };
@@ -552,20 +570,6 @@ const AskChord = () => {
         }
     }
 
-    //move up later
-    const [open, setOpen] = React.useState(false);
-    //maybe this should not be part of state but outside?? otherwise too
-    //const [chordSelection, setChordSelection] = useState([]); // array of chord.shortNames like ["M", "m6"]
-
-
-    // test -  for selecting chord via checkbox
-/*
-    const chordData = [
-        {shortName: "M", checked: false},
-        {shortName:"M6", checked: true}, { shortName: "M64", checked: false}
-    ]; // later take shortNames from chordDefinitions
-    const [selectedChords, setSelectedChords] = useState(chordData);
-*/
 
     const handleChordSelection = (e,data) => {
         console.log(e,data);
@@ -599,7 +603,8 @@ const AskChord = () => {
                 <div className={"marginLeft"}>
                     {possibleChords.map( item =>  (
 
-                            <Checkbox label={item.shortName} name={item.shortName}
+                            <Checkbox label={item[shortName]} name={item.shortName}
+                                      key={item.shortName}
                                       onChange={ handleChordSelection }
                                       defaultChecked={item.active}
                                       className={"marginRight"}
@@ -608,26 +613,7 @@ const AskChord = () => {
                     ))}
                 </div>
             </Grid.Row>
-/* Later rewrite with Accordion
-            <Accordion styled active="{showTable}">
-                {<Accordion.Title onClick={onTitleClick} >
-                    <Icon className={'chevron down ' + iconClass} id={'toggleTableIcon'} />
-                </Accordion.Title>}
-                <Accordion.Content active={showTable} id={'notationTableContent'}>
-                    <Grid>
-                        {selectedChords.map( item =>  (
-                            <Grid.Column>
-                            <Checkbox label={item.shortName} name={item.shortName}
-                                      onChange={ handleChordSelection }
-                                checked={item.checked}/>
-                            </Grid.Column>
-                        ))}
-                    </Grid>
-                </Accordion.Content>
-            </Accordion>
-            */
-        )
-
+        );
     }
 
 
@@ -651,6 +637,7 @@ const AskChord = () => {
 
                 <ScoreRow/>
                 {/*Vaja rida juhiseks (exerciseDescriptio). div selleks ilmselt kehv, sest kattub teistega...*/}
+                {createOptionsBlock()}
                 {createNotationBlock()}
                 {createChordSelection()}
                 {createResponseButtons()}
