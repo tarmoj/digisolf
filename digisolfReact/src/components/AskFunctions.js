@@ -48,9 +48,15 @@ const AskFunctions = () => {
     const [response, setResponse] = useState([]); //array of string like "T", "S, "D"
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
     const [volume, setVolume] = useState(0.6);
+    const [activeFunctionBoxIndex, setActiveFunctionBoxIndex] = useState(0);
 
 
-
+    useEffect(() => {
+        document.addEventListener("keydown", onKeyDown);
+        return () => {
+            document.removeEventListener("keydown", onKeyDown);
+        };
+    });
 
 
 
@@ -77,6 +83,7 @@ const AskFunctions = () => {
         setSelectedDictation(dictation);
         const answer = dictation.functions.flat(); // array of cuntions
         setAnswer(answer);
+        setActiveFunctionBoxIndex(0);
         setResponse(Array(answer.length).fill("--")); // cannot be empty array, otherwise clears response on every new render
 
         if (exerciseHasBegun) {
@@ -105,6 +112,11 @@ const AskFunctions = () => {
 
         if (!selectedDictation.title ) {
             alert( t("chooseDictation"));
+            return;
+        }
+        
+        if (answered) {
+            alert(t("alreadyAnswered"));
             return;
         }
 
@@ -238,16 +250,30 @@ const AskFunctions = () => {
 
     } ;
 
-    const handleFunctionChange = (index, value, closeDialog=true) => {
+    const onKeyDown = (e) => {
+        console.log("Key: ", e.key);
+        if (e.key.toString().toLowerCase() === "t") {
+            handleFunctionChange(activeFunctionBoxIndex, "T");
+        } else if (e.key.toString().toLowerCase() === "d") {
+            handleFunctionChange(activeFunctionBoxIndex, "D");
+        } else if (e.key === "ArrowRight") {
+            if (activeFunctionBoxIndex < response.length-1) setActiveFunctionBoxIndex(activeFunctionBoxIndex+1);
+        } else if (e.key === "ArrowLeft") {
+            if (activeFunctionBoxIndex > 0) setActiveFunctionBoxIndex(activeFunctionBoxIndex-1);
+        } else if (e.key === "Enter") {
+            checkResponse();
+        }
+    };
+
+    const handleFunctionChange = (index, value) => {
         let r = response.slice();
         if (r.length>index) {
             r[index] = value;
-            setResponse(r); // somehow this does not cause rerender
-            //setVolume(volume + 0.01);
+            setResponse(r); 
             console.log("Setting response: ", index, response);
-            /*if (closeDialog) {
-                setDialogOpen(false);
-            }*/
+            if (activeFunctionBoxIndex < response.length-1) {
+                setActiveFunctionBoxIndex(activeFunctionBoxIndex+1);
+            }
         }
     }
 
@@ -277,12 +303,10 @@ const AskFunctions = () => {
         );
     }
 
-
-
-    const [dialogOpen, setDialogOpen] = useState(false);
+    
     const FunctionBox2 = (props) => {
         const index = props.index ? props.index : 0;
-        const label = response[index] ? response[index] : "?";
+        //const label = response[index] ? response[index] : "?";
         return (
             <React.Fragment>
                 <Popup
@@ -307,8 +331,11 @@ const AskFunctions = () => {
                         </Button.Group>
                     }
                     on='click'
+
                     trigger={<Button content={response[index]}
-                                     className={  answered ?  (answer[index]===response[index] ? "green" : "red")  : ""  }
+                                     color={  answered ?  (answer[index]===response[index] ? "green" : "red")  : "grey"  }
+                                     basic = {index===activeFunctionBoxIndex}
+                                     /*onClick = {() => setActiveFunctionBoxIndex(index)}*/
                     />}
                 />
 
@@ -339,6 +366,7 @@ const AskFunctions = () => {
     const createResponseBlock2 = () => {
         let index = 0;
         let elements = [];
+        let measureCounter = 1;
 
         for (let measure of selectedDictation.functions ) {
             for (let f of measure ) {
@@ -346,13 +374,19 @@ const AskFunctions = () => {
                 index++;
             }
             elements.push(" | ");
+            if (measureCounter%4==0) elements.push(<br />); // four bars in one row
+            measureCounter++;
         }
-
+        // TODO: try table inside grid perhaps
         return exerciseHasBegun &&  selectedDictation.title && (
-            <div className={"marginLeft"}>
+            <Grid.Row colums={2}>
+                <Grid.Column width={5}>{capitalizeFirst(t("enterFunctions"))}:</Grid.Column>
+                <Grid.Column width={9}>{ elements }</Grid.Column>
+            {/*<div className={"margineft"}>
                 <span className={"marginLeft marginRight"}>{capitalizeFirst(t("enterFunctions"))}: </span>
                 { elements }
-            </div>
+            </div>*/}
+            </Grid.Row>
         );
     }
 
