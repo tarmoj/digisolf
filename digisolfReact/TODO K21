@@ -53,6 +53,8 @@ TODO 16.05:
 ? Csound heli mobiilides ? luba suuremast ksmps ja puhvrit?
 Rewrite to Tone.js? -  tee eraldiseisev test
 
+Tee VolumeControl ja InstrumentChoice globaalseteks komponentideks, võibolla ka Csound, vastavad Reduxid.
+
 TODO:
 
 Intervallid -

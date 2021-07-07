@@ -423,7 +423,7 @@ const AskFunctions = () => {
             />
 
 
-            <Grid celled={true}>
+            <Grid celled={false}>
                 <ScoreRow/>
                 {createSelectionMenu()}
                 {/*{createResponseBlock()} - chekcboxes, other is buttons */}

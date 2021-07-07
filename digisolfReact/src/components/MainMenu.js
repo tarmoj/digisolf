@@ -51,7 +51,9 @@ const MainMenu = () => {
                         <Header size='large'>{t("chords")}</Header>
                         <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askchord/MmTriad")}>{capitalizeFirst(t("MmTriad"))}</Button><br/>
                         <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askchord/MmdaTriad")}>{capitalizeFirst(t("MmdaTriad"))}</Button><br/>
+                        <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askchord/MmInversions")}>{capitalizeFirst(t("MmInversions"))}</Button><br/>
                         <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askchord/MmdaInversions")}>{capitalizeFirst(t("MmdaInversions"))}</Button><br/>
+                        <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askchord/7inversions")}>{capitalizeFirst(t("7inversions"))}</Button><br/>
                         <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askchord/septachords")}>{capitalizeFirst(t("septachords"))}</Button><br/>
                         <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askfunctions")}>{capitalizeFirst(t("functions"))}</Button><br/>
 
@@ -67,8 +69,6 @@ const MainMenu = () => {
                     <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/classical")}>{capitalizeFirst(t("classical"))}</Button><br/>
                     <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/degrees")}>{capitalizeFirst(t("degreeDictations"))}</Button><br/>
                     <Button className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/degrees_random")}>{capitalizeFirst(t("degreeDictations"))} - {t("generated") }</Button><br/>
-                    {/*<Button className={"marginTopSmall mainMenuBtn"} onClick={() => startDictation("simple")}>{capitalizeFirst(t("simple"))}</Button><br/>*/}
-
                 </Grid.Column>
                 <Grid.Column>
                     <div>

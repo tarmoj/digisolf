@@ -134,6 +134,16 @@ const AskChord = () => {
                         chordDefinitions.find( chord => chord.shortName === "aug" ),
                     );
                     break;
+                case "MmInversions": // new -  without dim and aug
+                    possibleChords.push(
+                        chordDefinitions.find( chord => chord.shortName === "M" ),
+                        chordDefinitions.find( chord => chord.shortName === "m" ),
+                        chordDefinitions.find( chord => chord.shortName === "M6" ),
+                        chordDefinitions.find( chord => chord.shortName === "m6" ),
+                        chordDefinitions.find( chord => chord.shortName === "M64" ),
+                        chordDefinitions.find( chord => chord.shortName === "m64" )
+                    );
+                    break;
                 case "MmdaInversions":
                     possibleChords.push(
                         chordDefinitions.find( chord => chord.shortName === "M" ),
@@ -143,7 +153,16 @@ const AskChord = () => {
                         chordDefinitions.find( chord => chord.shortName === "M64" ),
                         chordDefinitions.find( chord => chord.shortName === "m64" ),
                         chordDefinitions.find( chord => chord.shortName === "dim" ),
+                        chordDefinitions.find( chord => chord.shortName === "dim6" ),
                         chordDefinitions.find( chord => chord.shortName === "aug" ),
+                    );
+                    break;
+                case "7inversions": // new -  dominant7 and others
+                    possibleChords.push(
+                        chordDefinitions.find( chord => chord.shortName === "V7" ),
+                        chordDefinitions.find( chord => chord.shortName === "V65" ),
+                        chordDefinitions.find( chord => chord.shortName === "V43" ),
+                        chordDefinitions.find( chord => chord.shortName === "V2" )
                     );
                     break;
                 case "septachords":
