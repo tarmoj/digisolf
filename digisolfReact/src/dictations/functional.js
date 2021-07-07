@@ -146,27 +146,80 @@ export const dictations = [
         functions: [ ["T"],	["D"],	["T"], ["D"],  ["T"]]
     },
 
+    // T-S-D
+
+
     {
-        title: "pealkiri",
+        title: "D2.1",
         credits: "Virgo Sillamaa -  \"Kõlakool\"",
-        soundFile: "/sounds/chords/functions/DX.Y.mp3",
-        functions: [ ["T"],	["D"],	["T"], ["D"],  ["T"],	["D"],	["T"] ]
+        soundFile: "/sounds/chords/functions/D2.1.mp3",
+        functions: [ ["T", "S"],	["D"],	["T", "S"], ["D"],  ["T"] ]
     },
 
 
     {
-        title: "pealkiri",
+        title: "D2.2",
         credits: "Virgo Sillamaa -  \"Kõlakool\"",
-        soundFile: "/sounds/chords/functions/DX.Y.mp3",
-        functions: [ ["T"],	["D"],	["T"], ["D"],  ["T"],	["D"],	["T"] ]
+        soundFile: "/sounds/chords/functions/D2.2.mp3",
+        functions: [ ["T", "S"],	["D", "T"], ["T", "S"],	["D", "T"], ["T"] ]
     },
 
 
+
     {
-        title: "pealkiri",
+        title: "D2.3",
         credits: "Virgo Sillamaa -  \"Kõlakool\"",
-        soundFile: "/sounds/chords/functions/DX.Y.mp3",
-        functions: [ ["T"],	["D"],	["T"], ["D"],  ["T"],	["D"],	["T"] ]
+        soundFile: "/sounds/chords/functions/D2.3.mp3",
+        functions: [ ["T"],	["S"],	["T","D"], ["T","S"],  ["T"] ]
+    },
+
+    {
+        title: "D2.6",
+        credits: "Virgo Sillamaa -  \"Kõlakool\"",
+        soundFile: "/sounds/chords/functions/D2.6.mp3",
+        functions: [ ["T"],	["S"],	["T"], ["D"],  ["T"],	["S"],	["T"], ["D"], ["T"] ]
+    },
+
+    {
+        title: "D2.10",
+        credits: "Virgo Sillamaa -  \"Kõlakool\"",
+        soundFile: "/sounds/chords/functions/D2.10.mp3",
+        functions: [ ["T"],	["S"],	["D"], ["T"] ]
+    },
+
+    {
+        title: "D2.14",
+        credits: "Virgo Sillamaa -  \"Kõlakool\"",
+        soundFile: "/sounds/chords/functions/D2.14.mp3",
+        functions: [ ["T"],	["S", "D"],	 ["T"],	["S", "D"],  ["T"] ]
+    },
+
+    {
+        title: "D2.17",
+        credits: "Virgo Sillamaa -  \"Kõlakool\"",
+        soundFile: "/sounds/chords/functions/D2.17.mp3",
+        functions: [ ["T"],	["T"],	["S"], ["D"],  ["T"],	["T"],	["S"], ["D"], ["T"] ]
+    },
+
+    {
+        title: "D2.23",
+        credits: "Virgo Sillamaa -  \"Kõlakool\"",
+        soundFile: "/sounds/chords/functions/D2.23.mp3",
+        functions: [ ["T", "S"],	["S", "D"],	 ["T", "S"],	["S", "D"],   ["T"] ]
+    },
+
+    {
+        title: "D2.27",
+        credits: "Virgo Sillamaa -  \"Kõlakool\"",
+        soundFile: "/sounds/chords/functions/D2.27.mp3",
+        functions: [ ["T"],	["T"],	["S"], ["S"],  ["D"],	["D"],	["T"], ["T"] ]
+    },
+
+    {
+        title: "D2.30",
+        credits: "Virgo Sillamaa -  \"Kõlakool\"",
+        soundFile: "/sounds/chords/functions/D2.30.mp3",
+        functions: [ ["T"],	["T"],	["D"], ["D"],  ["S"],	["S"],	["D"], ["D"], ["T"] ]
     },
 
 
