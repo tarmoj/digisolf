@@ -408,6 +408,7 @@ const AskFunctions = () => {
         );
     }
 
+    //TODO: show credits (vt askDictation
     return (
         <div>
             <Header size='large'>{`${capitalizeFirst( t("functions") )} ${selectedDictation.title} `}</Header>
