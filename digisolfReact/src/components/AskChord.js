@@ -174,9 +174,11 @@ const AskChord = () => {
                         chordDefinitions.find( chord => chord.shortName === "dim7" ),
                     );
                     break;
+                case "allChords":
+                    possibleChords = chordDefinitions;
+                    break;
                 default:
-                    console.log("no exercise found");
-                    return;
+                    possibleChords = chordDefinitions;
             }
         }
         // test: add field which shows if to use this in selection or not:
@@ -495,24 +497,18 @@ const AskChord = () => {
     };
 
     const createResponseButtons = () => {
-        let rows = [];
         const activeChords = possibleChords.filter(item => item.active);
-        console.log(activeChords);
-        for (let i = 0, n = activeChords.length; i < n; i += 2) {
-            const row = createResponseButtonRow(activeChords[i], activeChords[i + 1]);
-            rows.push(row);
+        //.log(activeChords);
+        const columns = []
+        for (let i = 0, n = activeChords.length; i < n; i++) {
+            const column = createResponseButtonColumn(activeChords[i]);
+            columns.push(column);
         }
-        return rows;
+        return (<Grid.Row columns={4}>
+            {columns}
+        </Grid.Row>);
     };
 
-    const createResponseButtonRow = (chord1, chord2) => {
-        return (
-            <Grid.Row columns={2} className={"exerciseRow"}>
-                {createResponseButtonColumn(chord1)}
-                {createResponseButtonColumn(chord2)}
-            </Grid.Row>
-        )
-    };
 
     const createResponseButtonColumn = (chord) => {
         return (chord) ?
@@ -520,7 +516,7 @@ const AskChord = () => {
             <Grid.Column>
                 <Button className={"fullWidth marginTopSmall" /*<- kuvab ok. oli: "exerciseBtn"*/}
                         key = {chord.shortName}
-                        onClick={() => checkResponse({shortName: chord.shortName})}>{ capitalizeFirst( t(chord[longName]) )}</Button>
+                        onClick={() => checkResponse({shortName: chord.shortName})}>{ t(chord[shortName]) }</Button>
             </Grid.Column>
         ) : (<Grid.Column></Grid.Column>)
     };
