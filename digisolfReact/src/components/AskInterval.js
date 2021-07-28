@@ -16,7 +16,7 @@ import {
     makeScale,
     simplifyIfAugmentedIntervals
 } from "../util/intervals";
-import MIDISounds from 'midi-sounds-react';
+//import MIDISounds from 'midi-sounds-react';
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import ScoreRow from "./ScoreRow";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
@@ -25,6 +25,8 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import Sound from 'react-sound';
 import correctSound from "../sounds/varia/correct.mp3"
 import wrongSound from "../sounds/varia/wrong.mp3"
+import * as Tone from "tone"
+
 
 const AskInterval = () => {
     const { exerciseName, parameters } = useParams();
@@ -41,7 +43,7 @@ const AskInterval = () => {
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
 
-    const midiSounds = useRef(null);
+    //const midiSounds = useRef(null);
 
     const [isMajor, setIsMajor] = useState(true);
     const [selectedTonicNote, setSelectedTonicNote] = useState(null);
@@ -61,8 +63,11 @@ const AskInterval = () => {
     const [mode, setMode] = useState(
         exerciseName === "tonicTriad" ? "melodicHarmonic" :
             (parameterDict.mode ? parameterDict.mode : "harmonic"  )) ; // melodic|harmonic|melodicHarmonic
+    const [sampler, setSampler] = useState(null );
 
-
+    useEffect(() => {
+        setSampler(createSampler("violin")); // take care if this is the default of instrumentSelection
+    }, []);
 /*
    // keyboard shortcuts
     // TODO: support for other languages
@@ -100,7 +105,7 @@ const AskInterval = () => {
 
     const startExercise = () => {
         setExerciseHasBegun(true);
-        midiSounds.current.setMasterVolume(0.4); // not too loud TODO: add control slider
+        //midiSounds.current.setMasterVolume(0.4); // not too loud TODO: add control slider
 
         if (exerciseName === "randomInterval") { // if interval not in key, set possible intervals:
             let possibleIntervalShortNames = [];
@@ -136,7 +141,8 @@ const AskInterval = () => {
 
         setSelectedTonicNote(tonicNote);
         setIsMajor(isMajor);
-        midiSounds.current.cancelQueue();
+        sampler.releaseAll();
+        //midiSounds.current.cancelQueue();
         // also play tonic
         const triadDuration = 1.5;
         playTonicTriad(tonicNote.midiNote, isMajor, triadDuration);
@@ -154,7 +160,8 @@ const AskInterval = () => {
         setAnswered(false);
 
         setCurrentResponseIndex(0);
-        midiSounds.current.cancelQueue();
+        stopSound();
+        //midiSounds.current.cancelQueue();
 
         if (exerciseName.includes("random")) {
             renewRandom(possibleIntervalShortNames);
@@ -375,9 +382,53 @@ const AskInterval = () => {
         //console.log("Tonic notes: ", rootMidiNote, third, fifth);
     }
 
-     const playNote = (midiNote, start, duration) => {
-        midiSounds.current.playChordAt (midiSounds.current.contextTime()+start, 3, [midiNote], duration); // millegipärast ei tööta, kui korrata intervalli
+    // Tone.js for sound
+
+      const createSampler = (instrument) => {
+        //TODO: loading
+        const sampleList = {};
+        for (let i=60; i<=84; i++) {
+            //check if file exists
+            sampleList[i]=i+".ogg";
+        }
+        const sampler = new Tone.Sampler( {
+                urls: sampleList,
+                baseUrl: process.env.PUBLIC_URL +"/sounds/instruments/"+instrument + "/",
+                release: 1,
+                onerror: (error) => { console.log("error on loading", error) },
+                onload: () => { console.log("Samples loaded"); sampler.connect(reverb); }
+            }
+        );
+        return sampler;
+    }
+
+
+
+    const reverb = new Tone.Reverb( {decay:2.5, wet:0.1} ).toDestination();
+    //sampler.connect(reverb);
+
+
+    const playNote = (midiNote, start=0, duration=1,  volume=0.4 ) => { // csound kind of order of parameters:
+        const freq = Tone.Frequency(midiNote, "midi").toFrequency();
+        if (sampler) {
+            sampler.triggerAttackRelease(freq, duration, Tone.now() + start, volume);
+        } else {
+            console.log("Sampler is null: ", sampler);
+        }
+    }
+
+    const stopSound = () => {
+        // does not work
+        // disconnect would stop the sound but this is bad solution
+        sampler.releaseAll();
+        Tone.Transport.cancel();
+    }
+
+     const playNoteWithMidiSounds = (midiNote, start, duration) => {
+        //midiSounds.current.playChordAt (midiSounds.current.contextTime()+start, 3, [midiNote], duration); // millegipärast ei tööta, kui korrata intervalli
     };
+
+    // ----
 
     const setResponseInterval = (shortName) => {
         const currentResponse = response; // was: .slice() - that seems to be correct way, but  did not work in randomInterval
@@ -797,7 +848,9 @@ const AskInterval = () => {
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
+{/*
             <MIDISounds ref={midiSounds} appElementName="root" instruments={[3]} />
+*/}
         </div>
     );
 };

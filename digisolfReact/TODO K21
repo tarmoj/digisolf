@@ -74,6 +74,12 @@ Funktsiooniharjutused
 - Funktsiooni harjutused : järgmine nupp
 - eraldi sisestused (VI-support)
 
+TODO Tartu:
+
+Instrumendi valik, helitugevus iseseisvaks komponendiks (+ redux)
+Intervallid: - Tone.js
+
+VI tugi  - eraldi vaade (Intervallid - sisesta tekstina, akordid -  sisesta tekstina)
 
 ------
 
