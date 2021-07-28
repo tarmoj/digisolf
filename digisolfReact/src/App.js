@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import HeaderMessage from "./components/HeaderMessage";
 import AskInterval from "./components/AskInterval";
 import AskChord from "./components/AskChord";
@@ -11,10 +11,10 @@ import AskDictation from "./components/askdictation/AskDictation";
 import MainMenu from "./components/MainMenu";
 import AppFooter from "./components/AppFooter";
 import LanguageSelect from "./components/LanguageSelect";
-import {Dimmer, Header, Loader} from "semantic-ui-react";
+import {Checkbox, Dimmer, Header, Icon, Loader} from "semantic-ui-react";
 import {useTranslation} from "react-i18next";
 import { BrowserRouter as Router, Switch, Route, } from 'react-router-dom';
-import {setName} from "./actions/exercise";
+import {setName, setVISupportMode} from "./actions/exercise";
 import {setComponent} from "./actions/component";
 
 function App() {
@@ -22,6 +22,7 @@ function App() {
     const isLoading = useSelector(state => state.componentReducer.isLoading);
 
     const { t, i18n } = useTranslation();
+    const dispatch = useDispatch();
 
     const renderComponent = () => {
         // switch(component) {
@@ -59,12 +60,33 @@ function App() {
         }
     };
 
+    //const VISupport = useSelector(state => state.exerciseReducer().VISupportMode);
+    const createViSupportSelection = () => {
+        //                      /*label={t("visuallyImpairedSupport")}*/
+        // <Icon name={"blind"}/>
+
+        return (
+            /*<Icon name={"blind"}
+                  color={ VISupport ? "green" : "black"}
+                  onClick = { () => dispatch( setVISupportMode(!VISupport)) }
+
+            />*/
+
+            <Checkbox className={"VISupport"} toggle={true}
+                      onChange={ (e, data) =>
+                          dispatch( setVISupportMode(data.checked)) }
+                      label = {"VI"}
+            />
+        );
+    }
+
     return (
         <div className="App">
             <div className={"maxWidth"}>
                 <div className={"appHeader"}>
                     <Header className={"headerText"} size='huge'>{t("digisolfeggio")}</Header>
                     <LanguageSelect/>
+                    {createViSupportSelection()}
                 </div>
                 <HeaderMessage />
                 <div className={"appBody"}>

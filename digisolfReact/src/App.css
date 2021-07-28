@@ -106,6 +106,13 @@ body {
     top: 5px;
 }
 
+.VISupport {
+    position: absolute;
+    float: left;
+    left: 5px;
+    top: 5px;
+}
+
 .mainMenuBtn {
     width: 90%;
 }

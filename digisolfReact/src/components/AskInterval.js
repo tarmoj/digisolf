@@ -43,6 +43,8 @@ const AskInterval = () => {
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
 
+    const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode);
+
     //const midiSounds = useRef(null);
 
     const [isMajor, setIsMajor] = useState(true);
@@ -56,7 +58,7 @@ const AskInterval = () => {
     const [answered, setAnswered] = useState(false);
     const [intervalData, setIntervalData] = useState([{degrees:[], notes:[], interval: null}]); //array of: {degrees: []}
     const [degreesEnteredByUser, setDegreesEnteredByUser] = useState(Array(intervalCount));
-    const [voiceFeedback, setVoiceFeedback] = useState(false); // for visibly impaired support
+    //const [VISupportMode, setVISupportMode] = useState(false); // for visibly impaired support
     const [possibleIntervalShortNames, setPossibleIntervalShortNames] = useState([]);
     const [currentResponseIndex, setCurrentResponseIndex] = useState(0); // in case there are several intervals
     const [response, setResponse] = useState( Array(intervalCount)); //.fill({degrees:[], intervalShortName:""}));
@@ -64,41 +66,13 @@ const AskInterval = () => {
         exerciseName === "tonicTriad" ? "melodicHarmonic" :
             (parameterDict.mode ? parameterDict.mode : "harmonic"  )) ; // melodic|harmonic|melodicHarmonic
     const [sampler, setSampler] = useState(null );
+    
+    
 
     useEffect(() => {
         setSampler(createSampler("violin")); // take care if this is the default of instrumentSelection
     }, []);
-/*
-   // keyboard shortcuts
-    // TODO: support for other languages
-    useHotkeys('v+2', () => checkResponse("v2"), [exerciseHasBegun, intervalData, intervalButtonsClicked]); // letter's case does not matter
-    useHotkeys('s+2', () => checkResponse("s2"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
-    useHotkeys('v+3', () => checkResponse("v3"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
-    useHotkeys('s+3', () => checkResponse("s3"), [exerciseHasBegun, intervalData,intervalButtonsClicked]);
-    useHotkeys('p+4', () => checkResponse("p4"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
-    //useHotkeys('<+4', () => checkResponse("<4"), [exerciseHasBegun, interval]);
-    useHotkeys('d+5', () => checkResponse(">5"), [exerciseHasBegun, intervalData, intervalButtonsClicked]); // NB! d+5 (diminshed
-    useHotkeys('p+5', () => checkResponse("p5"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
-    useHotkeys('v+6', () => checkResponse("v6"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
-    useHotkeys('s+6', () => checkResponse("s6"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
-    useHotkeys('v+7', () => checkResponse("v7"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
-    useHotkeys('s+7', () => checkResponse("s7"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
-    useHotkeys('p+8', () => checkResponse("p8"), [exerciseHasBegun, intervalData, intervalButtonsClicked]);
 
-    useHotkeys('shift+left', () => {console.log("Back"); }, [exerciseHasBegun, intervalData]); // call somehow GoBackBtn onClick function
-    useHotkeys('shift+right', () => {
-        console.log("Next", exerciseHasBegun);
-        if (exerciseHasBegun) {
-            renew();
-        }
-    }, [, exerciseHasBegun, intervalData, isMajor, selectedTonicNote]);
-    useHotkeys('shift+up', () => {console.log("Change key/Start exercise"); startExercise() }, [exerciseHasBegun, intervalData]);
-    useHotkeys('shift+down', () => {  // repeat
-        if (exerciseHasBegun) {
-            play(intervalData)
-        }
-        }, [exerciseHasBegun, intervalData]);
-*/
 
     const possibleTonicVtNotes = ["C/4", "D/4",  "E@/4", "E/4", "F/4",
         "G/4", "A/4", "B@/4", "C/5" ];
@@ -430,13 +404,14 @@ const AskInterval = () => {
 
     // ----
 
-    const setResponseInterval = (shortName) => {
+    const setResponseInterval = (shortName, index=-1) => {
         const currentResponse = response; // was: .slice() - that seems to be correct way, but  did not work in randomInterval
         console.log("response now: ", response);
-        if (typeof(currentResponse[currentResponseIndex])==="object") {
-            currentResponse[currentResponseIndex].intervalShortName = shortName;
+        const theIndex = index===-1 ? currentResponseIndex : index;
+        if (typeof(currentResponse[theIndex])==="object") {
+            currentResponse[theIndex].intervalShortName = shortName;
         } else {
-            currentResponse[currentResponseIndex] = {intervalShortName: shortName}
+            currentResponse[theIndex] = {intervalShortName: shortName}
         }
         console.log("Setting interval: ", shortName, currentResponseIndex, currentResponse)
         setResponse(currentResponse);
@@ -607,14 +582,14 @@ const AskInterval = () => {
                 setTimeout( ()=> renew(), waitTime); // small delay to let user to see the answer -  maybe add this to cofig options
 
                 // maybe it is better to move the sound part to ScoreRow component?
-                if (voiceFeedback) {
+                if (VISupportMode) {
                     setSoundFile(correctSound);
                     setPlayStatus(Sound.status.PLAYING);
                 }
             } else {
                 //dispatch(setNegativeMessage(feedBack, 5000));
                 dispatch(incrementIncorrectAnswers());
-                if (voiceFeedback) {
+                if (VISupportMode) {
                     setSoundFile(wrongSound);
                     setPlayStatus(Sound.status.PLAYING);
                 }
@@ -775,8 +750,44 @@ const AskInterval = () => {
         )
     };
 
+    const createIntervalInputRow = () => { // for VI -  visually impaired
+        // Kuidas anda tagasisidet? kas labelid on nähtavad?
+        const elements = [];
+        for (let i=0; i<intervalCount; i++ ) {
+            const responseShortName = getResponseIntervalShortName(i);
+            const correctShortName = getCorrectIntervalShortName(i);
+            const color =  answered ?  (responseShortName===correctShortName ? "green" : "red") :
+                 "grey";
+            elements.push(
+                <React.Fragment key={"intervalField"+i}>
+                    <Input
+                        key={"intervalInput"+i}
+                        style={{width:70, marginRight:5}}
+                        onChange={e => {
+                            setResponseInterval(e.target.value, i);
+                        }}
+                        /*value={getResponseIntervalShortName(i)}*/ // can't we use getResponseDegrees here?
+                        placeholder={'e.g.: v3'}
+                    />
+                    {<Transition visible={answered}  animation={"slide right"} duration={labelAnimationTime}>
+                        <Label pointing={"left"} color={color}>{correctShortName}</Label>
+                    </Transition>}
+                </React.Fragment>
+            );
+        }
+        elements.push(<Button key={"checkButton"} size={"tiny"} onClick={checkResponse} >{capitalizeFirst(t("check"))}</Button>);
+
+        return exerciseHasBegun && !exerciseName.includes("random") && (
+            <Grid.Row className={"exerciseRow"}>
+                <span  className={"marginLeft marginRight"}>{ capitalizeFirst( t("enterIntervals") )}: </span>
+                {elements}
+            </Grid.Row>
+        );
+
+    };
+
     const createIntervalButtons = () => {
-        return exerciseHasBegun && (
+        return exerciseHasBegun &&  (
             <>
                 <Grid.Row className={"exerciseRow"} columns={3}>
                     {/*TODO: support translation*/}
@@ -839,8 +850,8 @@ const AskInterval = () => {
             <Grid>
                 <ScoreRow showRadioButtons={false}/>
                 {createDegreeInputRow()}
-                {createIntervalLabelRow()}
-                {createIntervalButtons()}
+                {VISupportMode ? null : createIntervalLabelRow()}
+                {VISupportMode ? createIntervalInputRow() : createIntervalButtons()}
                 {createButtons()}
                 <Grid.Row>
                     <Grid.Column>

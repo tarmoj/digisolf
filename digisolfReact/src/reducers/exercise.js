@@ -2,11 +2,16 @@ const initialState = {
     isHarmonic: true,
     name: "",
     cents: 0, // TEST for intonation exercise,
-    userEnteredNotes: ""
+    userEnteredNotes: "",
+    VISupportMode: false
 };
 
 export const exerciseReducer = (state = initialState, action) => {
     switch(action.type) {
+        case "SET_VI_SUPPORT_MODE" : return {
+            ...state,
+            VISupportMode: action.payload
+        }
         case "SET_IS_HARMONIC":
             return {
                 ...state,

@@ -109,6 +109,7 @@
   "level": "tase",
   "answer": "vasta",
   "enterDegrees": "sisestage astmed",
+  "enterIntervals": "sisetage intervall(id)",
   "enterNotationInLilypond": "sisesta Lilypond vormingus",
   "tonic": "toonika",
   "generated": "genereeritud",

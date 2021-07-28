@@ -25,3 +25,11 @@ export const setUserEnteredNotes = (notes) => {
         payload: notes
     }
 };
+
+export const setVISupportMode = (active) => {
+    console.log("Set VISupport to: ", active);
+    return {
+        type: "SET_VI_SUPPORT_MODE",
+        payload: active // true|false
+    }
+};
