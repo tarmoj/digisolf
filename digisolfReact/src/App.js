@@ -60,10 +60,7 @@ function App() {
         }
     };
 
-    //const VISupport = useSelector(state => state.exerciseReducer().VISupportMode);
     const createViSupportSelection = () => {
-        //                      /*label={t("visuallyImpairedSupport")}*/
-        // <Icon name={"blind"}/>
 
         return (
             /*<Icon name={"blind"}
@@ -73,7 +70,7 @@ function App() {
             />*/
 
             <Checkbox className={"VISupport"} toggle={true}
-                      defaultChecked={localStorage.getItem("VISupportMode")}
+                      defaultChecked={localStorage.getItem("VISupportMode")==="true"}
                       onChange={ (e, data) =>
                           dispatch( setVISupportMode(data.checked)) }
                       label = {"VI"}

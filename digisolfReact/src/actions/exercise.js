@@ -14,3 +14,21 @@ export const setVISupportMode = (active) => {
         payload: active // true|false
     }
 };
+
+export const setVolume = (volume) => {
+    //console.log("Setting volume to: ", volume);
+    localStorage.setItem("volume", volume);
+    return {
+        type: "SET_VOLUME",
+        payload: volume // 0..1
+    }
+};
+
+export const setInstrument = (instrument) => {
+    //console.log("Set intrument in reducer: ", instrument);
+    localStorage.setItem("instrument", instrument);
+    return {
+        type: "SET_INSTRUMENT",
+        payload: instrument // for now: "flute|oboe|violin|guitar"
+    }
+};

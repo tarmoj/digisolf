@@ -26,6 +26,8 @@ import Sound from 'react-sound';
 import correctSound from "../sounds/varia/correct.mp3"
 import wrongSound from "../sounds/varia/wrong.mp3"
 import * as Tone from "tone"
+import Volume from "./Volume";
+import SelectInstrument from "./SelectInstrument";
 
 
 const AskInterval = () => {
@@ -44,6 +46,7 @@ const AskInterval = () => {
     const dispatch = useDispatch();
 
     const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode);
+    const masterVolume = useSelector(state => state.exerciseReducer.volume);
 
     //const midiSounds = useRef(null);
 
@@ -67,11 +70,16 @@ const AskInterval = () => {
             (parameterDict.mode ? parameterDict.mode : "harmonic"  )) ; // melodic|harmonic|melodicHarmonic
     const [sampler, setSampler] = useState(null );
     
-    
+    const instrument = useSelector(state => state.exerciseReducer.instrument);
 
     useEffect(() => {
-        setSampler(createSampler("violin")); // take care if this is the default of instrumentSelection
-    }, []);
+        setSampler(createSampler(instrument)); // take care if this is the default of instrumentSelection
+    }, [instrument]);
+
+    // useEffect(() => {
+    //     //console.log("Instrument changed hook");
+    //     setSampler(createSampler(instrument)); // take care if this is the default of instrumentSelection
+    // }, [instrument]);
 
 
     const possibleTonicVtNotes = ["C/4", "D/4",  "E@/4", "E/4", "F/4",
@@ -362,7 +370,7 @@ const AskInterval = () => {
         //TODO: loading
         const sampleList = {};
         for (let i=60; i<=84; i++) {
-            //check if file exists
+            //TODO: check if file exists
             sampleList[i]=i+".ogg";
         }
         const sampler = new Tone.Sampler( {
@@ -382,8 +390,9 @@ const AskInterval = () => {
     //sampler.connect(reverb);
 
 
-    const playNote = (midiNote, start=0, duration=1,  volume=0.4 ) => { // csound kind of order of parameters:
+    const playNote = (midiNote, start=0, duration=1,  volume=0.6 ) => { // csound kind of order of parameters:
         const freq = Tone.Frequency(midiNote, "midi").toFrequency();
+        console.log("masterVolume at playNote: ", masterVolume);
         if (sampler) {
             sampler.triggerAttackRelease(freq, duration, Tone.now() + start, volume);
         } else {
@@ -837,6 +846,18 @@ const AskInterval = () => {
         );
     }
 
+    // the layout is horrible
+    const createVolumeAndInstrumentRow = () => {
+        return exerciseHasBegun && (
+            <Grid.Row colums={3} >
+                <Grid.Column width={4}> <SelectInstrument /> </Grid.Column>
+
+                <Grid.Column width={10}> <Volume /> </Grid.Column>
+                <Grid.Column></Grid.Column>
+            </Grid.Row>
+        )
+    }
+
     return (
         <div>
             {/*Sound for giving feedback on anwers (for visually impaired support)*/}
@@ -847,11 +868,12 @@ const AskInterval = () => {
                 onFinishedPlaying={ () => setSoundFile("") }
             />
             <Header size='large'>{`${t("setInterval")} ${t(exerciseName)}`}</Header>
-            <Grid>
-                <ScoreRow showRadioButtons={false}/>
+            <Grid celled={true}>
+                <ScoreRow />
                 {createDegreeInputRow()}
                 {VISupportMode ? null : createIntervalLabelRow()}
                 {VISupportMode ? createIntervalInputRow() : createIntervalButtons()}
+                {createVolumeAndInstrumentRow()}
                 {createButtons()}
                 <Grid.Row>
                     <Grid.Column>
