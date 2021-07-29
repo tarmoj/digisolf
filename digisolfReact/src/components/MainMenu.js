@@ -1,39 +1,14 @@
 import React from 'react';
 import {Button, Grid, Header} from 'semantic-ui-react'
-import {useDispatch} from "react-redux";
 import {useTranslation} from "react-i18next";
-import {setComponent} from "../actions/component";
-import {setName, setCents} from "../actions/exercise";
 import {capitalizeFirst} from "../util/util";
 import {BrowserRouter as Router, useHistory} from "react-router-dom";
 
 const MainMenu = () => {
     const { t, i18n } = useTranslation();
-    const dispatch = useDispatch();
+    //const dispatch = useDispatch();
     const history = useHistory();
 
-    const startIntervalExercise = (name) => {
-        dispatch(setName(name));
-        dispatch(setComponent("AskInterval"));
-    };
-
-    const startChord = (name) => {
-        dispatch(setName(name));
-        dispatch(setComponent("AskChord"));
-    };
-
-    const startDictation = (name) => {
-        dispatch(setName(name));
-        dispatch(setComponent("AskDictation"));
-        console.log("Start dictation");
-    };
-
-    const startIntonation = (name, cents) => {
-        dispatch(setName(name));
-        dispatch(setCents(cents));
-        dispatch(setComponent("AskIntonation"));
-
-    };
 
     return (
         <Router>

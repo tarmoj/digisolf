@@ -1,16 +1,13 @@
-import React, {useState} from 'react';
-import {Button, Grid, Icon, Radio, Transition, Form, Popup} from "semantic-ui-react";
+import React from 'react';
+import {Grid, Icon, Transition, Popup} from "semantic-ui-react";
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {resetScore} from "../actions/score";
-import {capitalizeFirst} from "../util/util";
-import {setIsHarmonic} from "../actions/exercise";
+
 
 const ScoreRow = (props) => {
     const correctAnswers = useSelector(state => state.scoreReducer.correctAnswers);
     const incorrectAnswers = useSelector(state => state.scoreReducer.incorrectAnswers);
-
-    const [playStyle, setPlayStyle] = useState("harmonic");
 
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
@@ -53,35 +50,6 @@ const ScoreRow = (props) => {
         )
     };
 
-    const showRadioButtons = () => {
-        if (props.showRadioButtons) {
-            return (
-                <Grid.Column floated='right' width={5}>
-                    <Form.Field className={'scoreRadioField'}>
-                        <Radio
-                            label={capitalizeFirst(t("harmonic"))}
-                            value='harmonic'
-                            checked={playStyle === 'harmonic'}
-                            onChange={handleRadioChange}
-                        />
-                    </Form.Field>
-                    <Form.Field className={'scoreRadioField'}>
-                        <Radio
-                            label={capitalizeFirst(t("melodic"))}
-                            value='melodic'
-                            checked={playStyle === 'melodic'}
-                            onChange={handleRadioChange}
-                        />
-                    </Form.Field>
-                </Grid.Column>
-            )
-        }
-    };
-
-    const handleRadioChange = (e, { value }) => {
-        dispatch(setIsHarmonic(value === "harmonic"));
-        setPlayStyle(value);
-    };
 
     return (
         <Grid.Row className={"exerciseRow scoreRow"} columns={2}>
@@ -92,7 +60,6 @@ const ScoreRow = (props) => {
                     {getResetScoreButton()}
                 </Grid.Row>
             </Grid.Column>
-            {showRadioButtons()}
         </Grid.Row>
     )
 };

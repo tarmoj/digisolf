@@ -1,23 +1,3 @@
-export const setIsHarmonic = (isHarmonic) => {
-    return {
-        type: "SET_IS_HARMONIC",
-        payload: isHarmonic
-    }
-};
-
-export const setName = (name) => {
-    return {
-        type: "SET_NAME",
-        payload: name
-    }
-};
-
-export const setCents = (cents) => {
-    return {
-        type: "SET_CENTS",
-        payload: cents
-    }
-};
 
 export const setUserEnteredNotes = (notes) => {
     return {
@@ -27,7 +7,8 @@ export const setUserEnteredNotes = (notes) => {
 };
 
 export const setVISupportMode = (active) => {
-    console.log("Set VISupport to: ", active);
+    //console.log("Set VISupportMode to: ", active);
+    localStorage.setItem("VISupportMode", active);
     return {
         type: "SET_VI_SUPPORT_MODE",
         payload: active // true|false

@@ -80,6 +80,14 @@ Instrumendi valik, helitugevus iseseisvaks komponendiks (+ redux)
 Intervallid: - Tone.js
 
 VI tugi  - eraldi vaade (Intervallid - sisesta tekstina, akordid -  sisesta tekstina)
+vt juhiste ja soovituste kohta:
+https://websitesetup.org/websites-for-visually-impaired/
+võibolla parem lahendus UI jaoks: Fluent UI https://fluentsite.z22.web.core.windows.net/0.57.0 - võibolla eraldi harus
+https://github.com/microsoft/fluentui
+npm install @fluentui/react @fluentui/react-northstar (viimane parema accessibilitiega vist)
+vt ka:
+võibolla Material-UI? - jah, pigem see
+
 
 ------
 

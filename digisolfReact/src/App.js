@@ -73,6 +73,7 @@ function App() {
             />*/
 
             <Checkbox className={"VISupport"} toggle={true}
+                      defaultChecked={localStorage.getItem("VISupportMode")}
                       onChange={ (e, data) =>
                           dispatch( setVISupportMode(data.checked)) }
                       label = {"VI"}
