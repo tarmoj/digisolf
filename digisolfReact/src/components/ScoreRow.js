@@ -1,13 +1,34 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Grid, Icon, Transition, Popup} from "semantic-ui-react";
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {resetScore} from "../actions/score";
+import Sound from "react-sound";
+import correctSound from "../sounds/varia/correct.mp3"
+import wrongSound from "../sounds/varia/wrong.mp3"
 
 
 const ScoreRow = (props) => {
     const correctAnswers = useSelector(state => state.scoreReducer.correctAnswers);
     const incorrectAnswers = useSelector(state => state.scoreReducer.incorrectAnswers);
+    const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode);
+
+    useEffect( ()=>{
+        if (correctAnswers>0 && VISupportMode) {
+            setSoundFile(correctSound);
+            setPlayStatus(Sound.status.PLAYING);
+        }
+    }, [correctAnswers] );
+
+    useEffect( ()=>{
+        if (incorrectAnswers>0 && VISupportMode) {
+            setSoundFile(wrongSound);
+            setPlayStatus(Sound.status.PLAYING);
+        }
+    }, [incorrectAnswers] );
+
+    const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
+    const [soundFile, setSoundFile] = useState("");
 
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
@@ -52,15 +73,23 @@ const ScoreRow = (props) => {
 
 
     return (
-        <Grid.Row className={"exerciseRow scoreRow"} columns={2}>
-            <Grid.Column floated='left' width={5}>
-                <Grid.Row className={'score'}>
-                    {getPositiveScore()}
-                    {getNegativeScore()}
-                    {getResetScoreButton()}
-                </Grid.Row>
-            </Grid.Column>
-        </Grid.Row>
+        <>
+            <Grid.Row className={"exerciseRow scoreRow"} columns={2}>
+                <Grid.Column floated='left' width={5}>
+                    <Grid.Row className={'score'}>
+                        {getPositiveScore()}
+                        {getNegativeScore()}
+                        {getResetScoreButton()}
+                    </Grid.Row>
+                </Grid.Column>
+            </Grid.Row>
+            {VISupportMode && <Sound
+                url={soundFile}
+                loop={false}
+                playStatus={playStatus}
+                onFinishedPlaying={() => setSoundFile("")}
+            />}
+        </>
     )
 };
 

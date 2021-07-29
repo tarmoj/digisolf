@@ -15,7 +15,7 @@ import {
 } from 'semantic-ui-react'
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
-import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst} from "../util/util";
+import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst, simplify} from "../util/util";
 import {chordDefinitions, makeVexTabChord, makeChord} from "../util/intervals";
 import {getNoteByName, getNoteByVtNote} from "../util/notes";
 import MIDISounds from 'midi-sounds-react';
@@ -50,12 +50,13 @@ const AskChord = () => {
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
 
-    // const name = useSelector(state => state.exerciseReducer.name);
-    const midiSounds = useRef(null);
+    const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode);
+    //const masterVolume = useSelector(state => state.exerciseReducer.volume);
+
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [possibleChords, setPossibleChords] = useState([]); // possibleChors -  whole set to choose from
-    const [chordSelection, setChordSelection] = useState ([]); // selected (checked on UI) by user
+    const [chordEntered, setChordEntered] = useState (""); // selected (checked on UI) by user
     const [selectedChord, setSelectedChord] = useState([]);
     const [answer, setAnswer] = useState(null);
     const [answered, setAnswered] = useState(false);
@@ -81,7 +82,6 @@ const AskChord = () => {
 
     const shortName = usePopJazzNaming ? "shortNamePJ" : "shortName";
     const longName = usePopJazzNaming ? "longNamePJ" : "longName";
-    console.log("short and long name are now: ", shortName, longName);
 
 
     // EXERCISE LOGIC ======================================
@@ -184,7 +184,7 @@ const AskChord = () => {
 
         possibleChords.map(item => item.active=true);
         setPossibleChords(possibleChords);
-        //renew(possibleChords);
+        //renew(possibleChords);  // thing are not ready here
     };
 
     // renew generates answer and performs play/show
@@ -229,6 +229,7 @@ const AskChord = () => {
             setVexTabChord(":4 (" + chordNotes[chordNotes.length-1].vtNote + ")$.top." + capitalizeFirst(t("down")) + "$"); // upper note, last one in the array
         }
         //setUserEnteredNotes("");
+        setChordEntered("");
 
         play(chord, midiNote);
 
@@ -459,7 +460,7 @@ const AskChord = () => {
         );
     };
 
-    const createPlaySoundButton = () => {
+    const createControlButtons = () => {
         if (exerciseHasBegun) {
             return (
                 <Grid.Row  columns={2} centered={true}>
@@ -488,6 +489,25 @@ const AskChord = () => {
             );
         }
     };
+    
+    const createResponseTextInput = () => {
+        return exerciseHasBegun && (
+            <Grid.Row className={"exerciseRow"}>
+                <span  className={"marginLeft marginRight"}>{ capitalizeFirst( t("enterChord") )}: </span>
+                    <Input
+                        style={{width:70, marginRight:5}}
+                        onChange={e => {
+                            setChordEntered(simplify(e.target.value));
+                        }}
+                        value={chordEntered}
+                        onKeyPress={ e=> { if (e.key === 'Enter') checkResponse({shortName: chordEntered})  }}
+                    />
+                <Button key={"checkButton"}  onClick={() => checkResponse({shortName: chordEntered})} >{capitalizeFirst(t("check"))}</Button>
+
+            </Grid.Row>
+        );
+    }
+
 
     const createResponseButtons = () => {
         const activeChords = possibleChords.filter(item => item.active);
@@ -663,8 +683,8 @@ const AskChord = () => {
                 {createOptionsBlock()}
                 {createNotationBlock()}
                 {createChordSelection()}
-                {createResponseButtons()}
-                {createPlaySoundButton()}
+                {VISupportMode ? createResponseTextInput() : createResponseButtons()}
+                {createControlButtons()}
                 {createVolumeRow()}
                 <Grid.Row>
                     <Grid.Column>

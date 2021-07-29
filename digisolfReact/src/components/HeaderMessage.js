@@ -1,8 +1,9 @@
-import React, {useRef} from 'react';
+import React, {useRef, useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {Header, Message} from 'semantic-ui-react'
 import {useTranslation} from "react-i18next";
 import {removeMessage} from "../actions/headerMessage";
+
 
 const HeaderMessage = () => {
     const positiveMessage = useSelector(state => state.headerMessageReducer.positiveMessage);
@@ -35,6 +36,7 @@ const HeaderMessage = () => {
             <Message className={"headerMessage"} positive={positive} negative={negative} onDismiss={dismissMessage}>
                 <Message.Header>{text}</Message.Header>
             </Message>
+
         )
     };
 

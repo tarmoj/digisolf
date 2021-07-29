@@ -167,6 +167,7 @@
   "naming":"nimetused",
   "selectAll": "vali kõik",
   "deselectAll": "tühista kõik",
-  "selectSomeChords": "valige mõned akordid"
+  "selectSomeChords": "valige mõned akordid",
+  "enterChord": "sisetage akord"
 
 }

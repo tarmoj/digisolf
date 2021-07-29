@@ -590,18 +590,18 @@ const AskInterval = () => {
                 const waitTime = intervalCount===1 ?  1000 : 2000; // one seond per interval  to give time to
                 setTimeout( ()=> renew(), waitTime); // small delay to let user to see the answer -  maybe add this to cofig options
 
-                // maybe it is better to move the sound part to ScoreRow component?
-                if (VISupportMode) {
-                    setSoundFile(correctSound);
-                    setPlayStatus(Sound.status.PLAYING);
-                }
+                // // maybe it is better to move the sound part to ScoreRow component?
+                // if (VISupportMode) {
+                //     setSoundFile(correctSound);
+                //     setPlayStatus(Sound.status.PLAYING);
+                // }
             } else {
                 //dispatch(setNegativeMessage(feedBack, 5000));
                 dispatch(incrementIncorrectAnswers());
-                if (VISupportMode) {
-                    setSoundFile(wrongSound);
-                    setPlayStatus(Sound.status.PLAYING);
-                }
+                // if (VISupportMode) {
+                //     setSoundFile(wrongSound);
+                //     setPlayStatus(Sound.status.PLAYING);
+                // }
             }
         }
     };
@@ -775,7 +775,7 @@ const AskInterval = () => {
                         onChange={e => {
                             setResponseInterval(e.target.value, i);
                         }}
-                        onKeyPress={ e=> { console.log(e.key); if (e.key === 'Enter') checkResponse()  }}
+                        onKeyPress={ e=> { if (e.key === 'Enter') checkResponse()  }}
                         /*value={getResponseIntervalShortName(i)}*/ // can't we use getResponseDegrees here?
                         placeholder={'e.g.: v3'}
                     />
@@ -862,12 +862,12 @@ const AskInterval = () => {
     return (
         <div>
             {/*Sound for giving feedback on anwers (for visually impaired support)*/}
-            <Sound
+            {/*<Sound
                 url={soundFile}
                 loop={false}
                 playStatus={playStatus}
                 onFinishedPlaying={ () => setSoundFile("") }
-            />
+            />*/}
             <Header size='large'>{`${t("setInterval")} ${t(exerciseName)}`}</Header>
             <Grid celled={false}>
                 <ScoreRow />
