@@ -392,9 +392,9 @@ const AskInterval = () => {
 
     const playNote = (midiNote, start=0, duration=1,  volume=0.6 ) => { // csound kind of order of parameters:
         const freq = Tone.Frequency(midiNote, "midi").toFrequency();
-        console.log("masterVolume at playNote: ", masterVolume);
+        //console.log("masterVolume at playNote: ", masterVolume);
         if (sampler) {
-            sampler.triggerAttackRelease(freq, duration, Tone.now() + start, volume);
+            sampler.triggerAttackRelease(freq, duration, Tone.now() + start, volume*masterVolume);
         } else {
             console.log("Sampler is null: ", sampler);
         }
@@ -775,6 +775,7 @@ const AskInterval = () => {
                         onChange={e => {
                             setResponseInterval(e.target.value, i);
                         }}
+                        onKeyPress={ e=> { console.log(e.key); if (e.key === 'Enter') checkResponse()  }}
                         /*value={getResponseIntervalShortName(i)}*/ // can't we use getResponseDegrees here?
                         placeholder={'e.g.: v3'}
                     />
@@ -868,7 +869,7 @@ const AskInterval = () => {
                 onFinishedPlaying={ () => setSoundFile("") }
             />
             <Header size='large'>{`${t("setInterval")} ${t(exerciseName)}`}</Header>
-            <Grid celled={true}>
+            <Grid celled={false}>
                 <ScoreRow />
                 {createDegreeInputRow()}
                 {VISupportMode ? null : createIntervalLabelRow()}

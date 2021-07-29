@@ -181,24 +181,28 @@ const AskChord = () => {
                     possibleChords = chordDefinitions;
             }
         }
-        // test: add field which shows if to use this in selection or not:
-        console.log("possibleChords: ", possibleChords );
+
         possibleChords.map(item => item.active=true);
         setPossibleChords(possibleChords);
-
         //renew(possibleChords);
-
     };
 
     // renew generates answer and performs play/show
     const renew = (possibleChords) =>  {
 
         setAnswered(false);
+        const activeChords = possibleChords.filter(c => c.active);
+
+        if (activeChords.length===0) {
+            alert(capitalizeFirst(t("selectSomeChords")));
+            return;
+        }
+
         // take care that the chord and basenote are not exactyl the same as last time
         let thisBaseNote = baseNote;
         let chord = selectedChord;
         let midiNote = 0;
-        const activeChords = possibleChords.filter(c => c.active);
+
 
         while (thisBaseNote===baseNote && chord===selectedChord) {
             thisBaseNote = getNoteByVtNote( getRandomElementFromArray(possibleBaseVtNotes) );
@@ -210,17 +214,6 @@ const AskChord = () => {
             chord = getRandomElementFromArray(activeChords);
         }
 
-        //
-        // const thisBaseNote = getNoteByVtNote( getRandomElementFromArray(possibleBaseVtNotes) );
-        // if (thisBaseNote === undefined) {
-        //     console.log("Failed finding basenote");
-        //     return;
-        // } else {
-        //     setBaseNote(thisBaseNote);
-        // }
-        // const midiNote = thisBaseNote.midiNote; // getRandomInt(53, 72); // TODO: make the range configurable
-        // const selectedChord = getRandomElementFromArray(possibleChords);
-        //
         setSelectedChord(chord);
         setBaseNote(thisBaseNote);
         console.log("Selected chord: ", t(selectedChord.longName), thisBaseNote.midiNote );
@@ -513,7 +506,7 @@ const AskChord = () => {
     const createResponseButtonColumn = (chord) => {
         return (chord) ?
             (
-            <Grid.Column>
+            <Grid.Column key = {"XC"+chord.shortName}>
                 <Button className={"fullWidth marginTopSmall" /*<- kuvab ok. oli: "exerciseBtn"*/}
                         key = {chord.shortName}
                         onClick={() => checkResponse({shortName: chord.shortName})}>{ t(chord[shortName]) }</Button>
@@ -593,41 +586,56 @@ const AskChord = () => {
 
         //console.log("handleChordSelection: ", shortName, checked);
 
-        let chords = possibleChords;
+        const chords = possibleChords.slice();
         chords.find(c => c.shortName==shortName).active = checked;
         setPossibleChords(chords);
 
-        // not shure but see if it works:
-        renew(chords);
-
-        // test which are selected
-        // console.log("Selected chords are: ");
-        // for (let c of chords)  {
-        //     if (c.active) {
-        //         console.log(c.shortName)
-        //     }
-        // }
      }
 
+    //does not work
+     const deselectAll = () => {
+        const currentChords = possibleChords.slice();
+        currentChords.map(item => { item.active = false;  } );
+        setPossibleChords(currentChords);
+    }
 
+    const selectAll = () => {
+        const currentChords = possibleChords.slice();
+        currentChords.map(item => item.active = true );
+        setPossibleChords(currentChords);
+    }
 
 
     const createChordSelection = () => {
         return exerciseHasBegun && (
-            <Grid.Row >
-                <div className={"marginLeft"}>
-                    {possibleChords.map( item =>  (
+            <>
+                <Grid.Row>
+                <Grid.Column>
+                    <Button size={"tiny"} onClick={selectAll} >
+                        {capitalizeFirst(t("selectAll"))}
+                    </Button>
+                    <Button size={"tiny"} onClick={deselectAll} >
+                        {capitalizeFirst(t("deselectAll"))}
+                    </Button>
+                </Grid.Column>
+                </Grid.Row>
+                <Grid.Row >
+                    <div className={"marginLeft"}>
+                        {possibleChords.map( item =>  (
 
                             <Checkbox label={item[shortName]} name={item.shortName}
                                       key={item.shortName}
                                       onChange={ handleChordSelection }
-                                      defaultChecked={item.active}
+                                      checked={item.active}
                                       className={"marginRight"}
                             />
 
-                    ))}
-                </div>
-            </Grid.Row>
+                        ))}
+
+
+                    </div>
+                </Grid.Row>
+            </>
         );
     }
 

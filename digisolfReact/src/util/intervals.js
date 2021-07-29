@@ -64,7 +64,7 @@ export const chordDefinitions = [
     { shortName: "V2", shortNamePJ:"7/7", longName: "thirdInversionOfDominantSeventh", longNamePJ:"thirdInversionOfDominantSeventhPJ", intervalsUp: ["s2", "<4", "s6"], intervalsDown: ["v3", "p5", "s6"],
         midiIntervals: [0,2,6,9] },
 
-
+    // seventh chords
     { shortName: "m7", shortNamePJ:"m7", longName: "minorSeventh", longNamePJ:"minorSeventhPJ", intervalsUp: ["v3", "p5", "v7"], intervalsDown: ["v3", "p5", "v7"],
         midiIntervals: [0,3,7,10] },
     { shortName: "M7", shortNamePJ:"△", longName: "majorSeventh", longNamePJ:"majorSeventhPJ", intervalsUp: ["s3", "p5", "s7"], intervalsDown: ["v3", "p5", "s7"],
@@ -73,6 +73,15 @@ export const chordDefinitions = [
         midiIntervals: [0,3,6,10] },
     { shortName: "dim7", shortNamePJ:"o7", longName: "diminishedSeventh", longNamePJ:"diminishedSeventhPJ", intervalsUp: ["v3", ">5", ">7"], intervalsDown: ["v3", ">5", ">7"],
         midiIntervals: [0,3,6,9] },
+
+    //m7 inversions
+    { shortName: "m65", shortNamePJ:"6", longName: "firstInversionOfMinorSeventh", longNamePJ:"majorChordWithAnAdditionalMajor6th", intervalsUp: ["s3", "p5", "s6"], intervalsDown: ["s2", "p4", "s6"],
+        midiIntervals: [0,4,7,9] },
+    { shortName: "m43", shortNamePJ:"m7/5", longName: "secondInversionOfMinorSeventh", longNamePJ:"secondInversionOfMinorSeventhPJ", intervalsUp: ["v3", "p4", "v6"], intervalsDown: ["v3", "p4", "v6"],
+        midiIntervals: [0,3,5,8] },
+    { shortName: "m2", shortNamePJ:"m7/7", longName: "thirdInversionOfMinorSeventh", longNamePJ:"thirdInversionOfMinorSeventhPJ", intervalsUp: ["s2", "p4", "s6"], intervalsDown: ["s3", "p5", "s6"],
+        midiIntervals: [0,2,5,9] },
+
 ];
 
 export const scaleDefinitions = { // defined by intervals from tonic

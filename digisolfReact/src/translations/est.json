@@ -67,6 +67,12 @@
   "halfDiminishedSeventhPJ": "pooldim",
   "diminishedSeventhPJ": "dim seitse",
   "diminishedSeventh": "vähendatud septakord",
+  "firstInversionOfMinorSeventh": "minoorne kvintsekstakord",
+  "majorChordWithAnAdditionalMajor6th": "kuus",
+  "secondInversionOfMinorSeventh": "minoorne tertskvartakord",
+  "secondInversionOfMinorSeventhPJ": "moll seitse bassis kvint",
+  "thirdInversionOfMinorSeventh": "minoorne sekundakord",
+  "thirdInversionOfMinorSeventhPJ": "moll seitse bassis septim",
   "repeat": "Korda",
   "anyDeviation": "Juhuslik kõrvalekalle",
   "resetScore": "Nulli",
@@ -158,6 +164,9 @@
   "intervalFromNote": "intervall antud noodist",
   "randomInterval": "juhuslik intervall",
   "or": "või",
-  "naming":"nimetused"
+  "naming":"nimetused",
+  "selectAll": "vali kõik",
+  "deselectAll": "tühista kõik",
+  "selectSomeChords": "valige mõned akordid"
 
 }
