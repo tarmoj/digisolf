@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {Button, Grid, Header, Dropdown} from 'semantic-ui-react'
+import {Header, Dropdown} from 'semantic-ui-react'
+import {Button, Grid} from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {setIsLoading} from "../actions/component";
@@ -169,49 +170,49 @@ const AskIntonation = () => {
 
         if (exerciseHasBegun) {
             return (
-            <Grid.Row  columns={3} centered={true}>
-                    <Grid.Column>
-                        <Button color={"green"} onClick={() => renew(cents)} className={"fullWidth marginTopSmall"} >{t("playNext")}</Button>
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Button onClick={() => play(baseMidiNote, intervalRatio, selectedDeviation, 0)} className={"fullWidth marginTopSmall"}  >{t("repeat")}</Button>
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Button onClick={() => play(baseMidiNote, intervalRatio, selectedDeviation, 1)} className={"fullWidth marginTopSmall"}  >{t("repeatMelodically")}</Button>
-                    </Grid.Column>
-                </Grid.Row>
+            <Grid item container direction={"row"} alignItems={"center"}>
+                    <Grid item>
+                        <Button variant="contained" color={"primary"} onClick={() => renew(cents)} className={"fullWidth marginTopSmall"} >{t("playNext")}</Button>
+                    </Grid>
+                    <Grid item>
+                        <Button variant="contained" onClick={() => play(baseMidiNote, intervalRatio, selectedDeviation, 0)} className={"fullWidth marginTopSmall"}  >{t("repeat")}</Button>
+                    </Grid>
+                    <Grid item>
+                        <Button variant="contained" onClick={() => play(baseMidiNote, intervalRatio, selectedDeviation, 1)} className={"fullWidth marginTopSmall"}  >{t("repeatMelodically")}</Button>
+                    </Grid>
+                </Grid>
 
             );
         } else {
             return(
-                <Grid.Row  >
-                    <Grid.Column>
-                    <Button color={"green"} onClick={() => startExercise()} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>
-                    </Grid.Column>
-                </Grid.Row>
+                <Grid item container direction={"row"} >
+                    <Grid item>
+                    <Button variant="contained" color={"primary"} onClick={() => startExercise()} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>
+                    </Grid>
+                </Grid>
             );
         }
     };
 
     const createResponseButtons = () => {
-        return (
-            <Grid.Row columns={3}>
-                <Grid.Column>
-                    <Button className={"exerciseBtn"}
+        return exerciseHasBegun && (
+            <Grid item container direction={"row"}>
+                <Grid item>
+                    <Button variant="contained" className={"exerciseBtn"}
                             onClick={() => checkResponse({intonation: "narrow"})}>{capitalizeFirst( t("narrow") )}
                     </Button>
-                </Grid.Column>
-                <Grid.Column>
-                    <Button className={"exerciseBtn"}
+                </Grid>
+                <Grid item>
+                    <Button variant="contained" className={"exerciseBtn"}
                             onClick={() => checkResponse({intonation: "inTune"})}>{capitalizeFirst( t("inTune") )}
                     </Button>
-                </Grid.Column>
-                <Grid.Column>
-                    <Button className={"exerciseBtn"}
+                </Grid>
+                <Grid item>
+                    <Button variant="contained" className={"exerciseBtn"}
                             onClick={() => checkResponse({intonation: "wide"})}>{capitalizeFirst( t("wide") )}
                     </Button>
-                </Grid.Column>
-            </Grid.Row>
+                </Grid>
+            </Grid>
         )
     };
 
@@ -228,42 +229,42 @@ const AskIntonation = () => {
             { text: capitalizeFirst(t("square")), value: 3},
         ];
         return (
-          <Grid.Row >
-              <Grid.Column> { `${capitalizeFirst(t("sound"))}: `} </Grid.Column>
-              <Grid.Column>
+          <Grid item container direction={"row"}>
+              <Grid item> { `${capitalizeFirst(t("sound"))}: `} </Grid>
+              <Grid item>
                   <Dropdown
                       placeholder={capitalizeFirst(t("sound"))}
                       onChange={ onChangeFollower }
                       options ={soundOptions}
                       defaultValue={2}
                   />
-              </Grid.Column>
-          </Grid.Row>
+              </Grid>
+          </Grid>
         );
     };
 
     return (
         <div>
-            <Header size='large'>{ `${t("intonationDescripton")} ${t(name)} ${t("cents")} ` }</Header>
+            <h2>{ `${t("intonationDescripton")} ${t(name)} ${t("cents")} ` }</h2>
 
             { csound == null ? (
                 <header className="App-header">
-                    <p>Loading...</p> {/*Sometimes gets stuck here when you go back to main menu and open intonation again*/}
+                    <p>Loading...</p>
                 </header>
             ) : (
 
-            <Grid>
+            <Grid container direction={"column"}>
                 <ScoreRow/>
                 {createSoundTypeRow()}
                 {createResponseButtons()}
 
                 {createPlaySoundButton()}
-                <Grid.Row>
-                    <Grid.Column>
+                <Grid item container>
+                    <Grid item>
 
                         <GoBackToMainMenuBtn/>
-                    </Grid.Column>
-                </Grid.Row>
+                    </Grid>
+                </Grid>
             </Grid>
                 )}
         </div>
