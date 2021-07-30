@@ -1,20 +1,22 @@
 import React from 'react';
-import {Grid, Image} from 'semantic-ui-react'
+import {Image} from 'semantic-ui-react'
 import euLogo from "../images/eu.jpg";
+import {Grid} from "@material-ui/core"
 
+//TODO: logo must be visible
 const AppFooter = () => {
     return (
-        <Grid>
-            <div className={"marginTop"}>
-                <Grid.Row>
-                    <Grid.Column>
-                        <Image className={"footerLogo"} fluid src={euLogo} />
-                    </Grid.Column>
-                    <Grid.Column>
+        <Grid container className={"marginTop"} direction={"column"} alignItems={"flex-start"}>
+            {/*<div className={"marginTop"}>*/}
+
+                    <Grid item>
+                        <img className={"footerLogo"} fluid={"true"} src={euLogo} />
+                    </Grid>
+                    <Grid item>
                         <p>(c) 2020, Tarmo Johannes, Edgar Tereping, Jane Tereping</p>
-                    </Grid.Column>
-                </Grid.Row>
-            </div>
+                    </Grid>
+
+            {/*</div>*/}
         </Grid>
     );
 };
