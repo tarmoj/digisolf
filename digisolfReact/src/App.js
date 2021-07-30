@@ -16,20 +16,16 @@ import {Backdrop, Checkbox, CircularProgress} from '@material-ui/core';
 
 import {useTranslation} from "react-i18next";
 import { BrowserRouter as Router, Switch, Route, } from 'react-router-dom';
-import {setName, setVISupportMode} from "./actions/exercise";
-import {setComponent} from "./actions/component";
+import {setVISupportMode} from "./actions/exercise";
 import {Visibility, VisibilityOff} from "@material-ui/icons";
 
 function App() {
-    const component = useSelector(state => state.componentReducer.component);
     const isLoading = useSelector(state => state.componentReducer.isLoading);
 
     const [VISupport, setVISupport] = useState(localStorage.getItem("VISupportMode")==="true")
 
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
-
-
 
     const renderComponent = () => {
         return (

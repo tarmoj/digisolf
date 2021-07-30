@@ -169,6 +169,7 @@
   "deselectAll": "tühista kõik",
   "selectSomeChords": "valige mõned akordid",
   "enterChord": "sisetage akord",
-  "visuallyImpairedSupport": "nägemispuude tugi"
+  "visuallyImpairedSupport": "nägemispuude tugi",
+  "languageSelect": "keelevalik"
 
 }
