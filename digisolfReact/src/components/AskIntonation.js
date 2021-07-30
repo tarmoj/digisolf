@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {Header, Dropdown} from 'semantic-ui-react'
-import {Button, Grid} from "@material-ui/core"
+//import {Header, Dropdown} from 'semantic-ui-react'
+import {Button, Grid, MenuItem, Select} from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {setIsLoading} from "../actions/component";
@@ -12,6 +12,7 @@ import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import {useParams} from "react-router-dom";
 import CsoundObj from "@kunstmusik/csound";
 import  {intonationOrchestra as orc} from "../csound/orchestras";
+import Volume from "./Volume";
 
 
 
@@ -22,8 +23,8 @@ const AskIntonation = () => {
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
 
-    // const name = useSelector(state => state.exerciseReducer.name);
-    // const cents = useSelector(state => state.exerciseReducer.cents);
+    //const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode);
+    const masterVolume = useSelector(state => state.exerciseReducer.volume);
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [intervalRatio, setIntervalRatio] = useState(1.5);
@@ -32,17 +33,18 @@ const AskIntonation = () => {
     const [baseMidiNote, setBaseMidiNote] = useState(60);
     const [selectedDeviation, setSelectedDeviation] = useState(0);
     const [soundType, setSoundType] = useState(2);
-
-    //const [started, setStarted] = useState(false);
-
     const [csound, setCsound] = useState(null);
+
     useEffect(() => {
         if (csound == null) {
+            // try global loader - shows but does not cover everything
+            dispatch(setIsLoading(true));
             let audioContext = CsoundObj.CSOUND_AUDIO_CONTEXT;
             if ( typeof (audioContext) == "undefined") {
                 CsoundObj.initialize(CsoundObj.CSOUND_AUDIO_CONTEXT).then(() => { // the error happens here with initialize...
                     const cs = new CsoundObj();
                     setCsound(cs);
+                    dispatch(setIsLoading(false));
                 });
             } else { // do not initialize if audio context is already created
                 const cs = new CsoundObj();
@@ -53,6 +55,13 @@ const AskIntonation = () => {
             csound.reset();
         }
     }, [csound]);
+
+    // this orchestra does not use volume channel (yet)
+    // useEffect(  ()=>{
+    //     if (csound) {
+    //         csound.setControlChannel("volume", masterVolume);
+    //     }
+    // }, [masterVolume]);
 
 
     const startCsound = () => {
@@ -115,7 +124,7 @@ const AskIntonation = () => {
         if (typeof(csound) !== "undefined") { // csound is in global space
             // csound instrument 1 (PlayInterval) parameters from p4 on:
             // amp, midinote, intervalRatio, cents, soundtype (1- sine, 2 - saw, 3- square), isMelodic (1|0)
-            const volume = 0.1 ; // TODO: from parameters
+            const volume = masterVolume*0.5; //was: 0.1 ;
             let csoundString = 'i 1 0 2 ';
             csoundString += volume + ' ';
             csoundString += midiNote + ' ';
@@ -170,7 +179,7 @@ const AskIntonation = () => {
 
         if (exerciseHasBegun) {
             return (
-            <Grid item container direction={"row"} alignItems={"center"}>
+            <Grid item container direction={"row"} justifyContent={"center"} spacing={1}>
                     <Grid item>
                         <Button variant="contained" color={"primary"} onClick={() => renew(cents)} className={"fullWidth marginTopSmall"} >{t("playNext")}</Button>
                     </Grid>
@@ -185,7 +194,7 @@ const AskIntonation = () => {
             );
         } else {
             return(
-                <Grid item container direction={"row"} >
+                <Grid item container direction={"row"} justifyContent={"center"} spacing={1} >
                     <Grid item>
                     <Button variant="contained" color={"primary"} onClick={() => startExercise()} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>
                     </Grid>
@@ -196,7 +205,7 @@ const AskIntonation = () => {
 
     const createResponseButtons = () => {
         return exerciseHasBegun && (
-            <Grid item container direction={"row"}>
+            <Grid item container direction={"row"} justifyContent={"center"} spacing={1}>
                 <Grid item>
                     <Button variant="contained" className={"exerciseBtn"}
                             onClick={() => checkResponse({intonation: "narrow"})}>{capitalizeFirst( t("narrow") )}
@@ -216,29 +225,30 @@ const AskIntonation = () => {
         )
     };
 
-    const onChangeFollower = (event, data) => {
-        console.log("on change follower", data.value);
-        setSoundType(data.value);
+    const onChangeFollower = (event) => {
+        console.log("on change follower", event.target.value);
+        setSoundType(event.target.value);
 
     }
 
     const createSoundTypeRow = () => {
-        const soundOptions = [
-            { text: capitalizeFirst(t("sine")), value: 1},
-            { text: capitalizeFirst(t("saw")), value: 2},
-            { text: capitalizeFirst(t("square")), value: 3},
-        ];
-        return (
-          <Grid item container direction={"row"}>
+
+        return  exerciseHasBegun && (
+          <Grid item container direction={"row"} justifyContent={"flex-start"} spacing={2}>
               <Grid item> { `${capitalizeFirst(t("sound"))}: `} </Grid>
               <Grid item>
-                  <Dropdown
-                      placeholder={capitalizeFirst(t("sound"))}
+                  <Select
+                      labelId="label" id="instrumentSelect"
                       onChange={ onChangeFollower }
-                      options ={soundOptions}
-                      defaultValue={2}
-                  />
+                      value={soundType}
+                  >
+                      <MenuItem value={1}>{t("sine")}</MenuItem>
+                      <MenuItem value={2}>{t("saw")}</MenuItem>
+                      <MenuItem value={3}>{t("square")}</MenuItem>
+                  </Select>
+
               </Grid>
+              <Grid item xs={4}><Volume /></Grid>
           </Grid>
         );
     };
@@ -247,26 +257,18 @@ const AskIntonation = () => {
         <div>
             <h2>{ `${t("intonationDescripton")} ${t(name)} ${t("cents")} ` }</h2>
 
-            { csound == null ? (
-                <header className="App-header">
-                    <p>Loading...</p>
-                </header>
-            ) : (
-
-            <Grid container direction={"column"}>
+            <Grid container direction={"column"} spacing={1}>
                 <ScoreRow/>
                 {createSoundTypeRow()}
                 {createResponseButtons()}
 
                 {createPlaySoundButton()}
-                <Grid item container>
+                <Grid item container justifyContent={"center"} spacing={1}>
                     <Grid item>
-
                         <GoBackToMainMenuBtn/>
                     </Grid>
                 </Grid>
             </Grid>
-                )}
         </div>
 
     );
