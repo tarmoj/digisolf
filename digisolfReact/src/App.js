@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import './App.css';
 import {useDispatch, useSelector} from "react-redux";
 import HeaderMessage from "./components/HeaderMessage";
@@ -11,32 +11,27 @@ import AskDictation from "./components/askdictation/AskDictation";
 import MainMenu from "./components/MainMenu";
 import AppFooter from "./components/AppFooter";
 import LanguageSelect from "./components/LanguageSelect";
-import {Checkbox, Dimmer, Header, Icon, Loader} from "semantic-ui-react";
+//import {Dimmer, Header,  Loader} from "semantic-ui-react";
+import {Backdrop, Checkbox, CircularProgress} from '@material-ui/core';
+
 import {useTranslation} from "react-i18next";
 import { BrowserRouter as Router, Switch, Route, } from 'react-router-dom';
 import {setName, setVISupportMode} from "./actions/exercise";
 import {setComponent} from "./actions/component";
+import {Visibility, VisibilityOff} from "@material-ui/icons";
 
 function App() {
     const component = useSelector(state => state.componentReducer.component);
     const isLoading = useSelector(state => state.componentReducer.isLoading);
 
+    const [VISupport, setVISupport] = useState(localStorage.getItem("VISupportMode")==="true")
+
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
 
+
+
     const renderComponent = () => {
-        // switch(component) {
-        //     case "AskInterval":
-        //         return <AskInterval/>;
-        //     case "AskChord":
-        //         return <AskChord/>;
-        //     case "AskDictation":
-        //         return <AskDictation/>;
-        //     case "AskIntonation":
-        //         return <AskIntonation/>;
-        //     default:
-        //         return <MainMenu/>;
-        // }
         return (
             <Router>
                 <Switch>
@@ -54,26 +49,29 @@ function App() {
 
     const showDimmer = () => {
         if (isLoading) {
-            return <Dimmer active>
-                <Loader size='massive'>{t("loading")}</Loader>
-            </Dimmer>
+            // TODO: check that some components are not above backdrop
+            return <Backdrop open={isLoading}>
+                {/*<Loader size='massive'>{t("loading")}</Loader>*/}
+                <CircularProgress
+                // should add somewhere: {"aria-describedby":"loading", "aria-busy":isLoading}}
+                />
+            </Backdrop>
         }
     };
 
     const createViSupportSelection = () => {
 
         return (
-            /*<Icon name={"blind"}
-                  color={ VISupport ? "green" : "black"}
-                  onClick = { () => dispatch( setVISupportMode(!VISupport)) }
 
-            />*/
-
-            <Checkbox className={"VISupport"} toggle={true}
-                      defaultChecked={localStorage.getItem("VISupportMode")==="true"}
-                      onChange={ (e, data) =>
-                          dispatch( setVISupportMode(data.checked)) }
-                      label = {"VI"}
+            <Checkbox className={"VISupport"} color={"default"}
+                      checked={VISupport}
+                      onChange={(e) => {
+                          setVISupport(e.target.checked);
+                          dispatch(setVISupportMode(e.target.checked))
+                      }
+                      }
+                      icon={<Visibility />} checkedIcon={<VisibilityOff />}
+                      inputProps={{ 'aria-label': t("visuallyImpairedSupport") }}
             />
         );
     }
@@ -82,9 +80,9 @@ function App() {
         <div className="App">
             <div className={"maxWidth"}>
                 <div className={"appHeader"}>
-                    <Header className={"headerText"} size='huge'>{t("digisolfeggio")}</Header>
-                    <LanguageSelect/>
+                    <h1 className={"headerText"} >{t("digisolfeggio")}</h1>
                     {createViSupportSelection()}
+                    <LanguageSelect/>
                 </div>
                 <HeaderMessage />
                 <div className={"appBody"}>

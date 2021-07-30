@@ -1,6 +1,6 @@
 const initialState = {
     userEnteredNotes: "",
-    VISupportMode:localStorage.getItem("VISupportMode") || false, // false makes now sense though.Just to show the default value
+    VISupportMode:localStorage.getItem("VISupportMode")==="true" || false, // false makes now sense though.Just to show the default value
     volume:  localStorage.getItem("volume") || 0.6, //
     instrument : localStorage.getItem("instrument") || "oboe"
 };

@@ -168,6 +168,7 @@
   "selectAll": "vali kõik",
   "deselectAll": "tühista kõik",
   "selectSomeChords": "valige mõned akordid",
-  "enterChord": "sisetage akord"
+  "enterChord": "sisetage akord",
+  "visuallyImpairedSupport": "nägemispuude tugi"
 
 }
