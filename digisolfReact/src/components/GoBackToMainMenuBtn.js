@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button} from 'semantic-ui-react'
+import {Button} from '@material-ui/core'
 import {useDispatch} from "react-redux";
 import {setComponent} from "../actions/component";
 import MainMenu from "./MainMenu";
@@ -20,7 +20,7 @@ const GoBackToMainMenuBtn = () => {
         history.push("/digisolf");
     };
 
-    return <Button onClick={goBack} className={"fullWidth marginTopSmall"}>{t("goBack")}</Button>;
+    return <Button variant={"contained"} onClick={goBack} className={"fullWidth marginTopSmall"}>{t("goBack")}</Button>;
 };
 
 export default GoBackToMainMenuBtn

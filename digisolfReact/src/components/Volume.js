@@ -3,7 +3,8 @@ import {useDispatch, useSelector} from "react-redux";
 import {setVolume} from "../actions/exercise";
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../util/util";
-import {Slider} from "react-semantic-ui-range";
+//import {Slider} from "react-semantic-ui-range";
+import { Slider } from '@material-ui/core';
 
 // later: replace with materialui slider: https://material-ui.com/components/slider/
 
@@ -16,14 +17,15 @@ const Volume = () => {
     return (
         <>
             {capitalizeFirst(t("volume"))}
-            <Slider value={volume} color="blue"
+            <Slider value={volume}
                     /*style={{maxWidth:200}}*/
-                    settings={ {
-                        min:0, max:1, step:0.01,
-                        onChange: (value) => {
+                    aria-label={t("volume")}
+
+                        min={0} max={1} step={0.01}
+                        onChange ={(event, value) => {
                             dispatch(setVolume(value));
                         }
-                    } }
+                        }
             />
         </>
     );
