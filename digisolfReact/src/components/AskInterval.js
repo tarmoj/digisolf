@@ -1,5 +1,6 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {Button, Divider, Grid, Header, Icon, Input, Label, Popup, Radio, Transition} from 'semantic-ui-react'
+import {Grid, Header, Popup, Radio, Transition} from 'semantic-ui-react'
+import {Button, Typography, Input, TextField} from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {getNoteByVtNote} from "../util/notes";
@@ -607,13 +608,13 @@ const AskInterval = () => {
     };
    
     const createButtons = () => {
-        const startExerciseButton = <Button key={"startExercise"} color={"green"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>;
+        const startExerciseButton = <Button variant="contained" key={"startExercise"} color={"primary"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>;
         const changeKeyButton = exerciseName.includes("random")  ? null :
-            <Button key={"changeKey"} primary onClick={changeKey} className={"fullWidth marginTopSmall"}>{t("changeKey")}</Button>;
-        const playNextIntervalButton = <Button key={"playNext"} color={"olive"} onClick={() => renew()} className={"fullWidth marginTopSmall"}>{t("playNext")}</Button>;
-        const repeatIntervalButton = <Button key={"repeat"} color={"green"} onClick={() => play(intervalData)} className={"fullWidth marginTopSmall"}>{t("repeat")}</Button>;
+            <Button variant="contained" key={"changeKey"}  onClick={changeKey} className={"fullWidth marginTopSmall"}>{t("changeKey")}</Button>;
+        const playNextIntervalButton = <Button variant="contained" key={"playNext"} color={"primary"} onClick={() => renew()} className={"fullWidth marginTopSmall"}>{t("playNext")}</Button>;
+        const repeatIntervalButton = <Button variant="contained" key={"repeat"} color={"secondary"} onClick={() => play(intervalData)} className={"fullWidth marginTopSmall"}>{t("repeat")}</Button>;
         const playTonicButton = exerciseName.includes("random")  ? null :
-            <Button key={"playTonic"} color={"teal"} className={"fullWidth marginTopSmall"} onClick = {()=> playTonicTriad(selectedTonicNote.midiNote, isMajor, 1)}>{capitalizeFirst( t("tonic") )}</Button>
+            <Button variant="contained" key={"playTonic"} className={"fullWidth marginTopSmall"} onClick = {()=> playTonicTriad(selectedTonicNote.midiNote, isMajor, 1)}>{capitalizeFirst( t("tonic") )}</Button>
         if (exerciseHasBegun) {
             return (
                 <>
@@ -643,28 +644,39 @@ const AskInterval = () => {
         for (let i=0; i<intervalCount; i++ ) {
             const responseShortName = getResponseIntervalShortName(i);
             const correctShortName = getCorrectIntervalShortName(i);
-            const color =  answered ?  (responseShortName===correctShortName ? "green" : "red") :
-                (currentResponseIndex===i ? "teal" : "grey");
+            const isCorrect = responseShortName===correctShortName;
+            const color =  answered ?  ( isCorrect ? "green" : "red") :
+                (currentResponseIndex===i ? "primary" : "");
+            //TODO: Button pole ilmselt parim siiski sildi jaoks, proovi pigem TextField as button? label?
             elements.push( // was Grid.Column before
                 <React.Fragment key={"intervalLabel"+i}>
-                    <Label as={'a'}
-                           key={i}
-                           onClick={() => setCurrentResponseIndex(i)}
-                           /*basic = {currentResponseIndex===i}*/
-                           color = {color}
+                    <Button
+                        key={i}
+                        className={"marginRight"}
+                        onClick={() => setCurrentResponseIndex(i)}
+                        color = {color}
+                        size={"small"}
+                        variant={"outlined"}
+                    >
+                        <Typography style={{ textTransform: 'none', color: color }}>  { responseShortName ? responseShortName : "?"}</Typography>
+                </Button>
 
-                    > { responseShortName ? responseShortName : "?"}
-                    </Label>
-                    {/*try animation:*/}
-                    <Transition visible={answered}  animation={"slide right"} duration={labelAnimationTime}>
-                        <Label tag color={color}>{correctShortName}</Label>
-                    </Transition>
-                    {/*{ answered && <Label tag color={color}>{correctShortName}</Label>}*/}
+                    { answered && !isCorrect && (
+                        <>
+                            <label className={"marginRight"}>{capitalizeFirst(t("correct"))+": "}</label>
+                            <TextField
+                                style={{width:70, marginRight:5 }}
+                                value={correctShortName}
+
+                            />
+                        </> )}
+
                 </React.Fragment>
-            );
-        }
 
-        elements.push(<Button key={"checkButton"} size={"tiny"} onClick={checkResponse} >{capitalizeFirst(t("check"))}</Button>);
+            );
+        };
+
+        elements.push(<Button variant="contained" key={"checkButton"} size={"tiny"} onClick={checkResponse} >{capitalizeFirst(t("check"))}</Button>);
 
         return exerciseHasBegun && (
 
@@ -692,29 +704,39 @@ const AskInterval = () => {
         for (let i=0; i<intervalCount; i++ ) {
             const responseDegreeString = degreesEnteredByUser[i]; //getResponseDegrees(i).join(" "); -  somehow the  array/obect in responsedegrees get zeroed too soon
             const correctDegreeString = getCorrectDegrees(i).join(" ");
-            const labelColor =  responseDegreeString===correctDegreeString ? "green" : "red";
+            const isCorrect = responseDegreeString===correctDegreeString
+            const labelColor = isCorrect  ? "green" : "red";
             //console.log("degreeInputs: i, responseDegreeString, correctDegreeStrinv, labelColor", i, responseDegreeString, correctDegreeString, labelColor);
             inputs.push(
-                    <React.Fragment key={"degreeElement"+i}>
-                    <Input
+                <React.Fragment key={"degreeElement"+i}>
+                    <TextField
                         key={"degreeInput"+i}
-                        style={{width:70, marginRight:5}}
+                        style={{width:80, marginRight:5}}
                         onChange={e => {
                             const input = insertSpaces(e.target.value);
                             const currentUserDegrees = degreesEnteredByUser.slice();
                             currentUserDegrees[i] = input;
-                            setDegreesEnteredByUser(currentUserDegrees); // maybe: this works since it is string
-                            setResponseDegrees(input.split(" "), i); // this not since it is part of object... deepClone?
+                            setDegreesEnteredByUser(currentUserDegrees);
+                            setResponseDegrees(input.split(" "), i);
                         }}
                         value={degreesEnteredByUser[i] ? degreesEnteredByUser[i] : ""} // can't we use getResponseDegrees here?
                         placeholder={'e.g.: 1 3'}
+                        error={answered && !isCorrect}
                     />
-                        <Transition visible={answered}  animation={"slide right"} duration={labelAnimationTime}>
-                            <Label pointing={"left"} color={labelColor}>{correctDegreeString}</Label>
-                        </Transition>
-                    </React.Fragment>
+                    { answered && !isCorrect && (
+                        <>
+                            <label className={"marginRight"}>{capitalizeFirst(t("correct"))+": "}</label>
+                            <TextField
+                                style={{width:70, marginRight:5 }}
+                                value={correctDegreeString}
+
+                            />
+
+                        </> )}
+                </React.Fragment>
             );
-        }
+        };
+
         return exerciseHasBegun && !exerciseName.includes("random") && (
             <Grid.Row className={"exerciseRow"}>
                 <span  className={"marginLeft marginRight"}>{ capitalizeFirst( t("enterDegrees") )}: </span>
@@ -724,11 +746,11 @@ const AskInterval = () => {
     }
 
     const getButtonColor = (buttonInterval) => {
-        let color = "grey";
+        let color = "";
         if (greenIntervalButtons.includes(buttonInterval)) {
             color = "green";
         } else if (redIntervalButtons.includes(buttonInterval)) {
-            color = "red";
+            color = "darkred"; // TODO: get from the theme somehow
         } else if (correctIntervalButtons.includes(buttonInterval)) { // mark correct but not pressed buttons(s)
             color = "teal";
         }
@@ -739,8 +761,9 @@ const AskInterval = () => {
     const createIntervalButton = (interval, displayedName) => {
         return (
             <Grid.Column>
-                <Button color={getButtonColor(interval)}
-                        className={"exerciseBtn"}
+                <Button variant="contained"
+                        className={"fullWidth marginTopSmall" }
+                        style={{backgroundColor: getButtonColor(interval)}}
                         onClick={() => {
                             setResponseInterval(interval);
                             if (intervalCount===1) {
@@ -754,7 +777,7 @@ const AskInterval = () => {
                             }
                         }
                         }
-                >{displayedName}</Button>
+                > <Typography style={{ textTransform: 'none' }}>{displayedName}</Typography>  </Button>
             </Grid.Column>
         )
     };
@@ -765,11 +788,11 @@ const AskInterval = () => {
         for (let i=0; i<intervalCount; i++ ) {
             const responseShortName = getResponseIntervalShortName(i);
             const correctShortName = getCorrectIntervalShortName(i);
-            const color =  answered ?  (responseShortName===correctShortName ? "green" : "red") :
-                 "grey";
+            const isCorrect = responseShortName === correctShortName;
+            //const color =  answered ?  (isCorrect ? "green" : "red") : "grey";
             elements.push(
                 <React.Fragment key={"intervalField"+i}>
-                    <Input
+                    <TextField
                         key={"intervalInput"+i}
                         style={{width:70, marginRight:5}}
                         onChange={e => {
@@ -778,14 +801,21 @@ const AskInterval = () => {
                         onKeyPress={ e=> { if (e.key === 'Enter') checkResponse()  }}
                         /*value={getResponseIntervalShortName(i)}*/ // can't we use getResponseDegrees here?
                         placeholder={'e.g.: v3'}
+                        error={answered && !isCorrect}
                     />
-                    {<Transition visible={answered}  animation={"slide right"} duration={labelAnimationTime}>
-                        <Label pointing={"left"} color={color}>{correctShortName}</Label>
-                    </Transition>}
+                    { answered && !isCorrect && (
+                        <>
+                            <label className={"marginRight"}>{capitalizeFirst(t("correct"))+": "}</label>
+                            <TextField
+                                style={{width:70, marginRight:5 }}
+                                value={correctShortName}
+
+                            />
+                        </> )}
                 </React.Fragment>
             );
         }
-        elements.push(<Button key={"checkButton"} size={"tiny"} onClick={checkResponse} >{capitalizeFirst(t("check"))}</Button>);
+        elements.push(<Button variant="contained" key={"checkButton"} size={"tiny"} onClick={checkResponse} >{capitalizeFirst(t("check"))}</Button>);
 
         return exerciseHasBegun && !exerciseName.includes("random") && (
             <Grid.Row className={"exerciseRow"}>
@@ -833,7 +863,7 @@ const AskInterval = () => {
             <Grid.Row>
             <Grid.Column></Grid.Column>
             <Grid.Column className={"marginRight"}  floated='right' > {/*Võiks olla joondatud nuppude parema servaga */}
-                <Popup on='click' position='bottom right' trigger={<Button content='?'/>}>
+                <Popup on='click' position='bottom right' trigger={<Button variant="contained" content='?'/>}>
                     <h3>Klahvikombinatsioonid</h3>
                     <p>Intervallid: v+2, s+2, jne (täht enne, siis number, hoida samaaegselt). </p>
                     <p>NB! Tritoon (vähendatud kvint) - d+5 (diminished)</p>
