@@ -179,14 +179,14 @@ const AskIntonation = () => {
 
         if (exerciseHasBegun) {
             return (
-            <Grid item container direction={"row"} justifyContent={"center"} spacing={1}>
-                    <Grid item>
+            <Grid item container direction={"row"} spacing={1}>
+                    <Grid item xs={4}>
                         <Button variant="contained" color={"primary"} onClick={() => renew(cents)} className={"fullWidth marginTopSmall"} >{t("playNext")}</Button>
                     </Grid>
-                    <Grid item>
+                    <Grid item xs={4}>
                         <Button variant="contained" onClick={() => play(baseMidiNote, intervalRatio, selectedDeviation, 0)} className={"fullWidth marginTopSmall"}  >{t("repeat")}</Button>
                     </Grid>
-                    <Grid item>
+                    <Grid item xs={4}>
                         <Button variant="contained" onClick={() => play(baseMidiNote, intervalRatio, selectedDeviation, 1)} className={"fullWidth marginTopSmall"}  >{t("repeatMelodically")}</Button>
                     </Grid>
                 </Grid>
@@ -194,10 +194,8 @@ const AskIntonation = () => {
             );
         } else {
             return(
-                <Grid item container direction={"row"} justifyContent={"center"} spacing={1} >
-                    <Grid item>
+                <Grid item container direction={"row"} spacing={1} >
                     <Button variant="contained" color={"primary"} onClick={() => startExercise()} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>
-                    </Grid>
                 </Grid>
             );
         }
@@ -206,17 +204,17 @@ const AskIntonation = () => {
     const createResponseButtons = () => {
         return exerciseHasBegun && (
             <Grid item container direction={"row"} justifyContent={"center"} spacing={1}>
-                <Grid item>
+                <Grid item xs={4}>
                     <Button variant="contained" className={"exerciseBtn"}
                             onClick={() => checkResponse({intonation: "narrow"})}>{capitalizeFirst( t("narrow") )}
                     </Button>
                 </Grid>
-                <Grid item>
+                <Grid item xs={4}>
                     <Button variant="contained" className={"exerciseBtn"}
                             onClick={() => checkResponse({intonation: "inTune"})}>{capitalizeFirst( t("inTune") )}
                     </Button>
                 </Grid>
-                <Grid item>
+                <Grid item xs={4}>
                     <Button variant="contained" className={"exerciseBtn"}
                             onClick={() => checkResponse({intonation: "wide"})}>{capitalizeFirst( t("wide") )}
                     </Button>
@@ -263,10 +261,8 @@ const AskIntonation = () => {
                 {createResponseButtons()}
 
                 {createPlaySoundButton()}
-                <Grid item container justifyContent={"center"} spacing={1}>
-                    <Grid item>
+                <Grid item container>
                         <GoBackToMainMenuBtn/>
-                    </Grid>
                 </Grid>
             </Grid>
         </div>

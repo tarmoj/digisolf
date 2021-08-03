@@ -53,32 +53,23 @@ const LanguageSelect = () => {
         { key: 'lat', text: 'Latvijas', value: "lat", image: { avatar: false, src: languageToFlag("lat") }}
     ];
 */
-    //MAybe use menu with an image trigger instead of select
+    // rewrite perhaps with IconButton
     return (
         <>
             {/*InputLabel would be proper way for accessibility - test later
             <InputLabel id="label">{t("languageSelect")}</InputLabel>*/}
         <Select
-            disabled={true}
+            disabled={false}
             labelId="label" id="select"
             className={"languageSelect"}
             value={language}
             onChange={handleLanguageChange}
         >
-            <MenuItem value={"est"}><img src={flagEE} alt={"Eesti lipp"} /> Eesti</MenuItem>
-            <MenuItem value={"lat"}> <img src={flagLV} alt={"Latvian flag"} /> Latviski</MenuItem>
-            <MenuItem value={"eng"}><img src={flagGB} alt={"English flag"} /> English</MenuItem>
+            <MenuItem value={"est"}><img src={flagEE} alt={"Eesti"} /></MenuItem>
+            <MenuItem value={"lat"}> <img src={flagLV} alt={"Latviešu"} /></MenuItem>
+            <MenuItem value={"eng"}><img src={flagGB} alt={"English"} /></MenuItem>
         </Select>
         </>
-        /*<Dropdown
-            className={"languageSelect"}
-            value={language}
-            onChange={handleLanguageChange}
-            trigger={trigger}
-            options={options}
-            pointing='top right'
-            icon={null}
-        />*/
     )
 };
 

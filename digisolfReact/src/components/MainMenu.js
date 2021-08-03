@@ -17,14 +17,14 @@ const MainMenu = () => {
         <Grid container direction={"column"}>
 
             <Grid container item direction={"row"}>
-                <Grid item>
+                <Grid item xs={6}>
                     <h2 className={"marginTopSmall"}>{t("intervals")}</h2>
                     <Button variant="contained" className={"mainMenuBtn"} onClick={() => history.push("/digisolf/askinterval/tonicTriad")}>{capitalizeFirst(t("tonicTriad"))}</Button><br/>
                     <Button variant="contained"  className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askinterval/tonicAllScaleDegrees")}>{capitalizeFirst(t("tonicAllScaleDegrees"))}</Button><br/>
                     <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askinterval/allScaleDegrees")}>{capitalizeFirst(t("allScaleDegrees"))}</Button><br/>
                     <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askinterval/randomInterval")}>{capitalizeFirst(t("intervalFromNote"))}</Button><br/>
                 </Grid>
-                <Grid item>
+                <Grid item xs={6}>
                     <div>
                         <h2 className={"marginTopSmall"}>{t("chords")}</h2>
                         <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askchord/MmTriad")}>{capitalizeFirst(t("MmTriad"))}</Button><br/>

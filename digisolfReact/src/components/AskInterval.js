@@ -1,6 +1,6 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {Grid, Header, Popup, Radio, Transition} from 'semantic-ui-react'
-import {Button, Typography, Input, TextField} from "@material-ui/core"
+//import {Grid} from 'semantic-ui-react'
+import {Button, Typography, TextField, Grid, Dialog, DialogTitle, DialogContent, DialogActions} from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {getNoteByVtNote} from "../util/notes";
@@ -23,12 +23,10 @@ import ScoreRow from "./ScoreRow";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import { useParams } from "react-router-dom";
 import { useHotkeys } from 'react-hotkeys-hook';
-import Sound from 'react-sound';
-import correctSound from "../sounds/varia/correct.mp3"
-import wrongSound from "../sounds/varia/wrong.mp3"
 import * as Tone from "tone"
 import Volume from "./Volume";
 import SelectInstrument from "./SelectInstrument";
+import {setIsLoading} from "../actions/component";
 
 
 const AskInterval = () => {
@@ -57,12 +55,11 @@ const AskInterval = () => {
     const [redIntervalButtons, setRedIntervalButtons] = useState([]);
     const [correctIntervalButtons, setCorrectIntervalButtons] = useState([]);
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
-    const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
-    const [soundFile, setSoundFile] = useState("");
+    // const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
+    // const [soundFile, setSoundFile] = useState("");
     const [answered, setAnswered] = useState(false);
     const [intervalData, setIntervalData] = useState([{degrees:[], notes:[], interval: null}]); //array of: {degrees: []}
     const [degreesEnteredByUser, setDegreesEnteredByUser] = useState(Array(intervalCount));
-    //const [VISupportMode, setVISupportMode] = useState(false); // for visibly impaired support
     const [possibleIntervalShortNames, setPossibleIntervalShortNames] = useState([]);
     const [currentResponseIndex, setCurrentResponseIndex] = useState(0); // in case there are several intervals
     const [response, setResponse] = useState( Array(intervalCount)); //.fill({degrees:[], intervalShortName:""}));
@@ -70,17 +67,13 @@ const AskInterval = () => {
         exerciseName === "tonicTriad" ? "melodicHarmonic" :
             (parameterDict.mode ? parameterDict.mode : "harmonic"  )) ; // melodic|harmonic|melodicHarmonic
     const [sampler, setSampler] = useState(null );
+    const [dialogOpen, setDialogOpen] = useState(false);
     
     const instrument = useSelector(state => state.exerciseReducer.instrument);
 
     useEffect(() => {
         setSampler(createSampler(instrument)); // take care if this is the default of instrumentSelection
     }, [instrument]);
-
-    // useEffect(() => {
-    //     //console.log("Instrument changed hook");
-    //     setSampler(createSampler(instrument)); // take care if this is the default of instrumentSelection
-    // }, [instrument]);
 
 
     const possibleTonicVtNotes = ["C/4", "D/4",  "E@/4", "E/4", "F/4",
@@ -368,7 +361,7 @@ const AskInterval = () => {
     // Tone.js for sound
 
       const createSampler = (instrument) => {
-        //TODO: loading
+        dispatch(setIsLoading(true));
         const sampleList = {};
         for (let i=60; i<=84; i++) {
             //TODO: check if file exists
@@ -379,7 +372,7 @@ const AskInterval = () => {
                 baseUrl: process.env.PUBLIC_URL +"/sounds/instruments/"+instrument + "/",
                 release: 1,
                 onerror: (error) => { console.log("error on loading", error) },
-                onload: () => { console.log("Samples loaded"); sampler.connect(reverb); }
+                onload: () => { console.log("Samples loaded"); sampler.connect(reverb); dispatch(setIsLoading(false));}
             }
         );
         return sampler;
@@ -540,8 +533,8 @@ const AskInterval = () => {
         }
 
         setAnswered(true);
-        let correct = true, feedBack="";
-        const correctButtons = []; // mybe use it only when intervalCount==1, and just a string, not array...
+        let correct = true;
+        const correctButtons = []; // maybe use it only when intervalCount==1, and just a string, not array...
         const greenButtons = [];
         const redButtons = [];
 
@@ -556,11 +549,9 @@ const AskInterval = () => {
                     const intervalCorrect = checkInterval(shortName,i);
                     correct = correct && intervalCorrect;
                     if (intervalCorrect) {
-                        //feedBack += `${capitalizeFirst(t("interval"))} ${t("correct")}. `;
                         correct = true;
                         greenButtons.push(shortName);
                     } else {
-                        //feedBack += `${capitalizeFirst(t("interval"))}: ${intervalData[currentResponseIndex].interval.shortName} `; // see on vale
                         correct = false;
                         redButtons.push(shortName);
                     }
@@ -570,15 +561,12 @@ const AskInterval = () => {
                 setRedIntervalButtons(redButtons);
                 setCorrectIntervalButtons(correctButtons);
 
-
                 if (degreesEnteredByUser[i]) {
                     const degreesCorrect = checkDegrees(i);
                     correct = correct && degreesCorrect;
                     if (degreesCorrect) {
-                        //feedBack += `${capitalizeFirst(t("degrees"))} - ${t("correct")}. `;
                         correct = correct && true;
                     } else {
-                        //feedBack += `${capitalizeFirst(t("degrees"))}: ${intervalData[currentResponseIndex].degrees.join(" ")}`;
                         correct = false;
                     }
                 }
@@ -590,24 +578,15 @@ const AskInterval = () => {
                 dispatch(incrementCorrectAnswers());
                 const waitTime = intervalCount===1 ?  1000 : 2000; // one seond per interval  to give time to
                 setTimeout( ()=> renew(), waitTime); // small delay to let user to see the answer -  maybe add this to cofig options
-
-                // // maybe it is better to move the sound part to ScoreRow component?
-                // if (VISupportMode) {
-                //     setSoundFile(correctSound);
-                //     setPlayStatus(Sound.status.PLAYING);
-                // }
             } else {
-                //dispatch(setNegativeMessage(feedBack, 5000));
                 dispatch(incrementIncorrectAnswers());
-                // if (VISupportMode) {
-                //     setSoundFile(wrongSound);
-                //     setPlayStatus(Sound.status.PLAYING);
-                // }
             }
         }
     };
+
+    // UI ---------------------------------------------
    
-    const createButtons = () => {
+    const createControlButtons = () => {
         const startExerciseButton = <Button variant="contained" key={"startExercise"} color={"primary"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>;
         const changeKeyButton = exerciseName.includes("random")  ? null :
             <Button variant="contained" key={"changeKey"}  onClick={changeKey} className={"fullWidth marginTopSmall"}>{t("changeKey")}</Button>;
@@ -618,18 +597,18 @@ const AskInterval = () => {
         if (exerciseHasBegun) {
             return (
                 <>
-                    <Grid.Row className={"exerciseRow"} columns={2}>
-                        <Grid.Column>{playNextIntervalButton}</Grid.Column>
-                        <Grid.Column>{repeatIntervalButton}</Grid.Column>
-                    </Grid.Row>
-                    <Grid.Row className={"exerciseRow"} columns={2}>
-                        <Grid.Column>{playTonicButton}</Grid.Column>
-                        <Grid.Column>{changeKeyButton}</Grid.Column>
-                    </Grid.Row>
+                    <Grid item container spacing={1} direction={"row"} className={"exerciseRow"}>
+                        <Grid item xs={6}>{playNextIntervalButton}</Grid>
+                        <Grid item xs={6}>{repeatIntervalButton}</Grid>
+                    </Grid>
+                    <Grid item container spacing={1} direction={"row"} className={"exerciseRow"}>
+                        <Grid item xs={6}>{playTonicButton}</Grid>
+                        <Grid item xs={6}>{changeKeyButton}</Grid>
+                    </Grid>
                 </>
             )
         } else {
-            return (<Grid.Row><Grid.Column> {startExerciseButton}</Grid.Column></Grid.Row>);
+            return (<Grid item> {startExerciseButton}</Grid>);
         }
 
     };
@@ -676,14 +655,14 @@ const AskInterval = () => {
             );
         };
 
-        elements.push(<Button variant="contained" key={"checkButton"} size={"tiny"} onClick={checkResponse} >{capitalizeFirst(t("check"))}</Button>);
+        elements.push(<Button variant="contained" key={"checkButton"} size={"small"} onClick={checkResponse} >{capitalizeFirst(t("check"))}</Button>);
 
         return exerciseHasBegun && (
 
-            <Grid.Row className={"exerciseRow"}>
+            <Grid item container spacing={1} direction={"row"} className={"exerciseRow"}>
                 <span className={"marginLeft marginRight"} >{capitalizeFirst(t("intervals"))}: </span>
                 {elements}
-            </Grid.Row>
+            </Grid>
         );
     };
 
@@ -738,10 +717,10 @@ const AskInterval = () => {
         };
 
         return exerciseHasBegun && !exerciseName.includes("random") && (
-            <Grid.Row className={"exerciseRow"}>
+            <Grid item container spacing={1} direction={"row"} className={"exerciseRow"}>
                 <span  className={"marginLeft marginRight"}>{ capitalizeFirst( t("enterDegrees") )}: </span>
                 {inputs}
-            </Grid.Row>
+            </Grid>
         );
     }
 
@@ -750,7 +729,7 @@ const AskInterval = () => {
         if (greenIntervalButtons.includes(buttonInterval)) {
             color = "green";
         } else if (redIntervalButtons.includes(buttonInterval)) {
-            color = "darkred"; // TODO: get from the theme somehow
+            color = "red"; // TODO: get from the theme somehow
         } else if (correctIntervalButtons.includes(buttonInterval)) { // mark correct but not pressed buttons(s)
             color = "teal";
         }
@@ -760,7 +739,7 @@ const AskInterval = () => {
 
     const createIntervalButton = (interval, displayedName) => {
         return (
-            <Grid.Column>
+            <Grid item xs={4}>
                 <Button variant="contained"
                         className={"fullWidth marginTopSmall" }
                         style={{backgroundColor: getButtonColor(interval)}}
@@ -778,12 +757,11 @@ const AskInterval = () => {
                         }
                         }
                 > <Typography style={{ textTransform: 'none' }}>{displayedName}</Typography>  </Button>
-            </Grid.Column>
+            </Grid>
         )
     };
 
     const createIntervalInputRow = () => { // for VI -  visually impaired
-        // Kuidas anda tagasisidet? kas labelid on nähtavad?
         const elements = [];
         for (let i=0; i<intervalCount; i++ ) {
             const responseShortName = getResponseIntervalShortName(i);
@@ -815,13 +793,13 @@ const AskInterval = () => {
                 </React.Fragment>
             );
         }
-        elements.push(<Button variant="contained" key={"checkButton"} size={"tiny"} onClick={checkResponse} >{capitalizeFirst(t("check"))}</Button>);
+        elements.push(<Button variant="contained" key={"checkButton"} size={"small"} onClick={checkResponse} >{capitalizeFirst(t("check"))}</Button>);
 
-        return exerciseHasBegun && !exerciseName.includes("random") && (
-            <Grid.Row className={"exerciseRow"}>
+        return exerciseHasBegun && (
+            <Grid item container spacing={1}  direction={"row"} className={"exerciseRow"}>
                 <span  className={"marginLeft marginRight"}>{ capitalizeFirst( t("enterIntervals") )}: </span>
                 {elements}
-            </Grid.Row>
+            </Grid>
         );
 
     };
@@ -829,88 +807,96 @@ const AskInterval = () => {
     const createIntervalButtons = () => {
         return exerciseHasBegun &&  (
             <>
-                <Grid.Row className={"exerciseRow"} columns={3}>
+                <Grid item container spacing={1} direction={"row"} className={"exerciseRow"}>
                     {/*TODO: support translation*/}
                     {createIntervalButton("v2", "v2")} {/*was: ${capitalizeFirst(t("minor"))} ${t("second")}*/}
                     {createIntervalButton("p4", "p4")}
                     {createIntervalButton("s2", "s2")}
 
-                </Grid.Row>
-                <Grid.Row className={"exerciseRow"} columns={3}>
+                </Grid>
+                <Grid item container spacing={1} direction={"row"} className={"exerciseRow"}>
                     {createIntervalButton("v3", "v3")}
                     {createIntervalButton("p5", "p5")}
                     {createIntervalButton("s3", "s3")}
 
-                </Grid.Row>
-                <Grid.Row className={"exerciseRow"} columns={3}>
+                </Grid>
+                <Grid item container spacing={1} direction={"row"} className={"exerciseRow"}>
                     {createIntervalButton("v6", "v6")}
                     {createIntervalButton(">5", "Trit. (>5/<4)")}
                     {createIntervalButton("s6", "s6")}
-                </Grid.Row>
-                <Grid.Row className={"exerciseRow"} columns={3}>
+                </Grid>
+                <Grid item container spacing={1} direction={"row"} className={"exerciseRow"} >
                     {createIntervalButton("v7", "v7")}
                     {createIntervalButton("p8", "p8")}
                     {createIntervalButton("s7", "s7")}
-                </Grid.Row>
+                </Grid>
             </>
         );
     }
 
     // temporary code, keep it here:
     const createMenuRow = () => {
-        // old popup for shortcuts:
+        // This is only placeholder, not used for now:
         return (
-            <Grid.Row>
-            <Grid.Column></Grid.Column>
-            <Grid.Column className={"marginRight"}  floated='right' > {/*Võiks olla joondatud nuppude parema servaga */}
-                <Popup on='click' position='bottom right' trigger={<Button variant="contained" content='?'/>}>
-                    <h3>Klahvikombinatsioonid</h3>
-                    <p>Intervallid: v+2, s+2, jne (täht enne, siis number, hoida samaaegselt). </p>
-                    <p>NB! Tritoon (vähendatud kvint) - d+5 (diminished)</p>
-                    <p>Mängi järgmine: shift+paremale</p>
-                    <p>Korda: shift+alla</p>
-                    <p>Alusta harjutust/Muuda helistikku: shift+üles</p>
-                    <p>Tagasi peamenüüsse - veel pole</p>
-                </Popup>
-            </Grid.Column>
-        </Grid.Row>
+            <>
+                <Button variant="outlined" color="primary" onClick={()=>setDialogOpen(!dialogOpen)}>
+                    Info
+                </Button>
+             <Dialog
+                 open={dialogOpen}
+                 onClose={null}
+                 aria-labelledby="alert-dialog-title"
+                 aria-describedby="alert-dialog-description">
+                 <DialogTitle id="alert-dialog-title">Info</DialogTitle>
+                 <DialogContent
+                     id="alert-dialog-description"
+                 >
+                     <h3>Klahvikombinatsioonid</h3>
+                     <p>Intervallid: v+2, s+2, jne (täht enne, siis number, hoida samaaegselt). </p>
+                     <p>NB! Tritoon (vähendatud kvint) - d+5 (diminished)</p>
+                     <p>Mängi järgmine: shift+paremale</p>
+                     <p>Korda: shift+alla</p>
+                     <p>Alusta harjutust/Muuda helistikku: shift+üles</p>
+                     <p>Tagasi peamenüüsse - veel pole</p>
+                 </DialogContent>
+                 <DialogActions>
+                     <Button onClick={{/*handleClose*/}} color="primary">
+                         Disagree
+                     </Button>
+                     <Button onClick={{/*handleClose*/}} color="primary" autoFocus>
+                         Agree
+                     </Button>
+                 </DialogActions>
+
+             </Dialog>
+
+            </>
         );
     }
 
     // the layout is horrible
     const createVolumeAndInstrumentRow = () => {
         return exerciseHasBegun && (
-            <Grid.Row colums={3} >
-                <Grid.Column width={4}> <SelectInstrument /> </Grid.Column>
-
-                <Grid.Column width={10}> <Volume /> </Grid.Column>
-                <Grid.Column></Grid.Column>
-            </Grid.Row>
+            <Grid item container spacing={1} direction={"row"}>
+                <Grid item xs={4}> <SelectInstrument /> </Grid>
+                <Grid item xs={5}> <Volume /> </Grid>
+            </Grid>
         )
     }
 
     return (
         <div>
-            {/*Sound for giving feedback on anwers (for visually impaired support)*/}
-            {/*<Sound
-                url={soundFile}
-                loop={false}
-                playStatus={playStatus}
-                onFinishedPlaying={ () => setSoundFile("") }
-            />*/}
-            <Header size='large'>{`${t("setInterval")} ${t(exerciseName)}`}</Header>
-            <Grid celled={false}>
+            <h2 size='large'>{`${t("setInterval")} ${t(exerciseName)}`}</h2>
+            <Grid container spacing={1} direction={"column"}>
                 <ScoreRow />
                 {createDegreeInputRow()}
                 {VISupportMode ? null : createIntervalLabelRow()}
                 {VISupportMode ? createIntervalInputRow() : createIntervalButtons()}
                 {createVolumeAndInstrumentRow()}
-                {createButtons()}
-                <Grid.Row>
-                    <Grid.Column>
+                {createControlButtons()}
+                <Grid item>
                         <GoBackToMainMenuBtn/>
-                    </Grid.Column>
-                </Grid.Row>
+                </Grid>
             </Grid>
 {/*
             <MIDISounds ref={midiSounds} appElementName="root" instruments={[3]} />
