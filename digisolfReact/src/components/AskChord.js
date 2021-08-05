@@ -1,18 +1,6 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {
-    Accordion, AccordionContent,
-    Button,
-    Checkbox,
-    Dropdown,
-    Form,
-    FormButton,
-    FormCheckbox,
-    Grid,
-    Header, Icon,
-    Input,
-    Loader,
-    Modal
-} from 'semantic-ui-react'
+
+import {Button, CircularProgress, TextField, Switch, Checkbox, FormControlLabel, Typography, Grid} from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst, simplify} from "../util/util";
@@ -28,10 +16,8 @@ import {useParams} from "react-router-dom";
 import { useHotkeys } from 'react-hotkeys-hook';
 import CsoundObj from "@kunstmusik/csound";
 import {dictationOrchestra as orc} from "../csound/orchestras";
-import {Slider} from "react-semantic-ui-range";
-
-// test
-import {setIsLoading} from "../actions/component";
+import SelectInstrument from "./SelectInstrument";
+import Volume from "./Volume";
 
 
 
@@ -51,8 +37,8 @@ const AskChord = () => {
     const dispatch = useDispatch();
 
     const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode);
-    //const masterVolume = useSelector(state => state.exerciseReducer.volume);
-
+    const masterVolume = useSelector(state => state.exerciseReducer.volume);
+    const instrument =  useSelector(state => state.exerciseReducer.instrument);
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [possibleChords, setPossibleChords] = useState([]); // possibleChors -  whole set to choose from
@@ -72,6 +58,19 @@ const AskChord = () => {
     const [usePopJazzNaming, setUsePopJazzNaming] = useState(false);
 
     //const userEnteredNotes = useSelector(state => state.exerciseReducer.userEnteredNotes);
+
+
+    useEffect(  () => {
+           if (csound) {
+               loadResources(csound,  60, 84, instrument); // NB! should use async () amd await loadResources in normal case
+           }
+    }, [instrument]);
+
+    useEffect(  () => {
+        if (csound) {
+            csound.setControlChannel("volume", masterVolume);
+        }
+    }, [masterVolume]);
 
     // const shortcutManager = new ShortcutManager(keymap);
 
@@ -430,7 +429,7 @@ const AskChord = () => {
     const startCsound = async () => {
         console.log('start csound');
         if (csound) {
-            await loadResources(csound, 60, 84, "oboe");
+            await loadResources(csound, 60, 84, instrument);
 
             csound.setOption("-m0d"); // does not affect the output... also --logfile=null not
             csound.compileOrc(orc);
@@ -448,53 +447,55 @@ const AskChord = () => {
 
     const createOptionsBlock = () => {
         return exerciseHasBegun && (
-          <Grid.Row>
-              <Grid.Column>
-                  { ` ${capitalizeFirst(t("naming"))}:  ${t("classical")}`}
-                   <Checkbox slider={true} className={"marginTopSmall marginLeft marginRight"}
-                             onChange={ (e, data) =>
-                                 setUsePopJazzNaming(data.checked)}/>
+          <Grid item container spacing={1} direction={"row"} justifyContent={"center"} alignItems={"center"}>
+              <Grid item>
+              { ` ${capitalizeFirst(t("naming"))}:  ${t("classical")}`}
+              </Grid>
+              <Grid item>
+                   <Switch color={"default"}
+                             onChange={ (e) =>
+                                 setUsePopJazzNaming(e.target.checked)}
+                   />
+              </Grid>
+              <Grid item>
                   { ` ${t("popJazz")}` }
-              </Grid.Column>
-          </Grid.Row>
+              </Grid>
+          </Grid>
         );
     };
 
     const createControlButtons = () => {
         if (exerciseHasBegun) {
             return (
-                <Grid.Row  columns={2} centered={true}>
-                    <Grid.Column>
-                        <Button color={"green"} onClick={() => renew(possibleChords)} className={"fullWidth marginTopSmall"} >{t("playNext")}</Button>
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Button onClick={() => play(selectedChord, baseNote.midiNote)} className={"fullWidth marginTopSmall"}  >{t("repeat")}</Button>
-                    </Grid.Column>
-                </Grid.Row>
-
+                <Grid item container spacing={1} direction={"row"}>
+                    <Grid item xs={6}>
+                         <Button variant="contained"  color={"primary"} onClick={() => renew(possibleChords)} className={"fullWidth marginTopSmall"} >{t("playNext")}</Button>
+                    </Grid>
+                    <Grid item xs={6}>
+                         <Button variant="contained"  onClick={() => play(selectedChord, baseNote.midiNote)} className={"fullWidth marginTopSmall"}  >{t("repeat")}</Button>
+                    </Grid>
+                </Grid>
             );
         } else {
             return(
-                <Grid.Row  >
-                    <Grid.Column>
-                    <Button color={"green"}
+                <Grid item container spacing={1} direction={"row"}  >
+                     <Button variant="contained"  color={"primary"}
                             disabled={(csound === null)}
                             onClick={startExercise}
                             className={"fullWidth marginTopSmall"}>
                         {t("startExercise")}
-                        <Loader active={(csound === null)} size={"tiny"} inline='centered'/>
+                         {(csound === null) && <CircularProgress aria-busy={(csound===null)} />}
                     </Button>
-                    </Grid.Column>
-                </Grid.Row>
+                </Grid>
             );
         }
     };
     
     const createResponseTextInput = () => {
         return exerciseHasBegun && (
-            <Grid.Row className={"exerciseRow"}>
+            <Grid item className={"exerciseRow"}>
                 <span  className={"marginLeft marginRight"}>{ capitalizeFirst( t("enterChord") )}: </span>
-                    <Input
+                    <TextField
                         style={{width:70, marginRight:5}}
                         onChange={e => {
                             setChordEntered(simplify(e.target.value));
@@ -502,9 +503,8 @@ const AskChord = () => {
                         value={chordEntered}
                         onKeyPress={ e=> { if (e.key === 'Enter') checkResponse({shortName: chordEntered})  }}
                     />
-                <Button key={"checkButton"}  onClick={() => checkResponse({shortName: chordEntered})} >{capitalizeFirst(t("check"))}</Button>
-
-            </Grid.Row>
+                 <Button variant="contained"  key={"checkButton"}  onClick={() => checkResponse({shortName: chordEntered})} >{capitalizeFirst(t("check"))}</Button>
+            </Grid>
         );
     }
 
@@ -517,64 +517,36 @@ const AskChord = () => {
             const column = createResponseButtonColumn(activeChords[i]);
             columns.push(column);
         }
-        return (<Grid.Row columns={4}>
+        return (<Grid item container spacing={1} direction={"row"}>
             {columns}
-        </Grid.Row>);
+        </Grid>);
     };
 
 
     const createResponseButtonColumn = (chord) => {
         return (chord) ?
             (
-            <Grid.Column key = {"XC"+chord.shortName}>
-                <Button className={"fullWidth marginTopSmall" /*<- kuvab ok. oli: "exerciseBtn"*/}
+            <Grid item xs={3} key = {"XC"+chord.shortName}>
+                 <Button variant="contained"  className={"fullWidth marginTopSmall" /*<- kuvab ok. oli: "exerciseBtn"*/}
                         key = {chord.shortName}
-                        onClick={() => checkResponse({shortName: chord.shortName})}>{ t(chord[shortName]) }</Button>
-            </Grid.Column>
-        ) : (<Grid.Column></Grid.Column>)
+                        onClick={() => checkResponse({shortName: chord.shortName})}>
+                     <Typography style={{ textTransform: 'none'}}>
+                     { t(chord[shortName]) }
+                     </Typography>
+                 </Button>
+            </Grid>
+        ) : (<Grid item />)
     };
 
+    // TODO: volumerow is repeating everywhere maybe one global component? if necessary props showInstrument showVolume
     const createVolumeRow = () => {
         return (exerciseHasBegun)  ? (
-            <Grid.Row centered={true} columns={3}>
-                <Grid.Column>
-                    {capitalizeFirst(t("instrument"))+": "}
-                    <Dropdown
-                        onChange={ async (event, data) => {
-                            //console.log("New sound is: ", data.value)
-                            if (csound) {
-                                await loadResources(csound,  60, 84, data.value);
-                            }
-                        }
-                        }
-                        options ={ [
-                            {text: t("flute"), value:"flute"},
-                            {text: t("oboe"), value:"oboe"},
-                            {text: t("violin"), value:"violin"},
-                            {text: t("guitar"), value:"guitar"}
-                        ]  }
-                        defaultValue={"oboe"}
-
-                    />
-                </Grid.Column>
-
-                <Grid.Column>
-                    {capitalizeFirst(t("volume"))}
-                    <Slider value={volume} color="blue"
-                            settings={ {
-                                min:0, max:1, step:0.01,
-                                /*start: {volume},*/
-                                onChange: (value) => {
-                                    if (csound) {
-                                        csound.setControlChannel("volume", value);
-                                    }
-                                    setVolume(value);
-                                }
-                            } }
-                    />
-                </Grid.Column>
-                <Grid.Column />
-            </Grid.Row>
+            <Grid item container spacing={1} direction={"row"}>
+                <Grid item container spacing={1} direction={"row"}>
+                    <Grid item xs={4}> <SelectInstrument /> </Grid>
+                    <Grid item xs={5}> <Volume /> </Grid>
+                </Grid>
+            </Grid>
         ) : null;
     };
 
@@ -583,13 +555,13 @@ const AskChord = () => {
             return (
             <div>
                 <div className={"marginTop"}>Sisesta noodid (nt. a c' es') ning klõpsa seejärel vasta akordi nupule</div>
-                <Input
+                <TextField
                     onChange={e => {setNotesEnteredByUser(e.target.value)}}
                     onKeyPress={ e=> { if (e.key === 'Enter') renderNotes()  }}
                     placeholder={'nt: a c\' es\''}
                     value={notesEnteredByUser}
                 />
-                <Button onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
+                 <Button variant="contained"  onClick={renderNotes}>{ capitalizeFirst( t("render") )}</Button>
                 <Notation  className={"marginTopSmall"} notes={vexTabChord} width={200} visible={true} /*time={"4/4"} clef={"bass"} keySignature={"A"}*//>
             </div>
             );
@@ -600,19 +572,15 @@ const AskChord = () => {
 
 
     const handleChordSelection = (e,data) => {
-        console.log(e,data);
-        const shortName = data.name;
-        const checked = data.checked;
 
-        //console.log("handleChordSelection: ", shortName, checked);
+        const shortName = e.target.name;
+        const checked = e.target.checked;
 
         const chords = possibleChords.slice();
         chords.find(c => c.shortName==shortName).active = checked;
         setPossibleChords(chords);
-
      }
 
-    //does not work
      const deselectAll = () => {
         const currentChords = possibleChords.slice();
         currentChords.map(item => { item.active = false;  } );
@@ -629,32 +597,31 @@ const AskChord = () => {
     const createChordSelection = () => {
         return exerciseHasBegun && (
             <>
-                <Grid.Row>
-                <Grid.Column>
-                    <Button size={"tiny"} onClick={selectAll} >
-                        {capitalizeFirst(t("selectAll"))}
-                    </Button>
-                    <Button size={"tiny"} onClick={deselectAll} >
-                        {capitalizeFirst(t("deselectAll"))}
-                    </Button>
-                </Grid.Column>
-                </Grid.Row>
-                <Grid.Row >
-                    <div className={"marginLeft"}>
-                        {possibleChords.map( item =>  (
-
-                            <Checkbox label={item[shortName]} name={item.shortName}
-                                      key={item.shortName}
-                                      onChange={ handleChordSelection }
-                                      checked={item.active}
-                                      className={"marginRight"}
+                <Grid item container spacing={1} direction={"row"}>
+                    <Grid item>
+                        <Button  size={"small"} onClick={selectAll} >
+                            {capitalizeFirst(t("selectAll"))}
+                        </Button>
+                    </Grid>
+                    <Grid item>
+                        <Button  size={"small"} onClick={deselectAll} >
+                            {capitalizeFirst(t("deselectAll"))}
+                        </Button>
+                    </Grid>
+                </Grid>
+                <Grid item container spacing={1} direction={"row"}>
+                    {possibleChords.map( item =>  (
+                        <Grid item>
+                            <FormControlLabel
+                                onChange={ handleChordSelection }
+                                checked={item.active}
+                                control={<Checkbox color="default" />}
+                                label={item[shortName]}
+                                name={item[shortName]}
                             />
-
-                        ))}
-
-
-                    </div>
-                </Grid.Row>
+                        </Grid>
+                    ))}
+                </Grid>
             </>
         );
     }
@@ -667,9 +634,9 @@ const AskChord = () => {
                 name='AskChord'
                 handler={handleShortcuts}
             />*/}
-            <Header size='large'>{`${ capitalizeFirst( t(name) )} `}</Header>
+            <h2 size='large'>{`${ capitalizeFirst( t(name) )} `}</h2>
 
-            <Grid>
+            <Grid container spacing={1} direction={"column"}>
 
                 {/*<Checkbox toggle
                           label={"Noteeri"}
@@ -679,21 +646,16 @@ const AskChord = () => {
                 />*/}
 
                 <ScoreRow/>
-                {/*Vaja rida juhiseks (exerciseDescriptio). div selleks ilmselt kehv, sest kattub teistega...*/}
                 {createOptionsBlock()}
                 {createNotationBlock()}
                 {createChordSelection()}
                 {VISupportMode ? createResponseTextInput() : createResponseButtons()}
                 {createControlButtons()}
                 {createVolumeRow()}
-                <Grid.Row>
-                    <Grid.Column>
-
+                <Grid item>
                         <GoBackToMainMenuBtn/>
-                    </Grid.Column>
-                </Grid.Row>
+                </Grid>
             </Grid>
-            {/*<MIDISounds ref={midiSounds} appElementName="root" instruments={[3]} />*/}
         </div>
 
     );

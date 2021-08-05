@@ -365,7 +365,7 @@ const AskInterval = () => {
         const sampleList = {};
         for (let i=60; i<=84; i++) {
             //TODO: check if file exists
-            sampleList[i]=i+".ogg";
+            sampleList[i]=i+".mp3";
         }
         const sampler = new Tone.Sampler( {
                 urls: sampleList,

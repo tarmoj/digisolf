@@ -88,6 +88,27 @@ npm install @fluentui/react @fluentui/react-northstar (viimane parema accessibil
 vt ka:
 võibolla Material-UI? - jah, pigem see
 
+TODO (MaterialUI)
+- leia, kuidas seada üldiseks nuppude stiiliks, et ei paneks suurtähtedeks, selle asemel, et oleks midagi nagu:
+<Typography style={{ textTransform: 'none'}}>
+Vt https://next.material-ui.com/customization/how-to-customize/#4-global-theme-variation
+https://next.material-ui.com/customization/theme-components/
+Võibolla GlobalStyles
+<React.Fragment>
+   <GlobalStyles styles={{ h1: { color: 'grey' } }} />
+   <h1>Grey h1 element</h1>
+ </React.Fragment>
+
+
+vt ka sx prop nagu:
+<Slider
+  defaultValue={30}
+  sx={{
+    width: 300,
+    color: 'success.main',
+  }}
+/>
+
 
 ------
 
