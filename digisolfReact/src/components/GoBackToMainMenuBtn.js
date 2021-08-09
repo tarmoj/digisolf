@@ -1,7 +1,7 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Button} from '@material-ui/core'
 import {useDispatch} from "react-redux";
-import {setComponent} from "../actions/component";
+import {setComponent, setIsLoading} from "../actions/component";
 import MainMenu from "./MainMenu";
 import {resetScore} from "../actions/score";
 import {useTranslation} from "react-i18next";
@@ -13,10 +13,12 @@ const GoBackToMainMenuBtn = () => {
     const dispatch = useDispatch();
     const history = useHistory();
 
+
     const goBack = () => {
         dispatch(setComponent("MainMenu"));
         dispatch(resetScore());
         dispatch(setUserEnteredNotes(""));
+        dispatch(setIsLoading(false));
         history.push("/digisolf");
     };
 

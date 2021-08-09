@@ -60,7 +60,10 @@ const AskDictation = () => {
     const [correctVtString, setCorrectVtString] = useState( "stave\n");
     const [correctNotationWidth, setCorrectNotationWidth] = useState (400);
     const [correctNotation, setCorrectNotation] = useState (defaultNotationInfo);
-    const [showTextInput, setShowTextInput] = useState(false);
+    //const [showTextInput, setShowTextInput] = useState(false);
+
+    const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode);
+    const masterVolume = useSelector(state => state.exerciseReducer.volume);
 
 
     useEffect(() => {
@@ -346,7 +349,7 @@ const AskDictation = () => {
         if (dictation.hasOwnProperty("show")) {
             notationInfo = parseLilypondDictation(dictation.show);
             dispatch( setInputNotation(notationInfo));
-            if (showTextInput) {
+            if (VISupportMode) {
                 if (dictation.notation.hasOwnProperty("stave2")) {
                     setLyUserInput(simplify(dictation.show.stave1));
                     setLyUserInput2(simplify(dictation.show.stave2));
@@ -364,7 +367,7 @@ const AskDictation = () => {
                     }
                 }
                 dispatch( setInputNotation(notationInfo)); // or this arrives Notation one render cycle too late (ie dictation shows the note of previous one
-                if (showTextInput) {
+                if (VISupportMode) {
                     if (dictation.notation.hasOwnProperty("stave2")) {
                         const beginning1 = getLyBeginning(dictation.notation.stave1);
                         const beginning2 = getLyBeginning(dictation.notation.stave2);
@@ -720,7 +723,7 @@ const AskDictation = () => {
     };
 
     const createLilypondInput = () => {
-        return (exerciseHasBegun && showTextInput) ? (
+        return (exerciseHasBegun) ? (
             <>
                 <Grid.Row>
                     {  capitalizeFirst( t("enterNotationInLilypond") )  }
@@ -817,7 +820,7 @@ const AskDictation = () => {
                 <Notation  className={"marginTopSmall"}
                            scale={1}
                            vtString={inputVtString}
-                           showInput={!showTextInput}
+                           showInput={!VISupportMode}
                            wrongNoteIndexes={wrongNoteIndexes}
                            name={"inputNotation"}
                            width={getWidth(inputNotation)}
@@ -880,26 +883,11 @@ const AskDictation = () => {
                         options={options}
                         defaultValue= {title ? title : "" }
                         onChange={(e, {value}) => {
-                            // if (!exerciseHasBegun) {
-                            //     startExercise();
-                            // }
-                            // moved these to renew():
-                            // dispatch(resetState());
-                            // dispatch(setAllowInput(true));
                             renew(value);
                         }
                         }
                     />
                 </Grid.Column>
-                {(dictationType!=="degrees") &&
-                <Grid.Column  computer={"8"} tablet={"8"} mobile={"16"}>
-                    <Checkbox toggle
-                              label={ t("useTextInput")}
-                              defaultChecked={false}
-                              className={"marginTop"}
-                              onChange={ (e, {checked}) => setShowTextInput(checked) }
-                    />
-                </Grid.Column> }
             </Grid.Row>
         );
 
@@ -929,10 +917,9 @@ const AskDictation = () => {
             <Grid celled={false}>
                 <ScoreRow/>
                 {createSelectionMenu()}
-                {}
                 {createDegreeDictationInput()}
-                {showTextInput && createLilypondInput()}
-                {createNotationInputBlock()}
+                {VISupportMode && createLilypondInput() }
+                { createNotationInputBlock() }
                 {createCorrectNotationBlock()}
                 {createVolumeRow()}
                 {createControlButtons()}
