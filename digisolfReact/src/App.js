@@ -46,7 +46,7 @@ function App() {
     const showDimmer = () => {
         if (isLoading) {
             // TODO: check that some components are not above backdrop
-            return <Backdrop open={isLoading}>
+            return <Backdrop sx={{ z:0 }} open={isLoading}>
                 {/*<Loader size='massive'>{t("loading")}</Loader>*/}
                 <CircularProgress
                 // should add somewhere: {"aria-describedby":"loading", "aria-busy":isLoading}}

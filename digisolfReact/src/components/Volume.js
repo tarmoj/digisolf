@@ -20,7 +20,7 @@ const Volume = () => {
             <Slider value={volume}
                     /*style={{maxWidth:200}}*/
                     aria-label={t("volume")}
-
+                    aria-valuetext={volume.toFixed(2)}
                         min={0} max={1} step={0.01}
                         onChange ={(event, value) => {
                             dispatch(setVolume(value));

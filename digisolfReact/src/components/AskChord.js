@@ -1,6 +1,16 @@
 import React, {useState, useRef, useEffect} from 'react';
 
-import {Button, CircularProgress, TextField, Switch, Checkbox, FormControlLabel, Typography, Grid} from "@material-ui/core"
+import {
+    Button,
+    CircularProgress,
+    TextField,
+    Switch,
+    Checkbox,
+    FormControlLabel,
+    Typography,
+    Grid,
+    FormControl, FormLabel, RadioGroup, Radio
+} from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst, simplify} from "../util/util";
@@ -445,20 +455,24 @@ const AskChord = () => {
 
     // UI ======================================================
 
+
     const createOptionsBlock = () => {
         return exerciseHasBegun && (
-          <Grid item container spacing={1} direction={"row"} justifyContent={"center"} alignItems={"center"}>
+          <Grid item container spacing={1} direction={"row"} >
               <Grid item>
-              { ` ${capitalizeFirst(t("naming"))}:  ${t("classical")}`}
-              </Grid>
-              <Grid item>
-                   <Switch color={"default"}
-                             onChange={ (e) =>
-                                 setUsePopJazzNaming(e.target.checked)}
-                   />
-              </Grid>
-              <Grid item>
-                  { ` ${t("popJazz")}` }
+                  <FormControl component="fieldset">
+                      <FormLabel component="legend">{capitalizeFirst(t("naming"))}</FormLabel>
+                      <RadioGroup row aria-label="classicOrPopJazzNaming" name="usePopJazzNaming" value={usePopJazzNaming ? "popJazz" : "classical"}
+                                  onChange={ (e) => {
+                                      console.log("naming value: ", e.target.value);
+                                      setUsePopJazzNaming( e.target.value==="popJazz");
+                                  }}
+                      >
+                          <FormControlLabel value="classical" control={<Radio />} label={t("classical")} />
+                          <FormControlLabel value="popJazz" control={<Radio />} label={t("popJazz")} />
+                      </RadioGroup>
+                  </FormControl>
+
               </Grid>
           </Grid>
         );

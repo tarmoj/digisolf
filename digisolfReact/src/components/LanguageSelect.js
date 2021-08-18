@@ -55,9 +55,6 @@ const LanguageSelect = () => {
 */
     // rewrite perhaps with IconButton
     return (
-        <>
-            {/*InputLabel would be proper way for accessibility - test later
-            <InputLabel id="label">{t("languageSelect")}</InputLabel>*/}
         <Select
             disabled={false}
             labelId="label" id="select"
@@ -65,11 +62,11 @@ const LanguageSelect = () => {
             value={language}
             onChange={handleLanguageChange}
         >
+            <label id="label" hidden>{t("languageSelect")}</label>
             <MenuItem value={"est"}><img src={flagEE} alt={"Eesti"} /></MenuItem>
             <MenuItem value={"lat"}> <img src={flagLV} alt={"Latviešu"} /></MenuItem>
             <MenuItem value={"eng"}><img src={flagGB} alt={"English"} /></MenuItem>
         </Select>
-        </>
     )
 };
 
