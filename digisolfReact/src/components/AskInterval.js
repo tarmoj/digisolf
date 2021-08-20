@@ -683,7 +683,7 @@ const AskInterval = () => {
         for (let i=0; i<intervalCount; i++ ) {
             const responseDegreeString = degreesEnteredByUser[i]; //getResponseDegrees(i).join(" "); -  somehow the  array/obect in responsedegrees get zeroed too soon
             const correctDegreeString = getCorrectDegrees(i).join(" ");
-            const isCorrect = responseDegreeString===correctDegreeString
+            const isCorrect = responseDegreeString===correctDegreeString;
             const labelColor = isCorrect  ? "green" : "red";
             //console.log("degreeInputs: i, responseDegreeString, correctDegreeStrinv, labelColor", i, responseDegreeString, correctDegreeString, labelColor);
             inputs.push(
@@ -701,6 +701,7 @@ const AskInterval = () => {
                         value={degreesEnteredByUser[i] ? degreesEnteredByUser[i] : ""} // can't we use getResponseDegrees here?
                         placeholder={'e.g.: 1 3'}
                         error={answered && !isCorrect}
+                        aria-invalid={answered && !isCorrect}
                     />
                     { answered && !isCorrect && (
                         <>
@@ -780,6 +781,7 @@ const AskInterval = () => {
                         /*value={getResponseIntervalShortName(i)}*/ // can't we use getResponseDegrees here?
                         placeholder={'e.g.: v3'}
                         error={answered && !isCorrect}
+                        aria-invalid={answered && !isCorrect}
                     />
                     { answered && !isCorrect && (
                         <>

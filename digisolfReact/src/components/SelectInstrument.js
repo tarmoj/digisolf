@@ -23,9 +23,9 @@ const SelectInstrument = (props) => { // pass 'callback' via props that does som
                     console.log("New sound is: ", instrument);
                     dispatch(setInstrument(instrument));
                     // handle the change via hook (see AskInstrument.js) or callback from props.callback
-                    // if (typeof (props.callback==="function")) {
-                    //     props.callback(instrument);
-                    // }
+                    if (typeof (props.callback==="function")) {
+                        props.callback(instrument);
+                    }
                 }
                 }
             >

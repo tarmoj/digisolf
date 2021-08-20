@@ -9,7 +9,7 @@ import {
     FormControlLabel,
     Typography,
     Grid,
-    FormControl, FormLabel, RadioGroup, Radio
+    FormControl, FormLabel, RadioGroup, Radio, Snackbar
 } from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
@@ -28,6 +28,7 @@ import CsoundObj from "@kunstmusik/csound";
 import {dictationOrchestra as orc} from "../csound/orchestras";
 import SelectInstrument from "./SelectInstrument";
 import Volume from "./Volume";
+import Alert from "@material-ui/lab/Alert";
 
 
 
@@ -98,11 +99,6 @@ const AskChord = () => {
     const startExercise = () => {
         console.log("startExercise");
         setExerciseHasBegun(true);
-        // stat Csound
-        if (!csoundStarted) {
-            //setIsLoading(true); // does not work
-            startCsound().then(r => {console.log("Started Csound")/*setIsLoading(false)*/});
-        }
 
         // what is right place for setting the volume?
         //midiSounds.current.setMasterVolume(0.3); // not too loud TODO: add control slider
@@ -193,8 +189,16 @@ const AskChord = () => {
 
         possibleChords.map(item => item.active=true);
         setPossibleChords(possibleChords);
-        //renew(possibleChords);  // thing are not ready here
+
+        if (!csoundStarted) {
+            //setIsLoading(true); // does not work
+            startCsound().then(r => {console.log("Started Csound"); renew(possibleChords)});
+        } else {
+            renew(possibleChords);
+        }
+
     };
+
 
     // renew generates answer and performs play/show
     const renew = (possibleChords) =>  {
@@ -321,27 +325,25 @@ const AskChord = () => {
         }
 
         if ( correct ) {
+            //TODO: if not VISupport
             dispatch(setPositiveMessage(feedBack, 5000));
             dispatch(incrementCorrectAnswers());
+            const waitTime =  1000;
+            setTimeout( ()=> renew(possibleChords), waitTime); // small delay to let user to see the answer -  maybe add this to config options
         } else {
             dispatch(setNegativeMessage(feedBack, 5000));
             dispatch(incrementIncorrectAnswers());
         }
 
         // if not notation, ask new:
-        if (! useNotation) {
-            setTimeout( () => renew(possibleChords), 1000  );
-        }
+        // if (! useNotation) {
+        //     setTimeout( () => renew(possibleChords), 1000  );
+        // }
 
 
     };
 
-    // progression exercises
-    // - peavad tulema sissemängitud näidetest, sest häälejuhtimist jms, et saa automaatselt niimoodi moodustada.
-    // Sibelius -> midi export?
-    // vaja siis: notatsioon -> VexFlow -> + helifail/või MIDI mängimine VexFlowst
-    // harjutuse objekt nt: { answer: "T T D", notation: VexTabString, sound: "playFromVF"|soundFile  }
-    // helifailide kataloog vastavalt harjutste struktuurile
+
 
     // SHORTCUTS =============================================
 
@@ -506,6 +508,7 @@ const AskChord = () => {
     };
     
     const createResponseTextInput = () => {
+        const isCorrect = chordEntered===selectedChord.shortName;
         return exerciseHasBegun && (
             <Grid item className={"exerciseRow"}>
                 <span  className={"marginLeft marginRight"}>{ capitalizeFirst( t("enterChord") )}: </span>
@@ -515,8 +518,20 @@ const AskChord = () => {
                             setChordEntered(simplify(e.target.value));
                         }}
                         value={chordEntered}
+                        error={answered && !isCorrect}
+                        aria-invalid={answered && !isCorrect}
                         onKeyPress={ e=> { if (e.key === 'Enter') checkResponse({shortName: chordEntered})  }}
                     />
+                { answered && !isCorrect && (
+                    <>
+                        <label className={"marginRight"}>{capitalizeFirst(t("correct"))+": "}</label>
+                        <TextField
+                            style={{width:70, marginRight:5 }}
+                            value={t(selectedChord[longName])}
+
+                        />
+
+                    </> )}
                  <Button variant="contained"  key={"checkButton"}  onClick={() => checkResponse({shortName: chordEntered})} >{capitalizeFirst(t("check"))}</Button>
             </Grid>
         );
@@ -551,6 +566,7 @@ const AskChord = () => {
             </Grid>
         ) : (<Grid item />)
     };
+
 
     // TODO: volumerow is repeating everywhere maybe one global component? if necessary props showInstrument showVolume
     const createVolumeRow = () => {
@@ -625,7 +641,7 @@ const AskChord = () => {
                 </Grid>
                 <Grid item container spacing={1} direction={"row"}>
                     {possibleChords.map( item =>  (
-                        <Grid item>
+                        <Grid item key={item.shortName}>
                             <FormControlLabel
                                 onChange={ handleChordSelection }
                                 checked={item.active}
