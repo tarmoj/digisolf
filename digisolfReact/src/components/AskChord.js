@@ -325,21 +325,18 @@ const AskChord = () => {
         }
 
         if ( correct ) {
-            //TODO: if not VISupport
-            dispatch(setPositiveMessage(feedBack, 5000));
+            if (!VISupportMode) {
+                dispatch(setPositiveMessage(feedBack, 5000));
+            }
             dispatch(incrementCorrectAnswers());
             const waitTime =  1000;
             setTimeout( ()=> renew(possibleChords), waitTime); // small delay to let user to see the answer -  maybe add this to config options
         } else {
-            dispatch(setNegativeMessage(feedBack, 5000));
+            if (!VISupportMode) {
+                dispatch(setNegativeMessage(feedBack, 5000));
+            }
             dispatch(incrementIncorrectAnswers());
         }
-
-        // if not notation, ask new:
-        // if (! useNotation) {
-        //     setTimeout( () => renew(possibleChords), 1000  );
-        // }
-
 
     };
 

@@ -39,7 +39,7 @@ const ScoreRow = (props) => {
         return (
             <Transition visible={correctAnswers > 0} animation='slide down' duration={transitionTime}>
                 <div className={"floatLeft marginRight green bold"}>
-                    <Icon color={"green"} name='thumbs up outline' />
+                    <Icon color={"green"} name='thumbs up outline'  aria-label={t("correct")}/>
                     {correctAnswers}
                 </div>
             </Transition>
@@ -50,7 +50,7 @@ const ScoreRow = (props) => {
         return (
             <Transition visible={incorrectAnswers > 0} animation='slide down' duration={transitionTime}>
                 <div className={"floatLeft marginRight red bold"}>
-                    <Icon color={"red"} name='thumbs down outline' />
+                    <Icon color={"red"} name='thumbs down outline' aria-label={t("wrong")}/>
                     {incorrectAnswers}
                 </div>
             </Transition>
