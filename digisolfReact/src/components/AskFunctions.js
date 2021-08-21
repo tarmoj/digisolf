@@ -16,6 +16,7 @@ import Sound from 'react-sound';
 import Select from "semantic-ui-react/dist/commonjs/addons/Select";
 import {useParams} from "react-router-dom";
 import {stringToIntArray, getRandomElementFromArray } from "../util/util"
+import VolumeRow from "./VolumeRow";
 
 
 const AskFunctions = () => {
@@ -181,27 +182,6 @@ const AskFunctions = () => {
         }
     };
 
-    // TODO: layout for mobile and desktop needs work.
-    const createVolumeRow = () => {
-        return exerciseHasBegun && (
-            <Grid.Row centered={true} columns={3}>
-                <Grid.Column width={1}/>
-                <Grid.Column computer={6} mobile={12} tablet={10}>
-                    {capitalizeFirst(t("volume"))}
-                    <Slider value={volume} color="blue"
-                            settings={ {
-                                min:0, max:1, step:0.01,
-                                value: {volume},
-                                onChange: (value) => {
-                                    setVolume(value);
-                                }
-                            } }
-                    />
-                </Grid.Column>
-                <Grid.Column width={1}/>
-            </Grid.Row>
-        );
-    };
 
     const handleIndexChange = (change = 1) => { // change can be positive or negative
         let newIndex = dictationIndex + change;
@@ -430,7 +410,7 @@ const AskFunctions = () => {
                 {/*{createResponseBlock()} - chekcboxes, other is buttons */}
                 {createResponseBlock2()}
                 {createCorrectAnswerBlock()}
-                {createVolumeRow()}
+                { exerciseHasBegun && <VolumeRow /> }
                 {createControlButtons()}
                 <Grid.Row>
                     <Grid.Column>

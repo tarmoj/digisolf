@@ -4,7 +4,6 @@ import {
     Button,
     CircularProgress,
     TextField,
-    Switch,
     Checkbox,
     FormControlLabel,
     Typography,
@@ -16,7 +15,6 @@ import {useTranslation} from "react-i18next";
 import {getRandomElementFromArray, getRandomBoolean, capitalizeFirst, simplify} from "../util/util";
 import {chordDefinitions, makeVexTabChord, makeChord} from "../util/intervals";
 import {getNoteByName, getNoteByVtNote} from "../util/notes";
-import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import ScoreRow from "./ScoreRow";
 import Notation from "./notation/Notation";
@@ -28,14 +26,10 @@ import CsoundObj from "@kunstmusik/csound";
 import {dictationOrchestra as orc} from "../csound/orchestras";
 import SelectInstrument from "./SelectInstrument";
 import Volume from "./Volume";
-import Alert from "@material-ui/lab/Alert";
+import VolumeRow from "./VolumeRow";
 
 
 
-// tüüp 1: antakse ette noot ja suund, mängitakse akord
-// kasutaja peab ehitama akordi (või vastama, mis see oli)
-// lihtsaim variant: mängib akordi, vasta, kas maz või min
-// tüüp 2: antakse akordijärgnevus, tuvasta, mis funtsioonid (T, D, S, M)
 const AskChord = () => {
     const { name } = useParams();
 
@@ -192,7 +186,9 @@ const AskChord = () => {
 
         if (!csoundStarted) {
             //setIsLoading(true); // does not work
-            startCsound().then(r => {console.log("Started Csound"); renew(possibleChords)});
+            startCsound().then(r => {console.log("Started Csound");
+            csound.setControlChannel("volume", masterVolume);
+            renew(possibleChords)});
         } else {
             renew(possibleChords);
         }
@@ -440,7 +436,8 @@ const AskChord = () => {
         if (csound) {
             await loadResources(csound, 60, 84, instrument);
 
-            csound.setOption("-m0d"); // does not affect the output... also --logfile=null not
+            csound.setOption("-m0"); // does not affect the output... also --logfile=null not
+            csound.setOption("-d");
             csound.compileOrc(orc);
             csound.start();
             csound.audioContext.resume();
@@ -523,8 +520,8 @@ const AskChord = () => {
                     <>
                         <label className={"marginRight"}>{capitalizeFirst(t("correct"))+": "}</label>
                         <TextField
-                            style={{width:70, marginRight:5 }}
-                            value={t(selectedChord[longName])}
+                            style={{marginRight:5 }}
+                            value={ `${t(selectedChord[shortName])}  ${t(selectedChord[longName])} `  }
 
                         />
 
@@ -564,18 +561,6 @@ const AskChord = () => {
         ) : (<Grid item />)
     };
 
-
-    // TODO: volumerow is repeating everywhere maybe one global component? if necessary props showInstrument showVolume
-    const createVolumeRow = () => {
-        return (exerciseHasBegun)  ? (
-            <Grid item container spacing={1} direction={"row"}>
-                <Grid item container spacing={1} direction={"row"}>
-                    <Grid item xs={4}> <SelectInstrument /> </Grid>
-                    <Grid item xs={5}> <Volume /> </Grid>
-                </Grid>
-            </Grid>
-        ) : null;
-    };
 
     const createNotationBlock = () => {
         if (useNotation) {
@@ -678,7 +663,7 @@ const AskChord = () => {
                 {createChordSelection()}
                 {VISupportMode ? createResponseTextInput() : createResponseButtons()}
                 {createControlButtons()}
-                {createVolumeRow()}
+                { exerciseHasBegun && <VolumeRow /> }
                 <Grid item>
                         <GoBackToMainMenuBtn/>
                 </Grid>

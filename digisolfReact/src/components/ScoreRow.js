@@ -12,6 +12,7 @@ const ScoreRow = (props) => {
     const correctAnswers = useSelector(state => state.scoreReducer.correctAnswers);
     const incorrectAnswers = useSelector(state => state.scoreReducer.incorrectAnswers);
     const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode);
+    const masterVolume = useSelector(state => state.exerciseReducer.volume);
 
     useEffect( ()=>{
         if (correctAnswers>0 && VISupportMode) {
@@ -85,6 +86,7 @@ const ScoreRow = (props) => {
             </Grid.Row>
             {VISupportMode && <Sound
                 url={soundFile}
+                volume={masterVolume*100}
                 loop={false}
                 playStatus={playStatus}
                 onFinishedPlaying={() => setSoundFile("")}

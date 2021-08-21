@@ -27,6 +27,7 @@ import * as Tone from "tone"
 import Volume from "./Volume";
 import SelectInstrument from "./SelectInstrument";
 import {setIsLoading} from "../actions/component";
+import VolumeRow from "./VolumeRow";
 
 
 const AskInterval = () => {
@@ -876,15 +877,6 @@ const AskInterval = () => {
         );
     }
 
-    // the layout is horrible
-    const createVolumeAndInstrumentRow = () => {
-        return exerciseHasBegun && (
-            <Grid item container spacing={1} direction={"row"}>
-                <Grid item xs={4}> <SelectInstrument /> </Grid>
-                <Grid item xs={5}> <Volume /> </Grid>
-            </Grid>
-        )
-    }
 
     return (
         <div>
@@ -894,7 +886,7 @@ const AskInterval = () => {
                 {createDegreeInputRow()}
                 {VISupportMode ? null : createIntervalLabelRow()}
                 {VISupportMode ? createIntervalInputRow() : createIntervalButtons()}
-                {createVolumeAndInstrumentRow()}
+                { exerciseHasBegun && <VolumeRow /> }
                 {createControlButtons()}
                 <Grid item>
                         <GoBackToMainMenuBtn/>
