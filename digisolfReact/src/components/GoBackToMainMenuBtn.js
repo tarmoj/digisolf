@@ -7,6 +7,7 @@ import {resetScore} from "../actions/score";
 import {useTranslation} from "react-i18next";
 import {setUserEnteredNotes} from "../actions/exercise";
 import {useHistory} from "react-router-dom";
+import {capitalizeFirst} from "../util/util";
 
 const GoBackToMainMenuBtn = () => {
     const { t, i18n } = useTranslation();
@@ -20,6 +21,7 @@ const GoBackToMainMenuBtn = () => {
         dispatch(setUserEnteredNotes(""));
         dispatch(setIsLoading(false));
         history.push("/digisolf");
+        document.title = capitalizeFirst(t("digisolfeggio"));
     };
 
     return <Button variant={"contained"} onClick={goBack} className={"fullWidth marginTopSmall"}>{t("goBack")}</Button>;

@@ -6,7 +6,6 @@ import {
     TextField,
     Checkbox,
     FormControlLabel,
-    Typography,
     Grid,
     FormControl, FormLabel, RadioGroup, Radio, Snackbar
 } from "@material-ui/core"
@@ -24,8 +23,6 @@ import {useParams} from "react-router-dom";
 import { useHotkeys } from 'react-hotkeys-hook';
 import CsoundObj from "@kunstmusik/csound";
 import {dictationOrchestra as orc} from "../csound/orchestras";
-import SelectInstrument from "./SelectInstrument";
-import Volume from "./Volume";
 import VolumeRow from "./VolumeRow";
 
 
@@ -63,7 +60,12 @@ const AskChord = () => {
     const [usePopJazzNaming, setUsePopJazzNaming] = useState(false);
 
     //const userEnteredNotes = useSelector(state => state.exerciseReducer.userEnteredNotes);
+    const startButtonRef = useRef(null);
 
+    useEffect( () => {
+        document.title = `${ capitalizeFirst( t(name) )}`;
+        startButtonRef.current.focus();  // probably does not work since dimmer (loader is in between)
+    }, []); // set title for screen reader
 
     useEffect(  () => {
            if (csound) {
@@ -490,7 +492,8 @@ const AskChord = () => {
             return(
                 <Grid item container spacing={1} direction={"row"}  >
                      <Button variant="contained"  color={"primary"}
-                            disabled={(csound === null)}
+                            ref={startButtonRef}
+                             disabled={(csound === null)}
                             onClick={startExercise}
                             className={"fullWidth marginTopSmall"}>
                         {t("startExercise")}
@@ -553,9 +556,7 @@ const AskChord = () => {
                  <Button variant="contained"  className={"fullWidth marginTopSmall" /*<- kuvab ok. oli: "exerciseBtn"*/}
                         key = {chord.shortName}
                         onClick={() => checkResponse({shortName: chord.shortName})}>
-                     <Typography style={{ textTransform: 'none'}}>
                      { t(chord[shortName]) }
-                     </Typography>
                  </Button>
             </Grid>
         ) : (<Grid item />)

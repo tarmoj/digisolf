@@ -1,6 +1,6 @@
 import React, {useState, useRef, useEffect} from 'react';
 //import {Grid} from 'semantic-ui-react'
-import {Button, Typography, TextField, Grid, Dialog, DialogTitle, DialogContent, DialogActions} from "@material-ui/core"
+import {Button, TextField, Grid, Dialog, DialogTitle, DialogContent, DialogActions} from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {getNoteByVtNote} from "../util/notes";
@@ -24,8 +24,6 @@ import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import { useParams } from "react-router-dom";
 import { useHotkeys } from 'react-hotkeys-hook';
 import * as Tone from "tone"
-import Volume from "./Volume";
-import SelectInstrument from "./SelectInstrument";
 import {setIsLoading} from "../actions/component";
 import VolumeRow from "./VolumeRow";
 
@@ -48,6 +46,8 @@ const AskInterval = () => {
     const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode);
     const masterVolume = useSelector(state => state.exerciseReducer.volume);
 
+    const startButtonRef = useRef(null);
+
     //const midiSounds = useRef(null);
 
     const [isMajor, setIsMajor] = useState(true);
@@ -56,8 +56,6 @@ const AskInterval = () => {
     const [redIntervalButtons, setRedIntervalButtons] = useState([]);
     const [correctIntervalButtons, setCorrectIntervalButtons] = useState([]);
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
-    // const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
-    // const [soundFile, setSoundFile] = useState("");
     const [answered, setAnswered] = useState(false);
     const [intervalData, setIntervalData] = useState([{degrees:[], notes:[], interval: null}]); //array of: {degrees: []}
     const [degreesEnteredByUser, setDegreesEnteredByUser] = useState(Array(intervalCount));
@@ -71,6 +69,12 @@ const AskInterval = () => {
     const [dialogOpen, setDialogOpen] = useState(false);
     
     const instrument = useSelector(state => state.exerciseReducer.instrument);
+
+    useEffect( () => {
+        document.title = `${t("setInterval")} - ${t(exerciseName)}`;
+        startButtonRef.current.focus();
+    }, []); // set title for screen reader
+
 
     useEffect(() => {
         setSampler(createSampler(instrument)); // take care if this is the default of instrumentSelection
@@ -588,7 +592,7 @@ const AskInterval = () => {
     // UI ---------------------------------------------
    
     const createControlButtons = () => {
-        const startExerciseButton = <Button variant="contained" key={"startExercise"} color={"primary"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>;
+        const startExerciseButton = <Button variant="contained" ref={startButtonRef} key={"startExercise"} color={"primary"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>;
         const changeKeyButton = exerciseName.includes("random")  ? null :
             <Button variant="contained" key={"changeKey"}  onClick={changeKey} className={"fullWidth marginTopSmall"}>{t("changeKey")}</Button>;
         const playNextIntervalButton = <Button variant="contained" key={"playNext"} color={"primary"} onClick={() => renew()} className={"fullWidth marginTopSmall"}>{t("playNext")}</Button>;
@@ -638,7 +642,7 @@ const AskInterval = () => {
                         size={"small"}
                         variant={"outlined"}
                     >
-                        <Typography style={{ textTransform: 'none', color: color }}>  { responseShortName ? responseShortName : "?"}</Typography>
+                        { responseShortName ? responseShortName : "?"}
                 </Button>
 
                     { answered && !isCorrect && (
@@ -758,7 +762,7 @@ const AskInterval = () => {
                             }
                         }
                         }
-                > <Typography style={{ textTransform: 'none' }}>{displayedName}</Typography>  </Button>
+                > {displayedName} </Button>
             </Grid>
         )
     };

@@ -12,12 +12,14 @@ import MainMenu from "./components/MainMenu";
 import AppFooter from "./components/AppFooter";
 import LanguageSelect from "./components/LanguageSelect";
 //import {Dimmer, Header,  Loader} from "semantic-ui-react";
-import {Backdrop, Checkbox, CircularProgress} from '@material-ui/core';
+import {Backdrop, Checkbox, CircularProgress, createMuiTheme} from '@material-ui/core';
 
 import {useTranslation} from "react-i18next";
 import { BrowserRouter as Router, Switch, Route, } from 'react-router-dom';
 import {setVISupportMode} from "./actions/exercise";
 import {Visibility, VisibilityOff} from "@material-ui/icons";
+import {createTheme} from "@material-ui/core";
+import { MuiThemeProvider as ThemeProvider } from '@material-ui/core/styles'; // not certain if it works this way
 
 function App() {
     const isLoading = useSelector(state => state.componentReducer.isLoading);
@@ -26,6 +28,18 @@ function App() {
 
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
+
+
+    // vt: https://stackoverflow.com/questions/57222924/override-material-ui-button-text
+    const myTheme = createTheme({
+        overrides: {
+            MuiButton: {
+                root: {
+                    textTransform: 'none'
+                }
+            }
+        },
+    });
 
     const renderComponent = () => {
         return (
@@ -73,6 +87,7 @@ function App() {
     }
 
     return (
+        <ThemeProvider theme={myTheme}>
         <div className="App">
             <div className={"maxWidth"}>
                 <div className={"appHeader"}>
@@ -88,6 +103,7 @@ function App() {
                 {showDimmer()}
             </div>
         </div>
+        </ThemeProvider>
     );
 }
 
