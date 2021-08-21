@@ -84,6 +84,32 @@ const AskInterval = () => {
     const possibleTonicVtNotes = ["C/4", "D/4",  "E@/4", "E/4", "F/4",
         "G/4", "A/4", "B@/4", "C/5" ];
 
+    // ----- shortcuts -----
+    useHotkeys('shift+left', () => {console.log("Backodroom"); /* how to call goBack() from GoBackMnu Button? */}, [exerciseHasBegun, intervalData]); // call somehow GoBackBtn onClick function
+    useHotkeys('shift+right', () => {
+        console.log("Next", exerciseHasBegun);
+        if (exerciseHasBegun) {
+            renew();
+        }
+    }, [exerciseHasBegun]);
+    useHotkeys('shift+enter', () => {console.log("Start exercise"); startExercise() }, [exerciseHasBegun]);
+    useHotkeys('shift+down', () => {  // repeat
+        if (exerciseHasBegun) {
+            play(intervalData);
+        }
+    }, [exerciseHasBegun, intervalData]);
+    useHotkeys('shift+up', () => {  // change key
+        if (exerciseHasBegun) {
+            changeKey();
+        }
+    }, [exerciseHasBegun]);
+    //TODO: play tonic, changeKey
+
+
+
+    // -------
+
+
     const startExercise = () => {
         setExerciseHasBegun(true);
         //midiSounds.current.setMasterVolume(0.4); // not too loud TODO: add control slider

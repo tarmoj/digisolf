@@ -65,6 +65,7 @@ const AskChord = () => {
     useEffect( () => {
         document.title = `${ capitalizeFirst( t(name) )}`;
         startButtonRef.current.focus();  // probably does not work since dimmer (loader is in between)
+        // see using callback ref:
     }, []); // set title for screen reader
 
     useEffect(  () => {
@@ -492,7 +493,7 @@ const AskChord = () => {
             return(
                 <Grid item container spacing={1} direction={"row"}  >
                      <Button variant="contained"  color={"primary"}
-                            ref={startButtonRef}
+                             ref={startButtonRef}
                              disabled={(csound === null)}
                             onClick={startExercise}
                             className={"fullWidth marginTopSmall"}>
