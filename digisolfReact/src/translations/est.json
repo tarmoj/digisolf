@@ -171,6 +171,8 @@
   "enterChord": "sisetage akord",
   "visuallyImpairedSupport": "nägemispuude tugi",
   "languageSelect": "keelevalik",
-  "instrumentSelect": "instrumendivalik"
+  "instrumentSelect": "instrumendivalik",
+  "next": "järgmine",
+  "previous": "eelmine"
 
 }

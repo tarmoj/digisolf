@@ -1,10 +1,10 @@
-import React, {useState, useEffect} from 'react';
-import {Button, Checkbox, Dropdown, Grid, Header, Icon, Input, Label, Modal, Popup} from 'semantic-ui-react'
-import {Slider} from "react-semantic-ui-range";
+import React, {useState, useEffect, useRef} from 'react';
+import {Grid, Popup} from 'semantic-ui-react'
+import {Button, ButtonGroup, IconButton, MenuItem, Popover, Select} from "@material-ui/core"
 
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
-import {arraysAreEqual, capitalizeFirst, deepClone, isDigit, simplify, weightedRandom} from "../util/util";
+import {capitalizeFirst} from "../util/util";
 
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
 import ScoreRow from "./ScoreRow";
@@ -13,10 +13,10 @@ import {dictations} from "../dictations/functional"
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import Sound from 'react-sound';
-import Select from "semantic-ui-react/dist/commonjs/addons/Select";
 import {useParams} from "react-router-dom";
 import {stringToIntArray, getRandomElementFromArray } from "../util/util"
 import VolumeRow from "./VolumeRow";
+import {NavigateBefore, NavigateBeforeOutlined, NavigateNext, NavigateNextRounded} from "@material-ui/icons";
 
 
 const AskFunctions = () => {
@@ -156,15 +156,15 @@ const AskFunctions = () => {
             return  (
                 <Grid.Row  columns={3} centered={true}>
                     <Grid.Column>
-                        <Button color={"green"} onClick={() => play(selectedDictation)} className={"fullWidth marginTopSmall"} >
+                        <Button variant="contained" color={"primary"} onClick={() => play(selectedDictation)} className={"fullWidth marginTopSmall"} >
                             { capitalizeFirst( t("play")) }
                         </Button>
                     </Grid.Column>
                     <Grid.Column>
-                        <Button onClick={() => stop()} className={"fullWidth marginTopSmall"}  >{ capitalizeFirst( t("stop") )}</Button>
+                        <Button variant="contained" onClick={() => stop()} className={"fullWidth marginTopSmall"}  >{ capitalizeFirst( t("stop") )}</Button>
                     </Grid.Column>
                    <Grid.Column>
-                         <Button className={"fullWidth marginTopSmall"}
+                         <Button variant="contained" className={"fullWidth marginTopSmall"}
                                 onClick={() => checkResponse(null)}>{capitalizeFirst(t("check"))}
                         </Button>
                     </Grid.Column>
@@ -175,7 +175,7 @@ const AskFunctions = () => {
             return(
                 <Grid.Row  >
                     <Grid.Column>
-                    <Button color={"green"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>
+                    <Button variant="contained" color={"primary"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>
                     </Grid.Column>
                 </Grid.Row>
             );
@@ -202,28 +202,40 @@ const AskFunctions = () => {
         return  exerciseHasBegun &&  (
             <Grid.Row columns={3} centered={true}>
                 <Grid.Column>
-                    <Button circular icon={"chevron left"}
-                            className={"floatRight"}
-                            onClick={ () => handleIndexChange(-1)} />
+                    <IconButton aria-label={t("previous")}
+                            className={"floatRight"}  onClick={ () => handleIndexChange(-1)}>
+                    <NavigateBefore />
+                    </IconButton>
                 </Grid.Column>
                 <Grid.Column>
                   {/*<label className={"marginRight "}>{ capitalizeFirst(t("chooseDictation")) }</label>*/}
+                  <label id="label" hidden>{t("chooseDictation")}</label>
                   <Select
                         /*className={"fullwidth"}*/
                         style={{ width:"100%", minWidth:"20px"  }}
+                        labelId="label"
                         placeholder={t("chooseDictation")}
-                        options={options}
-                        /*defaultValue= {title ? title : "" }*/
                         value={dictationIndex}
-                        onChange={(e, {value, text}) => {
-                            setDictationIndex(value);
-                            renew(value);
+                        onChange={(e)  => {
+                            const index = e.target.value;
+                            setDictationIndex(index);
+                            renew(index);
                         }
                         }
-                    />
+                  >
+                      { dictations.map( (dict,i) => (
+                          <MenuItem value={i}>{dict.title}</MenuItem>
+                      )) }
+                  </Select>
+
+
                 </Grid.Column>
                 <Grid.Column floated={"left"}>
-                    <Button circular icon={"chevron right"} onClick={ () => handleIndexChange(1)}/>
+                    <IconButton aria-label={t("next")}
+                                className={"floatLeft"}  onClick={ () => handleIndexChange(1)}
+                    >
+                        <NavigateNext/>
+                    </IconButton>
                 </Grid.Column>
             </Grid.Row>
         );
@@ -257,7 +269,8 @@ const AskFunctions = () => {
         }
     }
 
-    const FunctionBox = (props) => {
+
+    /*const FunctionBox = (props) => {
         // good for visible impaired, for touch screens all buttons visible is better
         const index = props.index;
         const functionOptions = [
@@ -281,30 +294,72 @@ const AskFunctions = () => {
             />
             </React.Fragment>
         );
-    }
+    }*/
 
     
     const FunctionBox2 = (props) => {
         const index = props.index ? props.index : 0;
         //const label = response[index] ? response[index] : "?";
+        const [show, setShow] = useState(false);
+        //TODO: create somewhere styles with classNames: correct wrong hint
+        const openerRef = useRef(null);
         return (
             <React.Fragment>
-                <Popup
+                <Button id={"opener"}
+                    ref={openerRef}
+                    variant={index===activeFunctionBoxIndex ? "contained" : "outlined"}
+                        style = {{ backgroundColor :   answered ?  (answer[index]===response[index] ? "green" : "red")  : ""   }}
+                        onClick = { () => {/*setActiveFunctionBoxIndex(index);*/ setShow(!show); } }
+                >{response[index]}</Button>
+                <Popover open={show} onClose={ ()=>setShow(false)}
+                         anchorEl={openerRef.current}
+                         anchorOrigin={{
+                             vertical: 'bottom',
+                             horizontal: 'center',
+                         }}
+                         transformOrigin={{
+                             vertical: 'top',
+                             horizontal: 'center',
+                         }}
+                >
+                    <ButtonGroup variant={"text"} aria-label={t("chooseFunction")} >
+                        <Button variant="contained"
+                                onClick={ (event, data) =>
+                                    handleFunctionChange(index,"T", true) }
+                        >T</Button>
+                        <Button variant="contained"
+                                onClick={ () =>
+                                    handleFunctionChange(index,"S", true) }
+                        >S</Button>
+                        <Button variant="contained"
+                                onClick={ () =>
+                                    handleFunctionChange(index,"D", true) }
+                        >D</Button>
+                        <Button variant="contained"
+                                onClick={ () =>
+                                    handleFunctionChange(index,"M", true) }
+                        >M</Button>
+                    </ButtonGroup>
+
+
+                </Popover>
+
+                {/*<Popup
                     content={
-                        <Button.Group toggle={true} >
-                            <Button
+                        <Button variant="contained".Group toggle={true} >
+                            <Button variant="contained"
                                 onClick={ (event, data) =>
                                     handleFunctionChange(index,"T", true) }
                             >T</Button>
-                            <Button
+                            <Button variant="contained"
                                 onClick={ () =>
                                     handleFunctionChange(index,"S", true) }
                             >S</Button>
-                            <Button
+                            <Button variant="contained"
                                 onClick={ () =>
                                     handleFunctionChange(index,"D", true) }
                             >D</Button>
-                            <Button
+                            <Button variant="contained"
                                 onClick={ () =>
                                     handleFunctionChange(index,"M", true) }
                             >M</Button>
@@ -312,36 +367,35 @@ const AskFunctions = () => {
                     }
                     on='click'
 
-                    trigger={<Button content={response[index]}
+                    trigger={<Button variant="contained" content={response[index]}
                                      color={  answered ?  (answer[index]===response[index] ? "green" : "red")  : "grey"  }
                                      basic = {index===activeFunctionBoxIndex}
-                                     /*onClick = {() => setActiveFunctionBoxIndex(index)}*/
                     />}
-                />
+                />*/}
 
             </React.Fragment>
         );
     }
 
-    const createResponseBlock = () => {
-        let index = 0;
-        let elements = [];
-
-        for (let measure of selectedDictation.functions ) {
-            for (let f of measure ) {
-                elements.push(<FunctionBox index={index} key={"FBox1"+index}/>);
-                index++;
-            }
-            elements.push(" | ");
-        }
-
-        return exerciseHasBegun &&  selectedDictation.title && (
-            <div className={"marginLeft"}>
-                <span className={"marginLeft marginRight"}>{capitalizeFirst(t("enterFunctions"))}: </span>
-                { elements }
-            </div>
-        );
-    }
+    // const createResponseBlock = () => {
+    //     let index = 0;
+    //     let elements = [];
+    //
+    //     for (let measure of selectedDictation.functions ) {
+    //         for (let f of measure ) {
+    //             elements.push(<FunctionBox index={index} key={"FBox1"+index}/>);
+    //             index++;
+    //         }
+    //         elements.push(" | ");
+    //     }
+    //
+    //     return exerciseHasBegun &&  selectedDictation.title && (
+    //         <div className={"marginLeft"}>
+    //             <span className={"marginLeft marginRight"}>{capitalizeFirst(t("enterFunctions"))}: </span>
+    //             { elements }
+    //         </div>
+    //     );
+    // }
 
     const createResponseBlock2 = () => {
         let index = 0;
@@ -391,7 +445,7 @@ const AskFunctions = () => {
     //TODO: show credits (vt askDictation
     return (
         <div>
-            <Header size='large'>{`${capitalizeFirst( t("functions") )} ${selectedDictation.title} `}</Header>
+            <h2 size='large'>{`${capitalizeFirst( t("functions") )} ${selectedDictation.title} `}</h2>
 
             <Sound
                 url={process.env.PUBLIC_URL + selectedDictation.soundFile}

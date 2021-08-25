@@ -56,7 +56,7 @@ const LanguageSelect = () => {
     // rewrite perhaps with IconButton
     return (
         <Select
-            disabled={false}
+            disabled={true}
             labelId="label" id="select"
             className={"languageSelect"}
             value={language}
