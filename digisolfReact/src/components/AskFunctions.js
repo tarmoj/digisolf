@@ -1,6 +1,15 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {Grid, Popup} from 'semantic-ui-react'
-import {Button, ButtonGroup, IconButton, MenuItem, Popover, Select} from "@material-ui/core"
+import {
+    Button,
+    ButtonGroup,
+    IconButton,
+    MenuItem,
+    Popover,
+    Select,
+    Grid,
+    TableContainer,
+    TableBody, Table, TableRow, TableCell, TableHead
+} from "@material-ui/core"
 
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
@@ -14,9 +23,9 @@ import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/sco
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import Sound from 'react-sound';
 import {useParams} from "react-router-dom";
-import {stringToIntArray, getRandomElementFromArray } from "../util/util"
 import VolumeRow from "./VolumeRow";
-import {NavigateBefore, NavigateBeforeOutlined, NavigateNext, NavigateNextRounded} from "@material-ui/icons";
+import {NavigateBefore, NavigateNext} from "@material-ui/icons";
+import {TableHeader} from "material-ui";
 
 
 const AskFunctions = () => {
@@ -154,30 +163,27 @@ const AskFunctions = () => {
 
         if (exerciseHasBegun) {
             return  (
-                <Grid.Row  columns={3} centered={true}>
-                    <Grid.Column>
+                <Grid item container spacing={1} direction={"row"} className={"exerciseRow"}>
+                    <Grid item>
                         <Button variant="contained" color={"primary"} onClick={() => play(selectedDictation)} className={"fullWidth marginTopSmall"} >
                             { capitalizeFirst( t("play")) }
                         </Button>
-                    </Grid.Column>
-                    <Grid.Column>
+                    </Grid>
+                    <Grid item>
                         <Button variant="contained" onClick={() => stop()} className={"fullWidth marginTopSmall"}  >{ capitalizeFirst( t("stop") )}</Button>
-                    </Grid.Column>
-                   <Grid.Column>
+                    </Grid>
+                   <Grid item>
                          <Button variant="contained" className={"fullWidth marginTopSmall"}
                                 onClick={() => checkResponse(null)}>{capitalizeFirst(t("check"))}
                         </Button>
-                    </Grid.Column>
-                </Grid.Row>
-
+                    </Grid>
+                </Grid>
             );
         } else {
             return(
-                <Grid.Row  >
-                    <Grid.Column>
+                <Grid item  >
                     <Button variant="contained" color={"primary"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>
-                    </Grid.Column>
-                </Grid.Row>
+                </Grid>
             );
         }
     };
@@ -193,25 +199,23 @@ const AskFunctions = () => {
     }
 
     const createSelectionMenu = () => {
-        const options = [];
-
-        for (let i=0; i< dictations.length; i++) {
-                options.push( { value: i, text: dictations[i].title  } );
-        }
+        // const options = [];
+        //
+        // for (let i=0; i< dictations.length; i++) {
+        //         options.push( { value: i, text: dictations[i].title  } );
+        // }
 
         return  exerciseHasBegun &&  (
-            <Grid.Row columns={3} centered={true}>
-                <Grid.Column>
+            <Grid item container spacing={1} direction={"row"} justifyContent={"center"} >
+                <Grid item>
                     <IconButton aria-label={t("previous")}
                             className={"floatRight"}  onClick={ () => handleIndexChange(-1)}>
                     <NavigateBefore />
                     </IconButton>
-                </Grid.Column>
-                <Grid.Column>
-                  {/*<label className={"marginRight "}>{ capitalizeFirst(t("chooseDictation")) }</label>*/}
+                </Grid>
+                <Grid item>
                   <label id="label" hidden>{t("chooseDictation")}</label>
                   <Select
-                        /*className={"fullwidth"}*/
                         style={{ width:"100%", minWidth:"20px"  }}
                         labelId="label"
                         placeholder={t("chooseDictation")}
@@ -227,17 +231,16 @@ const AskFunctions = () => {
                           <MenuItem value={i}>{dict.title}</MenuItem>
                       )) }
                   </Select>
+                </Grid>
 
-
-                </Grid.Column>
-                <Grid.Column floated={"left"}>
+                <Grid item>
                     <IconButton aria-label={t("next")}
                                 className={"floatLeft"}  onClick={ () => handleIndexChange(1)}
                     >
                         <NavigateNext/>
                     </IconButton>
-                </Grid.Column>
-            </Grid.Row>
+                </Grid>
+            </Grid>
         );
 
     } ;
@@ -343,36 +346,6 @@ const AskFunctions = () => {
 
 
                 </Popover>
-
-                {/*<Popup
-                    content={
-                        <Button variant="contained".Group toggle={true} >
-                            <Button variant="contained"
-                                onClick={ (event, data) =>
-                                    handleFunctionChange(index,"T", true) }
-                            >T</Button>
-                            <Button variant="contained"
-                                onClick={ () =>
-                                    handleFunctionChange(index,"S", true) }
-                            >S</Button>
-                            <Button variant="contained"
-                                onClick={ () =>
-                                    handleFunctionChange(index,"D", true) }
-                            >D</Button>
-                            <Button variant="contained"
-                                onClick={ () =>
-                                    handleFunctionChange(index,"M", true) }
-                            >M</Button>
-                        </Button.Group>
-                    }
-                    on='click'
-
-                    trigger={<Button variant="contained" content={response[index]}
-                                     color={  answered ?  (answer[index]===response[index] ? "green" : "red")  : "grey"  }
-                                     basic = {index===activeFunctionBoxIndex}
-                    />}
-                />*/}
-
             </React.Fragment>
         );
     }
@@ -403,24 +376,36 @@ const AskFunctions = () => {
         let measureCounter = 1;
 
         for (let measure of selectedDictation.functions ) {
+
+            //elements.push(<TableRow>);
             for (let f of measure ) {
-                elements.push(<FunctionBox2 index={index} key={"FBox2"+index}/>);
+                elements.push(<FunctionBox2 index={index} key={"FBox2"+index} />);
                 index++;
             }
             elements.push(" | ");
-            if (measureCounter%4==0) elements.push(<br />); // four bars in one row
+            //if (measureCounter%4==0) elements.push(elements.push(<br>);
             measureCounter++;
+
         }
-        // TODO: try table inside grid perhaps
+
+
         return exerciseHasBegun &&  selectedDictation.title && (
-            <Grid.Row colums={2}>
-                <Grid.Column width={5}>{capitalizeFirst(t("enterFunctions"))}:</Grid.Column>
-                <Grid.Column width={9}>{ elements }</Grid.Column>
-            {/*<div className={"margineft"}>
+            <div className={"marginLeft"}>
                 <span className={"marginLeft marginRight"}>{capitalizeFirst(t("enterFunctions"))}: </span>
                 { elements }
-            </div>*/}
-            </Grid.Row>
+                </div>
+            // <TableContainer>
+            //     <Table aria-label={t("functionButtons")}>
+            //         <TableHead>{capitalizeFirst(t("enterFunctions"))}</TableHead>
+            //         <TableBody>
+            //             <TableRow>
+            //                 <TableCell>1</TableCell>
+            //                 <TableCell>2</TableCell>
+            //                 <TableCell>3</TableCell>
+            //             </TableRow>
+            //         </TableBody>
+            //     </Table>
+            // </TableContainer>
         );
     }
 
@@ -458,7 +443,7 @@ const AskFunctions = () => {
             />
 
 
-            <Grid celled={false}>
+            <Grid container spacing={1} direction={"column"}>
                 <ScoreRow/>
                 {createSelectionMenu()}
                 {/*{createResponseBlock()} - chekcboxes, other is buttons */}
@@ -466,11 +451,9 @@ const AskFunctions = () => {
                 {createCorrectAnswerBlock()}
                 { exerciseHasBegun && <VolumeRow /> }
                 {createControlButtons()}
-                <Grid.Row>
-                    <Grid.Column>
+                <Grid item>
                         <GoBackToMainMenuBtn/>
-                    </Grid.Column>
-                </Grid.Row>
+                </Grid>
             </Grid>
         </div>
 
