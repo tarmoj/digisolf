@@ -228,7 +228,7 @@ const AskFunctions = () => {
                         }
                   >
                       { dictations.map( (dict,i) => (
-                          <MenuItem value={i}>{dict.title}</MenuItem>
+                          <MenuItem key={"entry"+i} value={i}>{dict.title}</MenuItem>
                       )) }
                   </Select>
                 </Grid>
@@ -306,15 +306,19 @@ const AskFunctions = () => {
         const [show, setShow] = useState(false);
         //TODO: create somewhere styles with classNames: correct wrong hint
         const openerRef = useRef(null);
+        console.log("creating Functionbox2 ", index);
         return (
             <React.Fragment>
                 <Button id={"opener"}
+                    key={"opener"+index}
+                    size={"small"}
                     ref={openerRef}
                     variant={index===activeFunctionBoxIndex ? "contained" : "outlined"}
                         style = {{ backgroundColor :   answered ?  (answer[index]===response[index] ? "green" : "red")  : ""   }}
                         onClick = { () => {/*setActiveFunctionBoxIndex(index);*/ setShow(!show); } }
                 >{response[index]}</Button>
                 <Popover open={show} onClose={ ()=>setShow(false)}
+                         key={"popover"+index}
                          anchorEl={openerRef.current}
                          anchorOrigin={{
                              vertical: 'bottom',
@@ -325,20 +329,24 @@ const AskFunctions = () => {
                              horizontal: 'center',
                          }}
                 >
-                    <ButtonGroup variant={"text"} aria-label={t("chooseFunction")} >
+                    <ButtonGroup variant={"text"} aria-label={t("chooseFunction")} key={"buttonGroup"+index}>
                         <Button variant="contained"
+                                key={"T_button"+index}
                                 onClick={ (event, data) =>
                                     handleFunctionChange(index,"T", true) }
                         >T</Button>
                         <Button variant="contained"
+                                key={"S_button"+index}
                                 onClick={ () =>
                                     handleFunctionChange(index,"S", true) }
                         >S</Button>
                         <Button variant="contained"
+                                key={"D_button"+index}
                                 onClick={ () =>
                                     handleFunctionChange(index,"D", true) }
                         >D</Button>
                         <Button variant="contained"
+                                key={"M_button"+index}
                                 onClick={ () =>
                                     handleFunctionChange(index,"M", true) }
                         >M</Button>
@@ -373,39 +381,58 @@ const AskFunctions = () => {
     const createResponseBlock2 = () => {
         let index = 0;
         let elements = [];
-        let measureCounter = 1;
 
-        for (let measure of selectedDictation.functions ) {
+        // break functions into subarrays of 4 measures each
+        const functions = selectedDictation.functions.slice();
 
-            //elements.push(<TableRow>);
-            for (let f of measure ) {
-                elements.push(<FunctionBox2 index={index} key={"FBox2"+index} />);
-                index++;
-            }
-            elements.push(" | ");
-            //if (measureCounter%4==0) elements.push(elements.push(<br>);
-            measureCounter++;
+        const functionsByMeasures = [];
+        while (functions.length) {
+            functionsByMeasures.push( functions.splice(0,4) );
 
         }
 
+        // for (let measure of selectedDictation.functions ) {
+        //
+        //     //elements.push(<TableRow>);
+        //     for (let f of measure ) {
+        //         elements.push(<FunctionBox2 index={index} key={"FBox2"+index} />);
+        //         index++;
+        //     }
+        //     elements.push(" | ");
+        //     //if (measureCounter%4==0) elements.push(elements.push(<br>);
+        //     measureCounter++;
+        //
+        // }
+
 
         return exerciseHasBegun &&  selectedDictation.title && (
-            <div className={"marginLeft"}>
-                <span className={"marginLeft marginRight"}>{capitalizeFirst(t("enterFunctions"))}: </span>
-                { elements }
-                </div>
-            // <TableContainer>
-            //     <Table aria-label={t("functionButtons")}>
-            //         <TableHead>{capitalizeFirst(t("enterFunctions"))}</TableHead>
-            //         <TableBody>
-            //             <TableRow>
-            //                 <TableCell>1</TableCell>
-            //                 <TableCell>2</TableCell>
-            //                 <TableCell>3</TableCell>
-            //             </TableRow>
-            //         </TableBody>
-            //     </Table>
-            // </TableContainer>
+            // <div className={"marginLeft"}>
+            //     <span className={"marginLeft marginRight"}>{capitalizeFirst(t("enterFunctions"))}: </span>
+            //     { elements }
+            //     </div>
+
+            <TableContainer>
+                <Table aria-label={t("functionButtons")}>
+                    <TableHead>{capitalizeFirst(t("enterFunctions"))}</TableHead>
+                    <TableBody>
+                        {
+                            functionsByMeasures.map( row => (
+                                <TableRow>
+                                    {row.map(measure => (
+                                            <TableCell>
+                                                {measure.map( () => {return <FunctionBox2 index={index} key={"FBox2" + index++}/> }
+                                                    )}
+                                            </TableCell>
+                                        )
+                                    )
+                                    }
+                                </TableRow>
+                                        )
+                            )
+                        }
+                    </TableBody>
+                </Table>
+            </TableContainer>
         );
     }
 
