@@ -8,24 +8,23 @@ import {
     Select,
     Grid,
     TableContainer,
-    TableBody, Table, TableRow, TableCell, TableHead
+    TableBody, Table, TableRow, TableCell, TableHead, TextField
 } from "@material-ui/core"
 
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
-import {capitalizeFirst} from "../util/util";
+import {capitalizeFirst, simplify} from "../util/util";
 
 import {setNegativeMessage, setPositiveMessage} from "../actions/headerMessage";
-import ScoreRow from "./ScoreRow";
+import Volume from "./Volume";
 //import Notation from "../notation/Notation";
 import {dictations} from "../dictations/functional"
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../actions/score";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import Sound from 'react-sound';
 import {useParams} from "react-router-dom";
-import VolumeRow from "./VolumeRow";
+import ScoreRow from "./ScoreRow";
 import {NavigateBefore, NavigateNext} from "@material-ui/icons";
-import {TableHeader} from "material-ui";
 
 
 const AskFunctions = () => {
@@ -60,6 +59,8 @@ const AskFunctions = () => {
     const [volume, setVolume] = useState(0.6);
     const [activeFunctionBoxIndex, setActiveFunctionBoxIndex] = useState(0);
 
+    const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode);
+    const masterVolume = useSelector(state => state.exerciseReducer.volume);
 
     useEffect(() => {
         document.addEventListener("keydown", onKeyDown);
@@ -67,6 +68,16 @@ const AskFunctions = () => {
             document.removeEventListener("keydown", onKeyDown);
         };
     });
+
+    useEffect( () => {
+        document.title = `${ capitalizeFirst( t("functions") )}`;
+        //startButtonRef.current.focus();  // probably does not work since dimmer (loader is in between)
+    }, []); // set title for screen reader
+
+
+    useEffect(  () => {
+        setVolume(masterVolume)
+    }, [masterVolume]);
 
 
 
@@ -164,15 +175,15 @@ const AskFunctions = () => {
         if (exerciseHasBegun) {
             return  (
                 <Grid item container spacing={1} direction={"row"} className={"exerciseRow"}>
-                    <Grid item>
+                    <Grid item  xs={4}>
                         <Button variant="contained" color={"primary"} onClick={() => play(selectedDictation)} className={"fullWidth marginTopSmall"} >
                             { capitalizeFirst( t("play")) }
                         </Button>
                     </Grid>
-                    <Grid item>
+                    <Grid item xs={4}>
                         <Button variant="contained" onClick={() => stop()} className={"fullWidth marginTopSmall"}  >{ capitalizeFirst( t("stop") )}</Button>
                     </Grid>
-                   <Grid item>
+                   <Grid item xs={4}>
                          <Button variant="contained" className={"fullWidth marginTopSmall"}
                                 onClick={() => checkResponse(null)}>{capitalizeFirst(t("check"))}
                         </Button>
@@ -304,9 +315,9 @@ const AskFunctions = () => {
         const index = props.index ? props.index : 0;
         //const label = response[index] ? response[index] : "?";
         const [show, setShow] = useState(false);
-        //TODO: create somewhere styles with classNames: correct wrong hint
+
+        //perhaps - TODO: create somewhere styles with classNames: correct wrong hint
         const openerRef = useRef(null);
-        console.log("creating Functionbox2 ", index);
         return (
             <React.Fragment>
                 <Button id={"opener"}
@@ -378,9 +389,8 @@ const AskFunctions = () => {
     //     );
     // }
 
-    const createResponseBlock2 = () => {
+    const createButtonResponseBlock = () => {
         let index = 0;
-        let elements = [];
 
         // break functions into subarrays of 4 measures each
         const functions = selectedDictation.functions.slice();
@@ -391,48 +401,51 @@ const AskFunctions = () => {
 
         }
 
-        // for (let measure of selectedDictation.functions ) {
-        //
-        //     //elements.push(<TableRow>);
-        //     for (let f of measure ) {
-        //         elements.push(<FunctionBox2 index={index} key={"FBox2"+index} />);
-        //         index++;
-        //     }
-        //     elements.push(" | ");
-        //     //if (measureCounter%4==0) elements.push(elements.push(<br>);
-        //     measureCounter++;
-        //
-        // }
-
-
         return exerciseHasBegun &&  selectedDictation.title && (
-            // <div className={"marginLeft"}>
-            //     <span className={"marginLeft marginRight"}>{capitalizeFirst(t("enterFunctions"))}: </span>
-            //     { elements }
-            //     </div>
+            <>
+                <div className={"marginLeft"}>
+                   {capitalizeFirst(t("enterFunctions"))}:
+                </div>
 
-            <TableContainer>
-                <Table aria-label={t("functionButtons")}>
-                    <TableHead>{capitalizeFirst(t("enterFunctions"))}</TableHead>
-                    <TableBody>
-                        {
-                            functionsByMeasures.map( row => (
-                                <TableRow>
-                                    {row.map(measure => (
-                                            <TableCell>
-                                                {measure.map( () => {return <FunctionBox2 index={index} key={"FBox2" + index++}/> }
-                                                    )}
-                                            </TableCell>
-                                        )
+                <TableContainer>
+                    <Table aria-label={t("functionButtons")}>
+                        <TableBody>
+                            {
+                                functionsByMeasures.map( (row, i) => (
+                                        <TableRow key={"row"+i}>
+                                            {row.map( (measure,i) => (
+                                                    <TableCell key={"measureCell"+i}>
+                                                        {measure.map( () => {return <FunctionBox2 index={index} key={"FBox2" + index++}/> }
+                                                        )}
+                                                    </TableCell>
+                                                )
+                                            )
+                                            }
+                                        </TableRow>
                                     )
-                                    }
-                                </TableRow>
-                                        )
-                            )
-                        }
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                                )
+                            }
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </>
+        );
+    }
+
+    const createTextInputResponseBlock = () => {
+        // kontrolliks -  võta string, ekstrakti sealt kõik tähe kaupa TSDM, kui üks neist, siis eraldi array-sse 
+        return exerciseHasBegun && (
+
+            <Grid item className={"exerciseRow"}>
+                <span  className={"marginLeft marginRight"}>{ capitalizeFirst( t("enterFunctions") )}: </span>
+                <TextField
+                    //style={{marginRight:5}}
+                    onChange={e => {
+                        // setChordEntered(simplify(e.target.value));
+                    }}
+                    /*value={chordEntered}*/
+                />
+            </Grid>
         );
     }
 
@@ -446,11 +459,9 @@ const AskFunctions = () => {
         }
 
         return exerciseHasBegun &&  answered && (
-            <div className={"marginLeft"}>
-                <span className={"marginLeft marginRight"}>
+            <Grid item>
                     {capitalizeFirst(t("correctAnswerIs"))}: {functionsString}
-                </span>
-            </div>
+            </Grid>
         );
     }
 
@@ -470,13 +481,12 @@ const AskFunctions = () => {
             />
 
 
-            <Grid container spacing={1} direction={"column"}>
+            <Grid container spacing={2} direction={"column"}>
                 <ScoreRow/>
                 {createSelectionMenu()}
-                {/*{createResponseBlock()} - chekcboxes, other is buttons */}
-                {createResponseBlock2()}
+                {VISupportMode ? createTextInputResponseBlock() :  createButtonResponseBlock()}
                 {createCorrectAnswerBlock()}
-                { exerciseHasBegun && <VolumeRow /> }
+                { exerciseHasBegun && <Grid item><Volume /></Grid> }
                 {createControlButtons()}
                 <Grid item>
                         <GoBackToMainMenuBtn/>

@@ -173,6 +173,7 @@
   "languageSelect": "keelevalik",
   "instrumentSelect": "instrumendivalik",
   "next": "järgmine",
-  "previous": "eelmine"
+  "previous": "eelmine",
+  "functionButtons": "funktsioonide nupud"
 
 }
