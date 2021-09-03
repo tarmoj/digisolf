@@ -58,6 +58,7 @@ const AskFunctions = () => {
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
     const [volume, setVolume] = useState(0.6);
     const [activeFunctionBoxIndex, setActiveFunctionBoxIndex] = useState(0);
+    const [functionsEntered, setFunctionsEntered] = useState("");
 
     const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode);
     const masterVolume = useSelector(state => state.exerciseReducer.volume);
@@ -106,6 +107,7 @@ const AskFunctions = () => {
         setAnswer(answer);
         setActiveFunctionBoxIndex(0);
         setResponse(Array(answer.length).fill("--")); // cannot be empty array, otherwise clears response on every new render
+        setFunctionsEntered(""); // For VISupport
 
         if (exerciseHasBegun) {
             play();
@@ -123,6 +125,22 @@ const AskFunctions = () => {
         // console.log("***Stop***");
         setPlayStatus(Sound.status.STOPPED);
     };
+
+    const functionsEnteredToResponse = () => { // analzyzes the entered string (VISupport mode) like ttsdsd and puts it into response array
+        let index = 0;
+        const r = response.slice();
+        for (let char of functionsEntered.toUpperCase()) {
+            if (["T", "S", "D", "M"].includes(char))  {
+                r[index] = char;
+                index++;
+            }
+        }
+        // if (index>0) {
+        //     setResponse(r);
+        // }
+        console.log("Response from entered string: ", r);
+        return r;
+    }
 
     const checkResponse = () => { // response is an object {key: value [, key2: value, ...]}
 
@@ -144,13 +162,13 @@ const AskFunctions = () => {
         setAnswered(true);
         let correct = true;
 
-        console.log("checkResponse answer: ", answer);
+        const currentResponse = VISupportMode ? functionsEnteredToResponse() : response;
 
         for (let i=0; i<answer.length; i++) {
-            if (response[i]==answer[i]) {
+            if (currentResponse[i]==answer[i]) {
                 console.log("Correct! ", i, response[i]);
             } else {
-                console.log(response[i], " is wrong!  Should be: ", answer[i]);
+                console.log(currentResponse[i], " is wrong!  Should be: ", answer[i]);
                 correct = false;
             }
         }
@@ -257,17 +275,20 @@ const AskFunctions = () => {
     } ;
 
     const onKeyDown = (e) => {
-        console.log("Key: ", e.key);
-        if (e.key.toString().toLowerCase() === "t") {
-            handleFunctionChange(activeFunctionBoxIndex, "T");
-        } else if (e.key.toString().toLowerCase() === "d") {
-            handleFunctionChange(activeFunctionBoxIndex, "D");
-        } else if (e.key === "ArrowRight") {
-            if (activeFunctionBoxIndex < response.length-1) setActiveFunctionBoxIndex(activeFunctionBoxIndex+1);
-        } else if (e.key === "ArrowLeft") {
-            if (activeFunctionBoxIndex > 0) setActiveFunctionBoxIndex(activeFunctionBoxIndex-1);
-        } else if (e.key === "Enter") {
-            checkResponse();
+        if (!VISupportMode) { // do not handle t d s etc keystrokes in VISupportMode
+            //console.log("Key: ", e.key);
+
+            if (e.key.toString().toLowerCase() === "t") {
+                handleFunctionChange(activeFunctionBoxIndex, "T");
+            } else if (e.key.toString().toLowerCase() === "d") {
+                handleFunctionChange(activeFunctionBoxIndex, "D");
+            } else if (e.key === "ArrowRight") {
+                if (activeFunctionBoxIndex < response.length - 1) setActiveFunctionBoxIndex(activeFunctionBoxIndex + 1);
+            } else if (e.key === "ArrowLeft") {
+                if (activeFunctionBoxIndex > 0) setActiveFunctionBoxIndex(activeFunctionBoxIndex - 1);
+            } else if (e.key === "Enter") {
+                checkResponse();
+            }
         }
     };
 
@@ -432,19 +453,24 @@ const AskFunctions = () => {
         );
     }
 
+
     const createTextInputResponseBlock = () => {
-        // kontrolliks -  võta string, ekstrakti sealt kõik tähe kaupa TSDM, kui üks neist, siis eraldi array-sse 
         return exerciseHasBegun && (
 
             <Grid item className={"exerciseRow"}>
                 <span  className={"marginLeft marginRight"}>{ capitalizeFirst( t("enterFunctions") )}: </span>
                 <TextField
                     //style={{marginRight:5}}
+                    aria-label={t("enterFunctions")}
+                    className={"fullWidth"}
                     onChange={e => {
-                        // setChordEntered(simplify(e.target.value));
+                        setFunctionsEntered(e.target.value);
                     }}
-                    /*value={chordEntered}*/
+                    onKeyPress={ e=> { if (e.key === 'Enter') checkResponse()  }}
+                    placeholder={"e.g tsdt or t s d t"}
+                    value={functionsEntered}
                 />
+
             </Grid>
         );
     }

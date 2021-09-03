@@ -34,6 +34,8 @@ Probleemide korral on parim viis kaasa aitamiseks teha vearaport (_bug report_):
 
 ## Diktaadid
 
+- Notatsioonis võtmemärgid kuvatakse ka takti sees
+
 
 
 ## Häälesta intervall
