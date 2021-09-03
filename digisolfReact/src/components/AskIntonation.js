@@ -13,6 +13,7 @@ import {useParams} from "react-router-dom";
 import CsoundObj from "@kunstmusik/csound";
 import  {intonationOrchestra as orc} from "../csound/orchestras";
 import Volume from "./Volume";
+import {resetState} from "../actions/askDictation";
 
 
 
@@ -34,6 +35,11 @@ const AskIntonation = () => {
     const [selectedDeviation, setSelectedDeviation] = useState(0);
     const [soundType, setSoundType] = useState(2);
     const [csound, setCsound] = useState(null);
+
+    useEffect(() => {
+        dispatch(resetState());
+        document.title = `${ capitalizeFirst( t("intonation") )}`;
+    }, []);
 
     useEffect(() => {
         if (csound == null) {

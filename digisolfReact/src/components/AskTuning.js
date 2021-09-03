@@ -49,11 +49,9 @@ const AskTuning = () => {
         return () => { console.log("cleanup"); stopUpdate();  if (csound) csound.reset();} // tryout against memory leak...
     }, [csound]);
 
-    //test
-    // useEffect( ()=> {
-    //     console.log("Started");
-    //     return () => console.log("Ended");
-    // }, [] );
+    useEffect(() => {
+        document.title = `${ capitalizeFirst( t("tuning") )}`;
+    }, []);
 
     const  enableAudioInput = (cs) => {
         if (!navigator.mediaDevices) {

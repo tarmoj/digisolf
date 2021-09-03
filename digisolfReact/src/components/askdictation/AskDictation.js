@@ -68,6 +68,7 @@ const AskDictation = () => {
 
     useEffect(() => {
         dispatch(resetState());
+        document.title = `${ capitalizeFirst( t("dictations") )}`;
     }, []);
 
     const dictationType = name.toString().split("_")[0]; // categories come in as 1voice_level1 etc
