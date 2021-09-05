@@ -43,17 +43,18 @@ const MainMenu = () => {
             <Grid container item direction={"row"}>
                 <Grid item xs={6}>
                     <h2 className={"marginTopSmall"}>{t("dictations")}</h2>
+                    <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/degrees")}>{capitalizeFirst(t("degreeDictations"))}</Button><br/>
+                    <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/degrees_random")}>{capitalizeFirst(t("degreeDictations"))} - {t("generated") }</Button><br/>
                     <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/1voice")}>{capitalizeFirst(t("oneVoice"))}</Button><br/>
                     <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/2voice")}>{capitalizeFirst(t("twoVoice"))}</Button><br/>
                     <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/popJazz")}>{capitalizeFirst(t("popJazz"))}</Button><br/>
                     <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/classical")}>{capitalizeFirst(t("classical"))}</Button><br/>
-                    <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/degrees")}>{capitalizeFirst(t("degreeDictations"))}</Button><br/>
-                    <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/degrees_random")}>{capitalizeFirst(t("degreeDictations"))} - {t("generated") }</Button><br/>
                 </Grid>
                 <Grid item xs={6}>
                     <div>
-                        <h2 className={"marginTopSmall"}>{t("intonation")}</h2>
-                        <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/asktuning")}>{ capitalizeFirst( t("tuneInterval") )}</Button><br/>
+                        <h2 className={"marginTopSmall"}>{capitalizeFirst(t("tuning"))}</h2>
+                        <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/asktuning")}>{ capitalizeFirst( t("intonateInterval") )}</Button><br/>
+                        <h4 className={"marginTopSmall"}>{capitalizeFirst(t("isInTune"))}</h4>
                         <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askintonation/+-30/30")}>{t("+-30")}</Button><br/>
                         <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askintonation/+-20/20")}>{t("+-20")}</Button><br/>
                         <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askintonation/+-10/10")}>{t("+-10")}</Button><br/>

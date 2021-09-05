@@ -301,7 +301,7 @@ const AskChord = () => {
         let correct = true;
 
         //console.log(response);
-        const correctChord = t(selectedChord[longName]);
+        const correctChord = t(selectedChord[shortName]);//t(selectedChord[longName]);
 
 
         if (useNotation) {
@@ -328,7 +328,7 @@ const AskChord = () => {
                 dispatch(setPositiveMessage(feedBack, 5000));
             }
             dispatch(incrementCorrectAnswers());
-            const waitTime =  1000;
+            const waitTime =  1500;
             setTimeout( ()=> renew(possibleChords), waitTime); // small delay to let user to see the answer -  maybe add this to config options
         } else {
             if (!VISupportMode) {
@@ -497,8 +497,7 @@ const AskChord = () => {
                              disabled={(csound === null)}
                             onClick={startExercise}
                             className={"fullWidth marginTopSmall"}>
-                        {t("startExercise")}
-                         {(csound === null) && <CircularProgress aria-busy={(csound===null)} />}
+                         {(csound === null) ?  <CircularProgress aria-busy={(csound===null)} /> : t("startExercise")}
                     </Button>
                 </Grid>
             );

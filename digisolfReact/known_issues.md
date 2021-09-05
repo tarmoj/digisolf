@@ -2,9 +2,9 @@
 
 <br>
 
-Kontakt: tarmo.johannes@otsakool.edu.ee
+Kontakt: <mailto:tarmo.johannes@otsakool.edu.ee> 
 
-Probleemide korral on parim viis kaasa aitamiseks teha vearaport (_bug report_): <http://aadress.net>
+Probleemide korral on parim viis kaasa aitamiseks teha vearaport (_bug report_): <https://github.com/tarmoj/digisolf/issues/new>
 
 <br>
 
@@ -36,12 +36,17 @@ Probleemide korral on parim viis kaasa aitamiseks teha vearaport (_bug report_):
 
 - Notatsioonis võtmemärgid kuvatakse ka takti sees
 
+- Astmediktaatides on võimalik vastata üht diktaati mitu korda.
 
 
-## Häälesta intervall
 
-- vajab paremat nimetust (pigem intoneerimine)
+## Intoneeri
+
+- vajab seletust, kujundus vajab ümber tegemeist MaterialUI peale
 
 
-## Intervall
+
+## Kas intervall on puhas
+
+- kui õige, siis võiks automaatselt mängida järgmise
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 //import {Header, Dropdown} from 'semantic-ui-react'
-import {Button, Grid, MenuItem, Select} from "@material-ui/core"
+import {Button, CircularProgress, Grid, MenuItem, Select} from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {setIsLoading} from "../actions/component";
@@ -44,13 +44,13 @@ const AskIntonation = () => {
     useEffect(() => {
         if (csound == null) {
             // try global loader - shows but does not cover everything
-            dispatch(setIsLoading(true));
+            //dispatch(setIsLoading(true)); // - does not work well
             let audioContext = CsoundObj.CSOUND_AUDIO_CONTEXT;
             if ( typeof (audioContext) == "undefined") {
                 CsoundObj.initialize(CsoundObj.CSOUND_AUDIO_CONTEXT).then(() => { // the error happens here with initialize...
                     const cs = new CsoundObj();
                     setCsound(cs);
-                    dispatch(setIsLoading(false));
+                    //dispatch(setIsLoading(false));
                 });
             } else { // do not initialize if audio context is already created
                 const cs = new CsoundObj();
@@ -152,6 +152,11 @@ const AskIntonation = () => {
             return;
         }
 
+        if (!answer) {
+            alert(t("pressPlayFirst"));
+            return;
+        }
+
         if (answered) {
             alert(t("alreadyAnswered"));
             return;
@@ -169,10 +174,12 @@ const AskIntonation = () => {
         }
 
         if ( correct ) {
-            dispatch(setPositiveMessage(`${ capitalizeFirst( t("correct") )}!  ${feedBackString}`, 5000));
+            dispatch(setPositiveMessage(`${ capitalizeFirst( t("correct") )}!  ${feedBackString}`, 3000));
             dispatch(incrementCorrectAnswers());
+            const waitTime =  1500;
+            setTimeout( ()=> renew(cents), waitTime); // small delay to let user to see the answer
         } else {
-            dispatch(setNegativeMessage(`${ capitalizeFirst( t("wrong") )}!  ${feedBackString}`, 5000));
+            dispatch(setNegativeMessage(`${ capitalizeFirst( t("wrong") )}!  ${feedBackString}`, 3000));
             dispatch(incrementIncorrectAnswers());
         }
     };
@@ -201,7 +208,13 @@ const AskIntonation = () => {
         } else {
             return(
                 <Grid item container direction={"row"} spacing={1} >
-                    <Button variant="contained" color={"primary"} onClick={() => startExercise()} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>
+                    <Button variant="contained" color={"primary"}
+                            className={"fullWidth marginTopSmall"}
+                            disabled={(csound === null)}
+                            onClick={() => startExercise()}
+                    >
+                        {(csound === null) ? <CircularProgress aria-busy={(csound===null)} /> :  t("startExercise")}
+                    </Button>
                 </Grid>
             );
         }

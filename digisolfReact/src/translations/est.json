@@ -4,7 +4,8 @@
   "intervals": "Intervallid",
   "chords": "Akordid",
   "dictations": "Diktaadid",
-  "intonation": "Häälestus",
+  "intonation": "intonatsioon",
+  "tuning": "häälestus",
   "tonicTriad": "toonika kolmkõla helide vahel",
   "harmonic": "harmooniline",
   "melodic": "meloodiline",
@@ -75,6 +76,7 @@
   "thirdInversionOfMinorSeventhPJ": "moll seitse bassis septim",
   "repeat": "Korda",
   "anyDeviation": "Juhuslik kõrvalekalle",
+  "isInTune": "intervall on puhas?",
   "resetScore": "Nulli",
   "loading": "Laen andmeid, palun oota...",
   "narrow": "kitsas",
@@ -95,6 +97,7 @@
   "square": "nelinurkheli",
   "alreadyAnswered": "Te olete juba vastanud!",
   "pressStartExsercise": "Vajutage \"Alusta Harjutust\"",
+  "pressPlayFirst": "Vajutage \"Mängi\" kõigepealt",
   "up": "üles",
   "down": "alla",
   "render": "kuva",
@@ -174,6 +177,8 @@
   "instrumentSelect": "instrumendivalik",
   "next": "järgmine",
   "previous": "eelmine",
-  "functionButtons": "funktsioonide nupud"
+  "functionButtons": "funktsioonide nupud",
+  "intonateInterval": "intoneeri"
+
 
 }

@@ -294,8 +294,9 @@ const AskDictation = () => {
     };
 
     const playTonic = (tonicVtNote=0, duration=1, when=0) => {
+
         const midiNote = notes.getNoteByVtNote(tonicVtNote).midiNote;
-        const scoreLine = `i 2 ${when} ${duration} ${midiNote}`;
+        const scoreLine = `i \"PlayNote\" ${when} ${duration} ${midiNote}`;
         console.log("Play tonic in Csound: ", scoreLine);
         if (csound) {
             csound.readScore(scoreLine);
@@ -565,7 +566,8 @@ const AskDictation = () => {
         if (csound) {
             await loadResources(csound, 60, 84, "oboe");
 
-            csound.setOption("-m0d")
+            csound.setOption("-d");
+            csound.setOption("-m0");
             csound.compileOrc(orc);
             csound.start();
             csound.audioContext.resume();
@@ -831,9 +833,12 @@ const AskDictation = () => {
     };
 
     const createCorrectNotationBlock = () => {
+        //TODO: kuskil peaks näitama, et alumine õige                     <p className={"marginLeft"}>{capitalizeFirst(t("correct"))}:</p>
+        // aga praegu notatsioon vist ühes ühises divi-is ja ma ei tea, kuidas sinna teksti saada.
         if (exerciseHasBegun && selectedDictation.title !== "" && showCorrectNotation) {
             return (
                 <>
+
                     { selectedDictation.hasOwnProperty("credits") &&
                     <Grid.Row className={"marginTopSmall"}>{ capitalizeFirst(t("credits")) }: {selectedDictation.credits}</Grid.Row>
                     }
