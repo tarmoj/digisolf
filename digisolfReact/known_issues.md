@@ -38,6 +38,8 @@ Probleemide korral on parim viis kaasa aitamiseks teha vearaport (_bug report_):
 
 - Astmediktaatides on võimalik vastata üht diktaati mitu korda.
 
+- Vaja kontrolli, et diktaat oleks valitud, muidu ei saa "Kontrolli" vajutada
+
 
 
 ## Intoneeri

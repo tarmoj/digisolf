@@ -106,6 +106,13 @@ body {
     top: 5px;
 }
 
+.complaintMenuButton {
+    position: absolute;
+    float: right;
+    right: 85px;
+    top: 0px;
+}
+
 .VISupport {
     position: absolute;
     float: left;
