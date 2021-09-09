@@ -40,17 +40,19 @@ Probleemide korral on parim viis kaasa aitamiseks teha vearaport (_bug report_):
 
 - Astmediktaatides on võimalik vastata üht diktaati mitu korda.
 
+- Astmediktaatides "Stop" ei toimi.
+
 - Vaja kontrolli, et diktaat oleks valitud, muidu ei saa "Kontrolli" vajutada
 
 
 
 ## Intoneeri
 
-- vajab seletust, kujundus vajab ümber tegemeist MaterialUI peale
+- vajab seletust, kujundus vajab ümber tegemeist MaterialUI peale. Kogu leht üpris segane.
 
 
 
 ## Kas intervall on puhas
 
-- kui õige, siis võiks automaatselt mängida järgmise
+- "JUhuslik kõrvalekalle" juures ütleb: "Intervalli oli lai/ 0 senti" -  midagi on valesti.
 
