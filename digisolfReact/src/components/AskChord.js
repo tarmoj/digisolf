@@ -7,7 +7,7 @@ import {
     Checkbox,
     FormControlLabel,
     Grid,
-    FormControl, FormLabel, RadioGroup, Radio, Snackbar
+    FormControl, FormLabel, RadioGroup, Radio, Snackbar, MenuItem, Select
 } from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
@@ -24,6 +24,9 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import CsoundObj from "@kunstmusik/csound";
 import {dictationOrchestra as orc} from "../csound/orchestras";
 import VolumeRow from "./VolumeRow";
+import {setCustomMenu, setSettingsMenuOpen} from "../actions/component";
+import {setVISupportMode} from "../actions/exercise";
+import {Visibility, VisibilityOff} from "@material-ui/icons";
 
 
 
@@ -56,16 +59,19 @@ const AskChord = () => {
 
     const [notesEnteredByUser, setNotesEnteredByUser] = useState(""); // test
 
-    const [volume, setVolume] = useState(0.6);
     const [usePopJazzNaming, setUsePopJazzNaming] = useState(false);
+    const [mode, setMode] = useState("harmonic"); // way of playing the chord: melodicUp|melodicDown|harmonic
+    const [showChordSelection, setShowChordSelection] = useState(false);
 
     //const userEnteredNotes = useSelector(state => state.exerciseReducer.userEnteredNotes);
     const startButtonRef = useRef(null);
+
 
     useEffect( () => {
         document.title = `${ capitalizeFirst( t(name) )}`;
         startButtonRef.current.focus();  // probably does not work since dimmer (loader is in between)
         // see using callback ref:
+        createCustomMenu();
     }, []); // set title for screen reader
 
     useEffect(  () => {
@@ -260,7 +266,16 @@ const AskChord = () => {
         console.log("Compile: ", compileString);
         csound.compileOrc(compileString);
         //csound.setControlChannel("beatLength", beatLength);
-        csound.readScore(`i "PlayChord" 0 0 `);  // if called startExercise->renew->playChord, the giNotes are not there yet, later OK
+
+        let modeParameter;
+        switch (mode) {
+            case "melodicUp": modeParameter = 1; break;
+            case "melodicDown": modeParameter = 2; break;
+            default: modeParameter = 0;
+        }
+
+        console.log("modeParameter: ", modeParameter, mode);
+        csound.readScore(`i "PlayChord" 0 0 `+ modeParameter.toString());  // if called startExercise->renew->playChord, the giNotes are not there yet, later OK
 
         //console.log("Midinotes played: ", midiNotes, baseMidiNote, selectedChord.shortName);
         //midiSounds.current.playChordNow(3, midiNotes, duration);
@@ -455,6 +470,41 @@ const AskChord = () => {
     // UI ======================================================
 
 
+    const closeMenu = () => {
+        dispatch(setSettingsMenuOpen(false));
+    }
+
+    const createCustomMenu = () => {
+
+
+        const playModeEntry = <MenuItem key={"playMode"}>
+            <label id="modeLabel" className={"marginRightSmall"}>{capitalizeFirst(t("playMode"))}:</label>
+            <Select
+                labelId={"modeLabel"}
+                defaultValue={"harmonic"}
+                onChange={ (e)=>{setMode(e.target.value); closeMenu() } }
+            >
+
+                <MenuItem value={"melodicUp"}>{capitalizeFirst(t("melodicUp"))}</MenuItem>
+                <MenuItem value={"melodicDown"}>{capitalizeFirst(t("melodicDown"))}</MenuItem>
+                <MenuItem value={"harmonic"}>{capitalizeFirst(t("harmonic"))}</MenuItem>
+            </Select>
+        </MenuItem>;
+
+        const showChordSelectionEntry = <MenuItem key={"chordSelectionEntry"}>
+            <FormControlLabel
+                onChange={ (e) => {setShowChordSelection(e.target.checked); closeMenu();}  }
+                control={<Checkbox color="default" />}
+                label={capitalizeFirst(t("chordSelection"))}
+            />
+        </MenuItem>;
+
+        //const infoEntry = <MenuItem disabled>Abiinfo - tegemata veel</MenuItem>
+
+        const menuEntries = [ playModeEntry, showChordSelectionEntry ];
+        dispatch(setCustomMenu(menuEntries));
+    }
+
     const createOptionsBlock = () => {
         return exerciseHasBegun && (
           <Grid item container spacing={1} direction={"row"} >
@@ -608,7 +658,7 @@ const AskChord = () => {
 
 
     const createChordSelection = () => {
-        return exerciseHasBegun && (
+        return exerciseHasBegun &&  showChordSelection && (
             <>
                 <Grid item container spacing={1} direction={"row"}>
                     <Grid item>

@@ -42,10 +42,13 @@ endin
 
 
 instr PlayChord ; plays the notes (MIDI NN) from array giNotes as chord; middle ones softer
-	
 	index = 0
 	iNotes = lenarray(giNotes)
 	iAttenuation = 1/iNotes; ) *0.6 ; to avoid over 0
+	iMode = p4 ; 0- normal, 1 -  melodic up ; down -  define the giNotes in reverse order
+	iStart = 0
+	iTimeStep = 0.5 ; if in melodic mode, play after this amount of time
+	print iMode
 	while index<iNotes do
 		if index==0 then
 			iAmp = 1 ; lowest note strongest
@@ -54,12 +57,14 @@ instr PlayChord ; plays the notes (MIDI NN) from array giNotes as chord; middle 
 		else 
 			iAmp = 0.1 ; others softer
 		endif
-		schedule "PlayNote", random:i(0,0.05), giLong, giNotes[index], iAmp*iAttenuation ; beginning not exactly together
+		if (iMode==1) then
+			iStart = index * iTimeStep ; melodic up
+		elseif (iMode==2) then
+			iStart = (iNotes-1-index) * iTimeStep
+		endif
+		schedule "PlayNote", iStart + random:i(0,0.05), giLong, giNotes[index], iAmp*iAttenuation ; beginning not exactly together
 		index+=1
 	od
-	
-
-
 endin
 
 

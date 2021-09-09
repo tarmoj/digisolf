@@ -184,7 +184,8 @@
   "knownIssues": "teadaolevad probleemid",
   "reportIssue": "vearaport",
   "intervalCount": "intervallide arv",
-  "playMode": "esitamisviis"
-
-
+  "playMode": "esitamisviis",
+  "melodicUp": "mel. üles",
+  "melodicDown": "mel. alla",
+  "chordSelection": "akordivalik"
 }

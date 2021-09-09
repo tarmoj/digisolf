@@ -11,7 +11,7 @@ import AskDictation from "./components/askdictation/AskDictation";
 import MainMenu from "./components/MainMenu";
 import AppFooter from "./components/AppFooter";
 import LanguageSelect from "./components/LanguageSelect";
-import {Backdrop, Checkbox, CircularProgress, Divider, IconButton, Menu, MenuItem} from '@material-ui/core';
+import {Backdrop, Checkbox, CircularProgress, Divider, IconButton, Menu, MenuItem, Tooltip} from '@material-ui/core';
 
 import {useTranslation} from "react-i18next";
 import { BrowserRouter as Router, Switch, Route, } from 'react-router-dom';
@@ -77,17 +77,18 @@ function App() {
     const createViSupportSelection = () => {
 
         return (
-
-            <Checkbox className={"VISupport"} color={"default"}
-                      checked={VISupport}
-                      onChange={(e) => {
-                          setVISupport(e.target.checked);
-                          dispatch(setVISupportMode(e.target.checked))
-                      }
-                      }
-                      icon={<Visibility />} checkedIcon={<VisibilityOff />}
-                      inputProps={{ 'aria-label': t("visuallyImpairedSupport") }}
-            />
+            <Tooltip title={capitalizeFirst(t("visuallyImpairedSupport"))}>
+                <Checkbox className={"VISupport"} color={"default"}
+                          checked={VISupport}
+                          onChange={(e) => {
+                              setVISupport(e.target.checked);
+                              dispatch(setVISupportMode(e.target.checked))
+                          }
+                          }
+                          icon={<Visibility />} checkedIcon={<VisibilityOff />}
+                          inputProps={{ 'aria-label': t("visuallyImpairedSupport") }}
+                />
+            </Tooltip>
         );
     }
 
