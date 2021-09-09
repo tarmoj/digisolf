@@ -1,6 +1,6 @@
 import React, {useState, useRef, useEffect} from 'react';
 //import {Grid} from 'semantic-ui-react'
-import {Button, TextField, Grid, Dialog, DialogTitle, DialogContent, DialogActions} from "@material-ui/core"
+import {Button, TextField, Grid, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem} from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {getNoteByVtNote} from "../util/notes";
@@ -26,6 +26,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import * as Tone from "tone"
 import {setIsLoading} from "../actions/component";
 import VolumeRow from "./VolumeRow";
+import {setCustomMenu} from "../actions/component";
 
 
 const AskInterval = () => {
@@ -70,9 +71,12 @@ const AskInterval = () => {
     
     const instrument = useSelector(state => state.exerciseReducer.instrument);
 
+
+
     useEffect( () => {
         document.title = `${t("setInterval")} - ${t(exerciseName)}`;
-        startButtonRef.current.focus();
+        startButtonRef.current.focus(); // seems that works here... but not the exercises with Csound or option menun
+        createCustomMenu();
     }, []); // set title for screen reader
 
 
@@ -134,6 +138,7 @@ const AskInterval = () => {
             changeKey(); // calls also renewInKey()
         }
     };
+
 
 
 
@@ -616,6 +621,15 @@ const AskInterval = () => {
     };
 
     // UI ---------------------------------------------
+
+
+    const createCustomMenu = () => {
+        const menuEntries = <>
+            <MenuItem onClick={()=>setMode("melodic")}>Meloodiline</MenuItem>
+            <MenuItem onClick={()=>setMode("harmonic")}>Harmooniline</MenuItem>
+        </>;
+        dispatch(setCustomMenu(menuEntries));
+    }
    
     const createControlButtons = () => {
         const startExerciseButton = <Button variant="contained" ref={startButtonRef} key={"startExercise"} color={"primary"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>;

@@ -11,3 +11,10 @@ export const setIsLoading = (isLoading) => {
         payload: isLoading
     }
 };
+
+export const setCustomMenu = (menu) => {
+    return {
+        type: "SET_CUSTOM_MENU",
+        payload: menu
+    }
+};

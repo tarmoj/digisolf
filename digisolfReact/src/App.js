@@ -12,7 +12,7 @@ import MainMenu from "./components/MainMenu";
 import AppFooter from "./components/AppFooter";
 import LanguageSelect from "./components/LanguageSelect";
 //import {Dimmer, Header,  Loader} from "semantic-ui-react";
-import {Backdrop, Checkbox, CircularProgress, createMuiTheme, IconButton, Menu, MenuItem} from '@material-ui/core';
+import {Backdrop, Checkbox, CircularProgress, IconButton, Menu, MenuItem} from '@material-ui/core';
 
 import {useTranslation} from "react-i18next";
 import { BrowserRouter as Router, Switch, Route, } from 'react-router-dom';
@@ -25,8 +25,9 @@ import {capitalizeFirst} from "./util/util"; // not certain if it works this way
 
 function App() {
     const isLoading = useSelector(state => state.componentReducer.isLoading);
-
+    const customMenu = useSelector(state=>state.componentReducer.customMenu);
     const [VISupport, setVISupport] = useState(localStorage.getItem("VISupportMode")==="true")
+
 
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
@@ -88,35 +89,36 @@ function App() {
         );
     }
 
-    const complaintMenuButton = useRef();
+    //const complaintMenuButton = useRef();
     const settingsMenuButton = useRef();
-    const [complaintMenuOpen, setComplaintMenuOpen] = useState(false);
+    //const [complaintMenuOpen, setComplaintMenuOpen] = useState(false);
     const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
-    const createComplaintsMenu = () => {
-        return (
-            <>
-                <IconButton className={"complaintMenuButton"} aria-label="issuesMenu"  onClick={() => setComplaintMenuOpen(!complaintMenuOpen)} ref={complaintMenuButton}> <SentimentDissatisfied /> </IconButton>
-                <Menu
-                    id="simple-menu"
-                    anchorEl={complaintMenuButton.current}
-                    keepMounted
-                    open={complaintMenuOpen}
-                    onClose={()=>setComplaintMenuOpen(false)}
-                >
-                    <MenuItem onClick={() => {
-                        window.open("https://github.com/tarmoj/digisolf/blob/gh-pages/digisolfReact/known_issues.md", '_blank');
-                        setComplaintMenuOpen(false);
-                    }
-                    }>{capitalizeFirst(t("knownIssues"))}</MenuItem>
-                    <MenuItem onClick={() => {
-                        window.open("https://github.com/tarmoj/digisolf/issues/new", '_blank');
-                        setComplaintMenuOpen(false);
-                    }
-                    }>{capitalizeFirst(t("reportIssue"))}</MenuItem>
-                </Menu>
-            </>
-        );
-    };
+    // const createComplaintsMenu = () => {
+    //     return (
+    //         <>
+    //             <IconButton className={"complaintMenuButton"} aria-label="issuesMenu"  onClick={() => setComplaintMenuOpen(!complaintMenuOpen)} ref={complaintMenuButton}> <SentimentDissatisfied /> </IconButton>
+    //             <Menu
+    //                 id="simple-menu"
+    //                 anchorEl={complaintMenuButton.current}
+    //                 keepMounted
+    //                 open={complaintMenuOpen}
+    //                 onClose={()=>setComplaintMenuOpen(false)}
+    //             >
+    //                 <MenuItem onClick={() => {
+    //                     window.open("https://github.com/tarmoj/digisolf/blob/gh-pages/digisolfReact/known_issues.md", '_blank');
+    //                     setComplaintMenuOpen(false);
+    //                 }
+    //                 }>{capitalizeFirst(t("knownIssues"))}</MenuItem>
+    //                 <MenuItem onClick={() => {
+    //                     window.open("https://github.com/tarmoj/digisolf/issues/new", '_blank');
+    //                     setComplaintMenuOpen(false);
+    //                 }
+    //                 }>{capitalizeFirst(t("reportIssue"))}</MenuItem>
+    //
+    //             </Menu>
+    //         </>
+    //     );
+    // };
 
     const createSettingsMenu = () => {
         return (
@@ -137,10 +139,10 @@ function App() {
                     }>{capitalizeFirst(t("knownIssues"))}</MenuItem>
                     <MenuItem onClick={() => {
                         window.open("https://github.com/tarmoj/digisolf/issues/new", '_blank');
-                        setComplaintMenuOpen(false);
+                        setSettingsMenuOpen(false);
                     }
                     }>{capitalizeFirst(t("reportIssue"))}</MenuItem>
-
+                    {customMenu}
                 </Menu>
             </>
 
