@@ -9,6 +9,7 @@
   "tonicTriad": "toonika kolmkõla helide vahel",
   "harmonic": "harmooniline",
   "melodic": "meloodiline",
+  "melodicAndHarmonic": "meloodiline ja harmooniline",
   "severalIntervals": "Mitu intervalli",
   "unison": "unisoon",
   "second": "sekund",
@@ -178,7 +179,12 @@
   "next": "järgmine",
   "previous": "eelmine",
   "functionButtons": "funktsioonide nupud",
-  "intonateInterval": "intoneeri"
+  "intonateInterval": "intoneeri",
+  "language": "keel",
+  "knownIssues": "teadaolevad probleemid",
+  "reportIssue": "vearaport",
+  "intervalCount": "intervallide arv",
+  "playMode": "esitamisviis"
 
 
 }

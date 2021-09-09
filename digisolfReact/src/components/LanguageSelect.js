@@ -56,9 +56,9 @@ const LanguageSelect = () => {
     // rewrite perhaps with IconButton
     return (
         <Select
-            disabled={true}
+            disabled={false}
             labelId="label" id="select"
-            className={"languageSelect"}
+            // className={"languageSelect"}
             value={language}
             onChange={handleLanguageChange}
         >

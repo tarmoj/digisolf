@@ -26,7 +26,6 @@ export const componentReducer = (state = initialState, action) => {
 
             };
         case "SET_SETTINGS_MENU_OPEN":
-            console.log("reducer settingsMenuOpen:", action.payload);
             return {
                 ...state,
                 settingsMenuOpen: action.payload

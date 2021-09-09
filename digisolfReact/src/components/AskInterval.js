@@ -1,6 +1,6 @@
 import React, {useState, useRef, useEffect} from 'react';
 //import {Grid} from 'semantic-ui-react'
-import {Button, TextField, Grid, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem} from "@material-ui/core"
+import {Button, TextField, Grid, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Select} from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {getNoteByVtNote} from "../util/notes";
@@ -39,7 +39,7 @@ const AskInterval = () => {
         parameters.split("&").forEach(function(item) {parameterDict[item.split("=")[0]] = item.split("=")[1]});
         //console.log("parameters: ", parameterDict);
     }
-    const intervalCount = isDigit(parameterDict.count) ? parseInt(parameterDict.count) : 1;
+    const [intervalCount, setIntervalCount] = useState(  isDigit(parameterDict.count) ? parseInt(parameterDict.count) : 1 );
 
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
@@ -622,19 +622,43 @@ const AskInterval = () => {
 
     // UI ---------------------------------------------
 
-    const handleMenuClick = (action) => {
-        console.log("handleMenuClick")
+    const closeMenu = () => {
         dispatch(setSettingsMenuOpen(false));
-        action();
-        console.log("Mode now: ", mode);
-
     }
 
     const createCustomMenu = () => {
-        const menuEntries = [
-            <MenuItem onClick={() => handleMenuClick(  ()=>setMode("melodic") )}>Meloodiline</MenuItem>,
-            <MenuItem onClick={() => handleMenuClick( ()=>setMode("harmonic") )}>Harmooniline</MenuItem>
-        ];
+
+        const intervalCountEntry = <MenuItem key={"intervalyCount"}>
+            <label id="intervalCountLabel" className={"marginRightSmall"}>{capitalizeFirst(t("intervalCount"))}:</label>
+            <Select
+                labelId={"intervalCountLabel"}
+                defaultValue={1}
+                onChange={ (e)=>{setIntervalCount(e.target.value); closeMenu() } }
+            >
+                <MenuItem value={1}>1</MenuItem>
+                <MenuItem value={2}>2</MenuItem>
+                <MenuItem value={3}>3</MenuItem>
+            </Select>
+        </MenuItem>;
+
+        const playModeEntry = <MenuItem key={"playMode"}>
+            <label id="modeLabel" className={"marginRightSmall"}>{capitalizeFirst(t("playMode"))}:</label>
+            <Select
+                disabled={exerciseName === "tonicTriad"} // if tonic triad intervals, no choice, always melodic and harmonic then
+                labelId={"modeLabel"}
+                defaultValue={"harmonic"}
+                onChange={ (e)=>{setMode(e.target.value); closeMenu() } }
+            >
+
+                <MenuItem value={"melodic"}>{capitalizeFirst(t("melodic"))}</MenuItem>
+                <MenuItem value={"harmonic"}>{capitalizeFirst(t("harmonic"))}</MenuItem>
+                <MenuItem value={"melodicHarmonic"}>{capitalizeFirst(t("melodicAndHarmonic"))}</MenuItem>
+            </Select>
+        </MenuItem>;
+
+        const infoEntry = <MenuItem disabled>Abiinfo - tegemata veel</MenuItem>
+
+        const menuEntries = [ intervalCountEntry, playModeEntry ];
         dispatch(setCustomMenu(menuEntries));
     }
    
@@ -711,7 +735,7 @@ const AskInterval = () => {
 
         return exerciseHasBegun && (
 
-            <Grid item container spacing={1} direction={"row"} className={"exerciseRow"}>
+            <Grid item container spacing={1} direction={"row"} className={"exerciseRow marginTopSmall"}>
                 <span className={"marginLeft marginRight"} >{capitalizeFirst(t("intervals"))}: </span>
                 {elements}
             </Grid>

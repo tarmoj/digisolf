@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import './App.css';
 import {useDispatch, useSelector} from "react-redux";
 import HeaderMessage from "./components/HeaderMessage";
@@ -11,8 +11,7 @@ import AskDictation from "./components/askdictation/AskDictation";
 import MainMenu from "./components/MainMenu";
 import AppFooter from "./components/AppFooter";
 import LanguageSelect from "./components/LanguageSelect";
-//import {Dimmer, Header,  Loader} from "semantic-ui-react";
-import {Backdrop, Checkbox, CircularProgress, IconButton, Menu, MenuItem} from '@material-ui/core';
+import {Backdrop, Checkbox, CircularProgress, Divider, IconButton, Menu, MenuItem} from '@material-ui/core';
 
 import {useTranslation} from "react-i18next";
 import { BrowserRouter as Router, Switch, Route, } from 'react-router-dom';
@@ -30,14 +29,11 @@ function App() {
     const menuOpen = useSelector(state=>state.componentReducer.settingsMenuOpen);
     const [VISupport, setVISupport] = useState(localStorage.getItem("VISupportMode")==="true")
 
-
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
 
-    // useEffect(
-    //     ()=>{setSettingsMenuOpen(menuOpen); console.log("App caught menu open: ", menuOpen) },
-    //     [menuOpen]
-    // );
+
+    const settingsMenuButton = useRef();
 
     // vt: https://stackoverflow.com/questions/57222924/override-material-ui-button-text
     const myTheme = createTheme({
@@ -95,37 +91,6 @@ function App() {
         );
     }
 
-    //const complaintMenuButton = useRef();
-    const settingsMenuButton = useRef();
-    //const [complaintMenuOpen, setComplaintMenuOpen] = useState(false);
-   // const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
-    // const createComplaintsMenu = () => {
-    //     return (
-    //         <>
-    //             <IconButton className={"complaintMenuButton"} aria-label="issuesMenu"  onClick={() => setComplaintMenuOpen(!complaintMenuOpen)} ref={complaintMenuButton}> <SentimentDissatisfied /> </IconButton>
-    //             <Menu
-    //                 id="simple-menu"
-    //                 anchorEl={complaintMenuButton.current}
-    //                 keepMounted
-    //                 open={complaintMenuOpen}
-    //                 onClose={()=>setComplaintMenuOpen(false)}
-    //             >
-    //                 <MenuItem onClick={() => {
-    //                     window.open("https://github.com/tarmoj/digisolf/blob/gh-pages/digisolfReact/known_issues.md", '_blank');
-    //                     setComplaintMenuOpen(false);
-    //                 }
-    //                 }>{capitalizeFirst(t("knownIssues"))}</MenuItem>
-    //                 <MenuItem onClick={() => {
-    //                     window.open("https://github.com/tarmoj/digisolf/issues/new", '_blank');
-    //                     setComplaintMenuOpen(false);
-    //                 }
-    //                 }>{capitalizeFirst(t("reportIssue"))}</MenuItem>
-    //
-    //             </Menu>
-    //         </>
-    //     );
-    // };
-
     const handleClose = () => dispatch(setSettingsMenuOpen(false));
 
     const createSettingsMenu = () => {
@@ -139,7 +104,8 @@ function App() {
                     open={menuOpen}
                     onClose={handleClose}
                 >
-                    <MenuItem disabled={true}><LanguageSelect /></MenuItem>
+                    <MenuItem disabled={false}><span className={"marginRightSmall"}>{capitalizeFirst(t("language"))}:</span><LanguageSelect /></MenuItem>
+                    <Divider />
                     <MenuItem onClick={() => {
                         window.open("https://github.com/tarmoj/digisolf/blob/gh-pages/digisolfReact/known_issues.md", '_blank');
                         handleClose();
@@ -150,6 +116,7 @@ function App() {
                         handleClose();
                     }
                     }>{capitalizeFirst(t("reportIssue"))}</MenuItem>
+                    <Divider />
                     {customMenu}
                 </Menu>
             </>

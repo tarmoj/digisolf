@@ -128,6 +128,14 @@ body {
     margin-right: 20px !important;
 }
 
+.marginRightSmall {
+    margin-right: 5px !important;
+}
+
+.marginLeftSmall {
+    margin-left: 5px !important;
+}
+
 .marginLeftLarge {
     margin-left: 40px !important;
 }

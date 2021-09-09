@@ -18,6 +18,8 @@ Probleemide korral on parim viis kaasa aitamiseks teha vearaport (_bug report_):
 
 ##  Intervallid
 
+- "Stop" ei peata heli, mitu  korda "Mängi" vajutamine kuhjab intervallid
+- mõnikord peale "Mängi järgmine" mängib intervalli lühendatult vm imelikult
 
 
 ## Akordid
