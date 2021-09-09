@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import './App.css';
 import {useDispatch, useSelector} from "react-redux";
 import HeaderMessage from "./components/HeaderMessage";
@@ -21,17 +21,23 @@ import {Visibility, VisibilityOff, SentimentDissatisfied} from "@material-ui/ico
 import MenuIcon from '@material-ui/icons/Menu';
 import {createTheme} from "@material-ui/core";
 import { MuiThemeProvider as ThemeProvider } from '@material-ui/core/styles';
-import {capitalizeFirst} from "./util/util"; // not certain if it works this way
+import {capitalizeFirst} from "./util/util";
+import {setSettingsMenuOpen} from "./actions/component"; // not certain if it works this way
 
 function App() {
     const isLoading = useSelector(state => state.componentReducer.isLoading);
     const customMenu = useSelector(state=>state.componentReducer.customMenu);
+    const menuOpen = useSelector(state=>state.componentReducer.settingsMenuOpen);
     const [VISupport, setVISupport] = useState(localStorage.getItem("VISupportMode")==="true")
 
 
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
 
+    // useEffect(
+    //     ()=>{setSettingsMenuOpen(menuOpen); console.log("App caught menu open: ", menuOpen) },
+    //     [menuOpen]
+    // );
 
     // vt: https://stackoverflow.com/questions/57222924/override-material-ui-button-text
     const myTheme = createTheme({
@@ -92,7 +98,7 @@ function App() {
     //const complaintMenuButton = useRef();
     const settingsMenuButton = useRef();
     //const [complaintMenuOpen, setComplaintMenuOpen] = useState(false);
-    const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
+   // const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
     // const createComplaintsMenu = () => {
     //     return (
     //         <>
@@ -120,26 +126,28 @@ function App() {
     //     );
     // };
 
+    const handleClose = () => dispatch(setSettingsMenuOpen(false));
+
     const createSettingsMenu = () => {
         return (
             <>
-                <IconButton className={"languageSelect"} aria-label="settingsMenu"  onClick={() => setSettingsMenuOpen(!settingsMenuOpen)} ref={settingsMenuButton}> <MenuIcon /> </IconButton>
+                <IconButton className={"languageSelect"} aria-label="settingsMenu"  onClick={() => dispatch(setSettingsMenuOpen(true))} ref={settingsMenuButton}> <MenuIcon /> </IconButton>
                 <Menu
                     id="settings-menu"
                     anchorEl={settingsMenuButton.current}
                     keepMounted
-                    open={settingsMenuOpen}
-                    onClose={()=>setSettingsMenuOpen(false)}
+                    open={menuOpen}
+                    onClose={handleClose}
                 >
                     <MenuItem disabled={true}><LanguageSelect /></MenuItem>
                     <MenuItem onClick={() => {
                         window.open("https://github.com/tarmoj/digisolf/blob/gh-pages/digisolfReact/known_issues.md", '_blank');
-                        setSettingsMenuOpen(false);
+                        handleClose();
                     }
                     }>{capitalizeFirst(t("knownIssues"))}</MenuItem>
                     <MenuItem onClick={() => {
                         window.open("https://github.com/tarmoj/digisolf/issues/new", '_blank');
-                        setSettingsMenuOpen(false);
+                        handleClose();
                     }
                     }>{capitalizeFirst(t("reportIssue"))}</MenuItem>
                     {customMenu}

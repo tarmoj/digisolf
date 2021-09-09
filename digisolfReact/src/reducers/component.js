@@ -2,7 +2,8 @@ const initialState = {
     component: "Login",
     previousComponent: "",
     isLoading: false,
-    customMenu: null
+    customMenu: null,
+    settingsMenuOpen: false
 };
 
 export const componentReducer = (state = initialState, action) => {
@@ -23,6 +24,12 @@ export const componentReducer = (state = initialState, action) => {
                 ...state,
                 customMenu: action.payload
 
+            };
+        case "SET_SETTINGS_MENU_OPEN":
+            console.log("reducer settingsMenuOpen:", action.payload);
+            return {
+                ...state,
+                settingsMenuOpen: action.payload
             };
         default:
             return state;

@@ -24,7 +24,7 @@ import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import { useParams } from "react-router-dom";
 import { useHotkeys } from 'react-hotkeys-hook';
 import * as Tone from "tone"
-import {setIsLoading} from "../actions/component";
+import {setIsLoading, setSettingsMenuOpen} from "../actions/component";
 import VolumeRow from "./VolumeRow";
 import {setCustomMenu} from "../actions/component";
 
@@ -622,12 +622,19 @@ const AskInterval = () => {
 
     // UI ---------------------------------------------
 
+    const handleMenuClick = (action) => {
+        console.log("handleMenuClick")
+        dispatch(setSettingsMenuOpen(false));
+        action();
+        console.log("Mode now: ", mode);
+
+    }
 
     const createCustomMenu = () => {
-        const menuEntries = <>
-            <MenuItem onClick={()=>setMode("melodic")}>Meloodiline</MenuItem>
-            <MenuItem onClick={()=>setMode("harmonic")}>Harmooniline</MenuItem>
-        </>;
+        const menuEntries = [
+            <MenuItem onClick={() => handleMenuClick(  ()=>setMode("melodic") )}>Meloodiline</MenuItem>,
+            <MenuItem onClick={() => handleMenuClick( ()=>setMode("harmonic") )}>Harmooniline</MenuItem>
+        ];
         dispatch(setCustomMenu(menuEntries));
     }
    

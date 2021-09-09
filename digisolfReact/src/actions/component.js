@@ -18,3 +18,10 @@ export const setCustomMenu = (menu) => {
         payload: menu
     }
 };
+
+export const setSettingsMenuOpen = (open) => {
+    return {
+        type: "SET_SETTINGS_MENU_OPEN",
+        payload: open
+    }
+};
