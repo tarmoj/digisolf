@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {Button, Grid, Header, Dropdown} from 'semantic-ui-react'
+import {Dropdown} from 'semantic-ui-react'
+import {Button, ButtonGroup, Grid} from '@material-ui/core';
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../util/util";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
@@ -149,13 +150,13 @@ const AskTuning = () => {
 
                 <Grid.Row  columns={3} centered={true}>
                     <Grid.Column>
-                        <Button toggle={true} onClick={startTuning} className={"fullWidth marginTopSmall"}  >{t("tune")}</Button>
+                        <Button variant="contained"  toggle={true} onClick={startTuning} className={"fullWidth marginTopSmall"}  >{t("tune")}</Button>
                     </Grid.Column>
                     {<Grid.Column>
-                        <Button onClick={stop} className={"fullWidth marginTopSmall"}  >{t("stop")}</Button>
+                        <Button variant="contained"  onClick={stop} className={"fullWidth marginTopSmall"}  >{t("stop")}</Button>
                     </Grid.Column>*!/}
                     {<Grid.Column>
-                        <Button toggle={true} onClick={playInterval} className={"fullWidth marginTopSmall"}  >{t("upper Note")}</Button>
+                        <Button variant="contained"  toggle={true} onClick={playInterval} className={"fullWidth marginTopSmall"}  >{t("upper Note")}</Button>
                     </Grid.Column>}
                 </Grid.Row>
 
@@ -164,7 +165,7 @@ const AskTuning = () => {
             return(
                 <Grid.Row  >
                     <Grid.Column>
-                    <Button color={"green"} onClick={() => startExercise()} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>
+                    <Button variant="contained"  color={"primary"} onClick={() => startExercise()} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>
                     </Grid.Column>
                 </Grid.Row>
             );
@@ -193,9 +194,9 @@ const AskTuning = () => {
             { text: "A", value: 9}, { text: "B", value: 10},{ text: "H", value: 11},
         ];
         return  exerciseHasBegun ?  (
-          <Grid.Row columns={5} centered={true}  >
-              <Grid.Column>{capitalizeFirst(t("sound"))}</Grid.Column>
-              <Grid.Column>
+          <Grid item container direction={"row"} spacing={1}  >
+              <Grid item>{capitalizeFirst(t("sound"))}</Grid>
+              <Grid item>
 
                   <Dropdown
                       disabled={true}
@@ -208,9 +209,9 @@ const AskTuning = () => {
                       options ={soundOptions}
                       defaultValue={2}
                   />
-              </Grid.Column>
-              <Grid.Column>{ `${capitalizeFirst(t("lowerNote"))}: `}</Grid.Column>
-              <Grid.Column>
+              </Grid>
+              <Grid item>{ `${capitalizeFirst(t("lowerNote"))}: `}</Grid>
+              <Grid item>
                   <Dropdown
                       placeholder={capitalizeFirst(t("note"))}
                       onChange={ (event, data) => {
@@ -222,8 +223,8 @@ const AskTuning = () => {
                       options ={noteOptions}
                       defaultValue={0}
                   />
-              </Grid.Column>
-              <Grid.Column>
+              </Grid>
+              <Grid item>
                       <Dropdown
                       placeholder={capitalizeFirst(t("octave"))}
                       onChange={ (event, data) => {
@@ -235,21 +236,20 @@ const AskTuning = () => {
                       options ={octaveOptions}
                       defaultValue={8}
                   />
-              </Grid.Column>
-          </Grid.Row>
+              </Grid>
+          </Grid>
         ) : null;
     };
 
    const createFeedbackRow = () => {
        return exerciseHasBegun ? (
-           <Grid.Row centered={true}>
-               <Grid.Column stretched={true}  verticalAlign={"middle"}> {` ${capitalizeFirst(t("ratio"))}: ${intervalRatio.toFixed(2)} `}</Grid.Column>
-               <Grid.Column>
+           <Grid container direction={"row"} spacing={1} justifyContent={"center"} alignContent={"center"} >
+               <Grid item  verticalAlign={"middle"}> {` ${capitalizeFirst(t("ratio"))}: ${intervalRatio.toFixed(2)} `}</Grid>
+               <Grid item>
                    <Meter   level={relativeRatio} />
-               </Grid.Column>
-               <Grid.Column stretched={true} verticalAlign={"middle"}>{` ${capitalizeFirst(t("input"))}: ${userPitchRatio.toFixed(2)} `}</Grid.Column>
-
-           </Grid.Row>
+               </Grid>
+               <Grid item verticalAlign={"middle"}>{` ${capitalizeFirst(t("input"))}: ${userPitchRatio.toFixed(2)} `}</Grid>
+           </Grid>
        ) : null;
    }
 
@@ -265,9 +265,8 @@ const AskTuning = () => {
 
     const createSliderRow = () => {
         return exerciseHasBegun ? (
-            <Grid.Row centered={true} columns={4}>
-                <Grid.Column></Grid.Column>
-                <Grid.Column>
+            <Grid container direction={"row"} spacing={1}>
+                <Grid item>
                     {capitalizeFirst(t("inputSensitivity"))}
                     <Slider value={sensitivity} color="blue"
                             settings={ {
@@ -277,8 +276,8 @@ const AskTuning = () => {
                             } }
                     />
 
-                </Grid.Column>
-                <Grid.Column>
+                </Grid>
+                <Grid item>
                     {capitalizeFirst(t("volume"))}
                     <Slider value={volume} color="blue"
                             settings={ {
@@ -292,9 +291,9 @@ const AskTuning = () => {
                                 }
                             } }
                     />
-                </Grid.Column>
-                <Grid.Column />
-            </Grid.Row>
+                </Grid>
+                <Grid/>
+            </Grid>
         ) : null;
     };
 
@@ -324,31 +323,31 @@ const AskTuning = () => {
        // TODO: something like checked for defualt interval (p5)
         return exerciseHasBegun ? (
             <>
-            <Grid.Row centered={true}>
-                <Button.Group toggle={true} >
-                    <Button active={intervalRatio === 9/8 && soundOn}  onClick={ (event, data) => setSelectedInterval(9/8,data.active) }>s2</Button>
-                    <Button active={intervalRatio === 6/5 && soundOn}  onClick={ (event, data) => setSelectedInterval(6/5,data.active) }>v3</Button>
-                    <Button active={intervalRatio === 5/4 && soundOn}  onClick={ (event, data) => setSelectedInterval(5/4,data.active) }>s3</Button>
+            <Grid item container direction={"row"} spacing={1}>
+                <ButtonGroup toggle={true} aria-label={"intervalSelection"} >
+                    <Button variant="contained"  active={intervalRatio === 9/8 && soundOn}  onClick={ (event, data) => setSelectedInterval(9/8,data.active) }>s2</Button>
+                    <Button variant="contained"  active={intervalRatio === 6/5 && soundOn}  onClick={ (event, data) => setSelectedInterval(6/5,data.active) }>v3</Button>
+                    <Button variant="contained"  active={intervalRatio === 5/4 && soundOn}  onClick={ (event, data) => setSelectedInterval(5/4,data.active) }>s3</Button>
 
-                    <Button  active={intervalRatio === 4/3 && soundOn}  onClick={ (event, data) => setSelectedInterval(4/3,data.active) }>p4</Button>
-                    <Button  active={intervalRatio === 3/2 && soundOn}  onClick={ (event, data) => setSelectedInterval(3/2,data.active) }>p5</Button>
-                    <Button  active={intervalRatio === 8/5 && soundOn}  onClick={ (event, data) => setSelectedInterval(8/5,data.active) }>v6</Button>
-                </Button.Group>
-            </Grid.Row>
-            <Grid.Row centered={true}>
-                <Button.Group toggle={true} >
-                    <Button  active={intervalRatio === 5/3 && soundOn}  onClick={ (event, data) => setSelectedInterval(5/3,data.active) }>s6</Button>
-                    <Button  active={intervalRatio === 7/4 && soundOn}  onClick={ (event, data) => setSelectedInterval(7/4,data.active) }>v7 7/4</Button>
-                    <Button  active={intervalRatio === 9/5 && soundOn}  onClick={ (event, data) => setSelectedInterval(9/5,data.active) }>v7 9/5</Button>
-                    <Button  active={intervalRatio === 15/8 && soundOn}  onClick={ (event, data) => setSelectedInterval(15/8,data.active) }>s7 </Button>
-                    <Button  active={intervalRatio === 2 && soundOn}  onClick={ (event, data) => setSelectedInterval(2,data.active) }>p8 </Button>
-                </Button.Group>
+                    <Button variant="contained"   active={intervalRatio === 4/3 && soundOn}  onClick={ (event, data) => setSelectedInterval(4/3,data.active) }>p4</Button>
+                    <Button variant="contained"   active={intervalRatio === 3/2 && soundOn}  onClick={ (event, data) => setSelectedInterval(3/2,data.active) }>p5</Button>
+                    <Button variant="contained"   active={intervalRatio === 8/5 && soundOn}  onClick={ (event, data) => setSelectedInterval(8/5,data.active) }>v6</Button>
+                </ButtonGroup>
+            </Grid>
+            <Grid item container direction={"row"} spacing={1}>
+                <ButtonGroup variant="contained" >
+                    <Button variant="contained"   active={intervalRatio === 5/3 && soundOn}  onClick={ (event, data) => setSelectedInterval(5/3,data.active) }>s6</Button>
+                    <Button variant="contained"   active={intervalRatio === 7/4 && soundOn}  onClick={ (event, data) => setSelectedInterval(7/4,data.active) }>v7 7/4</Button>
+                    <Button variant="contained"   active={intervalRatio === 9/5 && soundOn}  onClick={ (event, data) => setSelectedInterval(9/5,data.active) }>v7 9/5</Button>
+                    <Button variant="contained"   active={intervalRatio === 15/8 && soundOn}  onClick={ (event, data) => setSelectedInterval(15/8,data.active) }>s7 </Button>
+                    <Button variant="contained"   active={intervalRatio === 2 && soundOn}  onClick={ (event, data) => setSelectedInterval(2,data.active) }>p8 </Button>
+                </ButtonGroup>
 
 
-            </Grid.Row>
-                <Grid.Row centered={true}>
-                    <Button toggle={true} onClick={playInterval}>{t("upperNote")}</Button>
-                </Grid.Row>
+            </Grid>
+                <Grid item>
+                    <Button variant="contained"  toggle={true} onClick={playInterval}>{t("upperNote")}</Button>
+                </Grid>
                 </>
         ) : null;
     }
@@ -357,7 +356,7 @@ const AskTuning = () => {
 
     return (
         <div>
-            <Header size='large'>{ `${ capitalizeFirst(t("tuneInterval"))} ` }</Header>
+            <h2 size='large'>{ `${ capitalizeFirst(t("tuneInterval"))} ` }</h2>
 
             { csound == null ? (
                 <header className="App-header">
@@ -365,19 +364,16 @@ const AskTuning = () => {
                 </header>
             ) : (
 
-            <Grid>
+            <Grid container direction={"column"} spacing={1}>
                 {createOptionsRow()}
                 {createFeedbackRow()}
                 {createSliderRow()}
                 {createIntervals()}
                 {createPlaySoundButton()}
 
-                <Grid.Row>
-                    <Grid.Column>
-
+                <Grid item>
                         <GoBackToMainMenuBtn/>
-                    </Grid.Column>
-                </Grid.Row>
+                </Grid>
             </Grid>
                 )}
         </div>
