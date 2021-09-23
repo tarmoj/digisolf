@@ -22,6 +22,7 @@ import {createTheme} from "@material-ui/core";
 import { MuiThemeProvider as ThemeProvider } from '@material-ui/core/styles';
 import {capitalizeFirst} from "./util/util";
 import {setSettingsMenuOpen} from "./actions/component"; // not certain if it works this way
+import euLogo from "./images/eu.jpg";
 
 function App() {
     const isLoading = useSelector(state => state.componentReducer.isLoading);
@@ -141,7 +142,9 @@ function App() {
                     <AppFooter/>
                 </div>
                 {showDimmer()}
+                <img className={"footerLogo_new"} src={euLogo} />
             </div>
+
         </div>
         </ThemeProvider>
     );

@@ -58,8 +58,30 @@ body {
 .footerLogo {
     width: 156px !important;
     height: 83px !important;
-    margin-bottom: 5px;
+    /*margin-bottom: 5px;*/
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 0;
  }
+
+.footerLogo_2 {
+    width: 156px !important;
+    height: 83px !important;
+    position: fixed;
+    float: left;
+    margin-left: -220px;
+    bottom: 5px;
+}
+
+.footerLogo_new {
+    width: 156px !important;
+    height: 83px !important;
+    position: fixed;
+    float: left;
+    left: 5px;
+    bottom: 5px;
+}
+
 
 .fullWidth {
     width: 100%;
@@ -180,6 +202,15 @@ body {
     .notationBlock {
         max-width: 100%;
         margin: auto;
+    }
+
+    .footerLogo_new {
+        width: 117px !important;
+        height: 63px !important;
+        position: fixed;
+        float: left;
+        left: 5px;
+        bottom: 5px;
     }
 }
 

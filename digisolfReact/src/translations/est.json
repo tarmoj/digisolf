@@ -187,5 +187,6 @@
   "playMode": "esitamisviis",
   "melodicUp": "mel. üles",
   "melodicDown": "mel. alla",
-  "chordSelection": "akordivalik"
+  "chordSelection": "akordivalik",
+  "feedback": "tagasiside"
 }
