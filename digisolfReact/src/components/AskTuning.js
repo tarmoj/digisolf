@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {Dropdown} from 'semantic-ui-react'
-import {Button, ButtonGroup, Grid} from '@material-ui/core';
+import {Button, ButtonGroup, Grid, Select, MenuItem} from '@material-ui/core';
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../util/util";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import CsoundObj from "@kunstmusik/csound";
 import  {tuningOrchestra as orc} from "../csound/orchestras";
 import { Slider } from "react-semantic-ui-range";
+import {setInstrument} from "../actions/exercise";
 
 
 // NB!!!! start with  export HOST="localhost" ; npm start for local testing, with other hostnames sound input does not work
@@ -24,6 +25,7 @@ const AskTuning = () => {
     const [playIntervalOn, setPlayIntervalOn] = useState(false);
     const [sensitivity, setSensitivity] = useState(0.6);
     const [volume, setVolume] = useState(0.6);
+    const [soundType, setSoundType] = useState(2); // 1- sine, 2 -  saw, 3 - square
 
     let channelReadFunction = null;
     //const [started, setStarted] = useState(false);
@@ -32,9 +34,11 @@ const AskTuning = () => {
     useEffect(() => {
         if (csound == null) {
             let audioContext = CsoundObj.CSOUND_AUDIO_CONTEXT;
+            console.log("AudioContext: ", typeof(audioContext));
             if ( typeof (audioContext) == "undefined") {
                 CsoundObj.initialize().then(() => {
                     const cs = new CsoundObj();
+                    console.log("CS:",typeof(cs) );
                     enableAudioInput(cs);
                     setCsound(cs);
                 });
@@ -145,46 +149,23 @@ const AskTuning = () => {
 
     const createPlaySoundButton = () => {
 
-        if (exerciseHasBegun) {
-            return null /*(
-
-                <Grid.Row  columns={3} centered={true}>
-                    <Grid.Column>
-                        <Button variant="contained"  toggle={true} onClick={startTuning} className={"fullWidth marginTopSmall"}  >{t("tune")}</Button>
-                    </Grid.Column>
-                    {<Grid.Column>
-                        <Button variant="contained"  onClick={stop} className={"fullWidth marginTopSmall"}  >{t("stop")}</Button>
-                    </Grid.Column>*!/}
-                    {<Grid.Column>
-                        <Button variant="contained"  toggle={true} onClick={playInterval} className={"fullWidth marginTopSmall"}  >{t("upper Note")}</Button>
-                    </Grid.Column>}
-                </Grid.Row>
-
-            )*/;
-        } else {
-            return(
-                <Grid.Row  >
-                    <Grid.Column>
-                    <Button variant="contained"  color={"primary"} onClick={() => startExercise()} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>
-                    </Grid.Column>
-                </Grid.Row>
-            );
-        }
+        return exerciseHasBegun ? null : (
+            <Grid item>
+                <Button variant="contained"  color={"primary"} onClick={() => startExercise()} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>
+            </Grid>
+        );
     };
 
 
    const createOptionsRow = () => {
-        const soundOptions = [
-            { text: capitalizeFirst(t("sine")), value: 1},
-            { text: capitalizeFirst(t("saw")), value: 2},
-            { text: capitalizeFirst(t("square")), value: 3},
-        ];
+
         const octaveOptions = [
             { text: capitalizeFirst(t("greatOctave")), value: 6}, // octave numbers as in Csound -  middle C is 8.00
             { text: capitalizeFirst(t("smallOctave")), value: 7},
             { text: capitalizeFirst(t("firstOctave")), value: 8},
             { text: capitalizeFirst(t("secondOctave")), value: 9},
         ];
+
         const noteOptions = [
             { text: "C", value: 0},
             { text: "Cis", value: 1}, // TODO (future): English/Russion naming convention
@@ -193,49 +174,61 @@ const AskTuning = () => {
             { text: "Fis", value: 6}, { text: "G", value: 7},{ text: "As", value: 8},
             { text: "A", value: 9}, { text: "B", value: 10},{ text: "H", value: 11},
         ];
-        return  exerciseHasBegun ?  (
-          <Grid item container direction={"row"} spacing={1}  >
-              <Grid item>{capitalizeFirst(t("sound"))}</Grid>
-              <Grid item>
 
-                  <Dropdown
+        return  exerciseHasBegun ?  (
+          <Grid item container direction={"row"} spacing={1}  alignItems={"center"}>
+              <Grid item>{capitalizeFirst(t("sound"))}:</Grid>
+              <Grid item>
+                  <Select
+                      labelId="soundLabel" id="selectInstrument"
+                      value={soundType}
+                      onChange={  (event) => {
+                          const sound = event.target.value;
+                          if (csound) {
+                              csound.setControlChannel("sound", sound);
+                          }
+                          setSoundType(sound);
+                      } }
+
                       disabled={true}
                       placeholder={capitalizeFirst(t("sound"))}
-                      onChange={ (event, data) => {
-                          if (csound) {
-                              csound.setControlChannel("sound", data.value);
-                          }
-                      } }
-                      options ={soundOptions}
-                      defaultValue={2}
-                  />
+                  >
+                      <label id="soundLabel" hidden>{t("sound")}</label>
+                      <MenuItem value={1}>{capitalizeFirst(t("sine"))}</MenuItem>
+                      <MenuItem value={2}>{capitalizeFirst(t("saw"))}</MenuItem>
+                      <MenuItem value={3}>{capitalizeFirst(t("square"))}</MenuItem>
+                  </Select>
+
               </Grid>
               <Grid item>{ `${capitalizeFirst(t("lowerNote"))}: `}</Grid>
               <Grid item>
-                  <Dropdown
+                  <Select
+                      aria-label={t("lowerNote")}
                       placeholder={capitalizeFirst(t("note"))}
-                      onChange={ (event, data) => {
+                      onChange={ (event) => {
                           if (csound) {
-                              csound.setControlChannel("step", data.value);
+                              csound.setControlChannel("step", event.target.value);
                           }
                       }
                       }
-                      options ={noteOptions}
                       defaultValue={0}
-                  />
+                  >
+                      {noteOptions.map( note => <MenuItem key={"note"+note.value} value={note.value}>{note.text}</MenuItem> ) }
+                  </Select>
               </Grid>
               <Grid item>
-                      <Dropdown
+                  <Select
+                      aria-label={t("octave")}
                       placeholder={capitalizeFirst(t("octave"))}
-                      onChange={ (event, data) => {
+                      onChange={ (event) => {
                           if (csound) {
-                              csound.setControlChannel("octave", data.value);
+                              csound.setControlChannel("octave", event.target.value);
                           }
-                        }
                       }
-                      options ={octaveOptions}
-                      defaultValue={8}
-                  />
+                      }
+                      defaultValue={8}>
+                      {octaveOptions.map( octave => <MenuItem key={"octave"+octave.value} value={octave.value}>{octave.text}</MenuItem> ) }
+                  </Select>
               </Grid>
           </Grid>
         ) : null;
@@ -366,9 +359,9 @@ const AskTuning = () => {
 
             <Grid container direction={"column"} spacing={1}>
                 {createOptionsRow()}
-                {createFeedbackRow()}
+                {/*{createFeedbackRow()}
                 {createSliderRow()}
-                {createIntervals()}
+                {createIntervals()}*/}
                 {createPlaySoundButton()}
 
                 <Grid item>
