@@ -20,7 +20,7 @@ const AppFooter = () => {
                         (c) 2020, Tarmo Johannes, Edgar Tereping, Jane Tereping
                         </Grid>
                     <Grid item>
-                        <small>{capitalizeFirst(t("feedback"))}: <a href={"tarmo.johannes@otsakool.edu.ee"}>tarmo.johannes@otsakool.edu.ee</a></small>
+                        <small>{capitalizeFirst(t("feedback"))}: <a href={"mailto:tarmo.johannes@otsakool.edu.ee"}>tarmo.johannes@otsakool.edu.ee</a></small>
                     </Grid>
 
             {/*</div>*/}

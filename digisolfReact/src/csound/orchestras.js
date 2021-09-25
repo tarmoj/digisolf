@@ -162,13 +162,19 @@ chn_k "pitchratio",2
 chn_k "tracking",1
 chn_k "threshold", 1
 chn_k "relativeRatio",3
+chn_k "sound",3
 
 chnset 8, "octave"
 chnset 0.45, "volume"
 chnset 0.05, "threshold"
 chnset 1.5, "interval"
+chnset 2, "sound"
 
-giSine ftgen 0,0, 32768, 10, 1, 0.05, 0.02, 0.002, 0.002, 0.001, 0.001
+giSine ftgen 1,0, 16384, 10, 1 ; Sine
+giSawtooth ftgen 2,0,  16384, 10, 1, 0.5, 0.3, 0.25, 0.2, 0.167, 0.14, 0.125, .111   ; Sawtooth
+giSquare ftgen 3,  0, 16384, 10, 1, 0,   0.3, 0,    0.2, 0,     0.14, 0,     .111   ; Square
+
+;giSine ftgen 0,0, 32768, 10, 1, 0.05, 0.02, 0.002, 0.002, 0.001, 0.001
 gkBaseFreq init 0
 gkInterval init 0
 
@@ -181,6 +187,8 @@ instr Analyze
   kBaseFreq = cpspch(chnget:k("octave") + chnget:k("step")/100)
   kInterval = chnget:k("interval") ; must come in as a ratio already
   ;printk2 kInterval  
+  
+  kTable chnget "sound" ; 1- sine, 2-saw, 3-square  	
 	
   ; values for meter:
   kmin = kInterval / 1.05 ; about semitone lower
@@ -209,8 +217,8 @@ instr Analyze
 	
 	aenv linenr 1, 0.1, 0.3, 0.001
 	
-	aBase poscil 0.6, kBaseFreq, giSine
-	aInterval poscil 0.6, kBaseFreq * kInterval
+	aBase oscilikt 0.6, kBaseFreq, giSine
+	aInterval oscilikt 0.6, kBaseFreq * kInterval
 	kIntervalAmp chnget "playInterval"
 	kIntervalAmp port kIntervalAmp, 0.05
 

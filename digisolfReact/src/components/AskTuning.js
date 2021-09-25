@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import {Dropdown} from 'semantic-ui-react'
-import {Button, ButtonGroup, Grid, Select, MenuItem} from '@material-ui/core';
+import {Button, ButtonGroup, Grid, Select, MenuItem, Slider} from '@material-ui/core';
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../util/util";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import CsoundObj from "@kunstmusik/csound";
 import  {tuningOrchestra as orc} from "../csound/orchestras";
-import { Slider } from "react-semantic-ui-range";
-import {setInstrument} from "../actions/exercise";
+import {setVolume} from "../actions/exercise";
+import {ToggleButton, ToggleButtonGroup} from "@material-ui/lab";
 
 
 // NB!!!! start with  export HOST="localhost" ; npm start for local testing, with other hostnames sound input does not work
@@ -190,7 +189,7 @@ const AskTuning = () => {
                           setSoundType(sound);
                       } }
 
-                      disabled={true}
+                      disabled={false}
                       placeholder={capitalizeFirst(t("sound"))}
                   >
                       <label id="soundLabel" hidden>{t("sound")}</label>
@@ -236,53 +235,50 @@ const AskTuning = () => {
 
    const createFeedbackRow = () => {
        return exerciseHasBegun ? (
-           <Grid container direction={"row"} spacing={1} justifyContent={"center"} alignContent={"center"} >
-               <Grid item  verticalAlign={"middle"}> {` ${capitalizeFirst(t("ratio"))}: ${intervalRatio.toFixed(2)} `}</Grid>
+           <Grid container direction={"row"} spacing={1} justifyContent={"center"} alignItems={"center"} >
+               <Grid item > {` ${capitalizeFirst(t("ratio"))}: ${intervalRatio.toFixed(2)} `}</Grid>
                <Grid item>
                    <Meter   level={relativeRatio} />
                </Grid>
-               <Grid item verticalAlign={"middle"}>{` ${capitalizeFirst(t("input"))}: ${userPitchRatio.toFixed(2)} `}</Grid>
+               <Grid item>{` ${capitalizeFirst(t("input"))}: ${userPitchRatio.toFixed(2)} `}</Grid>
            </Grid>
        ) : null;
    }
 
 
-    const handleSliderChange = (value) => {
-       if (csound) {
-           csound.setControlChannel("threshold", value);
-       }
-       //console.log("Slider value:", value);
-       setSensitivity(value);
-   }
-
 
     const createSliderRow = () => {
         return exerciseHasBegun ? (
-            <Grid container direction={"row"} spacing={1}>
-                <Grid item>
-                    {capitalizeFirst(t("inputSensitivity"))}
-                    <Slider value={sensitivity} color="blue"
-                            settings={ {
-                                min:0, max:1, step:0.01,
-                                start: {sensitivity},
-                                onChange: handleSliderChange
+            <Grid container direction={"row"} spacing={1} justifyContent={"center"} alignItems={"center"}>
+                <Grid item>{capitalizeFirst(t("inputSensitivity"))}</Grid>
+                <Grid item item xs={2} md={3}>
+
+                    <Slider value={sensitivity}
+                            aria-label={t("inputSensitivity")}
+                            aria-valuetext={sensitivity.toFixed(2)}
+                            min={0} max={1} step={0.01}
+                            onChange ={ (event, value) => {
+                                if (csound) {
+                                    csound.setControlChannel("threshold", value);
+                                }
+                                setSensitivity(value);
                             } }
                     />
 
                 </Grid>
-                <Grid item>
-                    {capitalizeFirst(t("volume"))}
-                    <Slider value={volume} color="blue"
-                            settings={ {
-                                min:0, max:1, step:0.01,
-                                start: {volume},
-                                onChange: (value) => {
+                <Grid item>{capitalizeFirst(t("volume"))}</Grid>
+                <Grid item xs={2} md={3}>
+                    <Slider value={volume}
+                            aria-label={t("inputSensitivity")}
+                            aria-valuetext={sensitivity.toFixed(2)}
+                            min={0} max={1} step={0.01}
+                            onChange = { (event, value) => {
                                     if (csound) {
                                         csound.setControlChannel("volume", value);
                                     }
                                     setVolume(value);
                                 }
-                            } }
+                            }
                     />
                 </Grid>
                 <Grid/>
@@ -290,7 +286,7 @@ const AskTuning = () => {
         ) : null;
     };
 
-   // TODO: connetc this code and tune somhow
+
     const setSelectedInterval = (intervalRatio, active) => {
 
         if (!active) {
@@ -312,22 +308,30 @@ const AskTuning = () => {
         setIntervalRatio(intervalRatio);
     }
 
-    const createIntervals = () => {
+    const createIntervalSelection = () => {
        // TODO: something like checked for defualt interval (p5)
         return exerciseHasBegun ? (
             <>
             <Grid item container direction={"row"} spacing={1}>
-                <ButtonGroup toggle={true} aria-label={"intervalSelection"} >
-                    <Button variant="contained"  active={intervalRatio === 9/8 && soundOn}  onClick={ (event, data) => setSelectedInterval(9/8,data.active) }>s2</Button>
-                    <Button variant="contained"  active={intervalRatio === 6/5 && soundOn}  onClick={ (event, data) => setSelectedInterval(6/5,data.active) }>v3</Button>
-                    <Button variant="contained"  active={intervalRatio === 5/4 && soundOn}  onClick={ (event, data) => setSelectedInterval(5/4,data.active) }>s3</Button>
+                <ToggleButtonGroup
+                    exlusive aria-label={"intervalSelection"}
+                    onChange = { (event, value) => {
+                        console.log("New interval:", value);
+                        //setSelectedInterval(value);
 
-                    <Button variant="contained"   active={intervalRatio === 4/3 && soundOn}  onClick={ (event, data) => setSelectedInterval(4/3,data.active) }>p4</Button>
-                    <Button variant="contained"   active={intervalRatio === 3/2 && soundOn}  onClick={ (event, data) => setSelectedInterval(3/2,data.active) }>p5</Button>
-                    <Button variant="contained"   active={intervalRatio === 8/5 && soundOn}  onClick={ (event, data) => setSelectedInterval(8/5,data.active) }>v6</Button>
-                </ButtonGroup>
+                    }}
+                >
+                    <ToggleButton  value={9/8}>s2</ToggleButton>
+                    <ToggleButton  value={6/5}>v3</ToggleButton>
+                    <ToggleButton value={5/4}>s3</ToggleButton>
+
+                    {/*<ToggleButton variant="contained"   active={intervalRatio === 4/3 && soundOn}  onClick={ (event, data) => setSelectedInterval(4/3,data.active) }>p4</ToggleButton>
+                    <ToggleButton variant="contained"   active={intervalRatio === 3/2 && soundOn}  onClick={ (event, data) => setSelectedInterval(3/2,data.active) }>p5</ToggleButton>
+                    <ToggleButton variant="contained"   active={intervalRatio === 8/5 && soundOn}  onClick={ (event, data) => setSelectedInterval(8/5,data.active) }>v6</ToggleButton>*/}
+                </ToggleButtonGroup>
             </Grid>
-            <Grid item container direction={"row"} spacing={1}>
+
+            {/*<Grid item container direction={"row"} spacing={1}>
                 <ButtonGroup variant="contained" >
                     <Button variant="contained"   active={intervalRatio === 5/3 && soundOn}  onClick={ (event, data) => setSelectedInterval(5/3,data.active) }>s6</Button>
                     <Button variant="contained"   active={intervalRatio === 7/4 && soundOn}  onClick={ (event, data) => setSelectedInterval(7/4,data.active) }>v7 7/4</Button>
@@ -340,7 +344,7 @@ const AskTuning = () => {
             </Grid>
                 <Grid item>
                     <Button variant="contained"  toggle={true} onClick={playInterval}>{t("upperNote")}</Button>
-                </Grid>
+                </Grid>*/}
                 </>
         ) : null;
     }
@@ -359,9 +363,9 @@ const AskTuning = () => {
 
             <Grid container direction={"column"} spacing={1}>
                 {createOptionsRow()}
-                {/*{createFeedbackRow()}
+                {createFeedbackRow()}
                 {createSliderRow()}
-                {createIntervals()}*/}
+                {createIntervalSelection()}
                 {createPlaySoundButton()}
 
                 <Grid item>
