@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import {Button, ButtonGroup, Grid, Select, MenuItem, Slider} from '@material-ui/core';
+import {
+    Button,
+    ButtonGroup,
+    Grid,
+    Select,
+    MenuItem,
+    Slider,
+    RadioGroup,
+    FormControlLabel,
+    Radio, FormControl, FormLabel, Switch
+} from '@material-ui/core';
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../util/util";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
@@ -21,10 +31,11 @@ const AskTuning = () => {
     const [relativeRatio, setRelativeRatio] = useState(0);
     const [csound, setCsound] = useState(null);
     const [soundOn, setSoundOn] = useState(false);
-    const [playIntervalOn, setPlayIntervalOn] = useState(false);
+    const [playUpperNoteOn, setPlayUpperNoteOn] = useState(false);
     const [sensitivity, setSensitivity] = useState(0.6);
     const [volume, setVolume] = useState(0.6);
     const [soundType, setSoundType] = useState(2); // 1- sine, 2 -  saw, 3 - square
+    const [selectedIntervalRatio, setSelectedIntervalRatio] = useState("1.5"); // perfect fifth is the default
 
     let channelReadFunction = null;
     //const [started, setStarted] = useState(false);
@@ -81,29 +92,30 @@ const AskTuning = () => {
     const startTuning = () => {
         if (csound) {
             startUpdateChannels();
-            csound.setControlChannel("playInterval", 0);
+            csound.setControlChannel("playUpperNote", 0);
             csound.readScore("i 1 0 -1");
-            setPlayIntervalOn(false);
+            setPlayUpperNoteOn(false);
             setSoundOn(true);
         }
     };
 
-    const playInterval = (event, data) => {
+    const playUpperNote = (event) => {
+        const checked = event.target.checked;
         if (csound) {
-            if (playIntervalOn) { // if on, then out
-                csound.setControlChannel("playInterval", 0);
+            if (checked) { // if on, then out
+                csound.setControlChannel("playUpperNote", 1);
             } else {
-                csound.setControlChannel("playInterval", 1);
+                csound.setControlChannel("playUpperNote", 0);
             }
         }
-        setPlayIntervalOn(!playIntervalOn);
+        setPlayUpperNoteOn(checked);
     }
 
     const stopTuning = () => {
         if (csound) {
             csound.readScore("i -1 0 0");
         }
-        setPlayIntervalOn(false);
+        setPlayUpperNoteOn(false);
         setSoundOn(false);
         stopUpdate();
     }
@@ -146,9 +158,25 @@ const AskTuning = () => {
 
     // UI ======================================================
 
-    const createPlaySoundButton = () => {
+    const createControlButtons = () => {
 
-        return exerciseHasBegun ? null : (
+        // material UI does not have a toggle button! Use switches instead for now
+
+        return exerciseHasBegun ? (
+            <Grid item container  direction={"row"} spacing={1}  alignItems={"center"}>
+                <Grid item>
+                    <FormControlLabel control={<Switch
+                        onChange ={ (e) =>  e.target.checked ? startTuning() : stopTuning()  }
+                    />} label={capitalizeFirst(t("playAndTune"))} />
+                </Grid>
+                <Grid item>
+                    <FormControlLabel control={<Switch
+                        checked = {playUpperNoteOn}
+                        onChange ={ playUpperNote }
+                    />} label={capitalizeFirst(t("upperNote"))} />
+                </Grid>
+            </Grid>
+        ) : (
             <Grid item>
                 <Button variant="contained"  color={"primary"} onClick={() => startExercise()} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>
             </Grid>
@@ -157,6 +185,11 @@ const AskTuning = () => {
 
 
    const createOptionsRow = () => {
+
+       //TODO: one selection for note and octave - later break to octave and pitch
+       const notes = [];
+       const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "Bb", "B (H)"];
+
 
         const octaveOptions = [
             { text: capitalizeFirst(t("greatOctave")), value: 6}, // octave numbers as in Csound -  middle C is 8.00
@@ -236,7 +269,7 @@ const AskTuning = () => {
    const createFeedbackRow = () => {
        return exerciseHasBegun ? (
            <Grid container direction={"row"} spacing={1} justifyContent={"center"} alignItems={"center"} >
-               <Grid item > {` ${capitalizeFirst(t("ratio"))}: ${intervalRatio.toFixed(2)} `}</Grid>
+               <Grid item > {` ${capitalizeFirst(t("ratio"))}: ${selectedIntervalRatio} `}</Grid>
                <Grid item>
                    <Meter   level={relativeRatio} />
                </Grid>
@@ -287,7 +320,7 @@ const AskTuning = () => {
     };
 
 
-    const setSelectedInterval = (intervalRatio, active) => {
+    const setSelectedIntervalFunction = (intervalRatio, active) => {
 
         if (!active) {
             if (!soundOn) {
@@ -313,22 +346,40 @@ const AskTuning = () => {
         return exerciseHasBegun ? (
             <>
             <Grid item container direction={"row"} spacing={1}>
-                <ToggleButtonGroup
-                    exlusive aria-label={"intervalSelection"}
-                    onChange = { (event, value) => {
-                        console.log("New interval:", value);
-                        //setSelectedInterval(value);
 
-                    }}
-                >
-                    <ToggleButton  value={9/8}>s2</ToggleButton>
-                    <ToggleButton  value={6/5}>v3</ToggleButton>
-                    <ToggleButton value={5/4}>s3</ToggleButton>
+                {/*<FormControl component="fieldset">*/}
+                    <FormLabel component="legend">{capitalizeFirst(t("interval"))}</FormLabel>
 
-                    {/*<ToggleButton variant="contained"   active={intervalRatio === 4/3 && soundOn}  onClick={ (event, data) => setSelectedInterval(4/3,data.active) }>p4</ToggleButton>
-                    <ToggleButton variant="contained"   active={intervalRatio === 3/2 && soundOn}  onClick={ (event, data) => setSelectedInterval(3/2,data.active) }>p5</ToggleButton>
-                    <ToggleButton variant="contained"   active={intervalRatio === 8/5 && soundOn}  onClick={ (event, data) => setSelectedInterval(8/5,data.active) }>v6</ToggleButton>*/}
-                </ToggleButtonGroup>
+                    <RadioGroup row aria-label={t("intervalSelection")} name="intervalSelection"
+                                value={selectedIntervalRatio}
+                                onChange={ (e) => {
+                                    const newValue = e.target.value;
+                                    console.log("new ratio: ", newValue);
+                                    if (csound) {
+                                        csound.setControlChannel("interval", parseFloat(newValue));
+                                    }
+                                    setSelectedIntervalRatio( newValue);
+
+                                }}
+                    >
+                        {/*values mut be as strings here...*/}
+                        <FormControlLabel value={"1.125"} control={<Radio />} label={"s2"} />
+
+                        <FormControlLabel  value={"1.2"} control={<Radio />} label={"v3"} />
+                        <FormControlLabel value={"1.25"} control={<Radio />} label={"s3"} />
+                        <FormControlLabel value={"1.3333"} control={<Radio />}  label={"p4"} />
+                        <FormControlLabel value={"1.5"} control={<Radio />} label={"p5"} />
+                        <FormControlLabel value={"1.6"} control={<Radio />} label={"v6"} />
+
+                        <FormControlLabel value={"1.6666"} control={<Radio />} label={"s6"} />
+                        <FormControlLabel value={"1.75"} control={<Radio />} label={"v7 7/4"} />
+                        <FormControlLabel value={"1.8"} control={<Radio />} label={"v7 9/5"} />
+                        <FormControlLabel value={"1.875"} control={<Radio />} label={"s7"} />
+                        <FormControlLabel value={"2"} control={<Radio />} label={"p8"} />
+
+
+                    </RadioGroup>
+                {/*</FormControl>*/}
             </Grid>
 
             {/*<Grid item container direction={"row"} spacing={1}>
@@ -343,7 +394,7 @@ const AskTuning = () => {
 
             </Grid>
                 <Grid item>
-                    <Button variant="contained"  toggle={true} onClick={playInterval}>{t("upperNote")}</Button>
+                    <Button variant="contained"  toggle={true} onClick={playUpperNote}>{t("upperNote")}</Button>
                 </Grid>*/}
                 </>
         ) : null;
@@ -366,7 +417,7 @@ const AskTuning = () => {
                 {createFeedbackRow()}
                 {createSliderRow()}
                 {createIntervalSelection()}
-                {createPlaySoundButton()}
+                {createControlButtons()}
 
                 <Grid item>
                         <GoBackToMainMenuBtn/>

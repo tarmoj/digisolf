@@ -217,9 +217,9 @@ instr Analyze
 	
 	aenv linenr 1, 0.1, 0.3, 0.001
 	
-	aBase oscilikt 0.6, kBaseFreq, giSine
-	aInterval oscilikt 0.6, kBaseFreq * kInterval
-	kIntervalAmp chnget "playInterval"
+	aBase oscilikt 0.6, kBaseFreq, kTable
+	aInterval oscilikt 0.6, kBaseFreq * kInterval, kTable
+	kIntervalAmp chnget "playUpperNote"
 	kIntervalAmp port kIntervalAmp, 0.05
 
 	asig =  (aBase + aInterval*kIntervalAmp ) * aenv * kVolume

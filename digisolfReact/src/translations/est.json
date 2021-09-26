@@ -188,5 +188,7 @@
   "melodicUp": "mel. üles",
   "melodicDown": "mel. alla",
   "chordSelection": "akordivalik",
-  "feedback": "tagasiside"
+  "feedback": "tagasiside",
+  "selectInterval": "valige intervall",
+  "playAndTune": "mängi ja häälesta"
 }
