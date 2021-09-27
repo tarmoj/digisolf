@@ -228,11 +228,6 @@ const AskFunctions = () => {
     }
 
     const createSelectionMenu = () => {
-        // const options = [];
-        //
-        // for (let i=0; i< dictations.length; i++) {
-        //         options.push( { value: i, text: dictations[i].title  } );
-        // }
 
         return  exerciseHasBegun &&  (
             <Grid item container spacing={1} direction={"row"} justifyContent={"center"} >
@@ -273,6 +268,12 @@ const AskFunctions = () => {
         );
 
     } ;
+
+    const createCreditsRow = () => {
+        return selectedDictation.hasOwnProperty("credits") && exerciseHasBegun && (
+                    <Grid item> { capitalizeFirst(t("credits")) }: {selectedDictation.credits}</Grid>
+        );
+    }
 
     const onKeyDown = (e) => {
         if (!VISupportMode) { // do not handle t d s etc keystrokes in VISupportMode
@@ -510,6 +511,7 @@ const AskFunctions = () => {
             <Grid container spacing={2} direction={"column"}>
                 <ScoreRow/>
                 {createSelectionMenu()}
+                {createCreditsRow()}
                 {VISupportMode ? createTextInputResponseBlock() :  createButtonResponseBlock()}
                 {createCorrectAnswerBlock()}
                 { exerciseHasBegun && <Grid item><Volume /></Grid> }

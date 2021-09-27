@@ -8,7 +8,7 @@ import {
     Slider,
     RadioGroup,
     FormControlLabel,
-    Radio, FormControl, FormLabel, Switch
+    Radio, FormControl, FormLabel, Switch, Accordion, AccordionSummary, AccordionDetails
 } from '@material-ui/core';
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../util/util";
@@ -20,6 +20,12 @@ import {ToggleButton, ToggleButtonGroup} from "@material-ui/lab";
 
 
 // NB!!!! start with  export HOST="localhost" ; npm start for local testing, with other hostnames sound input does not work
+
+class ExpandMoreIcon extends React.Component {
+    render() {
+        return null;
+    }
+}
 
 const AskTuning = () => {
     const { t, i18n } = useTranslation();
@@ -183,12 +189,38 @@ const AskTuning = () => {
         );
     };
 
+    const createExplanationRow = () => {
+        //TODO: translation
+        return  exerciseHasBegun ?  (
+          <Grid item>
+              <Accordion>
+                  <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="info-content"
+                      id="info-panel"
+                  >
+                     Info
+                  </AccordionSummary>
+                  <AccordionDetails>
+                      <i>See viis infot kuvada on ajutine!</i>
+                      <small>Valige alumine noot ning intervall, mille intoneerimist tahate harjutada.
+                          Seejärel vajutage "Mängi ja häälesta".
+                          Süsteem mängib intervalli alumise noodi, mängige või laulge ülemist nooti ning püüdke näidikul saavutada sama sageduste suhet, nagu on näidatud suhe vasakul.
+                          See vastab valitud puhtale intervallile.
+                          Võite vajutada ka "Ülemine noot", et kuulda selle korrektset kõrgust.
+                          Võimalusel kasutage kõrvaklappe või sättige helitugevus  ja sisendi tundlikkus sobivaks, et süsteemi mängitud heli liiga mikrofoni ei kostaks.
+                      </small>
+                  </AccordionDetails>
+              </Accordion>
+              </Grid>
+        ) : null;
+    }
 
    const createOptionsRow = () => {
 
        //TODO: one selection for note and octave - later break to octave and pitch
-       const notes = [];
-       const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "Bb", "B (H)"];
+       //const notes = [];
+       //const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "Bb", "B (H)"];
 
 
         const octaveOptions = [
@@ -382,20 +414,6 @@ const AskTuning = () => {
                 {/*</FormControl>*/}
             </Grid>
 
-            {/*<Grid item container direction={"row"} spacing={1}>
-                <ButtonGroup variant="contained" >
-                    <Button variant="contained"   active={intervalRatio === 5/3 && soundOn}  onClick={ (event, data) => setSelectedInterval(5/3,data.active) }>s6</Button>
-                    <Button variant="contained"   active={intervalRatio === 7/4 && soundOn}  onClick={ (event, data) => setSelectedInterval(7/4,data.active) }>v7 7/4</Button>
-                    <Button variant="contained"   active={intervalRatio === 9/5 && soundOn}  onClick={ (event, data) => setSelectedInterval(9/5,data.active) }>v7 9/5</Button>
-                    <Button variant="contained"   active={intervalRatio === 15/8 && soundOn}  onClick={ (event, data) => setSelectedInterval(15/8,data.active) }>s7 </Button>
-                    <Button variant="contained"   active={intervalRatio === 2 && soundOn}  onClick={ (event, data) => setSelectedInterval(2,data.active) }>p8 </Button>
-                </ButtonGroup>
-
-
-            </Grid>
-                <Grid item>
-                    <Button variant="contained"  toggle={true} onClick={playUpperNote}>{t("upperNote")}</Button>
-                </Grid>*/}
                 </>
         ) : null;
     }
@@ -413,6 +431,7 @@ const AskTuning = () => {
             ) : (
 
             <Grid container direction={"column"} spacing={1}>
+                {createExplanationRow()}
                 {createOptionsRow()}
                 {createFeedbackRow()}
                 {createSliderRow()}
