@@ -3,7 +3,7 @@
  export const dictations = [
  
 	{
-	 category: "popJazz", title: "Smilers", soundFile: "/sounds/dictations/Smilers.mp3",
+	 category: "popJazz", title: "I - Smilers", soundFile: "/sounds/dictations/Smilers.mp3",
             credits: "Hendrik Sal-Saller \"Käime katuseid mööda\"",
             notation:
                 `
@@ -19,7 +19,7 @@
     },
 
      {
-     category: "popJazz", title: "Vaikida võib", soundFile: "/sounds/dictations/popJazz/level1/Vaikida_voib.mp3 ",
+     category: "popJazz", title: "I - Vaikida võib", soundFile: "/sounds/dictations/popJazz/level1/Vaikida_voib.mp3 ",
      credits: "Muusika/sõnad: Ott Lepland, Oliver Rõõmus, Joonatan Siiman 0:46 - 0:50 https://youtu.be/Q46r_SVSIhk?t=46",
      notation:
  `
@@ -31,7 +31,7 @@
     },
 
      {
-         category: "popJazz", title: "Siin me kokku saime", soundFile: "/sounds/dictations/popJazz/level1/Siin-me-kokku-saime.mp3 ",
+         category: "popJazz", title: "I - Siin me kokku saime", soundFile: "/sounds/dictations/popJazz/level1/Siin-me-kokku-saime.mp3 ",
          credits: "Muusika/sõnad: Ott Lepland 01:00 - 01:06 https://youtu.be/5dKfSe3y6UY",
  // NB! double dot not supported in VexTab changed here to normal dot...
          notation:
@@ -52,7 +52,7 @@
      },
 
      {
-         category: "popJazz", title: "Parem veelgi", soundFile: "/sounds/dictations/popJazz/level1/Parem-veelgi-ref.mp3 ",
+         category: "popJazz", title: "I - Parem veelgi", soundFile: "/sounds/dictations/popJazz/level1/Parem-veelgi-ref.mp3 ",
          credits: "Tanel Padar",
          notation:
              `
@@ -80,7 +80,7 @@
      },
 
      {
-         category: "popJazz", title: "Segased lood", soundFile: "/sounds/dictations/popJazz/level1/Segased-lood-ref.mp3 ",
+         category: "popJazz", title: "I - Segased lood", soundFile: "/sounds/dictations/popJazz/level1/Segased-lood-ref.mp3 ",
          credits: "s: T. Padar / m: T. Padar, K. Kalluste, T. Kull youtube: https://youtu.be/ZtfLzUHH93I?t=58 0:58 - 1:04",
          notation:
              `
@@ -130,6 +130,36 @@
 
      },
 
+     // Added 12.10.21
+
+     {
+         category: "popJazz_level1",
+         title: "I - Nüüd ma siis saan",
+         soundFile: "/sounds/dictations/popJazz/level1/Nyyd-ma-siis-saan.mp3 ",
+         credits: "P.Laikre / M. Sadam",
+         notation:
+             `
+    \\clef "treble" \\time 4/4 \\key b \\major 
+    r4 d'16 es'16 f'8 g'16  b'16
+     c''8  d''16  es''16  f''8 | 
+     g''4  r2. \\bar "|."
+ 
+        `,
+         show: `     \\clef "treble" \\time 4/4 \\key b \\major  r4 d'16 `,
+
+
+         /*
+\chordmode {
+    b4:5 s16 s16 s8 s16 s16 s8 b16:5/+d s16 s8 | % 2
+    s4 s2. \bar "|."
+    }
+          */
+
+     },
+
+
+     // ----
+
 
  // Level 2 --------------------------------
 
@@ -156,6 +186,61 @@
     }
     */
      },
+
+     {
+         category: "popJazz", title: "II - New Day", soundFile: "/sounds/dictations/popJazz/level2/NewDay-ref.mp3 ",
+         credits: "Muusika/sõnad: Danny Gokey",
+
+         notation:
+             `
+             \\clef "treble" \\time 4/4 \\key es \\major
+    r2.  g'16  b'16  b'16  b'16~ | 
+     b'8  c''8~  c''4 r4  g'16
+     b'16  b'16  b'16~ | 
+     b'8  c''8  g'8  g'8 r4  es'16
+     es'16  es'16  c''16~ | 
+     c''8  b'16  g'16  b'8  g'16
+     f'16  g'8  f'16  es'16  f'8
+     f'8 | 
+     es'16  f'8.  es'16  f'8. r2 \\bar "|."
+        `,
+         show: ` \\clef "treble" \\time 4/4 \\key es \\major
+    r2.  g'16 `,
+
+         /*         \chordmode {
+             | % 1
+    s2. s16 s16 s16 s16 | % 2
+    c8:m7 s8 s4 f4:m9 s16 s16 s16 s16 | % 3
+    f8:m9 s8 s8 s8 c4:m7 s16 s16 s16 s16 | % 4
+    c8:m7 s16 s16 s8 s16 s16 f8:m9 s16 s16 s8 s8 | % 5
+    f16:m9 s8. s16 s8. c2:m7 \bar "|."
+    }
+    */
+     },
+
+     {
+         category: "popJazz", title: "II - Teeme pannkooki", soundFile: "/sounds/dictations/popJazz/level2/Teeme-Pannkooki-IIsalm.mp3 ",
+         credits: "Muusika/sõnad: Piret Laikre",
+
+         notation:
+             `
+             
+             \\clef "treble" \\time 4/4 \\key e \\major 
+     a'16  gis'8.  fis'16  e'16  fis'16
+     gis'16~  gis'8  h'8 r4 | 
+     a'16  gis'8  fis'16~  fis'16 
+    fis'16  gis'16  h16~  h8 r4. \\bar "|."
+             
+        `,
+
+
+         /*         \chordmode {
+             a16:5 s8. h16:5 s16 s16 s16 e8:5 s8 s4 | % 2
+    a16:5 s8 s16 h16:5 s16 s16 s16 e8:5 s4. \bar "|."
+    }
+    */
+     },
+
 
  // Level 3 ---------------------
 
@@ -185,6 +270,47 @@
           */
 
      },
+
+
+
+     {
+         category: "popJazz_level3",
+         title: "III - Joy Spring",
+         soundFile: "/sounds/dictations/popJazz/level3/Joy-Spring.mp3 ",
+         credits: "Clifford Brown & Max Roach",
+         // NB! triplets here! does not work yet!
+         notation:
+             `
+    \\clef "treble" \\time 4/4 \\key f \\major r2 r8  c'8  f'8
+     c''8~ | 
+     c''2~  c''8  a'8 \\times 2/3 {
+         g'16  a'16  g'16 }
+     f'8 |
+     g'4.  a'8 r2 | 
+    r8  c'8  f'8  d''8  c''8  a'8
+    \\times 2/3 {
+         g'16  a'16  g'16 }
+     f'8 | 
+     as'8  f'16  des'16  b8  g'8~
+     g'4 \\times 2/3 {
+         f'8  g'8  f'8 }
+    | 
+     c''8  f'4.  f'4.  f'8 |
+    r8  c'8  f'8  b'8 \\times 2/3 {
+         a'16  b'16  a'16 }
+     f'8  d'8  c'8 | 
+     f'8  c'8  g'8  f'8 r2 \\bar "|."   
+        `,
+
+
+         /*
+\chordmode {
+none here
+    }
+          */
+
+     },
+
 
 
 
