@@ -10,7 +10,6 @@ Probleemide korral on parim viis kaasa aitamiseks teha vearaport (_bug report_):
 
 ## Üldine
 
-- kujundus viimistlemata
 
 - Akordid, Intervallid, häälestus -  heli ragisev osades mobiilibrauserites
 
@@ -36,6 +35,8 @@ Probleemide korral on parim viis kaasa aitamiseks teha vearaport (_bug report_):
 
 ## Diktaadid
 
+- Kujundus viimistlemata
+
 - Notatsioonis võtmemärgid kuvatakse ka takti sees
 
 - Astmediktaatides on võimalik vastata üht diktaati mitu korda.
@@ -48,7 +49,9 @@ Probleemide korral on parim viis kaasa aitamiseks teha vearaport (_bug report_):
 
 ## Intoneeri
 
-- vajab seletust, kujundus vajab ümber tegemeist MaterialUI peale. Kogu leht üpris segane.
+- Kas on arusaadav?
+
+- juhist leht - vormistus on ajutine.
 
 
 

@@ -32,21 +32,22 @@ const intervalDefinitions = [
 // also shortNames of intervals to English
 // chord names and theory: https://luffykudo.wordpress.com/2020/08/19/how-chords-are-made/
 // define names and shrtnames for both classical and popjazz vocabulary
+// NB! some names are Estonian like >kk etc
 export const chordDefinitions = [
     { shortName: "M", shortNamePJ: "M", longName: "majorTriad", longNamePJ:"majorTriadPJ", intervalsUp: ["s3", "p5"], intervalsDown: ["v3", "p5"],
         midiIntervals: [0, 4, 7] }, // intervals from lower note
     { shortName: "m", shortNamePJ: "m", longName: "minorTriad", longNamePJ:"minorTriadPJ", intervalsUp: ["v3", "p5"], intervalsDown: ["s3", "p5"],
         midiIntervals: [0, 3, 7] },
-    { shortName: "dim", shortNamePJ: "o", longName: "diminishedTriad", longNamePJ: "diminishedTriad", intervalsUp: ["v3", ">5"], intervalsDown: ["v3", ">5"],
+    { shortName: ">kk", shortNamePJ: "o", longName: "diminishedTriad", longNamePJ: "diminishedTriad", intervalsUp: ["v3", ">5"], intervalsDown: ["v3", ">5"],
         midiIntervals: [0, 3, 6] },
-    { shortName: "aug", shortNamePJ:"+", longName: "augmentedTriad", longNamePJ:"augmentedTriad", intervalsUp: ["s3", "<5"], intervalsDown: ["s3", "<5"],
+    { shortName: "<kk", shortNamePJ:"+", longName: "augmentedTriad", longNamePJ:"augmentedTriad", intervalsUp: ["s3", "<5"], intervalsDown: ["s3", "<5"],
         midiIntervals: [0, 4, 8] },
 
     { shortName: "M6", shortNamePJ:"M/3", longName: "majorSixThree", longNamePJ: "firstInversionOfMajor", intervalsUp: ["v3", "v6"], intervalsDown: ["p4", "v6"],
         midiIntervals: [0, 3, 8] },
     { shortName: "m6", shortNamePJ:"m/3", longName: "minorSixThree", longNamePJ: "firstInversionOfMinor",intervalsUp: ["s3", "s6"], intervalsDown: ["p4", "s6"],
         midiIntervals: [0, 4, 9] },
-    { shortName: "dim6", shortNamePJ:"o/3", longName: "firstInversionDiminishedTriad", longNamePJ: "firstInversionDiminishedTriadPJ",intervalsUp: ["v3", "s6"], intervalsDown: ["<4", "s6"],
+    { shortName: ">kk6", shortNamePJ:"o/3", longName: "firstInversionDiminishedTriad", longNamePJ: "firstInversionDiminishedTriadPJ",intervalsUp: ["v3", "s6"], intervalsDown: ["<4", "s6"],
         midiIntervals: [0, 3, 9] },
 
     { shortName: "M64", shortNamePJ:"M/5", longName: "majorSixFour", longNamePJ:"secondInversionMajor", intervalsUp: ["p4", "s6"], intervalsDown: ["s3", "s6"],
@@ -55,32 +56,48 @@ export const chordDefinitions = [
         midiIntervals: [0, 5, 8] },
 
     // septachords
-    { shortName: "V7", shortNamePJ:"7", longName: "dominantSeventh", longNamePJ:"dominantSeventhPJ", intervalsUp: ["s3", "p5", "v7"], intervalsDown: ["v3", ">5", "v7"],
+    { shortName: "vM7", shortNamePJ:"7", longName: "dominantSeventh", longNamePJ:"dominantSeventhPJ", intervalsUp: ["s3", "p5", "v7"], intervalsDown: ["v3", ">5", "v7"],
         midiIntervals: [0,4,7,10] },
-    { shortName: "V65", shortNamePJ:"7/3", longName: "firstInversionOfDominantSeventh", longNamePJ:"firstInversionOfDominantSeventhPJ", intervalsUp: ["v3", ">5", "v6"], intervalsDown: ["s2", "p4", "v6"],
+    { shortName: "vM65", shortNamePJ:"7/3", longName: "firstInversionOfDominantSeventh", longNamePJ:"firstInversionOfDominantSeventhPJ", intervalsUp: ["v3", ">5", "v6"], intervalsDown: ["s2", "p4", "v6"],
         midiIntervals: [0,3,6,8] },
-    { shortName: "V43", shortNamePJ:"7/5", longName: "secondInversionOfDominantSeventh", longNamePJ:"secondInversionOfDominantSeventhPJ", intervalsUp: ["v3", "p4", "s6"], intervalsDown: ["s3", "<4", "s6"],
+    { shortName: "vM43", shortNamePJ:"7/5", longName: "secondInversionOfDominantSeventh", longNamePJ:"secondInversionOfDominantSeventhPJ", intervalsUp: ["v3", "p4", "s6"], intervalsDown: ["s3", "<4", "s6"],
         midiIntervals: [0,3,5,9] },
-    { shortName: "V2", shortNamePJ:"7/7", longName: "thirdInversionOfDominantSeventh", longNamePJ:"thirdInversionOfDominantSeventhPJ", intervalsUp: ["s2", "<4", "s6"], intervalsDown: ["v3", "p5", "s6"],
+    { shortName: "vM2", shortNamePJ:"7/7", longName: "thirdInversionOfDominantSeventh", longNamePJ:"thirdInversionOfDominantSeventhPJ", intervalsUp: ["s2", "<4", "s6"], intervalsDown: ["v3", "p5", "s6"],
         midiIntervals: [0,2,6,9] },
 
     // seventh chords
-    { shortName: "m7", shortNamePJ:"m7", longName: "minorSeventh", longNamePJ:"minorSeventhPJ", intervalsUp: ["v3", "p5", "v7"], intervalsDown: ["v3", "p5", "v7"],
+    { shortName: "vm7", shortNamePJ:"m7", longName: "minorSeventh", longNamePJ:"minorSeventhPJ", intervalsUp: ["v3", "p5", "v7"], intervalsDown: ["v3", "p5", "v7"],
         midiIntervals: [0,3,7,10] },
     { shortName: "M7", shortNamePJ:"△", longName: "majorSeventh", longNamePJ:"majorSeventhPJ", intervalsUp: ["s3", "p5", "s7"], intervalsDown: ["v3", "p5", "s7"],
         midiIntervals: [0,4,7,11] },
-    { shortName: "hdim7", shortNamePJ:"ø", longName: "halfDiminishedSeventh", longNamePJ:"halfDiminishedSeventhPJ", intervalsUp: ["v3", ">5", "v7"], intervalsDown: ["v3", ">5", "v7"],
+    { shortName: "ø7", shortNamePJ:"ø", longName: "halfDiminishedSeventh", longNamePJ:"halfDiminishedSeventhPJ", intervalsUp: ["v3", ">5", "v7"], intervalsDown: ["v3", ">5", "v7"],
         midiIntervals: [0,3,6,10] },
-    { shortName: "dim7", shortNamePJ:"o7", longName: "diminishedSeventh", longNamePJ:"diminishedSeventhPJ", intervalsUp: ["v3", ">5", ">7"], intervalsDown: ["v3", ">5", ">7"],
+    { shortName: "o7", shortNamePJ:"o7", longName: "diminishedSeventh", longNamePJ:"diminishedSeventhPJ", intervalsUp: ["v3", ">5", ">7"], intervalsDown: ["v3", ">5", ">7"],
         midiIntervals: [0,3,6,9] },
 
     //m7 inversions
-    { shortName: "m65", shortNamePJ:"6", longName: "firstInversionOfMinorSeventh", longNamePJ:"majorChordWithAnAdditionalMajor6th", intervalsUp: ["s3", "p5", "s6"], intervalsDown: ["s2", "p4", "s6"],
+    { shortName: "vm65", shortNamePJ:"6", longName: "firstInversionOfMinorSeventh", longNamePJ:"majorChordWithAnAdditionalMajor6th", intervalsUp: ["s3", "p5", "s6"], intervalsDown: ["s2", "p4", "s6"],
         midiIntervals: [0,4,7,9] },
-    { shortName: "m43", shortNamePJ:"m7/5", longName: "secondInversionOfMinorSeventh", longNamePJ:"secondInversionOfMinorSeventhPJ", intervalsUp: ["v3", "p4", "v6"], intervalsDown: ["v3", "p4", "v6"],
+    { shortName: "vm43", shortNamePJ:"m7/5", longName: "secondInversionOfMinorSeventh", longNamePJ:"secondInversionOfMinorSeventhPJ", intervalsUp: ["v3", "p4", "v6"], intervalsDown: ["v3", "p4", "v6"],
         midiIntervals: [0,3,5,8] },
-    { shortName: "m2", shortNamePJ:"m7/7", longName: "thirdInversionOfMinorSeventh", longNamePJ:"thirdInversionOfMinorSeventhPJ", intervalsUp: ["s2", "p4", "s6"], intervalsDown: ["s3", "p5", "s6"],
+    { shortName: "vm2", shortNamePJ:"m7/7", longName: "thirdInversionOfMinorSeventh", longNamePJ:"thirdInversionOfMinorSeventhPJ", intervalsUp: ["s2", "p4", "s6"], intervalsDown: ["s3", "p5", "s6"],
         midiIntervals: [0,2,5,9] },
+
+    // different popjazz chords
+    // NB! siin kirjutan eestikeelsed nimed otse sisse TODO: vii tõlgetesse sisse
+    { shortName: "1", shortNamePJ:"1", longName: "oktav", longNamePJ:"üks", intervalsUp: ["p8"], intervalsDown: ["p8"],
+        midiIntervals: [0,12] },
+    { shortName: "2", shortNamePJ:"2", longName: "PJ:kaks", longNamePJ:"kaks", intervalsUp: ["s2", "23", "p5"], intervalsDown: ["v3", "p4", "p5"],
+        midiIntervals: [0,2,4,7] },
+    // moll kaks -  intevallid puudu
+    //{ shortName: "m2", shortNamePJ:"m2", longName: "Major triad add 2nd", longNamePJ:"moll kaks", intervalsUp: ["v3", ">5", "v7"], intervalsDown: ["v3", ">5", "v7"],
+    // midiIntervals: [0,3,6,10] },
+    { shortName: "sus2", shortNamePJ:"sus2", longName: "Suspended 2nd", longNamePJ:"Suspended 2nd", intervalsUp: ["s3", "p5"], intervalsDown: ["p4", "p5"],
+        midiIntervals: [0,2,7] },
+    { shortName: "add4", shortNamePJ:"add4", longName: "Suspended 4th", longNamePJ:"add neli", intervalsUp: ["s3", "p4", "p5"], intervalsDown: ["s2","v3", "p5"],
+        midiIntervals: [0,4,5,7] },
+    { shortName: "5", shortNamePJ:"5", longName: "Power chord", longNamePJ:"viis", intervalsUp: ["p5", "p8"], intervalsDown: ["p4","p8"],
+        midiIntervals: [0,7,12] },
 
 ];
 

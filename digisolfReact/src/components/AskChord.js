@@ -138,8 +138,8 @@ const AskChord = () => {
                     possibleChords.push(
                         chordDefinitions.find( chord => chord.shortName === "M" ),
                         chordDefinitions.find( chord => chord.shortName === "m" ),
-                        chordDefinitions.find( chord => chord.shortName === "dim" ),
-                        chordDefinitions.find( chord => chord.shortName === "aug" ),
+                        chordDefinitions.find( chord => chord.shortName === ">kk" ), //NB! change in the name 28.10.21
+                        chordDefinitions.find( chord => chord.shortName === "<kk" ),
                     );
                     break;
                 case "MmInversions": // new -  without dim and aug
@@ -160,26 +160,26 @@ const AskChord = () => {
                         chordDefinitions.find( chord => chord.shortName === "m6" ),
                         chordDefinitions.find( chord => chord.shortName === "M64" ),
                         chordDefinitions.find( chord => chord.shortName === "m64" ),
-                        chordDefinitions.find( chord => chord.shortName === "dim" ),
-                        chordDefinitions.find( chord => chord.shortName === "dim6" ),
-                        chordDefinitions.find( chord => chord.shortName === "aug" ),
+                        chordDefinitions.find( chord => chord.shortName === ">kk" ),
+                        chordDefinitions.find( chord => chord.shortName === ">kk6" ),
+                        chordDefinitions.find( chord => chord.shortName === "<kk" ),
                     );
                     break;
                 case "7inversions": // new -  dominant7 and others
                     possibleChords.push(
-                        chordDefinitions.find( chord => chord.shortName === "V7" ),
-                        chordDefinitions.find( chord => chord.shortName === "V65" ),
-                        chordDefinitions.find( chord => chord.shortName === "V43" ),
-                        chordDefinitions.find( chord => chord.shortName === "V2" )
+                        chordDefinitions.find( chord => chord.shortName === "vM7" ),
+                        chordDefinitions.find( chord => chord.shortName === "vM65" ),
+                        chordDefinitions.find( chord => chord.shortName === "vM43" ),
+                        chordDefinitions.find( chord => chord.shortName === "vM2" )
                     );
                     break;
                 case "septachords":
                     possibleChords.push(
-                        chordDefinitions.find( chord => chord.shortName === "V7" ),
-                        chordDefinitions.find( chord => chord.shortName === "m7" ),
+                        chordDefinitions.find( chord => chord.shortName === "vM7" ),
+                        chordDefinitions.find( chord => chord.shortName === "vm7" ),
                         chordDefinitions.find( chord => chord.shortName === "M7" ),
-                        chordDefinitions.find( chord => chord.shortName === "hdim7" ),
-                        chordDefinitions.find( chord => chord.shortName === "dim7" ),
+                        chordDefinitions.find( chord => chord.shortName === "ø7" ),
+                        chordDefinitions.find( chord => chord.shortName === "o7" ),
                     );
                     break;
                 case "allChords":
@@ -195,11 +195,12 @@ const AskChord = () => {
 
         if (!csoundStarted) {
             //setIsLoading(true); // does not work
-            startCsound().then(r => {console.log("Started Csound");
+            startCsound().then(r => { console.log("Started Csound");
             csound.setControlChannel("volume", masterVolume);
-            renew(possibleChords)});
+            //renew(possibleChords) //<- try don't play immediately
+            });
         } else {
-            renew(possibleChords);
+            //renew(possibleChords); //<- try don't play immediately
         }
 
     };

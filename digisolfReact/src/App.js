@@ -98,7 +98,7 @@ function App() {
     const createSettingsMenu = () => {
         return (
             <>
-                <IconButton className={"languageSelect"} aria-label="settingsMenu"  onClick={() => dispatch(setSettingsMenuOpen(true))} ref={settingsMenuButton}> <MenuIcon /> </IconButton>
+                <IconButton  className={"languageSelect"} aria-label="settingsMenu"  onClick={() => dispatch(setSettingsMenuOpen(true))} ref={settingsMenuButton}> <MenuIcon /> </IconButton>
                 <Menu
                     id="settings-menu"
                     anchorEl={settingsMenuButton.current}
@@ -106,7 +106,7 @@ function App() {
                     open={menuOpen}
                     onClose={handleClose}
                 >
-                    <MenuItem disabled={false}><span className={"marginRightSmall"}>{capitalizeFirst(t("language"))}:</span><LanguageSelect /></MenuItem>
+                    <MenuItem disabled={true}><span className={"marginRightSmall"}>{capitalizeFirst(t("language"))}:</span><LanguageSelect /></MenuItem>
                     <Divider />
                     <MenuItem onClick={() => {
                         window.open("https://github.com/tarmoj/digisolf/blob/gh-pages/digisolfReact/known_issues.md", '_blank');

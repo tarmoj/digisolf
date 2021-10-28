@@ -906,6 +906,7 @@ const AskDictation = () => {
     return (
         <div>
             <Header size='large'>{`${capitalizeFirst( t(name) )} ${selectedDictation.title} `}</Header>
+            <h3><i>NB! See moodul läheb ümberkirjutamisele ja mitmed notatsiooniprobleemid lahenevad.</i></h3>
 
             <Sound
                 url={process.env.PUBLIC_URL + selectedDictation.soundFile}
