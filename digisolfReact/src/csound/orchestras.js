@@ -88,6 +88,13 @@ gaSignal = aSignal
 out aSignal
 endin
 
+
+instr Stop
+    turnoff2 "PlaySequence", 0, 1
+    turnoff2 "PlayNote", 0, 1
+    turnoff
+endin
+
 schedule "Reverb", 0, -1
 instr Reverb
 iReverbLevel = 0.4

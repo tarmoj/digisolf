@@ -190,5 +190,6 @@
   "chordSelection": "akordivalik",
   "feedback": "tagasiside",
   "selectInterval": "valige intervall",
-  "playAndTune": "mängi ja häälesta"
+  "playAndTune": "mängi ja häälesta",
+  "version": "versioon"
 }

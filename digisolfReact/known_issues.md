@@ -23,7 +23,7 @@ Probleemide korral on parim viis kaasa aitamiseks teha vearaport (_bug report_):
 
 ## Akordid
 
-
+- vaja oleks lisada tabel, kus on akordide lühendid, nimetused ja definitsioonid (intervallid, näidis)
 
 ## Funktsioonid
 
@@ -41,7 +41,7 @@ Probleemide korral on parim viis kaasa aitamiseks teha vearaport (_bug report_):
 
 - Astmediktaatides on võimalik vastata üht diktaati mitu korda.
 
-- Astmediktaatides "Stop" ei toimi.
+- Astmediktaatides "Stop" ei toimi. - Korras.
 
 - Vaja kontrolli, et diktaat oleks valitud, muidu ei saa "Kontrolli" vajutada
 

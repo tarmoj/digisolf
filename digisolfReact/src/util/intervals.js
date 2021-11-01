@@ -87,10 +87,11 @@ export const chordDefinitions = [
     // NB! siin kirjutan eestikeelsed nimed otse sisse TODO: vii tõlgetesse sisse
     { shortName: "1", shortNamePJ:"1", longName: "oktav", longNamePJ:"üks", intervalsUp: ["p8"], intervalsDown: ["p8"],
         midiIntervals: [0,12] },
-    { shortName: "2", shortNamePJ:"2", longName: "PJ:kaks", longNamePJ:"kaks", intervalsUp: ["s2", "23", "p5"], intervalsDown: ["v3", "p4", "p5"],
+    { shortName: "2", shortNamePJ:"2", longName: "PJ:kaks", longNamePJ:"kaks", intervalsUp: ["s2", "s3", "p5"], intervalsDown: ["v3", "p4", "p5"],
         midiIntervals: [0,2,4,7] },
     // moll kaks -  intevallid puudu
-    //{ shortName: "m2", shortNamePJ:"m2", longName: "Major triad add 2nd", longNamePJ:"moll kaks", intervalsUp: ["v3", ">5", "v7"], intervalsDown: ["v3", ">5", "v7"],
+    { shortName: "m2", shortNamePJ:"2", longName: "PJ:moll kaks", longNamePJ:"moll kaks", intervalsUp: ["s2", "v3", "p5"], intervalsDown: ["s3", "p4", "p5"],
+        midiIntervals: [0,2,3,7] },
     // midiIntervals: [0,3,6,10] },
     { shortName: "sus2", shortNamePJ:"sus2", longName: "Suspended 2nd", longNamePJ:"Suspended 2nd", intervalsUp: ["s3", "p5"], intervalsDown: ["p4", "p5"],
         midiIntervals: [0,2,7] },
