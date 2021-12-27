@@ -1,3 +1,4 @@
+
 # Digisolfedžo (Digisolfeggio)
 
 *ENG*
@@ -10,7 +11,7 @@ The software is realized in the frame of project *"Digitaalse muusikateooria ja 
 
 Supported by European Social Fund 
 
-<img src=https://pilv.rtk.ee/apps/files_sharing/publicpreview/kJ4AWiKkLDdeqKb?fileId=20211&file=/SF%20logo%20(horisontaalne)%20-%20EST%20v%C3%A4rviline.jpg&x=1536&y=864&a=true width=300> 
+<img src="digisolfReact/src/images/eu.jpg" width=300> 
 
 Open <https://otsakool.edu.ee/digisolf/> to use the material.
 
@@ -35,7 +36,7 @@ Tarkvara on loodud programmi "Digitaalse muusikateooria ja solfedžo õppevara l
 
 Projekti toetab Euroopa Sotsiaalfond.
 
-<img src=https://pilv.rtk.ee/apps/files_sharing/publicpreview/kJ4AWiKkLDdeqKb?fileId=20211&file=/SF%20logo%20(horisontaalne)%20-%20EST%20v%C3%A4rviline.jpg&x=1536&y=864&a=true width=300>
+<img src="digisolfReact/src/images/eu.jpg" width=300>
 
 <br>
 
@@ -97,10 +98,6 @@ Süsteem mängib muusika, vastus tuleb sisestada vastavate kontrollnuppude või 
 
 Nägemispuude režiimis tuleb muusika sisestada Lilypond tekstipõhises notatsioonisüsteemis, kasutades oktavite abosluutset märkimist (c -  väike oktav, c, - suur oktav, c' -  esimene, c'' -  teine jne). Nt: *\time 4/4 d'8 e' fis' g' a' a'  a'4*  
 
-
- 
-
-
 ## Häälestusharjutused
 
 
@@ -115,5 +112,7 @@ Valikuvõimalused:
 - intervalli võib kuulata harmooniliselt (helid korraga) või meloodiliselt (helid üksteise järel).
 
 - heli tüübiks võib valida lainekuju järgi: saehammas (kõige rohkem ülemhelisid), nelinurkheli (ainult paarituarvulised osahelid, nagu klarnetil), siinusheli (ülehmehlid puuduvad)
+
+
 
 
