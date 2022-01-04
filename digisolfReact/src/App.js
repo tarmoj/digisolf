@@ -95,7 +95,10 @@ function App() {
 
     const handleClose = () => dispatch(setSettingsMenuOpen(false));
 
+    //const isInIframe = () => window.location !== window.parent.location;
+
     const createSettingsMenu = () => {
+        const isInIframe = window.location !== window.parent.location;
         return (
             <>
                 <IconButton  className={"languageSelect"} aria-label="settingsMenu"  onClick={() => dispatch(setSettingsMenuOpen(true))} ref={settingsMenuButton}> <MenuIcon /> </IconButton>
@@ -108,16 +111,20 @@ function App() {
                 >
                     <MenuItem disabled={true}><span className={"marginRightSmall"}>{capitalizeFirst(t("language"))}:</span><LanguageSelect /></MenuItem>
                     <Divider />
-                    <MenuItem onClick={() => {
-                        window.open("https://github.com/tarmoj/digisolf/blob/gh-pages/digisolfReact/known_issues.md", '_blank');
-                        handleClose();
+                    { !isInIframe && // necessary since in e-koolikott where it shown in iFrame the links don't work
+                    <>
+                        <MenuItem onClick={() => {
+                            window.open("https://github.com/tarmoj/digisolf/blob/gh-pages/digisolfReact/known_issues.md", '_blank');
+                            handleClose();
+                        }
+                        }>{capitalizeFirst(t("knownIssues"))}</MenuItem>
+                        <MenuItem onClick={() => {
+                            window.open("https://github.com/tarmoj/digisolf/issues/new", '_blank');
+                            handleClose();
+                        }
+                        }>{capitalizeFirst(t("reportIssue"))}</MenuItem>
+                    </>
                     }
-                    }>{capitalizeFirst(t("knownIssues"))}</MenuItem>
-                    <MenuItem onClick={() => {
-                        window.open("https://github.com/tarmoj/digisolf/issues/new", '_blank');
-                        handleClose();
-                    }
-                    }>{capitalizeFirst(t("reportIssue"))}</MenuItem>
                     <Divider />
                     {customMenu}
                 </Menu>
