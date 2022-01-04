@@ -191,5 +191,6 @@
   "feedback": "tagasiside",
   "selectInterval": "valige intervall",
   "playAndTune": "mängi ja häälesta",
-  "version": "versioon"
+  "version": "versioon",
+  "degrees_random": "genereeritud astmediktaadid"
 }
