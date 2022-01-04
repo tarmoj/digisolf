@@ -166,12 +166,14 @@
   "correctIntervalIs": "õige intervall on",
   "degrees": "astmed",
   "intervalFromNote": "intervall antud noodist",
+  "notInKey": "helistikuväliselt",
   "randomInterval": "juhuslik intervall",
   "or": "või",
   "naming":"nimetused",
   "selectAll": "vali kõik",
   "deselectAll": "tühista kõik",
   "selectSomeChords": "valige mõned akordid",
+  "selectSomeIntervals": "valige mõni intervall",
   "enterChord": "sisetage akord",
   "visuallyImpairedSupport": "nägemispuude tugi",
   "languageSelect": "keelevalik",
@@ -192,5 +194,6 @@
   "selectInterval": "valige intervall",
   "playAndTune": "mängi ja häälesta",
   "version": "versioon",
-  "degrees_random": "genereeritud astmediktaadid"
+  "degrees_random": "genereeritud astmediktaadid",
+  "intervalSelection": "intervallivalik"
 }

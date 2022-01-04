@@ -1,6 +1,17 @@
 import React, {useState, useRef, useEffect} from 'react';
 //import {Grid} from 'semantic-ui-react'
-import {Button, TextField, Grid, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Select} from "@material-ui/core"
+import {
+    Button,
+    TextField,
+    Grid,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    MenuItem,
+    Select,
+    FormControlLabel, Checkbox
+} from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {getNoteByVtNote} from "../util/notes";
@@ -61,6 +72,7 @@ const AskInterval = () => {
     const [intervalData, setIntervalData] = useState([{degrees:[], notes:[], interval: null}]); //array of: {degrees: []}
     const [degreesEnteredByUser, setDegreesEnteredByUser] = useState(Array(intervalCount));
     const [possibleIntervalShortNames, setPossibleIntervalShortNames] = useState([]);
+    const [activeIntervals, setActiveIntervals] = useState([]); // necessary for interval selction by user
     const [currentResponseIndex, setCurrentResponseIndex] = useState(0); // in case there are several intervals
     const [response, setResponse] = useState( Array(intervalCount)); //.fill({degrees:[], intervalShortName:""}));
     const [mode, setMode] = useState(
@@ -68,7 +80,9 @@ const AskInterval = () => {
             (parameterDict.mode ? parameterDict.mode : "harmonic"  )) ; // melodic|harmonic|melodicHarmonic
     const [sampler, setSampler] = useState(null );
     const [dialogOpen, setDialogOpen] = useState(false);
-    
+    const [showIntervalSelection, setShowIntervalSelection] = useState(false);
+
+
     const instrument = useSelector(state => state.exerciseReducer.instrument);
 
 
@@ -131,7 +145,7 @@ const AskInterval = () => {
                 possibleIntervalShortNames = ["v2", "s2", "v3", "s3", "p4", ">5", "p5", "v6", "s6", "v7", "s7", "p8"];
             }
             setPossibleIntervalShortNames(possibleIntervalShortNames);
-            //TODO: later display selection with checkboxes - see AskChord
+            setActiveIntervals(possibleIntervalShortNames);
             renewRandom(possibleIntervalShortNames);
 
         } else { // intervals in key
@@ -175,8 +189,13 @@ const AskInterval = () => {
         stopSound();
         //midiSounds.current.cancelQueue();
 
+        if (activeIntervals.length===0) {
+            alert(capitalizeFirst(t("selectSomeInterval")));
+            return;
+        }
+
         if (exerciseName.includes("random")) {
-            renewRandom(possibleIntervalShortNames);
+            renewRandom(activeIntervals);
         } else {
             renewInKey(isMajor, selectedTonicNote);
         }
@@ -185,16 +204,25 @@ const AskInterval = () => {
     const renewInKey = (isMajor, tonicNote) => {
 
         let possibleDegrees = [];
+        let shortNames = [];
 
         if (exerciseName==="tonicTriad") {
             possibleDegrees = [1,3,5,8];
+            shortNames = ["v3","s3","p4", "p5", "v6", "s6", "p8"];
+
         } else if (exerciseName==="tonicAllScaleDegrees") {
             possibleDegrees = [2,3,4,5,6,7,8];
+            shortNames = ["s2", "v3", "s3", "p4", "p5", "v6", "s6", "v7", "s7", "p8"];
         } else if (exerciseName==="allScaleDegrees") {
             possibleDegrees = [1,2,3,4,5,6,7,8];
+            shortNames = ["v2", "s2", "v3", "s3", "p4", ">5", "p5", "v6", "s6", "v7", "s7", "p8"];
         } else {
             possibleDegrees = [1,2,3,4,5,6,7,8];
+            shortNames = ["v2", "s2", "v3", "s3", "p4", ">5", "p5", "v6", "s6", "v7", "s7", "p8"];
         }
+
+        setPossibleIntervalShortNames( shortNames);
+        setActiveIntervals(shortNames);
 
         const newIntervalData = [];
 
@@ -228,13 +256,13 @@ const AskInterval = () => {
             if (i===0 && intervalData[0]) { // check that the first interval is not the same as previous
                 if (JSON.stringify(data.interval) === JSON.stringify(intervalData[0])) {
                     while (JSON.stringify(data) === JSON.stringify(intervalData[0])) {
-                        console.log("Same interval as before, take it again");
+                        //console.log("Same interval as before, take it again");
                         data = getRandomInterval(possibleShortNames);
                     }
                 }
             } else if (i>0) {
                 while (JSON.stringify(data) === JSON.stringify(newIntervalData[i-1])) {
-                    console.log("Same interval, take it again");
+                    //console.log("Same interval, take it again");
                     data = getRandomInterval(possibleShortNames);
                 }
             }
@@ -273,7 +301,7 @@ const AskInterval = () => {
                 for (let data of intervalData) { // first melodic
                     const midiNote1 = data.notes[0].midiNote;
                     const midiNote2 = data.notes[1].midiNote;
-                    console.log("Midinotes: ", midiNote1, midiNote2);
+                    //console.log("Midinotes: ", midiNote1, midiNote2);
                     playNote(midiNote1, start, noteDuration); // melodic - one after another
                     playNote(midiNote2, start + noteDuration, noteDuration);
 
@@ -299,7 +327,7 @@ const AskInterval = () => {
                 for (let data of intervalData) { // first melodic
                     const midiNote1 = data.notes[0].midiNote;
                     const midiNote2 = data.notes[1].midiNote;
-                    console.log("Midinotes: ", midiNote1, midiNote2);
+                    //console.log("Midinotes: ", midiNote1, midiNote2);
                     playNote(midiNote1, start, noteDuration); // melodic - one after another
                     playNote(midiNote2, start + noteDuration, noteDuration);
                     start += noteDuration * 2 + pause;
@@ -358,7 +386,7 @@ const AskInterval = () => {
         if (degrees[1]===8)  degrees[1]=1;
 
         const intervalInfo = getInterval(note1, note2);
-        console.log("getIntervalFromScale: Degrees, interval: ", degree1, degree2, note1.vtNote, note2.vtNote, intervalInfo.interval.shortName);
+        //console.log("getIntervalFromScale: Degrees, interval: ", degree1, degree2, note1.vtNote, note2.vtNote, intervalInfo.interval.shortName);
         return { degrees:degrees, notes: [note1, note2], interval: intervalInfo.interval }
     };
 
@@ -374,7 +402,7 @@ const AskInterval = () => {
         let midiNote1, midiNote2;
         midiNote1 = up ? getRandomInt(60, 80-interval.semitones)  : getRandomInt(60+interval.semitones, 80);
         midiNote2 = up ? midiNote1 + interval.semitones : midiNote1 - interval.semitones;
-        console.log("getRandomInterval interval, midinote1, midinote2", interval.shortName, midiNote1, midiNote2);
+        console.log("getRandomInterval interval, midinote1, midinote2", interval.shortName, midiNote1, midiNote2, possibleShortNames);
 
         const data = {interval: interval, notes: [{midiNote:midiNote1}, {midiNote:midiNote2} ]}; // no notenames needed here so far
         return data;
@@ -656,9 +684,17 @@ const AskInterval = () => {
             </Select>
         </MenuItem>;
 
+        const showIntervalSelectionEntry = <MenuItem key={"chordSelectionEntry"}>
+            <FormControlLabel
+                onChange={ (e) => {setShowIntervalSelection(e.target.checked); closeMenu();}  }
+                control={<Checkbox color="default" />}
+                label={capitalizeFirst(t("intervalSelection"))}
+            />
+        </MenuItem>;
+
         const infoEntry = <MenuItem disabled>Abiinfo - tegemata veel</MenuItem>
 
-        const menuEntries = [ intervalCountEntry, playModeEntry ];
+        const menuEntries = [ intervalCountEntry, playModeEntry, showIntervalSelectionEntry ];
         dispatch(setCustomMenu(menuEntries));
     }
    
@@ -754,6 +790,69 @@ const AskInterval = () => {
         return input;
     }
 
+    // create selction menu of intervals
+    const handleIntervalSelection = (e,data) => {
+        const shortName = e.target.name;
+        const checked = e.target.checked;
+
+        if (checked) {
+            console.log("Add to possibleSharnames: ", shortName);
+            const shortNames = activeIntervals.slice();
+            if (!shortNames.includes(shortName)) {
+                shortNames.push(shortName);
+                setActiveIntervals(shortNames);
+                console.log(shortNames);
+            }
+        } else {
+            console.log("Remove from possibleShortnames: ", shortName);
+            const shortNames =  activeIntervals.filter( (elem)=>elem!==shortName ) ;
+            setActiveIntervals(shortNames);
+            console.log(shortNames);
+        }
+    }
+
+    const deselectAll = () => {
+        setActiveIntervals([]);
+    }
+
+    const selectAll = () => {
+        setActiveIntervals(possibleIntervalShortNames);
+    }
+
+
+    const createIntervalSelection = () => {
+        return exerciseHasBegun &&  showIntervalSelection && (
+            <>
+                <Grid item container spacing={1} direction={"row"}>
+                    <Grid item>
+                        <Button  size={"small"} onClick={selectAll} >
+                            {capitalizeFirst(t("selectAll"))}
+                        </Button>
+                    </Grid>
+                    <Grid item>
+                        <Button  size={"small"} onClick={deselectAll} >
+                            {capitalizeFirst(t("deselectAll"))}
+                        </Button>
+                    </Grid>
+                </Grid>
+                <Grid item container spacing={1} direction={"row"}>
+                    {possibleIntervalShortNames.map( shortName =>  (
+                        <Grid item key={shortName}>
+                            <FormControlLabel
+                                onChange={ handleIntervalSelection }
+                                checked={ activeIntervals.includes(shortName) }
+                                control={<Checkbox color="default" />}
+                                label={shortName}
+                                name={shortName}
+                            />
+                        </Grid>
+                    ))}
+                </Grid>
+            </>
+        );
+    }
+
+
     const createDegreeInputRow = () => {
         const inputs = [];
         for (let i=0; i<intervalCount; i++ ) {
@@ -819,6 +918,7 @@ const AskInterval = () => {
             <Grid item xs={4}>
                 <Button variant="contained"
                         className={"fullWidth marginTopSmall" }
+                        disabled={!activeIntervals.includes(interval)}
                         style={{backgroundColor: getButtonColor(interval)}}
                         onClick={() => {
                             setResponseInterval(interval);
@@ -959,6 +1059,7 @@ const AskInterval = () => {
             <Grid container spacing={1} direction={"column"}>
                 <ScoreRow />
                 {createDegreeInputRow()}
+                {createIntervalSelection() }
                 {VISupportMode ? null : createIntervalLabelRow()}
                 {VISupportMode ? createIntervalInputRow() : createIntervalButtons()}
                 { exerciseHasBegun && <VolumeRow /> }

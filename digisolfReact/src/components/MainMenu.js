@@ -22,7 +22,7 @@ const MainMenu = () => {
                     <Button variant="contained" className={"mainMenuBtn"} onClick={() => history.push("/digisolf/askinterval/tonicTriad")}>{capitalizeFirst(t("tonicTriad"))}</Button><br/>
                     <Button variant="contained"  className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askinterval/tonicAllScaleDegrees")}>{capitalizeFirst(t("tonicAllScaleDegrees"))}</Button><br/>
                     <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askinterval/allScaleDegrees")}>{capitalizeFirst(t("allScaleDegrees"))}</Button><br/>
-                    <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askinterval/randomInterval")}>{capitalizeFirst(t("intervalFromNote"))}</Button><br/>
+                    <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askinterval/randomInterval")}>{capitalizeFirst(t("notInKey"))}</Button><br/>
                 </Grid>
                 <Grid item xs={6}>
                     <div>

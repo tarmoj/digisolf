@@ -112,18 +112,18 @@ function App() {
                     <MenuItem disabled={true}><span className={"marginRightSmall"}>{capitalizeFirst(t("language"))}:</span><LanguageSelect /></MenuItem>
                     <Divider />
                     { !isInIframe && // necessary since in e-koolikott where it shown in iFrame the links don't work
-                    <>
-                        <MenuItem onClick={() => {
+                    [
+                        <MenuItem key={"menu1"} onClick={() => {
                             window.open("https://github.com/tarmoj/digisolf/blob/gh-pages/digisolfReact/known_issues.md", '_blank');
                             handleClose();
                         }
-                        }>{capitalizeFirst(t("knownIssues"))}</MenuItem>
-                        <MenuItem onClick={() => {
+                        }>{capitalizeFirst(t("knownIssues"))}</MenuItem>,
+                        <MenuItem key={"menu2"} onClick={() => {
                             window.open("https://github.com/tarmoj/digisolf/issues/new", '_blank');
                             handleClose();
                         }
                         }>{capitalizeFirst(t("reportIssue"))}</MenuItem>
-                    </>
+                    ]
                     }
                     <Divider />
                     {customMenu}
