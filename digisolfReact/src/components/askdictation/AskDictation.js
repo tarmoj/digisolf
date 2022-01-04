@@ -253,6 +253,7 @@ const AskDictation = () => {
                         :  makeInterval(baseNote, interval, "up"); // what if bass clef?
                     if (note) {
                         console.log("Tonic, Interval, note: ", tonicVtNote, interval, note.vtNote );
+                        if (Math.abs(degree)===8) degree=1; // 1 is correct in theory, 8 is necessary to mark the octave
                         vtString += ` ${note.vtNote}  $ ${Math.abs(degree) } $ `; // add the
                         if (counter%4 == 0) {
                             vtString += " | ";
@@ -415,10 +416,16 @@ const AskDictation = () => {
         const correctArray = answer.degrees;
 
         for (let i=0; i<correctArray.length; i++ ) {
-            if (Math.abs(degrees[i]) !== Math.abs(correctArray[i]) ) { // ignore minus signs
-                // TODO: form feedBack string, colour wrong degrees
-                console.log("Wrong degree: ", i, degrees[i]);
-                correct = false;
+            const responseDegree = Math.abs(degrees[i]);
+            const correctDegree = Math.abs(correctArray[i]);
+
+            if (responseDegree !== correctDegree ) { // ignore minus signs
+                if (correctDegree === 8 && responseDegree===1) { // there is no 8. degree actually, 1st is correct but allow both in the answer
+                    correct = true;
+                } else {
+                    console.log("Wrong degree: ", i, degrees[i]);
+                    correct = false;
+                }
             }
         }
 
