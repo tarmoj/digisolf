@@ -93,11 +93,11 @@ const AskIntonation = () => {
 
 
     // renew generates answer and performs play/show
-    const renew = (cents) =>  {
+    const renew = (cents) =>  { // NB! cents is set as string from useParams!
 
         setAnswered(false);
 
-        const deviationAmount =  (cents === 0) ? getRandomElementFromArray(possibleDeviations) : cents; // the number of cents the interval can be wrong
+        const deviationAmount =  (cents === "0") ? getRandomElementFromArray(possibleDeviations) : parseInt(cents); // the number of cents the interval can be wrong
 
         const random = Math.random()*3;
         let deviation, intonation;
@@ -111,7 +111,7 @@ const AskIntonation = () => {
             deviation = 0;
             intonation = "inTune";
         }
-        console.log("Deviation: ", deviation, intonation, cents);
+        //console.log("Deviation: ", deviation, intonation, cents);
         setSelectedDeviation(deviation);
         setAnswer({intonation: intonation});
 
@@ -272,7 +272,7 @@ const AskIntonation = () => {
 
     return (
         <div>
-            <h2>{ `${t("intonationDescripton")} ${t(name)} ${t("cents")} ` }</h2>
+            <h2>{ `${t("intonationDescripton")} ${ name==="randomDeviation" ? "X" : t(name)} ${t("cents")} ` }</h2>
 
             <Grid container direction={"column"} spacing={1}>
                 <ScoreRow/>
