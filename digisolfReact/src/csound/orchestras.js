@@ -170,12 +170,14 @@ chn_k "tracking",1
 chn_k "threshold", 1
 chn_k "relativeRatio",3
 chn_k "sound",3
+chn_k "isInput", 3
 
 chnset 8, "octave"
 chnset 0.45, "volume"
 chnset 0.05, "threshold"
 chnset 1.5, "interval"
 chnset 2, "sound"
+chnset 0, "isInput"
 
 giSine ftgen 1,0, 16384, 10, 1 ; Sine
 giSawtooth ftgen 2,0,  16384, 10, 1, 0.5, 0.3, 0.25, 0.2, 0.167, 0.14, 0.125, .111   ; Sawtooth
@@ -210,12 +212,15 @@ instr Analyze
 	kamp = ampdb(kamp)
 		
 	if (kamp > (0.001 +chnget:k("threshold")*0.5)) then ; threshold between 0.001 .. 0.5
+		chnset k(1), "isInput"
 		kPitchRatio = kcps/kBaseFreq
 		kPitchRatio port  kPitchRatio, 0.05 
 		chnset kPitchRatio, "pitchratio";
 		; convert to relative ratio min=0, max=1, correctRatio=0.5
 		kRelativeRatio = (kPitchRatio-kmin) / (kmax-kmin)
 		chnset kRelativeRatio, "relativeRatio"		
+	else
+	    chnset k(0), "isInput"
 	endif
 	
 	; sound
@@ -231,6 +236,10 @@ instr Analyze
 
 	asig =  (aBase + aInterval*kIntervalAmp ) * aenv * kVolume
 	outs asig, asig
+	
+	if (release()==1) then
+	    chnset k(0), "isInput"
+	endif
 	
 endin
 

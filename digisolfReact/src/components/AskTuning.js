@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
     Button,
     ButtonGroup,
@@ -8,7 +8,7 @@ import {
     Slider,
     RadioGroup,
     FormControlLabel,
-    Radio, FormControl, FormLabel, Switch, Accordion, AccordionSummary, AccordionDetails
+    Radio, FormControl, FormLabel, Switch, Accordion, AccordionSummary, AccordionDetails, TextField, Typography
 } from '@material-ui/core';
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../util/util";
@@ -16,7 +16,8 @@ import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import CsoundObj from "@kunstmusik/csound";
 import  {tuningOrchestra as orc} from "../csound/orchestras";
 import {setVolume} from "../actions/exercise";
-import {ToggleButton, ToggleButtonGroup} from "@material-ui/lab";
+import {useSelector} from "react-redux";
+import {Mic, MicNone, VolumeUp} from "@material-ui/icons";
 
 
 // NB!!!! start with  export HOST="localhost" ; npm start for local testing, with other hostnames sound input does not work
@@ -33,6 +34,7 @@ const AskTuning = () => {
 
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [intervalRatio, setIntervalRatio] = useState(1.5);
+    const [isInput, setIsInput] = useState(false);
     const [userPitchRatio, setUserPitchratio] = useState(0);
     const [relativeRatio, setRelativeRatio] = useState(0);
     const [csound, setCsound] = useState(null);
@@ -43,8 +45,13 @@ const AskTuning = () => {
     const [soundType, setSoundType] = useState(2); // 1- sine, 2 -  saw, 3 - square
     const [selectedIntervalRatio, setSelectedIntervalRatio] = useState("1.5"); // perfect fifth is the default
 
-    let channelReadFunction = null;
+    const [channelReadFunction, setChannelReadFunction] = useState(null);
     //const [started, setStarted] = useState(false);
+
+    const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode);
+    const masterVolume = useSelector(state => state.exerciseReducer.volume);
+
+    const feedbackLabelRef = useRef(null);
 
 
     useEffect(() => {
@@ -102,6 +109,7 @@ const AskTuning = () => {
             csound.readScore("i 1 0 -1");
             setPlayUpperNoteOn(false);
             setSoundOn(true);
+            if (VISupportMode) feedbackLabelRef.current.focus() ; // focus to feedback label
         }
     };
 
@@ -128,14 +136,15 @@ const AskTuning = () => {
 
     const stopUpdate = () => {
         if (channelReadFunction) {
+            console.log("Stop update reading channels");
             clearInterval(channelReadFunction);
-            channelReadFunction = null;
+            setChannelReadFunction(null);
         }
     }
 
     const startUpdateChannels = () => {
         stopUpdate(); //clearInterval
-        channelReadFunction =  setInterval( () => {
+        const func =  setInterval( () => {
             if (csound) {
                 csound.requestControlChannel("pitchratio",
                     () => {
@@ -147,8 +156,14 @@ const AskTuning = () => {
                         const value = csound.getControlChannel("relativeRatio");
                         setRelativeRatio(value);
                     });
+                csound.requestControlChannel("isInput",
+                    () => {
+                        const value = csound.getControlChannel("isInput");
+                        setIsInput( (value>0.1) ? true : false);
+                    });
             }
         }, 100 );
+        setChannelReadFunction(func);
     }
 
 
@@ -299,15 +314,39 @@ const AskTuning = () => {
     };
 
    const createFeedbackRow = () => {
-       return exerciseHasBegun ? (
-           <Grid container direction={"row"} spacing={1} justifyContent={"center"} alignItems={"center"} >
-               <Grid item > {` ${capitalizeFirst(t("ratio"))}: ${selectedIntervalRatio} `}</Grid>
-               <Grid item>
-                   <Meter   level={relativeRatio} />
-               </Grid>
-               <Grid item>{` ${capitalizeFirst(t("input"))}: ${userPitchRatio.toFixed(2)} `}</Grid>
-           </Grid>
-       ) : null;
+       let feedbackLabel = "";
+       if (!isInput) {
+           feedbackLabel = t("noInput");
+       } else {
+           feedbackLabel = (relativeRatio>= 0.6) ? t("high") :  (relativeRatio<= 0.4) ? t("low") : t("inTune");
+       }
+
+       return exerciseHasBegun ?
+           VISupportMode ?
+               (
+                   <Grid container direction={"row"} spacing={1} justifyContent={"center"} alignItems={"center"} >
+                       <Grid item>{capitalizeFirst(t("input"))}: </Grid>
+                       <Grid item>
+                           <Typography
+                               ref={feedbackLabelRef}
+                           >
+                               {feedbackLabel}
+                           </Typography>
+
+                       </Grid>
+
+                   </Grid>
+               ) :
+               (
+                   <Grid container direction={"row"} spacing={1} justifyContent={"center"} alignItems={"center"} >
+                       <Grid item > {` ${capitalizeFirst(t("ratio"))}: ${selectedIntervalRatio} `}</Grid>
+                       <Grid item>
+                           <Meter   level={relativeRatio} />
+                       </Grid>
+                       <Grid item>{` ${capitalizeFirst(t("input"))}: ${userPitchRatio.toFixed(2)} `}</Grid>
+                   </Grid>
+               )
+           : null;
    }
 
 
@@ -315,7 +354,7 @@ const AskTuning = () => {
     const createSliderRow = () => {
         return exerciseHasBegun ? (
             <Grid container direction={"row"} spacing={1} justifyContent={"center"} alignItems={"center"}>
-                <Grid item>{capitalizeFirst(t("inputSensitivity"))}</Grid>
+                <Grid item>{ isInput ? <Mic aria-label={t("input")}></Mic>  : <MicNone aria-label={t("noInput")}></MicNone> }</Grid>
                 <Grid item item xs={2} md={3}>
 
                     <Slider value={sensitivity}
@@ -331,10 +370,10 @@ const AskTuning = () => {
                     />
 
                 </Grid>
-                <Grid item>{capitalizeFirst(t("volume"))}</Grid>
+                <Grid item><VolumeUp aria-label={t("volume")}></VolumeUp></Grid>
                 <Grid item xs={2} md={3}>
                     <Slider value={volume}
-                            aria-label={t("inputSensitivity")}
+                            aria-label={t("volume")}
                             aria-valuetext={sensitivity.toFixed(2)}
                             min={0} max={1} step={0.01}
                             onChange = { (event, value) => {

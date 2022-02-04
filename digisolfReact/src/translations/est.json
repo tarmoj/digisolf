@@ -195,5 +195,9 @@
   "playAndTune": "mängi ja häälesta",
   "version": "versioon",
   "degrees_random": "genereeritud astmediktaadid",
-  "intervalSelection": "intervallivalik"
+  "intervalSelection": "intervallivalik",
+  "noInput": "sisendit pole",
+  "low": "madal",
+  "high": "kõrge",
+  "inTune": "hääles"
 }
