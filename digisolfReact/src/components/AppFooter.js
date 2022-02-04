@@ -3,7 +3,11 @@ import euLogo from "../images/eu.jpg";
 import {Grid} from "@material-ui/core"
 import {capitalizeFirst} from "../util/util";
 import {useTranslation} from "react-i18next";
-import { version as appVersion } from '../../package.json';
+//import { version as appVersion } from '../../package.json';
+import packageInfo from '../../package.json';
+
+
+const version = packageInfo.version;
 
 //TODO: logo must be visible
 const AppFooter = () => {
@@ -18,7 +22,7 @@ const AppFooter = () => {
                         <img className={"footerLogo"} src={euLogo} />
                     </Grid>*/}
                     <Grid item>
-                        {capitalizeFirst(t("version"))} {appVersion} (c) 2021, Tarmo Johannes, Edgar Tereping, Jane Tereping
+                        {capitalizeFirst(t("version"))} {version} (c) 2021, Tarmo Johannes, Edgar Tereping, Jane Tereping
                         </Grid>
                     <Grid item>
                         <small>{capitalizeFirst(t("feedback"))}: <a href={"mailto:tarmo.johannes@otsakool.edu.ee"}>tarmo.johannes@otsakool.edu.ee</a></small>
