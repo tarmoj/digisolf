@@ -8,7 +8,17 @@ import {
     Slider,
     RadioGroup,
     FormControlLabel,
-    Radio, FormControl, FormLabel, Switch, Accordion, AccordionSummary, AccordionDetails, TextField, Typography
+    Radio,
+    FormControl,
+    FormLabel,
+    Switch,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    TextField,
+    Typography,
+    Dialog,
+    DialogTitle, DialogContent, DialogContentText
 } from '@material-ui/core';
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../util/util";
@@ -49,7 +59,7 @@ const AskTuning = () => {
     //const [started, setStarted] = useState(false);
 
     const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode);
-    const masterVolume = useSelector(state => state.exerciseReducer.volume);
+    //const masterVolume = useSelector(state => state.exerciseReducer.volume);
 
     const feedbackLabelRef = useRef(null);
 
@@ -204,7 +214,7 @@ const AskTuning = () => {
         );
     };
 
-    const createExplanationRow = () => {
+    const createExplanationRow_old = () => {
         //TODO: translation
         return  exerciseHasBegun ?  (
           <Grid item>
@@ -231,12 +241,34 @@ const AskTuning = () => {
         ) : null;
     }
 
+    const [dialogOpen, setDialogOpen] = useState(false);
+
+    const createExplanationRow = () => {
+        //TODO: translation
+        return  exerciseHasBegun ?  (
+            <Grid item container alignItems={"flex-start"}>
+                <Button variant="outlined" size={"small"} onClick={() => setDialogOpen(true)}>
+                    Info
+                </Button>
+                <Dialog onClose={()=>setDialogOpen(false)} open={dialogOpen}>
+                    <DialogTitle>{capitalizeFirst(t("explanation"))}</DialogTitle>
+                    <DialogContent>
+                    <DialogContentText>
+                        Valige alumine noot ning intervall, mille intoneerimist tahate harjutada.<br />
+                        Seejärel vajutage "Mängi ja häälesta".<br />
+                        Süsteem mängib intervalli alumise noodi, mängige või laulge ülemist nooti ning püüdke näidikul saavutada sama sageduste suhet, nagu on näidatud suhe vasakul.
+                        See vastab valitud puhtale intervallile.<br />
+                        Võite vajutada ka "Ülemine noot", et kuulda selle korrektset kõrgust.<br />
+                        Võimalusel kasutage kõrvaklappe või sättige helitugevus  ja sisendi tundlikkus sobivaks, et süsteemi mängitud heli liiga mikrofoni ei kostaks.
+                        <br />
+                    </DialogContentText>
+                    </DialogContent>
+                </Dialog>
+            </Grid>
+        ) : null;
+    }
+
    const createOptionsRow = () => {
-
-       //TODO: one selection for note and octave - later break to octave and pitch
-       //const notes = [];
-       //const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "Bb", "B (H)"];
-
 
         const octaveOptions = [
             { text: capitalizeFirst(t("greatOctave")), value: 6}, // octave numbers as in Csound -  middle C is 8.00

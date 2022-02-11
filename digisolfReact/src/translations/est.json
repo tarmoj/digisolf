@@ -199,5 +199,6 @@
   "noInput": "sisendit pole",
   "low": "madal",
   "high": "kõrge",
-  "inTune": "hääles"
+  "inTune": "hääles",
+  "explanation": "seletuseks"
 }
