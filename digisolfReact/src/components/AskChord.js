@@ -222,15 +222,18 @@ const AskChord = () => {
         let chord = selectedChord;
         let midiNote = 0;
 
-
         while (thisBaseNote===baseNote && chord===selectedChord) {
-            thisBaseNote = getNoteByVtNote( getRandomElementFromArray(possibleBaseVtNotes) );
+            chord = getRandomElementFromArray(activeChords);
+            if (chord.shortName.toString().endsWith("13") ) { // make sure the1 13th chords don't get too high
+                thisBaseNote = getNoteByVtNote( getRandomElementFromArray(["C/4", "D/4"]) );
+            }  else {
+                thisBaseNote = getNoteByVtNote( getRandomElementFromArray(possibleBaseVtNotes) );
+            }
             if (thisBaseNote === undefined) {
                 console.log("Failed finding basenote");
                 return;
             }
             midiNote = thisBaseNote.midiNote;
-            chord = getRandomElementFromArray(activeChords);
         }
 
         setSelectedChord(chord);

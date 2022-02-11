@@ -30,6 +30,7 @@ import {resetState, setAllowInput, setInputNotation} from "../../actions/askDict
 import {notationInfoToVtString} from "../notation/notationUtils";
 
 
+
 const AskDictation = () => {
     const { name, title } = useParams(); // title is optional, used for opening the dictation by url
 

@@ -13,6 +13,7 @@ const intervalDefinitions = [
     { shortName: "v2", inversion: "s7",longName: "minor second", semitones: 1, degrees: 1 },
     { shortName: "s2", inversion: "v7",longName: "major second", semitones: 2, degrees: 1 },
     { shortName: "<2", inversion: ">7",longName: "augmented second", semitones: 3, degrees: 1 },
+    { shortName: ">3", inversion: "<6",longName: "diminished third", semitones: 2, degrees: 2 },
     { shortName: "v3", inversion: "s6",longName: "minor third", semitones: 3, degrees: 2 },
     { shortName: "s3", inversion: "v6",longName: "major third", semitones: 4, degrees: 2 },
     { shortName: "p4", inversion: "p5",longName: "perfect fourth", semitones: 5, degrees: 3 },
@@ -26,6 +27,18 @@ const intervalDefinitions = [
     { shortName: "v7", inversion: "s2",longName: "minor seventh", semitones: 10, degrees: 6 },
     { shortName: "s7", inversion: "v2",longName: "major seventh", semitones: 11, degrees: 6 },
     { shortName: "p8", inversion: "p1",longName: "octave", semitones: 12, degrees:  7 },
+    // over octave
+    { shortName: "v9", inversion: "s7",longName: "minor ninth", semitones: 13, degrees:  8 }, // noon TODO: tõlked (kuigi hetkel pole vist vaja)
+    { shortName: "s9", inversion: "v7",longName: "major ninth", semitones: 14, degrees:  8 },
+    { shortName: "v10", inversion: "s6",longName: "minor tenth", semitones: 15, degrees:  9 }, // deetsim
+    { shortName: "s10", inversion: "v7",longName: "major tenth", semitones: 16, degrees:  9 },
+    { shortName: "p11", inversion: "p5",longName: "perfect eleventh", semitones: 17, degrees:  10 }, // undeetsim
+    { shortName: "<11", inversion: ">5",longName: "augmented eleventh", semitones: 18, degrees:  10 },
+    { shortName: ">12", inversion: "<4>",longName: "diminished twelfth", semitones: 19, degrees:  11 }, // duodeetsim
+    { shortName: "p12", inversion: "p4",longName: "perfect twelfth", semitones: 20, degrees:  11 },
+    { shortName: "v13", inversion: "s3",longName: "minor thirteenth", semitones: 21, degrees:  12 }, // tertsdeetsim -  vajalik 13-akordide jaoks
+    { shortName: "s13", inversion: "v3",longName: "major thirteenth", semitones: 22, degrees:  12 },
+
 ];
 
 // TODO: into English! check abbreviations and correct terms
@@ -89,7 +102,7 @@ export const chordDefinitions = [
         midiIntervals: [0,12] },
     { shortName: "2", shortNamePJ:"2", longName: "PJ:kaks", longNamePJ:"kaks", intervalsUp: ["s2", "s3", "p5"], intervalsDown: ["v3", "p4", "p5"],
         midiIntervals: [0,2,4,7] },
-    // moll kaks -  intevallid puudu
+
     { shortName: "m2", shortNamePJ:"2", longName: "PJ:moll kaks", longNamePJ:"moll kaks", intervalsUp: ["s2", "v3", "p5"], intervalsDown: ["s3", "p4", "p5"],
         midiIntervals: [0,2,3,7] },
     // midiIntervals: [0,3,6,10] },
@@ -99,6 +112,39 @@ export const chordDefinitions = [
         midiIntervals: [0,4,5,7] },
     { shortName: "5", shortNamePJ:"5", longName: "Power chord", longNamePJ:"viis", intervalsUp: ["p5", "p8"], intervalsDown: ["p4","p8"],
         midiIntervals: [0,7,12] },
+
+    // altered septachords
+    { shortName: "M#5", shortNamePJ:"△#5", longName: "Augmented major 7th", longNamePJ:"maj pluss viis", intervalsUp: ["s3", "<5", "s7"],
+        intervalsDown: ["v3", "p5", "s7"], midiIntervals: [0, 4, 8, 11] },
+    { shortName: "M#11", shortNamePJ:"△#11", longName: "Augmented major 11th", longNamePJ:"maj pluss üksteist", intervalsUp: ["s3", "<4", "s7"],
+        intervalsDown: ["p4", "p5", "s7"], midiIntervals: [0, 4, 6, 11] },
+    { shortName: "7#5", shortNamePJ:"7#5", longName: "Augmented dominant 7th", longNamePJ:"seitse pluss viis", intervalsUp: ["s3", "<5", "v7"],
+        intervalsDown: [">3", ">5", "v7"], midiIntervals: [0, 4, 8, 10] },
+    { shortName: "7b5", shortNamePJ:"7b5", longName: "seitse miinus viis", longNamePJ:"seitse miinus viis", intervalsUp: ["s3", ">5", "v7"],
+        intervalsDown: ["s3", ">5", "v7"], midiIntervals: [0, 4, 6, 10] },
+
+    // Ninth chords
+    { shortName: "M9", shortNamePJ:"△9", longName: "Major ninth", longNamePJ:"maj üheksa", intervalsUp: ["s3", "p5", "s7", "s9"],
+        intervalsDown: ["v3", "p5", "v7", "s9"], midiIntervals: [0, 4, 7, 11, 14] },
+    { shortName: "9", shortNamePJ:"9", longName: "Dominant ninth", longNamePJ:"üheksa", intervalsUp: ["s3", "p5", "v7", "s9"],
+        intervalsDown: ["s3", "p5", "v7", "s9"], midiIntervals: [0, 4, 7, 10, 14] },
+    { shortName: "m9", shortNamePJ:"m9", longName: "Minor ninth", longNamePJ:"moll üheksa", intervalsUp: ["v3", "p5", "v7", "s9"],
+        intervalsDown: ["s3", "p5", "s7", "s9"], midiIntervals: [0, 3, 7, 10, 14] },
+
+    // miscellaneous
+    { shortName: "M13", shortNamePJ:"△13", longName: "Major thirteenth", longNamePJ:"maj kolmteist", intervalsUp: ["s3", "p5", "s7", "s9", "s13"],
+        intervalsDown: ["p5", "v7", "s9", "p11", "s13"], midiIntervals: [0, 4, 7, 11, 14, 21] },
+    { shortName: "13", shortNamePJ:"13", longName: "thirteenth", longNamePJ:"kolmteist", intervalsUp: ["s3", "p5", "v7", "s9", "s13"],
+        intervalsDown: ["p5", "s7", "s9", "p11", "s13"], midiIntervals: [0, 4, 7, 10, 14, 21] },
+    { shortName: "m13", shortNamePJ:"m13", longName: "minor thirteenth", longNamePJ:"moll kolmteist", intervalsUp: ["v3", "p5", "v7", "s9", "s13"],
+        intervalsDown: ["p5", "s7", "s9", "<11", "s13"], midiIntervals: [0, 3, 7, 10, 14, 21] },
+
+
+
+
+
+
+
 
 ];
 
