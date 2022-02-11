@@ -1,7 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {
     Button,
-    ButtonGroup,
     Grid,
     Select,
     MenuItem,
@@ -9,13 +8,11 @@ import {
     RadioGroup,
     FormControlLabel,
     Radio,
-    FormControl,
     FormLabel,
     Switch,
     Accordion,
     AccordionSummary,
     AccordionDetails,
-    TextField,
     Typography,
     Dialog,
     DialogTitle, DialogContent, DialogContentText
@@ -54,9 +51,8 @@ const AskTuning = () => {
     const [volume, setVolume] = useState(0.6);
     const [soundType, setSoundType] = useState(2); // 1- sine, 2 -  saw, 3 - square
     const [selectedIntervalRatio, setSelectedIntervalRatio] = useState("1.5"); // perfect fifth is the default
-
     const [channelReadFunction, setChannelReadFunction] = useState(null);
-    //const [started, setStarted] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
 
     const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode);
     //const masterVolume = useSelector(state => state.exerciseReducer.volume);
@@ -213,35 +209,6 @@ const AskTuning = () => {
             </Grid>
         );
     };
-
-    const createExplanationRow_old = () => {
-        //TODO: translation
-        return  exerciseHasBegun ?  (
-          <Grid item>
-              <Accordion>
-                  <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
-                      aria-controls="info-content"
-                      id="info-panel"
-                  >
-                     Info
-                  </AccordionSummary>
-                  <AccordionDetails>
-                      <i>See viis infot kuvada on ajutine!</i>
-                      <small>Valige alumine noot ning intervall, mille intoneerimist tahate harjutada.
-                          Seejärel vajutage "Mängi ja häälesta".
-                          Süsteem mängib intervalli alumise noodi, mängige või laulge ülemist nooti ning püüdke näidikul saavutada sama sageduste suhet, nagu on näidatud suhe vasakul.
-                          See vastab valitud puhtale intervallile.
-                          Võite vajutada ka "Ülemine noot", et kuulda selle korrektset kõrgust.
-                          Võimalusel kasutage kõrvaklappe või sättige helitugevus  ja sisendi tundlikkus sobivaks, et süsteemi mängitud heli liiga mikrofoni ei kostaks.
-                      </small>
-                  </AccordionDetails>
-              </Accordion>
-              </Grid>
-        ) : null;
-    }
-
-    const [dialogOpen, setDialogOpen] = useState(false);
 
     const createExplanationRow = () => {
         //TODO: translation
