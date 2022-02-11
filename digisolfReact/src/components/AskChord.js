@@ -7,7 +7,17 @@ import {
     Checkbox,
     FormControlLabel,
     Grid,
-    FormControl, FormLabel, RadioGroup, Radio, Snackbar, MenuItem, Select
+    FormControl,
+    FormLabel,
+    RadioGroup,
+    Radio,
+    Snackbar,
+    MenuItem,
+    Select,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText
 } from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
@@ -62,6 +72,8 @@ const AskChord = () => {
     const [usePopJazzNaming, setUsePopJazzNaming] = useState(false);
     const [mode, setMode] = useState("harmonic"); // way of playing the chord: melodicUp|melodicDown|harmonic
     const [showChordSelection, setShowChordSelection] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
+
 
     //const userEnteredNotes = useSelector(state => state.exerciseReducer.userEnteredNotes);
     const startButtonRef = useRef(null);
@@ -503,9 +515,15 @@ const AskChord = () => {
             />
         </MenuItem>;
 
-        //const infoEntry = <MenuItem disabled>Abiinfo - tegemata veel</MenuItem>
+        const infoEntry = <MenuItem  key={"infoEntry"}>
+            <FormControlLabel
+                onChange={ (e) => { setDialogOpen(e.target.checked); closeMenu();}  }
+                control={<Checkbox color="default" />}
+                label={capitalizeFirst(t("chordList"))}
+            />
+        </MenuItem>
 
-        const menuEntries = [ playModeEntry, showChordSelectionEntry ];
+        const menuEntries = [ playModeEntry, showChordSelectionEntry, infoEntry ];
         dispatch(setCustomMenu(menuEntries));
     }
 
@@ -693,6 +711,21 @@ const AskChord = () => {
         );
     }
 
+    const createInfoDialog = () => {
+        //TODO: translation
+        return  (
+                <Dialog onClose={()=>setDialogOpen(false)} open={dialogOpen}>
+                    <DialogTitle>{capitalizeFirst(t("chordList"))}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Siia tuleb tabel akordide kirjeldustega.
+                            <br />
+                        </DialogContentText>
+                    </DialogContent>
+                </Dialog>
+        );
+    }
+
 
 
     return (
@@ -713,6 +746,7 @@ const AskChord = () => {
                 />*/}
 
                 <ScoreRow/>
+                {createInfoDialog()}
                 {createOptionsBlock()}
                 {createNotationBlock()}
                 {createChordSelection()}

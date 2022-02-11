@@ -200,5 +200,6 @@
   "low": "madal",
   "high": "kõrge",
   "inTune": "hääles",
-  "explanation": "seletuseks"
+  "explanation": "seletuseks",
+  "chordList": "akordide tabel"
 }
