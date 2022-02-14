@@ -17,7 +17,7 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
-    DialogContentText
+    DialogContentText, TableHead, Table, TableCell, TableRow, TableBody
 } from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
@@ -713,14 +713,32 @@ const AskChord = () => {
 
     const createInfoDialog = () => {
         //TODO: translation
+
         return  (
                 <Dialog onClose={()=>setDialogOpen(false)} open={dialogOpen}>
                     <DialogTitle>{capitalizeFirst(t("chordList"))}</DialogTitle>
                     <DialogContent>
-                        <DialogContentText>
-                            Siia tuleb tabel akordide kirjeldustega.
-                            <br />
-                        </DialogContentText>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Lühend</TableCell>
+                                    <TableCell>Nimetus</TableCell>
+                                    <TableCell>Intervallid</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {chordDefinitions.map((chord) => (
+                                    <TableRow
+                                        key={chord.shortName}
+                                    >
+                                        <TableCell> {chord[shortName]} </TableCell>
+                                        <TableCell >{t(chord[longName])}</TableCell>
+                                        <TableCell >{chord.intervalsUp.join(",")}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+
                     </DialogContent>
                 </Dialog>
         );
