@@ -17,7 +17,7 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
-    DialogContentText, TableHead, Table, TableCell, TableRow, TableBody
+    DialogContentText, TableHead, Table, TableCell, TableRow, TableBody, Switch, IconButton
 } from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
@@ -36,7 +36,7 @@ import {dictationOrchestra as orc} from "../csound/orchestras";
 import VolumeRow from "./VolumeRow";
 import {setCustomMenu, setSettingsMenuOpen} from "../actions/component";
 import {setVISupportMode} from "../actions/exercise";
-import {Visibility, VisibilityOff} from "@material-ui/icons";
+import {TableChart, Visibility, VisibilityOff} from "@material-ui/icons";
 
 
 
@@ -332,7 +332,7 @@ const AskChord = () => {
         let correct = true;
 
         //console.log(response);
-        const correctChord = t(selectedChord[shortName]);//t(selectedChord[longName]);
+        const correctChord = t(selectedChord[shortName]);// here no subscript -  it is just easier this way...
 
 
         if (useNotation) {
@@ -485,6 +485,16 @@ const AskChord = () => {
 
     // UI ======================================================
 
+    const subscriptChord = (shortName) => {
+        const index = shortName.search(/\d+$/);
+        if (index>0) { // do not use subscript when the number is first (only number like 1 2 5 etc)
+            const newString = (<>{shortName.slice(0, index)}  <sub>  {shortName.slice(index)}  </sub></>);
+            console.log("shortName in subscript: ", shortName.slice(0, index), shortName.slice(index)  );
+            return newString;
+        } else {
+            return shortName;
+        }
+    }
 
     const closeMenu = () => {
         dispatch(setSettingsMenuOpen(false));
@@ -517,8 +527,8 @@ const AskChord = () => {
 
         const infoEntry = <MenuItem  key={"infoEntry"}>
             <FormControlLabel
-                onChange={ (e) => { setDialogOpen(e.target.checked); closeMenu();}  }
-                control={<Checkbox color="default" />}
+                onClick={ () => { setDialogOpen(true); closeMenu();}  }
+                control={<IconButton><TableChart/></IconButton>}
                 label={capitalizeFirst(t("chordList"))}
             />
         </MenuItem>
@@ -626,9 +636,9 @@ const AskChord = () => {
             (
             <Grid item xs={3} key = {"XC"+chord.shortName}>
                  <Button variant="contained"  className={"fullWidth marginTopSmall" /*<- kuvab ok. oli: "exerciseBtn"*/}
-                        key = {chord.shortName}
+                        key = { chord.shortName }
                         onClick={() => checkResponse({shortName: chord.shortName})}>
-                     { t(chord[shortName]) }
+                     { subscriptChord( t(chord[shortName]) ) }
                  </Button>
             </Grid>
         ) : (<Grid item />)
@@ -701,7 +711,7 @@ const AskChord = () => {
                                 onChange={ handleChordSelection }
                                 checked={item.active}
                                 control={<Checkbox color="default" />}
-                                label={item[shortName]}
+                                label={subscriptChord( item[shortName] )}
                                 name={item[shortName]}
                             />
                         </Grid>
@@ -731,7 +741,7 @@ const AskChord = () => {
                                     <TableRow
                                         key={chord.shortName}
                                     >
-                                        <TableCell> {chord[shortName]} </TableCell>
+                                        <TableCell> { subscriptChord( chord[shortName] )} </TableCell>
                                         <TableCell >{t(chord[longName])}</TableCell>
                                         <TableCell >{chord.intervalsUp.join(",")}</TableCell>
                                     </TableRow>
