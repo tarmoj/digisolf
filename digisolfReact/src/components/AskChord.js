@@ -11,13 +11,12 @@ import {
     FormLabel,
     RadioGroup,
     Radio,
-    Snackbar,
     MenuItem,
     Select,
     Dialog,
     DialogTitle,
     DialogContent,
-    DialogContentText, TableHead, Table, TableCell, TableRow, TableBody, Switch, IconButton
+    TableHead, Table, TableCell, TableRow, TableBody, IconButton
 } from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
@@ -35,8 +34,7 @@ import CsoundObj from "@kunstmusik/csound";
 import {dictationOrchestra as orc} from "../csound/orchestras";
 import VolumeRow from "./VolumeRow";
 import {setCustomMenu, setSettingsMenuOpen} from "../actions/component";
-import {setVISupportMode} from "../actions/exercise";
-import {TableChart, Visibility, VisibilityOff} from "@material-ui/icons";
+import {TableChart} from "@material-ui/icons";
 
 
 
@@ -131,7 +129,7 @@ const AskChord = () => {
                     possibleChords.push(chord);
                 }
             }
-            if (possibleChords.length==0) {
+            if (possibleChords.length===0) {
                 console.log("No valid chord found!");
                 return;
             } else {
@@ -272,7 +270,6 @@ const AskChord = () => {
     };
 
     const play = (selectedChord, baseMidiNote=60) => {
-        const duration = 4; // TODO: make configurable
         const midiNotes = [];
         for (let midiInterval of selectedChord.midiIntervals) { // nootide kaupa basenote + interval
             midiNotes.push(baseMidiNote + midiInterval);
@@ -373,7 +370,7 @@ const AskChord = () => {
 
 
     // SHORTCUTS =============================================
-
+/*
     const handleShortcuts = (action, event) => {
         switch (action) {
             case 'CHORD1':
@@ -390,7 +387,7 @@ const AskChord = () => {
                 break;
         }
     }
-
+*/
     // TEMPORARY -  need rewrite (clef, proper parsing etc)
     const noteStringToVexTabChord =  (noteString) => { // input as c1 es1 ci2 -  will be converted to vextab chord for now
         const noteNames = noteString.trim().split(" ");
@@ -672,13 +669,13 @@ const AskChord = () => {
         const checked = e.target.checked;
 
         const chords = possibleChords.slice();
-        chords.find(c => c.shortName==shortName).active = checked;
+        chords.find(c => c.shortName===shortName).active = checked;
         setPossibleChords(chords);
      }
 
      const deselectAll = () => {
         const currentChords = possibleChords.slice();
-        currentChords.map(item => { item.active = false;  } );
+        currentChords.map(item => item.active = false );
         setPossibleChords(currentChords);
     }
 
