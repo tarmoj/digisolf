@@ -47,7 +47,7 @@ const AskInterval = () => {
     const parameterDict = {};
     if (parameters) {
         // snippet from: https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
-        parameters.split("&").forEach(function(item) {parameterDict[item.split("=")[0]] = item.split("=")[1]});
+        parameters.split("+").forEach(function(item) {parameterDict[item.split("=")[0]] = item.split("=")[1]});
         //console.log("parameters: ", parameterDict);
     }
     const [intervalCount, setIntervalCount] = useState(  isDigit(parameterDict.count) ? parseInt(parameterDict.count) : 1 );
