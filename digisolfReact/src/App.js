@@ -20,7 +20,7 @@ import {Visibility, VisibilityOff, SentimentDissatisfied} from "@material-ui/ico
 import MenuIcon from '@material-ui/icons/Menu';
 import {createTheme} from "@material-ui/core";
 import { MuiThemeProvider as ThemeProvider } from '@material-ui/core/styles';
-import {capitalizeFirst} from "./util/util";
+import {capitalizeFirst, isInIframe} from "./util/util";
 import {setSettingsMenuOpen} from "./actions/component"; // not certain if it works this way
 import euLogo from "./images/eu.jpg";
 
@@ -95,10 +95,9 @@ function App() {
 
     const handleClose = () => dispatch(setSettingsMenuOpen(false));
 
-    //const isInIframe = () => window.location !== window.parent.location;
 
     const createSettingsMenu = () => {
-        const isInIframe = window.location !== window.parent.location;
+        //const isInIframe = window.location !== window.parent.location;
         return (
             <>
                 <IconButton  className={"languageSelect"} aria-label="settingsMenu"  onClick={() => dispatch(setSettingsMenuOpen(true))} ref={settingsMenuButton}> <MenuIcon /> </IconButton>
@@ -111,7 +110,7 @@ function App() {
                 >
                     <MenuItem disabled={true}><span className={"marginRightSmall"}>{capitalizeFirst(t("language"))}:</span><LanguageSelect /></MenuItem>
                     <Divider />
-                    { !isInIframe && // necessary since in e-koolikott where it shown in iFrame the links don't work
+                    { !isInIframe() && // necessary since in e-koolikott where it shown in iFrame the links don't work
                     [
                         <MenuItem key={"menu1"} onClick={() => {
                             window.open("https://github.com/tarmoj/digisolf/blob/gh-pages/digisolfReact/known_issues.md", '_blank');

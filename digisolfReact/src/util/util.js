@@ -67,3 +67,5 @@ export const simplify = (string) => {
 }
 
 export const isDigit = char => /^\d+$/.test(char);
+
+export const  isInIframe = () => window.location !== window.parent.location;

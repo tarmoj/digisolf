@@ -7,7 +7,7 @@ import {resetScore} from "../actions/score";
 import {useTranslation} from "react-i18next";
 import {setUserEnteredNotes} from "../actions/exercise";
 import {useHistory} from "react-router-dom";
-import {capitalizeFirst} from "../util/util";
+import {capitalizeFirst, isInIframe} from "../util/util";
 
 const GoBackToMainMenuBtn = () => {
     const { t, i18n } = useTranslation();
@@ -25,7 +25,9 @@ const GoBackToMainMenuBtn = () => {
         document.title = capitalizeFirst(t("digisolfeggio"));
     };
 
-    return <Button variant={"contained"} onClick={goBack} className={"fullWidth marginTopSmall"}>{t("goBack")}</Button>;
+
+    // do not show  goBackButton when in iframe (when shown in e-koolikott)
+    return isInIframe() ? null : <Button variant={"contained"} onClick={goBack} className={"fullWidth marginTopSmall"}>{t("goBack")}</Button>;
 };
 
 export default GoBackToMainMenuBtn
