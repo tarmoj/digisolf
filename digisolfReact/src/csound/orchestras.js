@@ -173,8 +173,8 @@ chn_k "sound",3
 chn_k "isInput", 3
 
 chnset 8, "octave"
-chnset 0.45, "volume"
-chnset 0.05, "threshold"
+chnset 0.6, "volume"
+chnset 0.5, "threshold"
 chnset 1.5, "interval"
 chnset 2, "sound"
 chnset 0, "isInput"
@@ -211,7 +211,7 @@ instr Analyze
 	;kcps portk kcps, 0.02
 	kamp = ampdb(kamp)
 		
-	if (kamp > (0.001 +chnget:k("threshold")*0.5)) then ; threshold between 0.001 .. 0.5
+	if (kamp > (0.001 +chnget:k("threshold")*0.1)) then ; threshold between 0.001 .. 0.1
 		chnset k(1), "isInput"
 		kPitchRatio = kcps/kBaseFreq
 		kPitchRatio port  kPitchRatio, 0.05 

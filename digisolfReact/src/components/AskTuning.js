@@ -47,7 +47,7 @@ const AskTuning = () => {
     const [csound, setCsound] = useState(null);
     const [soundOn, setSoundOn] = useState(false);
     const [playUpperNoteOn, setPlayUpperNoteOn] = useState(false);
-    const [sensitivity, setSensitivity] = useState(0.6);
+    const [sensitivity, setSensitivity] = useState(0.4);
     const [volume, setVolume] = useState(0.6);
     const [soundType, setSoundType] = useState(2); // 1- sine, 2 -  saw, 3 - square
     const [selectedIntervalRatio, setSelectedIntervalRatio] = useState("1.5"); // perfect fifth is the default
@@ -106,6 +106,8 @@ const AskTuning = () => {
         csound.compileOrc(orc);
         csound.start();
         csound.audioContext.resume();
+        csound.setControlChannel("sensitivity", sensitivity);
+        csound.setControlChannel("volume", volume);
     };
 
     const startTuning = () => {
@@ -361,6 +363,7 @@ const AskTuning = () => {
                             aria-valuetext={sensitivity.toFixed(2)}
                             min={0} max={1} step={0.01}
                             onChange ={ (event, value) => {
+                                console.log("set threshold to:", value);
                                 if (csound) {
                                     csound.setControlChannel("threshold", value);
                                 }
