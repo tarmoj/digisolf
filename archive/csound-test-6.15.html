@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+  </head>
+  <body>
+   Hlolli<br>
+   <script type="module">
+  const url = "https://cdn.jsdelivr.net/npm/csound-wasm@6.15.0-4/dist/libcsound.mjs";
+  
+ const test1 = `
+ <CsoundSynthesizer>
+ <CsOptions>
+-odac
+</CsOptions>
+<CsInstruments>
+instr 1
+ aSin  poscil  0dbfs/4, 440
+       out     aSin
+endin
+</CsInstruments>
+<CsScore>
+i 1 0 10
+</CsScore>
+</CsoundSynthesizer>
+  `;
+ 
+  const helloWorld = async function({Csound}) {
+    const libcsound = await Csound();    
+    const csound = await libcsound.csoundCreate();
+    await libcsound.csoundCompileCsdText(csound, test1);  
+    await libcsound.csoundStart(csound);
+  }
+  const triggerEvent = ('ontouchstart' in document.documentElement) ? 'touchend' : 'click';
+  document.querySelector('#b1').addEventListener(triggerEvent, async function() {
+    const CsoundNS = await import(url);
+    helloWorld(CsoundNS);
+  })
+  document.querySelector('#b2').addEventListener(triggerEvent, function() {
+    libcsound.csoundResume(csound);
+  })
+</script>
+<button id="b1">
+  <h1>Play!</h1>
+</button>
+<button id="b2">
+  <h1>Resume!</h1>
+</button>
+</body>
+</html>

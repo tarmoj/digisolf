@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <h5>Click Start realtime once, gotta love chrome's new autoplay ban policy</h5>
+    <button id="start">Start realtime</button>
+    <button id="beeper">Make beep!</button>
+    <script src="https://github.com/hlolli/csound-wasm/releases/download/6.12.0-5/csound-wasm-browser.js">
+    </script>
+  <script>
+    const orc = `
+giSine ftgen 1,0, 16384, 10, 1 ; Sine
+giSawtooth ftgen 2,0,  16384, 10, 1, 0.5, 0.3, 0.25, 0.2, 0.167, 0.14, 0.125, .111   ; Sawtooth
+giSquare ftgen 3,  0, 16384, 10, 1, 0,   0.3, 0,    0.2, 0,     0.14, 0,     .111   ; Square
+
+chnset 13, "test"
+
+
+
+; schedule "PlayInterval", 0, 2, 0.1, 67, 4/3, -20, 3, 1
+instr PlayInterval
+	iAmp = (p4==0) ? 0.3 : p4
+	iFreq1 = cpsmidinn(p5) ; pich given as midi note
+	iIntervalRatio = p6 ; frequency ratio from base note 1.5 - perfect fifth etc
+	iCents = p7 ; deviation in cents, positive or negative 
+	iFreq2 = iFreq1 * iIntervalRatio * cent(iCents)
+	iSoundType = p8
+	iPlayMelodic = p9
+	iTable = (iSoundType >0 && iSoundType <=3) ? iSoundType : 1 
+	
+	iStart2 = (iPlayMelodic>0) ? p3 : 0
+	
+	; think how to use samples of instruments
+	iInstrument = nstrnum("Beep")
+	
+	schedule iInstrument, 0, p3, iAmp, iFreq1, iTable
+	schedule iInstrument, iStart2, p3, iAmp, iFreq2,iTable 
+endin
+
+
+instr Beep
+	iAmp = p4
+	iFreq = p5
+	iTable = p6	
+	aEnvelope linen iAmp, 0.1, p3, 0.5
+	aSignal poscil aEnvelope, iFreq, iTable
+	outs aSignal, aSignal
+endin
+
+schedule "Instrument", 0, 3, 1, 1, 0
+schedule "Instrument", 0, 3, 1, 0.5, 0
+instr Instrument
+  iAmp = p4
+  iSpeed = p5
+  iInstrument = p6
+  aSignal[] init 2
+  aSignal diskin2 "fl-note.wav", iSpeed
+  out aSignal
+endin
+
+
+    `
+    document.getElementById('start').onclick = () => {
+        csound.startRealtime();
+        csound.compileOrc(orc);
+    };
+
+    document.getElementById('beeper').onclick = () => {
+        csound.inputMessage('i 1 0 2 0.1 67 1.3333333 -20 3 1');
+    }
+  </script>
+</body>
+</html>
