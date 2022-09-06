@@ -34,6 +34,11 @@ const SelectInstrument = (props) => { // pass 'callback' via props that does som
                 <MenuItem value={"oboe"}> {t("oboe")}</MenuItem>
                 <MenuItem value={"violin"}>{t("violin")}</MenuItem>
                 <MenuItem value={"guitar"}>{t("guitar")}</MenuItem>
+                <MenuItem value={"clarinet"}>{t("clarinet")}</MenuItem>
+                <MenuItem value={"trumpet"}>{t("trumpet")}</MenuItem>
+                {/*<MenuItem value={"bassoon"}>{t("bassoon")}</MenuItem>*/}
+                {/*<MenuItem value={"trombone"}>{t("trombone")}</MenuItem>*/}
+                {/*<MenuItem value={"cello"}>{t("cello")}</MenuItem>*/}
             </Select>
             </>
             );

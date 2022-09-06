@@ -84,6 +84,7 @@ const AskInterval = () => {
 
 
     const instrument = useSelector(state => state.exerciseReducer.instrument);
+    const bassInstruments =  ["trombone", "cello", "bassoon"]; // NB! update when new instruments are added.
 
 
 
@@ -424,18 +425,38 @@ const AskInterval = () => {
 
     // Tone.js for sound
 
+    function fileExists(url) { // does not work, always reports true...
+        if(url){
+            const req = new XMLHttpRequest();
+            req.open('GET', url, false);
+            req.send();
+            console.log("url OK", url);
+            return req.status==200;
+        } else {
+            console.log("url not OK", url);
+            return false;
+        }
+    }
+
       const createSampler = (instrument) => {
         dispatch(setIsLoading(true));
         const sampleList = {};
         for (let i=60; i<=84; i++) {
+            // rewrite - -> function relativeToRange(notenumber, "instrument");
+            const noteNumber = bassInstruments.includes(instrument) ? i-24  : i; // 2 octaves lower for lower samples for lower instruments
             //TODO: check if file exists
-            sampleList[i]=i+".mp3";
+            if ( fileExists(process.env.PUBLIC_URL +"/sounds/instruments/" + instrument + "/" + noteNumber+".mp3") ) {
+                sampleList[noteNumber]=noteNumber+".mp3";
+            } else {
+                console.log("Sample not found", noteNumber, instrument);
+            }
+
         }
         const sampler = new Tone.Sampler( {
                 urls: sampleList,
                 baseUrl: process.env.PUBLIC_URL +"/sounds/instruments/"+instrument + "/",
                 release: 1,
-                onerror: (error) => { console.log("error on loading", error) },
+                onerror: (error) => { console.log("error on loading", error); dispatch(setIsLoading(false)); },
                 onload: () => { console.log("Samples loaded"); sampler.connect(reverb); dispatch(setIsLoading(false));}
             }
         );
@@ -448,7 +469,9 @@ const AskInterval = () => {
     //sampler.connect(reverb);
 
 
-    const playNote = (midiNote, start=0, duration=1,  volume=0.6 ) => { // csound kind of order of parameters:
+    const playNote = (noteNumber, start=0, duration=1,  volume=0.6 ) => { // csound kind of order of parameters:
+        const midiNote = bassInstruments.includes(instrument) ? noteNumber-24 : noteNumber; // 2 octaves lower for bass instrument
+        console.log("playNote", instrument, noteNumber, midiNote);
         const freq = Tone.Frequency(midiNote, "midi").toFrequency();
         //console.log("masterVolume at playNote: ", masterVolume);
         if (sampler) {

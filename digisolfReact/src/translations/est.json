@@ -201,5 +201,10 @@
   "high": "kõrge",
   "inTune": "hääles",
   "explanation": "seletuseks",
-  "chordList": "akordide tabel"
+  "chordList": "akordide tabel",
+  "trumpet": "trompet",
+  "clarinet": "klarnet",
+  "trombone": "tromboon",
+  "cello": "tšello",
+  "bassoon": "bassoon"
 }
