@@ -284,6 +284,10 @@ const AskInterval = () => {
         let start = 0;
 
         //console.log("Mode: ", mode);
+        if ( Tone.Transport.state === "started") {
+            stopSound();
+        }
+        Tone.Transport.start("+0.1");
 
         if (mode=="melodicHarmonic" || exerciseName === "tonicTriad") { // in case of tonicTriad -  always melodic and harmonic
 
@@ -413,6 +417,12 @@ const AskInterval = () => {
 
 
     const playTonicTriad = (rootMidiNote, isMajor, duration) => {
+
+        if ( Tone.Transport.state === "started") {
+            stopSound();
+        }
+        Tone.Transport.start("+0.1");
+
         const third =  rootMidiNote + ((isMajor) ? 4 : 3);
         const fifth = rootMidiNote + 7;
         // playing melodically (or rather as slow arpeggio)
@@ -445,11 +455,13 @@ const AskInterval = () => {
             // rewrite - -> function relativeToRange(notenumber, "instrument");
             const noteNumber = bassInstruments.includes(instrument) ? i-24  : i; // 2 octaves lower for lower samples for lower instruments
             //TODO: check if file exists
-            if ( fileExists(process.env.PUBLIC_URL +"/sounds/instruments/" + instrument + "/" + noteNumber+".mp3") ) {
-                sampleList[noteNumber]=noteNumber+".mp3";
-            } else {
-                console.log("Sample not found", noteNumber, instrument);
-            }
+            sampleList[noteNumber]=noteNumber+".mp3";
+            // this is slow and deos not work...
+            // if ( fileExists(process.env.PUBLIC_URL +"/sounds/instruments/" + instrument + "/" + noteNumber+".mp3") ) {
+            //     sampleList[noteNumber]=noteNumber+".mp3";
+            // } else {
+            //     console.log("Sample not found", noteNumber, instrument);
+            // }
 
         }
         const sampler = new Tone.Sampler( {
@@ -459,7 +471,7 @@ const AskInterval = () => {
                 onerror: (error) => { console.log("error on loading", error); dispatch(setIsLoading(false)); },
                 onload: () => { console.log("Samples loaded"); sampler.connect(reverb); dispatch(setIsLoading(false));}
             }
-        );
+        ).sync();
         return sampler;
     }
 
@@ -471,11 +483,11 @@ const AskInterval = () => {
 
     const playNote = (noteNumber, start=0, duration=1,  volume=0.6 ) => { // csound kind of order of parameters:
         const midiNote = bassInstruments.includes(instrument) ? noteNumber-24 : noteNumber; // 2 octaves lower for bass instrument
-        console.log("playNote", instrument, noteNumber, midiNote);
+        console.log("playNote", instrument, noteNumber, midiNote, start, Tone.Transport.state);
         const freq = Tone.Frequency(midiNote, "midi").toFrequency();
         //console.log("masterVolume at playNote: ", masterVolume);
         if (sampler) {
-            sampler.triggerAttackRelease(freq, duration, Tone.now() + start, volume*masterVolume);
+            sampler.triggerAttackRelease(freq, duration, start, volume*masterVolume);
         } else {
             console.log("Sampler is null: ", sampler);
         }
@@ -486,6 +498,7 @@ const AskInterval = () => {
         // disconnect would stop the sound but this is bad solution
         sampler.releaseAll();
         Tone.Transport.cancel();
+        Tone.Transport.stop("+0.01");
     }
 
      const playNoteWithMidiSounds = (midiNote, start, duration) => {
