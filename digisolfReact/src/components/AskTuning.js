@@ -10,9 +10,6 @@ import {
     Radio,
     FormLabel,
     Switch,
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
     Typography,
     Dialog,
     DialogTitle, DialogContent, DialogContentText
@@ -22,18 +19,12 @@ import {capitalizeFirst} from "../util/util";
 import GoBackToMainMenuBtn from "./GoBackToMainMenuBtn";
 import CsoundObj from "@kunstmusik/csound";
 import  {tuningOrchestra as orc} from "../csound/orchestras";
-import {setVolume} from "../actions/exercise";
 import {useSelector} from "react-redux";
 import {Mic, MicNone, VolumeUp} from "@material-ui/icons";
 
 
 // NB!!!! start with  export HOST="localhost" ; npm start for local testing, with other hostnames sound input does not work
 
-class ExpandMoreIcon extends React.Component {
-    render() {
-        return null;
-    }
-}
 
 const AskTuning = () => {
     const { t, i18n } = useTranslation();

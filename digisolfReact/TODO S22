@@ -1,0 +1,44 @@
+DigiSolfedžo projekt sügis 2022
+
+### Diktaadid
+
+Eralda diktaadid ja astmediktaadid. Võibolla kahehäälsed astmediktaadid veel eraldi.
+
+Lisa  { exerciseHasBegun && <VolumeRow /> }
+
+VexFlow,
+leht MaterialDesign peale
+? kas vaja uuendada MUI?
+? kas vaja uuendada Csound -> 6.18  (vist oleks mõtet)
+? Akordide tugi (\chords) vt  https://lilypond.org/doc/v2.19/Documentation/notation/displaying-chords
+- uuri, kuidas see musicxml->Lilypond kajastug
++ vaata üle nootide sisestus
+
++ hahehäälsed isegenerreruvad diktaadid
+
+## Tõlkimine
+Vene keel, ingliskeel?
+- kas intervallinimetused jm vajab muutmist?
+
+build jaoks (JavaScript Heap Overflow korral):
+export NODE_OPTIONS=--max_old_space_size=4096
+npm run-script build
+
+
+
+# konverteerimiskäsud:
+# diktaadid
+for x in *.wav ; do mv "$x"  ${x/' - viiul diktaadid'/_1voice_level1} ; done
+for x in *.wav ; do lame -b224 "$x"  "${x/wav/mp3}" ; done
+mv *.mp3 /home/tarmo/tarmo/programm/qt-projects/digi-solf/src/digisolfReact/public/sounds/dictations/1voice/level1/
+
+
+#Lilypond
+for x in *.mxl ; do  musicxml2ly -a -ldeutsch --nd --nrp --npl --no-beaming "$x"  ; done
+
+# noodid
+for x in *.wav ;  do mv "$x"  ${x/' - flööt noodid 2_4'/''} ; done
+oggenc -q 8 *.wav
+mv *.ogg /home/tarmo/tarmo/programm/qt-projects/digi-solf/src/digisolfReact/public/sounds/instruments/flute/
+
+

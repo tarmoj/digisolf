@@ -28,6 +28,9 @@ import {dictations as classical} from "../../dictations/classical"
 //import * as constants from "./dictationConstants";
 import {resetState, setAllowInput, setInputNotation} from "../../actions/askDictation";
 import {notationInfoToVtString} from "../notation/notationUtils";
+import VolumeRow from "../VolumeRow";
+import {MenuItem} from "@material-ui/core";
+
 
 
 
@@ -66,6 +69,17 @@ const AskDictation = () => {
     const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode);
     const masterVolume = useSelector(state => state.exerciseReducer.volume);
 
+    const instrument = useSelector(state => state.exerciseReducer.instrument);
+    const bassInstruments =  ["trombone", "cello", "bassoon"]; // NB! update when new instruments are added.
+
+    useEffect(async () => {
+            //console.log("New sound is: ", data.value)
+            if (csound) {
+                // TODO: bass instruments -  deal with bass instruments
+                // if (bassInstruments.include(instrument) ...
+                await loadResources(csound,  60, 84, instrument);
+            }
+    }, [instrument]);
 
     useEffect(() => {
         dispatch(resetState());
@@ -657,7 +671,10 @@ const AskDictation = () => {
                             {text: t("flute"), value:"flute"},
                             {text: t("oboe"), value:"oboe"},
                             {text: t("violin"), value:"violin"},
-                            {text: t("guitar"), value:"guitar"}
+                            {text: t("guitar"), value:"guitar"},
+
+                            { value:"clarinet", text: t("clarinet")},
+                            { value:"trumpet", text:t("trumpet") }
                             ]  }
                         defaultValue={1}
                     />
@@ -937,6 +954,7 @@ const AskDictation = () => {
                 { createNotationInputBlock() }
                 {createCorrectNotationBlock()}
                 {createVolumeRow()}
+                {/*{ exerciseHasBegun && <VolumeRow /> }*/}
                 {createControlButtons()}
                 <Grid.Row>
                     <Grid.Column>
