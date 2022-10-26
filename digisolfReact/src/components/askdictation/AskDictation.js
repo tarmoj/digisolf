@@ -1,11 +1,12 @@
 import React, {useState, useEffect} from 'react';
-import {Button, Checkbox, Dropdown, Grid, Header, Input, Label, Popup} from 'semantic-ui-react'
+import { Dropdown, Grid, Header, Input} from 'semantic-ui-react';
+import {Button, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup} from '@material-ui/core'; // start porting to material ui
 import {Slider} from "react-semantic-ui-range";
 
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {arraysAreEqual, capitalizeFirst, deepClone, isDigit, simplify, weightedRandom} from "../../util/util";
-import {parseLilypondString, parseLilypondDictation} from "../../util/notes";
+import {parseLilypondDictation} from "../../util/notes";
 //import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../../actions/headerMessage";
 import ScoreRow from "../ScoreRow";
@@ -28,8 +29,8 @@ import {dictations as classical} from "../../dictations/classical"
 //import * as constants from "./dictationConstants";
 import {resetState, setAllowInput, setInputNotation} from "../../actions/askDictation";
 import {notationInfoToVtString} from "../notation/notationUtils";
-import VolumeRow from "../VolumeRow";
-import {MenuItem} from "@material-ui/core";
+// import VolumeRow from "../VolumeRow";
+// import {MenuItem} from "@material-ui/core";
 
 
 
@@ -55,7 +56,7 @@ const AskDictation = () => {
     const [lyUserInput2, setLyUserInput2] = useState("");
     const [degreesEnteredByUser, setDegreesEnteredByUser] = useState("");
 
-    const [notationInfo, setNotationInfo] = useState(defaultNotationInfo); // do we need it?
+    //const [notationInfo, setNotationInfo] = useState(defaultNotationInfo); // do we need it?
 
     const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
     const [wrongNoteIndexes, setWrongNoteIndexes] = useState(null);
@@ -65,20 +66,27 @@ const AskDictation = () => {
     const [correctNotationWidth, setCorrectNotationWidth] = useState (400);
     const [correctNotation, setCorrectNotation] = useState (defaultNotationInfo);
     //const [showTextInput, setShowTextInput] = useState(false);
+    const [difficultyLevel, setDifficultyLevel ] = useState("simple"); // simple|medium|difficult
+
 
     const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode);
-    const masterVolume = useSelector(state => state.exerciseReducer.volume);
+    //const masterVolume = useSelector(state => state.exerciseReducer.volume);
 
     const instrument = useSelector(state => state.exerciseReducer.instrument);
-    const bassInstruments =  ["trombone", "cello", "bassoon"]; // NB! update when new instruments are added.
+    //const bassInstruments =  ["trombone", "cello", "bassoon"]; // NB! update when new instruments are added.
 
-    useEffect(async () => {
+
+
+    useEffect( () => {
+        async function csoundSetup() {
             //console.log("New sound is: ", data.value)
             if (csound) {
                 // TODO: bass instruments -  deal with bass instruments
                 // if (bassInstruments.include(instrument) ...
-                await loadResources(csound,  60, 84, instrument);
+                await loadResources(csound, 60, 84, instrument);
             }
+        }
+        csoundSetup().then(r => console.log("Csound started from useEffect"));
     }, [instrument]);
 
     useEffect(() => {
@@ -114,6 +122,8 @@ const AskDictation = () => {
             let index = dictations.findIndex( element => {
                 if (element.title === title && element.category.startsWith(name)) { // later - element.category === name
                     return true;
+                } else {
+                    return false;
                 }
             });
             //console.log("was able to find index for ", title, index);
@@ -197,15 +207,15 @@ const AskDictation = () => {
         // a degree dictaion has 7 notes, on degrees of the scale 1..7
         // a tonic as vextab note and the scale
         //NB! the biggest degree allowed is 7!
-        const possibleTonicNotes = ["G/4", "A/4", "C/5", "D/5"];
+        const possibleTonicNotes = ["G/4", "A/4", "C/5"];
         const possibleScales = ["major", "minorNatural", "minorHarmonic"]; // maybe scale should be given as a parameter
-        const possibleDegrees = [-5, -6, -7, 1, 2, 3, 4, 5, 6];
+        //const possibleDegrees = [-5, -6, -7, 1, 2, 3, 4, 5, 6, 7];
         const maxNotes = 7;
 
         let degrees = [];
 
         const firstNoteProbabilities = { 1:0.6, 3:0.2, 5:0.1, 2:0.1 };
-        const followUpProbabilities = { // probabilities, what comes after the given degree
+        const followUpProbabilitiesSimple = { // probabilities, what comes after the given degree
             "1": {2:0.4 , 3:0.2, 5:0.1, "-7":0.25, "-5":0.05  }, // give 5 steps, probabilities must sum to 1, like 0.4, 0.25, 0.2, 0.1, 0.05)
             "2": {3:0.4 , 1:0.25, 4:0.1, "-7":0.1, "-5":0.05  },
             "3": {4:0.4 , 1:0.25, 2:0.1, 5:0.1, 6:0.05  },
@@ -219,8 +229,41 @@ const AskDictation = () => {
             "-5": {1:0.5 , "-6":0.25, 2:0.15, "-7":0.1  },
         };
 
+        const followUpProbabilitiesMedium = { // probabilities, what comes after the given degree
+            "1": {4:0.4 , 6:0.2, 5:0.1, "-6":0.25, "-5":0.05  }, // give 5 steps, probabilities must sum to 1, like 0.4, 0.25, 0.2, 0.1, 0.05)
+            "2": {6:0.4 , 7:0.25, 4:0.1, "-6":0.1, "-5":0.05  },
+            "3": {"-7":0.4 , 6:0.25, 2:0.1, 7:0.1, "-5":0.05  },
+            "4": {"-7":0.4 , 7:0.25, 1:0.1, 6:0.1, "-5":0.05  },
+            "5": {"-5":0.4 , 2:0.25, 1:0.1, 3:0.1, "-7":0.05  },
+
+            "6": {"-6":0.4 , 2:0.25, 7:0.1, 4:0.1, 1:0.05  },
+            "7": {6:0.4 , 5:0.25, 2:0.1, 4:0.1, "-7":0.05  },
+            "-7": {5:0.5 , 2:0.25, "-5":0.15, 4:0.1  },
+            "-6": {5:0.4 , 2:0.25, 4:0.1, 1:0.1, 6:0.05  },
+            "-5": {1:0.5 , 4:0.25, 2:0.15, "-7":0.1  },
+        };
+
+        const followUpProbabilitiesHard = { // probabilities, what comes after the given degree
+            "1": {7:0.5 , 6:0.2, "-6":0.25, 4:0.05  }, // give 5 steps, probabilities must sum to 1, like 0.4, 0.25, 0.2, 0.1, 0.05)
+            "2": {7:0.4 , 6:0.25, "-6":0.1, 5:0.1, "-5":0.05  },
+            "3": {"-5":0.4 , 7:0.25, "-6":0.1, 5:0.1, 2:0.05  },
+            "4": {"-7":0.4 , "-5":0.25, 1:0.1, 6:0.1, 2:0.05  },
+            "5": {"-6":0.4 , "-7":0.25, 1:0.1, 4:0.1, "-5":0.05  },
+
+            "6": {"-5":0.4 , 2:0.25, 3:0.1, "-7":0.1, "-6":0.05  },
+            "7": {4:0.4 , "-6":0.25, 2:0.1, 1:0.1, "-7":0.05  },
+            "-7": {3:0.5 , 6:0.25, 2:0.15, 1:0.1  },
+            "-6": {4:0.4 , 7:0.25, 5:0.1, 2:0.1, 6:0.05  },
+            "-5": {7:0.5 , 4:0.25, 2:0.15, 3:0.1  },
+        };
+
+        let followUpProbabilities = followUpProbabilitiesSimple; // by default
+        if (difficultyLevel==="medium") followUpProbabilities = followUpProbabilitiesMedium;
+        if (difficultyLevel==="difficult") followUpProbabilities = followUpProbabilitiesHard;
+        console.log("Difficulty ", difficultyLevel, followUpProbabilities);
+
         degrees[0] =  parseInt( weightedRandom(firstNoteProbabilities) );
-        let lastIndex = possibleDegrees.indexOf(degrees[0]);
+        //let lastIndex = possibleDegrees.indexOf(degrees[0]);
         console.log("First note: ", degrees[0]);
 
 
@@ -270,7 +313,7 @@ const AskDictation = () => {
                         console.log("Tonic, Interval, note: ", tonicVtNote, interval, note.vtNote );
                         if (Math.abs(degree)===8) degree=1; // 1 is correct in theory, 8 is necessary to mark the octave
                         vtString += ` ${note.vtNote}  $ ${Math.abs(degree) } $ `; // add the
-                        if (counter%4 == 0) {
+                        if (counter%4 === 0) {
                             vtString += " | ";
                         }
                         counter += 1;
@@ -312,7 +355,7 @@ const AskDictation = () => {
     const playTonic = (tonicVtNote=0, duration=1, when=0) => {
 
         const midiNote = notes.getNoteByVtNote(tonicVtNote).midiNote;
-        const scoreLine = `i \"PlayNote\" ${when} ${duration} ${midiNote}`;
+        const scoreLine = `i "PlayNote" ${when} ${duration} ${midiNote}`;
         console.log("Play tonic in Csound: ", scoreLine);
         if (csound) {
             csound.readScore(scoreLine);
@@ -610,15 +653,15 @@ const AskDictation = () => {
             return (
                 <Grid.Row  columns={3} centered={true}>
                     <Grid.Column>
-                        <Button color={"green"} onClick={() => play(selectedDictation)} className={"fullWidth marginTopSmall"} >
+                        <Button variant="contained" color={"primary"} onClick={() => play(selectedDictation)} className={"fullWidth marginTopSmall"} >
                             { capitalizeFirst( t("play")) }
                         </Button>
                     </Grid.Column>
                     <Grid.Column>
-                        <Button onClick={() => stop()} className={"fullWidth marginTopSmall"}  >{ capitalizeFirst( t("stop") )}</Button>
+                        <Button variant="contained"  onClick={() => stop()} className={"fullWidth marginTopSmall"}  >{ capitalizeFirst( t("stop") )}</Button>
                     </Grid.Column>
                     { dictationType!=="degrees" && <Grid.Column>
-                         <Button className={"fullWidth marginTopSmall"}
+                        <Button variant="contained" className={"fullWidth marginTopSmall"}
                                 onClick={() => checkResponse(null)}>{capitalizeFirst(t("check"))}
                         </Button>
                     </Grid.Column> }
@@ -627,14 +670,14 @@ const AskDictation = () => {
 
                     { dictationType ==="degrees" &&
                     <Grid.Column>
-                        <Button className={"fullWidth marginTopSmall"}
+                        <Button variant="contained" className={"fullWidth marginTopSmall"}
                                 onClick={() => playTonic(selectedDictation.tonicVtNote)}>{capitalizeFirst(t("tonic"))}
                         </Button>
                     </Grid.Column>}
 
                     {  name.toString().startsWith("degrees_random") &&
                     <Grid.Column>
-                        <Button className={"fullWidth marginTopSmall"}
+                        <Button variant="contained" className={"fullWidth marginTopSmall"}
                                 onClick={() => renew(0)}>{capitalizeFirst(t("new"))}
                         </Button>
                     </Grid.Column>
@@ -647,7 +690,7 @@ const AskDictation = () => {
             return(
                 <Grid.Row  >
                     <Grid.Column>
-                    <Button color={"green"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>
+                        <Button variant="contained" color={"primary"} onClick={startExercise} className={"fullWidth marginTopSmall"}>{t("startExercise")}</Button>
                     </Grid.Column>
                 </Grid.Row>
             );
@@ -685,7 +728,6 @@ const AskDictation = () => {
                     <Slider value={volume} color="blue"
                             settings={ {
                                 min:0, max:1, step:0.01,
-                                start: {volume},
                                 onChange: (value) => {
                                     if (csound) {
                                         csound.setControlChannel("volume", value);
@@ -702,6 +744,21 @@ const AskDictation = () => {
     const createDegreeDictationInput = () => { // if degreedictation, Input for  degrees (text), otherwise lilypondINpute + Notation
         return (exerciseHasBegun && dictationType==="degrees") ? (
             <div>
+                <div id={"difficultyChoice"} className={"marginRight"}>
+                    <FormControl component="fieldset">
+                        <FormLabel component="legend">{capitalizeFirst(t("difficulty"))}</FormLabel>
+                        <RadioGroup row aria-label="setDifficultyLevel" name="difficultyLevel" value={difficultyLevel}
+                                    onChange={ (e) => {
+                                        console.log("difficulty value: ", e.target.value);
+                                        setDifficultyLevel( e.target.value);
+                                    }}
+                        >
+                            <FormControlLabel value="simple" control={<Radio />} label={t("simpleSingular")} />
+                            <FormControlLabel value="medium" control={<Radio />} label={t("medium")} />
+                            <FormControlLabel value="difficult" control={<Radio />} label={t("difficult")} />
+                        </RadioGroup>
+                    </FormControl>
+                </div>
                 <label className={"marginRight"}>{  capitalizeFirst( t("enterDegrees") ) + " " }
                     {name.includes("random") ? t("inMode") : ""} <b>{ t(selectedDictation.scale) }</b>: </label>
                 <Input
@@ -728,7 +785,7 @@ const AskDictation = () => {
                     value={degreesEnteredByUser}
                 />
 
-                <Button onClick={ checkDegrees }>{ capitalizeFirst( t("answer") )}</Button>
+                <Button variant="contained" onClick={ checkDegrees }>{ capitalizeFirst( t("answer") )}</Button>
 
             </div>
         ) : null;
@@ -774,7 +831,7 @@ const AskDictation = () => {
                         />
                     </Grid.Column>
                     <Grid.Column width={1}>
-                        <Button onClick={handleLilypondInput}>
+                        <Button variant="contained" onClick={handleLilypondInput}>
                             {capitalizeFirst(t("show"))}
                         </Button>
                     </Grid.Column>

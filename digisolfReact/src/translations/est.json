@@ -122,7 +122,7 @@
   "enterIntervals": "sisetage intervall(id)",
   "enterNotationInLilypond": "sisesta Lilypond vormingus",
   "tonic": "toonika",
-  "generated": "genereeritud",
+  "generated": "isegenereeruvad",
   "renew": "uuenda",
   "new": "uus",
   "major": "mažoor",
@@ -206,5 +206,9 @@
   "clarinet": "klarnet",
   "trombone": "tromboon",
   "cello": "tšello",
-  "bassoon": "bassoon"
+  "bassoon": "bassoon",
+  "difficulty": "raskusaste",
+  "simpleSingular": "lihtne",
+  "medium": "keskmine",
+  "difficult": "keeruline"
 }

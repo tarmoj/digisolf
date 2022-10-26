@@ -1,6 +1,6 @@
 {
   "name": "digisolf-app",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "private": true,
   "dependencies": {
     "@babel/compat-data": "^7.15.0",
