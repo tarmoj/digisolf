@@ -673,8 +673,8 @@ const AskDictation = () => {
                             {text: t("violin"), value:"violin"},
                             {text: t("guitar"), value:"guitar"},
 
-                            { value:"clarinet", text: t("clarinet")},
-                            { value:"trumpet", text:t("trumpet") }
+                            // { value:"clarinet", text: t("clarinet")},
+                            // { value:"trumpet", text:t("trumpet") }
                             ]  }
                         defaultValue={1}
                     />
