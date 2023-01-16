@@ -3,7 +3,6 @@ import {useDispatch, useSelector} from "react-redux";
 import {setVolume} from "../actions/exercise";
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../util/util";
-//import {Slider} from "react-semantic-ui-range";
 import { Slider } from '@material-ui/core';
 
 // later: replace with materialui slider: https://material-ui.com/components/slider/
