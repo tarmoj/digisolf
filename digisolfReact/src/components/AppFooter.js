@@ -3,7 +3,6 @@ import euLogo from "../images/eu.jpg";
 import {Grid} from "@material-ui/core"
 import {capitalizeFirst} from "../util/util";
 import {useTranslation} from "react-i18next";
-//import { version as appVersion } from '../../package.json';
 import packageInfo from '../../package.json';
 
 
