@@ -43,8 +43,8 @@ const MainMenu = () => {
             <Grid container item direction={"row"}>
                 <Grid item xs={6}>
                     <h2 className={"marginTopSmall"}>{t("dictations")}</h2>
-                    <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/degrees")}>{capitalizeFirst(t("degreeDictations"))}</Button><br/>
-                    <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/degrees_random")}>{capitalizeFirst(t("degreeDictations"))} - {t("generated") }</Button><br/>
+                    <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdegreedictation/degrees")}>{capitalizeFirst(t("degreeDictations"))}</Button><br/>
+                    <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdegreedictation/degrees_random")}>{capitalizeFirst(t("degreeDictations"))} - {t("generated") }</Button><br/>
                     <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/1voice")}>{capitalizeFirst(t("oneVoice"))}</Button><br/>
                     <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/2voice")}>{capitalizeFirst(t("twoVoice"))}</Button><br/>
                     <Button variant="contained" className={"marginTopSmall mainMenuBtn"} onClick={() => history.push("/digisolf/askdictation/popJazz")}>{capitalizeFirst(t("popJazz"))}</Button><br/>

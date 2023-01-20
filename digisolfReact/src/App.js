@@ -23,6 +23,7 @@ import { MuiThemeProvider as ThemeProvider } from '@material-ui/core/styles';
 import {capitalizeFirst, isInIframe} from "./util/util";
 import {setSettingsMenuOpen} from "./actions/component"; // not certain if it works this way
 import euLogo from "./images/eu.jpg";
+import AskDegreeDictation from "./components/askdictation/AskDegreeDictation";
 
 function App() {
     const isLoading = useSelector(state => state.componentReducer.isLoading);
@@ -56,6 +57,7 @@ function App() {
                     <Route path='/digisolf/askchord/:name/' component={AskChord}/>
                     <Route path='/digisolf/askfunctions/:title?' component={AskFunctions}/>
                     <Route path='/digisolf/askdictation/:name/:title?' component={AskDictation}/>
+                    <Route path='/digisolf/askdegreedictation/:name/:title?' component={AskDegreeDictation}/>
                     <Route path='/digisolf/askintonation/:name/:cents' component={AskIntonation}/>
                     <Route path='/digisolf/asktuning' component={AskTuning}/>
                 </Switch>

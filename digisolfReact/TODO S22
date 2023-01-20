@@ -49,4 +49,5 @@ for x in *.wav ;  do mv "$x"  ${x/' - flööt noodid 2_4'/''} ; done
 oggenc -q 8 *.wav
 mv *.ogg /home/tarmo/tarmo/programm/qt-projects/digi-solf/src/digisolfReact/public/sounds/instruments/flute/
 
-
+e-koolikott -  et AskDegreeDictation, siis e-koolikotis ilmselt harjutused muutunu...
+t

@@ -7,7 +7,6 @@ import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {arraysAreEqual, capitalizeFirst, deepClone, isDigit, simplify, weightedRandom} from "../../util/util";
 import {parseLilypondDictation} from "../../util/notes";
-//import MIDISounds from 'midi-sounds-react';
 import {setNegativeMessage, setPositiveMessage} from "../../actions/headerMessage";
 import ScoreRow from "../ScoreRow";
 import Notation from "../notation/Notation";
@@ -21,11 +20,8 @@ import {makeInterval,  scaleDefinitions, getIntervalByShortName} from "../../uti
 import * as notes from "../../util/notes";
 import {stringToIntArray, getRandomElementFromArray } from "../../util/util.js"
 import {dictationOrchestra as orc} from "../../csound/orchestras";
-import {dictations as oneVoice} from "../../dictations/1voice";
-import {dictations as twoVoice} from "../../dictations/2voice";
-import {dictations as popJazz} from "../../dictations/popJazz";
 import {dictations as degrees} from "../../dictations/degrees";
-import {dictations as classical} from "../../dictations/classical"
+
 //import * as constants from "./dictationConstants";
 import {resetState, setAllowInput, setInputNotation} from "../../actions/askDictation";
 import {notationInfoToVtString} from "../notation/notationUtils";
@@ -35,7 +31,7 @@ import {notationInfoToVtString} from "../notation/notationUtils";
 
 
 
-const AskDictation = () => {
+const AskDegreeDictation = () => {
     const { name, title } = useParams(); // title is optional, used for opening the dictation by url
 
     const { t, i18n } = useTranslation();
@@ -43,34 +39,23 @@ const AskDictation = () => {
 
     const defaultNotationInfo = {  clef:"treble", time: "4/4", vtNotes: "" };
 
-    // const name = useSelector(state => state.exerciseReducer.name);
-    //const midiSounds = useRef(null);
-
     const [exerciseHasBegun, setExerciseHasBegun] = useState(false);
     const [selectedDictation, setSelectedDictation] = useState({title:"", soundFile:"", notation:""});
     const [answer, setAnswer] = useState(null);
     const [answered, setAnswered] = useState(false);
     const [showCorrectNotation, setShowCorrectNotation] =  useState(false);
 
-    const [lyUserInput, setLyUserInput] = useState("");
-    const [lyUserInput2, setLyUserInput2] = useState("");
     const [degreesEnteredByUser, setDegreesEnteredByUser] = useState("");
 
-    //const [notationInfo, setNotationInfo] = useState(defaultNotationInfo); // do we need it?
-
-    const [playStatus, setPlayStatus] = useState(Sound.status.STOPPED);
-    const [wrongNoteIndexes, setWrongNoteIndexes] = useState(null);
     const [volume, setVolume] = useState(0.6);
-    const [inputVtString, setInputVtString] = useState( "stave\n");
-    const [correctVtString, setCorrectVtString] = useState( "stave\n");
+    const [correctVtString, setCorrectVtString] = useState("");
     const [correctNotationWidth, setCorrectNotationWidth] = useState (400);
     const [correctNotation, setCorrectNotation] = useState (defaultNotationInfo);
-    //const [showTextInput, setShowTextInput] = useState(false);
     const [difficultyLevel, setDifficultyLevel ] = useState("simple"); // simple|medium|difficult
 
 
     const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode);
-    //const masterVolume = useSelector(state => state.exerciseReducer.volume);
+    const masterVolume = useSelector(state => state.exerciseReducer.volume);
 
     const instrument = useSelector(state => state.exerciseReducer.instrument);
     //const bassInstruments =  ["trombone", "cello", "bassoon"]; // NB! update when new instruments are added.
@@ -91,24 +76,15 @@ const AskDictation = () => {
 
     useEffect(() => {
         dispatch(resetState());
-        document.title = `${ capitalizeFirst( t("dictations") )}`;
+        document.title = `${ capitalizeFirst( t("degreeDictations") )}`;
     }, []);
 
-    const dictationType = name.toString().split("_")[0]; // categories come in as 1voice_level1 etc
+    // probably we don't need that any more since address changes...
+    //const dictationType = name.toString().split("_")[0]; // categories come in as 1voice_level1 etc
 
-    let dictations = [];
-    switch (dictationType) {
-        case "1voice": dictations = oneVoice; break;
-        case "2voice": dictations = twoVoice; break;
-        case "degrees": dictations = degrees; break;
-        case "classical": dictations = classical; break;
-        case "popJazz": dictations = popJazz; break;
-        default: dictations = oneVoice;
-    }
-    //const dictations = oneVoice.concat(twoVoice).concat(degrees).concat(popJazz).concat(classical); // + add other dictations when done
+    let dictations = degrees;
 
     const inputNotation = useSelector(state => state.askDictationReducer.inputNotation);
-    //const correctNotation = useSelector(state => state.askDictationReducer.correctNotation);
     const allowInput = useSelector(state => state.askDictationReducer.allowInput);
 
 
@@ -120,7 +96,7 @@ const AskDictation = () => {
         if (title && dictations) {
             //find index of that dictation
             let index = dictations.findIndex( element => {
-                if (element.title === title && element.category.startsWith(name)) { // later - element.category === name
+                if (element.title === title && element.category.startsWith(name)) {
                     return true;
                 } else {
                     return false;
@@ -130,13 +106,10 @@ const AskDictation = () => {
             if (index>=0) {
                 renew(index);
             }
-
         }
 
-        if ( dictationType === "degrees" ) {
-            if (!csoundStarted) {
-                startCsound();
-            }
+        if (!csoundStarted) {
+            startCsound();
         }
 
         if (name.includes("random")) {
@@ -149,12 +122,8 @@ const AskDictation = () => {
     const renew = (dictationIndex) => {
         console.log("Renew: ", dictationIndex);
         setAnswered(false);
-        setLyUserInput("");
-        setLyUserInput2("");
         setDegreesEnteredByUser("");
-        //hideAnswer();
         setShowCorrectNotation(false);
-        setWrongNoteIndexes(null);
 
         let dictation;
 
@@ -164,35 +133,19 @@ const AskDictation = () => {
 
         let answer = null;
 
-        if (dictationType === "degrees") { // degree dictations -  generate notation from dictation.degrees
-
-            if ( name.includes("degrees_random")) {
-                dictation = generateDegreeDictation();
-                console.log("new dictation: ", dictation.degrees, dictation.scale, dictation.tonicVtNote);
-            }
-
-            const {vtString, midiNotes} = degreesToNotes(dictation.degrees, dictation.scale, dictation.tonicVtNote);
-            console.log("Constructed notation: ", vtString);
-            dictation.notation = vtString; // is it still necessary?
-            setCorrectVtString(vtString);
-            // do I need setCorrectNotation for anything???
-
-            dictation.midiNotes = midiNotes;
-            answer = {degrees: stringToIntArray(dictation.degrees) };
-        } else {
-            answer = {notation: selectedDictation.notation}; // <- this will not be used
-            const notationInfo = parseLilypondDictation(dictation.notation);
-            //console.log("correct notation notes: ", notationInfo);
-            //dispatch(setCorrectNotation(notationInfo));
-            setCorrectNotation(notationInfo)
-            setCorrectVtString( notationInfoToVtString(notationInfo) ); // <- is this necessary  or shall we need correctNotation reducer then at all?
-            setCorrectNotationWidth( getWidth(notationInfo)  );
-            dispatch(resetState());
-            dispatch(setAllowInput(true));
-            showFirstNote(dictation);
-
-
+        if ( name.includes("degrees_random")) {
+            dictation = generateDegreeDictation();
+            console.log("new dictation: ", dictation.degrees, dictation.scale, dictation.tonicVtNote);
         }
+
+        const {vtString, midiNotes} = degreesToNotes(dictation.degrees, dictation.scale, dictation.tonicVtNote);
+        console.log("Constructed notation: ", vtString);
+        dictation.notation = vtString; // is it still necessary?
+        setCorrectVtString(vtString);
+        // do I need setCorrectNotation for anything???
+
+        dictation.midiNotes = midiNotes;
+        answer = {degrees: stringToIntArray(dictation.degrees) };
 
         setSelectedDictation(dictation);
         setAnswer(answer);
@@ -263,12 +216,7 @@ const AskDictation = () => {
         console.log("Difficulty ", difficultyLevel, followUpProbabilities);
 
         degrees[0] =  parseInt( weightedRandom(firstNoteProbabilities) );
-        //let lastIndex = possibleDegrees.indexOf(degrees[0]);
         console.log("First note: ", degrees[0]);
-
-
-        // try wiht most probable intervals -  did not work well
-        // const intervalProbabilities = {1:0.5, 2:0.25, 3:0.1, 4:0.1, 5:0.05}; // interval in degrees
 
         let degreesString = "";
 
@@ -338,18 +286,9 @@ const AskDictation = () => {
 
     const play = (dictation) => {
         stop(); // need a stop here  - take care, that it does not kill already started event
-        if (dictationType === "degrees") {
-            const beatLength = 1.2;
-            playTonic(dictation.tonicVtNote, 1*beatLength, 0.1);
-            playCsoundSequence(dictation, 2*beatLength+0.1, beatLength );
-        } else {
-            playSoundFile(dictation.soundFile);
-        }
-    };
-
-    const playSoundFile = (url) => { // why is here url? Sound.url is probably already set somewhere...
-        // console.log("Play soundfile", url);
-        setPlayStatus(Sound.status.PLAYING);
+        const beatLength = 1.2;
+        playTonic(dictation.tonicVtNote, 1*beatLength, 0.1);
+        playCsoundSequence(dictation, 2*beatLength+0.1, beatLength );
     };
 
     const playTonic = (tonicVtNote=0, duration=1, when=0) => {
@@ -378,77 +317,8 @@ const AskDictation = () => {
 
     const stop = () => {
         // console.log("***Stop***");
-        if (name.toString().startsWith("degrees")) {
-            if (csound) {
-                csound.readScore("i \"Stop\" 0  0.01");
-            }
-        } else {
-            setPlayStatus(Sound.status.STOPPED);
-        }
-    };
-
-    const isLyNote = chunk => ['c','d','e','f','g','a','b','h'].includes(chunk.charAt(0));
-
-    const getLyBeginning = (lyString) => { // return the beginning of dictation in Lilypond until first note
-        const chunks = simplify(lyString).split(" ");
-        for (let i=1; i<chunks.length-1; i++) {
-            //console.log("Chunk, is Lynote: ", chunks[i], isLyNote(chunks[i]) );
-            if (isLyNote(chunks[i]) && isLyNote(chunks[i+1])) { // usually in the header there are keywords like \time 4/4 \clef violint \key g \major, if there are two notes in a row, this is most likely first note
-                const beginning = chunks.slice(0, i+1).join(" ");
-                console.log("ly found first note: ", i, chunks[i]);
-                console.log("ly beginning: ", beginning);
-                return beginning;
-            }
-        }
-        return "";
-    }
-
-    // some dictation may have property show (in lilypond), if not, copy stave definitions and stave's first notes to inputNotation
-    const showFirstNote= (dictation) => {
-        console.log("Show first note")
-        let notationInfo = {};
-        if (dictation.hasOwnProperty("show")) {
-            notationInfo = parseLilypondDictation(dictation.show);
-            dispatch( setInputNotation(notationInfo));
-            if (VISupportMode) {
-                if (dictation.notation.hasOwnProperty("stave2")) {
-                    setLyUserInput(simplify(dictation.show.stave1));
-                    setLyUserInput2(simplify(dictation.show.stave2));
-
-                } else {
-                    setLyUserInput(dictation.show.trim().replace(/\s\s+/g, ' '));
-                }
-            }
-        } else {
-            notationInfo = parseLilypondDictation(dictation.notation);
-            if (notationInfo.staves.length>0) {
-                for (let stave of notationInfo.staves) {
-                    for (let voice of stave.voices) {
-                        voice.notes.splice(1); // leave only the first note
-                    }
-                }
-                dispatch( setInputNotation(notationInfo)); // or this arrives Notation one render cycle too late (ie dictation shows the note of previous one
-                if (VISupportMode) {
-                    if (dictation.notation.hasOwnProperty("stave2")) {
-                        const beginning1 = getLyBeginning(dictation.notation.stave1);
-                        const beginning2 = getLyBeginning(dictation.notation.stave2);
-                        setLyUserInput(beginning1);
-                        setLyUserInput2(beginning2);
-                    } else {
-                        const beginning = getLyBeginning(dictation.notation);
-                        setLyUserInput(beginning);
-
-                    }
-                }
-
-            } else {
-                console.log("No staves in correctNotation");
-            }
-
-        }
-        // do we need both setVtString and dispatch? - yes, since Notation will be cerated later and it needs input to show
-        if (notationInfo ) {
-            setInputVtString(notationInfoToVtString(notationInfo));
+        if (csound) {
+            csound.readScore("i \"Stop\" 0  0.01");
         }
     };
 
@@ -462,9 +332,9 @@ const AskDictation = () => {
         setShowCorrectNotation(!showCorrectNotation);
 
         // Empty wrong note indexes if "Kontrolli" has been pressed second time
-        if (showCorrectNotation) {
-            setWrongNoteIndexes(null);
-        }
+        // if (showCorrectNotation) {
+        //     setWrongNoteIndexes(null);
+        // }
     };
 
     const checkDegrees = () => checkResponse( {degrees: stringToIntArray(degreesEnteredByUser) } );
@@ -503,71 +373,17 @@ const AskDictation = () => {
             return;
         }
 
-
-
-        if (dictationType === "degrees" ) {
-            let feedBack = ""; // feedback and correct only for degree dictations
-            let correct = true;
-            correct = checkDegreesResponse(response.degrees); // Tarmo: not sure if different function makes sense -  more difficult to form the feedback in future
-            if ( correct ) {
-                dispatch(setPositiveMessage(feedBack, 5000));
-                dispatch(incrementCorrectAnswers());
-            } else {
-                dispatch(setNegativeMessage(feedBack, 5000));
-                dispatch(incrementIncorrectAnswers());
-            }
-        } else { // all other dictations are with note input
-            let incorrectNotes = [];
-
-            // tarmo: NB! temporary! until two-stave input is not supported. Later take care that  there is two input staves for 2voice dictations
-            if (inputNotation.staves.length < correctNotation.staves.length ) {
-                console.log("Too few input staves!");
-                showDictation();
-                return;
-            }
-
-            // TODO: now when also duration is checked, barlines are marked in inputNotatios, since if inserted via NotationINput, they have duration, but that should be "0"
-            // best is just to ignore
-            for (let i = 0, n = correctNotation.staves.length; i < n; i++) {
-                for (let j = 0, n = correctNotation.staves[i].voices.length; j < n; j++) {
-                    /*   started removing barlines from check
-                    // filter out barlines and other notes with no duration
-                    const inputNotes =  inputNotation.staves[i].voices[j].notes.filter(note => note.duration != "0");
-                    const correctNotes =  correctNotation.staves[i].voices[j].notes.filter(note => note.duration != "0");
-                    console.log("correct notes filtered: ", correctNotes);
-                    // TODO: problem this way the indexes get wrong, should we use findIndex in inPutnotation to find the right index
-                    */
-
-                    for (let k = 0, n = correctNotation.staves[i].voices[j].notes.length; k < n - 1; k++) { // Skip end barline
-                        // ignore barlines
-                        if (inputNotation.staves[i].voices[j].notes[k] && !inputNotation.staves[i].voices[j].notes[k].keys[0].includes("|") ) {
-                            if (!inputNotation.staves[i].voices[j].notes[k] ||
-                                !arraysAreEqual(correctNotation.staves[i].voices[j].notes[k].keys, inputNotation.staves[i].voices[j].notes[k].keys) ||
-                                correctNotation.staves[i].voices[j].notes[k].duration !== inputNotation.staves[i].voices[j].notes[k].duration) {
-                                incorrectNotes.push({
-                                    staveIndex: i,
-                                    voiceIndex: j,
-                                    noteIndex: k
-                                });
-                            }
-                        }
-                    }
-                }
-            }
-
-            setWrongNoteIndexes(incorrectNotes);
-            showDictation();
+        let feedBack = ""; // feedback and correct only for degree dictations
+        let correct = true;
+        correct = checkDegreesResponse(response.degrees); // Tarmo: not sure if different function makes sense -  more difficult to form the feedback in future
+        if ( correct ) {
+            dispatch(setPositiveMessage(feedBack, 5000));
+            dispatch(incrementCorrectAnswers());
+        } else {
+            dispatch(setNegativeMessage(feedBack, 5000));
+            dispatch(incrementIncorrectAnswers());
         }
 
-
-
-        /*if (checkNotation()) {
-            feedBack += `${capitalizeFirst(t("notation"))} ${t("correct")}. `;
-            correct = true;
-        } else {
-            feedBack += capitalizeFirst(t("notation")) + " " + t("wrong") + ". ";
-            correct = false;
-        }*/
 
     };
 
@@ -580,7 +396,7 @@ const AskDictation = () => {
 
     useEffect(() => {
         // console.log("Csound effect 1");
-        if (csound === null) {  // if you go back to main menu and enter again, then stays "Loading"
+        if (csound === null) {
             let audioContext = CsoundObj.CSOUND_AUDIO_CONTEXT;
             if ( typeof (audioContext) == "undefined") {
                 CsoundObj.initialize().then(() => {
@@ -597,15 +413,6 @@ const AskDictation = () => {
         }
     }, [csound]);
 
-    // useEffect(() => {
-    //     // console.log("Csound effect 2");
-    //     return () => {
-    //         if (csound) {
-    //             csound.reset();
-    //         }
-    //     }
-    // }, [csound]);
-
     async function loadResources(csound,  startinNote=60, endingNote=84, instrument="oboe") {
         if (!csound) {
             return false;
@@ -617,7 +424,6 @@ const AskDictation = () => {
             //console.log("Trying to load URL ",serverUrl);
             const f = await fetch(serverUrl);
             const fName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
-            // const path = `/${dirToSave}/${fName}`;
             const path = `${fName}`;
             const buffer = await f.arrayBuffer();
             // console.log(path, buffer);
@@ -627,7 +433,7 @@ const AskDictation = () => {
     }
 
     const startCsound = async () => {
-        console.error('start csound')
+        console.log('start csound')
         if (csound) {
             await loadResources(csound, 60, 84, "oboe");
 
@@ -660,20 +466,12 @@ const AskDictation = () => {
                     <Grid.Column>
                         <Button variant="contained"  onClick={() => stop()} className={"fullWidth marginTopSmall"}  >{ capitalizeFirst( t("stop") )}</Button>
                     </Grid.Column>
-                    { dictationType!=="degrees" && <Grid.Column>
-                        <Button variant="contained" className={"fullWidth marginTopSmall"}
-                                onClick={() => checkResponse(null)}>{capitalizeFirst(t("check"))}
-                        </Button>
-                    </Grid.Column> }
 
-                    {/* Following buttons only for degree dictations */}
-
-                    { dictationType ==="degrees" &&
                     <Grid.Column>
                         <Button variant="contained" className={"fullWidth marginTopSmall"}
                                 onClick={() => playTonic(selectedDictation.tonicVtNote)}>{capitalizeFirst(t("tonic"))}
                         </Button>
-                    </Grid.Column>}
+                    </Grid.Column>
 
                     {  name.toString().startsWith("degrees_random") &&
                     <Grid.Column>
@@ -696,8 +494,10 @@ const AskDictation = () => {
             );
         }
     };
+
+    // isn't it a VolumeRow?
     const createVolumeRow = () => {
-        return (exerciseHasBegun && dictationType==="degrees")  ? (
+        return (exerciseHasBegun)  ? (
             <Grid.Row centered={true} columns={3}>
                 <Grid.Column>
                     {capitalizeFirst(t("instrument"))+": "}
@@ -716,8 +516,6 @@ const AskDictation = () => {
                             {text: t("violin"), value:"violin"},
                             {text: t("guitar"), value:"guitar"},
 
-                            // { value:"clarinet", text: t("clarinet")},
-                            // { value:"trumpet", text:t("trumpet") }
                             ]  }
                         defaultValue={1}
                     />
@@ -741,8 +539,9 @@ const AskDictation = () => {
             </Grid.Row>
         ) : null;
     };
+
     const createDegreeDictationInput = () => { // if degreedictation, Input for  degrees (text), otherwise lilypondINpute + Notation
-        return (exerciseHasBegun && dictationType==="degrees") ? (
+        return (exerciseHasBegun) ? (
             <div>
                 <div id={"difficultyChoice"} className={"marginRight"}>
                     <FormControl component="fieldset">
@@ -793,134 +592,10 @@ const AskDictation = () => {
     };
 
 
-
-
-
-    const handleLilypondInput = () => {
-        let notationInfo = null;
-        if (selectedDictation.notation.hasOwnProperty("stave2")) { // two voiced dictation
-            notationInfo = parseLilypondDictation( { stave1: lyUserInput, stave2: lyUserInput2} );
-        } else {
-            notationInfo = parseLilypondDictation( lyUserInput );  // one voiced
-        }
-        dispatch( setInputNotation(notationInfo));
-        //setInputVtString(notationInfoToVtString(notationInfo));
-    };
-
-    const createLilypondInput = () => {
-        return (exerciseHasBegun) ? (
-            <>
-                <Grid.Row>
-                    {  capitalizeFirst( t("enterNotationInLilypond") )  }
-                </Grid.Row>
-                <Grid.Row columns={3}>
-                    <Grid.Column  width={3}>{ capitalizeFirst( t("firstVoice") ) + ": " }</Grid.Column>
-                    <Grid.Column width={10} >
-                        <Input
-                            className={"fullWidth"}
-                            style={{ width: "100%" }}
-                            onChange={e => {  setLyUserInput(e.target.value) } }
-                            onKeyPress={ e=> {
-                                if (e.key === 'Enter') {
-                                    handleLilypondInput()
-                                }
-                            }
-                            }
-                            placeholder={`nt: \\time 4/4 c' e' g`}
-                            value={lyUserInput}
-                        />
-                    </Grid.Column>
-                    <Grid.Column width={1}>
-                        <Button variant="contained" onClick={handleLilypondInput}>
-                            {capitalizeFirst(t("show"))}
-                        </Button>
-                    </Grid.Column>
-
-                </Grid.Row>
-                { selectedDictation.notation.hasOwnProperty("stave2") &&
-                <Grid.Row columns={3}>
-                    <Grid.Column width={3}>
-                        {  capitalizeFirst( t("secondVoice") ) + ":" }
-                    </Grid.Column>
-                    <Grid.Column width={10}>
-                        <Input
-                            className={"marginRight"}
-                            style={{ width: "100%" }}
-                            onChange={e => {  setLyUserInput2(e.target.value) } }
-                            onKeyPress={ e=> {
-                                if (e.key === 'Enter') {
-                                    handleLilypondInput()
-                                }
-                            }
-                            }
-                            placeholder={`nt: \\clef bass \\time 4/4 c' e' g`}
-                            value={lyUserInput2}
-                        />
-                    </Grid.Column>
-                    <Grid.Column width={1}></Grid.Column>
-                </Grid.Row>
-
-                }
-                { showCorrectNotation &&
-                <>
-                    <label className={"marginRight"}>{  capitalizeFirst( t("correct") ) + ": " }</label>
-                    {  selectedDictation.notation.hasOwnProperty("stave2") ?
-                        (
-                            <>
-                                <Grid.Row columns={2}>
-                                    <Grid.Column width={3}>{ capitalizeFirst( t("firstVoice") )}</Grid.Column>
-                                    <Grid.Column width={12}>
-                                        <Input value={simplify(selectedDictation.notation.stave1)}  style={{width: "100%"}} />
-                                    </Grid.Column>
-                                </Grid.Row>
-                                <Grid.Row columns={2}>
-                                    <Grid.Column width={3}>{ capitalizeFirst( t("secondVoice") )}</Grid.Column>
-                                    <Grid.Column width={12}>
-                                        <Input value={simplify(selectedDictation.notation.stave2)} style={{width: "100%"}} />
-                                    </Grid.Column>
-                                </Grid.Row>
-                            </>
-                        ) : (
-                            <Grid.Row columns={2}>
-                                <Grid.Column width={3} />
-                                <Grid.Column width={12}>
-                                    <Input  value={simplify(selectedDictation.notation) } style={{width: "100%"}} />
-                                </Grid.Column>
-                            </Grid.Row>
-                        )
-
-
-                    }
-                </>
-                }
-            </>
-        ) : null;
-
-    };
-
-    const createNotationInputBlock =  () => {
-
-        if (exerciseHasBegun && dictationType!=="degrees" && selectedDictation.title !== "") { // allow showing notation also in the beginning, otherwise setting "show" does not work...
-            return (
-                <Notation  className={"marginTopSmall"}
-                           scale={1}
-                           vtString={inputVtString}
-                           showInput={!VISupportMode}
-                           wrongNoteIndexes={wrongNoteIndexes}
-                           name={"inputNotation"}
-                           width={getWidth(inputNotation)}
-                />
-            )
-        }
-    };
-
     const createCorrectNotationBlock = () => {
-        //TODO: kuskil peaks näitama, et alumine õige                     <p className={"marginLeft"}>{capitalizeFirst(t("correct"))}:</p>
-        // aga praegu notatsioon vist ühes ühises divi-is ja ma ei tea, kuidas sinna teksti saada.
         if (exerciseHasBegun && selectedDictation.title !== "" && showCorrectNotation) {
             return (
                 <>
-
                     { selectedDictation.hasOwnProperty("credits") &&
                     <Grid.Row className={"marginTopSmall"}>{ capitalizeFirst(t("credits")) }: {selectedDictation.credits}</Grid.Row>
                     }
@@ -946,10 +621,6 @@ const AskDictation = () => {
         }
         return  Math.max( noteCount * 30, 400);
     };
-
-    /*const createCreditsRow = () => {
-
-    };*/
 
     const createSelectionMenu = () => {
         const options = [];
@@ -981,22 +652,11 @@ const AskDictation = () => {
 
     } ;
 
-    const handleDictationFinishedPlaying = () => {
-        setPlayStatus(Sound.status.STOPPED);
-    };
 
     return (
         <div>
-            <Header size='large'>{`${capitalizeFirst( t(name) )} ${selectedDictation.title} `}</Header>
-            <h3><i>NB! See moodul läheb ümberkirjutamisele ja mitmed notatsiooniprobleemid lahenevad.</i></h3>
-
-            <Sound
-                url={process.env.PUBLIC_URL + selectedDictation.soundFile}
-                volume={volume*100}
-                loop={false}
-                playStatus={playStatus}
-                onFinishedPlaying={handleDictationFinishedPlaying}
-            />
+            <h2 size='large'>{`${capitalizeFirst( t(name) )} ${selectedDictation.title} `}</h2>
+            <h3><i>NB! Notatsioonimoodul läheb ümberkirjutamisele kohati inotatsiooniprobleemid lahenevad.</i></h3>
 
             { csound === null ? (
                 <div>
@@ -1007,8 +667,6 @@ const AskDictation = () => {
                 <ScoreRow/>
                 {createSelectionMenu()}
                 {createDegreeDictationInput()}
-                {VISupportMode && createLilypondInput() }
-                { createNotationInputBlock() }
                 {createCorrectNotationBlock()}
                 {createVolumeRow()}
                 {/*{ exerciseHasBegun && <VolumeRow /> }*/}
@@ -1025,4 +683,4 @@ const AskDictation = () => {
     );
 };
 
-export default AskDictation;
+export default AskDegreeDictation;
