@@ -50,4 +50,7 @@ oggenc -q 8 *.wav
 mv *.ogg /home/tarmo/tarmo/programm/qt-projects/digi-solf/src/digisolfReact/public/sounds/instruments/flute/
 
 e-koolikott -  et AskDegreeDictation, siis e-koolikotis ilmselt harjutused muutunu...
-t
+- vist pole mõtet
+
+
+TODO: VISupportMode -  näita õiget vastust tekstina

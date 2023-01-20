@@ -1,18 +1,15 @@
 import React, {useState, useEffect} from 'react';
-import { Dropdown, Grid, Header, Input} from 'semantic-ui-react';
+import { Grid, Input} from 'semantic-ui-react';
 import {Button, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup} from '@material-ui/core'; // start porting to material ui
-import {Slider} from "react-semantic-ui-range";
 
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
-import {arraysAreEqual, capitalizeFirst, deepClone, isDigit, simplify, weightedRandom} from "../../util/util";
-import {parseLilypondDictation} from "../../util/notes";
+import { capitalizeFirst, isDigit, weightedRandom} from "../../util/util";
 import {setNegativeMessage, setPositiveMessage} from "../../actions/headerMessage";
 import ScoreRow from "../ScoreRow";
 import Notation from "../notation/Notation";
 import {incrementCorrectAnswers, incrementIncorrectAnswers} from "../../actions/score";
 import GoBackToMainMenuBtn from "../GoBackToMainMenuBtn";
-import Sound from 'react-sound';
 import Select from "semantic-ui-react/dist/commonjs/addons/Select";
 import {useParams} from "react-router-dom";
 import CsoundObj from "@kunstmusik/csound";
@@ -21,14 +18,8 @@ import * as notes from "../../util/notes";
 import {stringToIntArray, getRandomElementFromArray } from "../../util/util.js"
 import {dictationOrchestra as orc} from "../../csound/orchestras";
 import {dictations as degrees} from "../../dictations/degrees";
-
-//import * as constants from "./dictationConstants";
 import {resetState, setAllowInput, setInputNotation} from "../../actions/askDictation";
-import {notationInfoToVtString} from "../notation/notationUtils";
-// import VolumeRow from "../VolumeRow";
-// import {MenuItem} from "@material-ui/core";
-
-
+import VolumeRow from "../VolumeRow";
 
 
 const AskDegreeDictation = () => {
@@ -47,32 +38,29 @@ const AskDegreeDictation = () => {
 
     const [degreesEnteredByUser, setDegreesEnteredByUser] = useState("");
 
-    const [volume, setVolume] = useState(0.6);
     const [correctVtString, setCorrectVtString] = useState("");
     const [correctNotationWidth, setCorrectNotationWidth] = useState (400);
-    const [correctNotation, setCorrectNotation] = useState (defaultNotationInfo);
     const [difficultyLevel, setDifficultyLevel ] = useState("simple"); // simple|medium|difficult
 
 
-    const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode);
+    const VISupportMode = useSelector(state => state.exerciseReducer.VISupportMode); // TODO: no real support for that now
     const masterVolume = useSelector(state => state.exerciseReducer.volume);
-
-    const instrument = useSelector(state => state.exerciseReducer.instrument);
+    const instrument =  useSelector(state => state.exerciseReducer.instrument);
     //const bassInstruments =  ["trombone", "cello", "bassoon"]; // NB! update when new instruments are added.
 
 
-
-    useEffect( () => {
-        async function csoundSetup() {
-            //console.log("New sound is: ", data.value)
-            if (csound) {
-                // TODO: bass instruments -  deal with bass instruments
-                // if (bassInstruments.include(instrument) ...
-                await loadResources(csound, 60, 84, instrument);
-            }
+    useEffect(  () => {
+        if (csound) {
+            loadResources(csound,  60, 84, instrument).then(console.log("resources loaded")); // NB! should use async () amd await loadResources in normal case
         }
-        csoundSetup().then(r => console.log("Csound started from useEffect"));
     }, [instrument]);
+
+    useEffect(  () => {
+        if (csound) {
+            csound.setControlChannel("volume", masterVolume);
+        }
+    }, [masterVolume]);
+
 
     useEffect(() => {
         dispatch(resetState());
@@ -435,7 +423,7 @@ const AskDegreeDictation = () => {
     const startCsound = async () => {
         console.log('start csound')
         if (csound) {
-            await loadResources(csound, 60, 84, "oboe");
+            await loadResources(csound, 60, 84, instrument);
 
             csound.setOption("-d");
             csound.setOption("-m0");
@@ -495,50 +483,7 @@ const AskDegreeDictation = () => {
         }
     };
 
-    // isn't it a VolumeRow?
-    const createVolumeRow = () => {
-        return (exerciseHasBegun)  ? (
-            <Grid.Row centered={true} columns={3}>
-                <Grid.Column>
-                    {capitalizeFirst(t("instrument"))+": "}
-                    <Dropdown
-                        placeholder={capitalizeFirst(t("sound"))}
-                        onChange={ async (event, data) => {
-                            //console.log("New sound is: ", data.value)
-                            if (csound) {
-                                await loadResources(csound,  60, 84, data.value);
-                            }
-                        }
-                        }
-                        options ={ [
-                            {text: t("flute"), value:"flute"},
-                            {text: t("oboe"), value:"oboe"},
-                            {text: t("violin"), value:"violin"},
-                            {text: t("guitar"), value:"guitar"},
 
-                            ]  }
-                        defaultValue={1}
-                    />
-                </Grid.Column>
-
-                <Grid.Column>
-                    {capitalizeFirst(t("volume"))}
-                    <Slider value={volume} color="blue"
-                            settings={ {
-                                min:0, max:1, step:0.01,
-                                onChange: (value) => {
-                                    if (csound) {
-                                        csound.setControlChannel("volume", value);
-                                    }
-                                    setVolume(value);
-                                }
-                            } }
-                    />
-                </Grid.Column>
-                <Grid.Column />
-            </Grid.Row>
-        ) : null;
-    };
 
     const createDegreeDictationInput = () => { // if degreedictation, Input for  degrees (text), otherwise lilypondINpute + Notation
         return (exerciseHasBegun) ? (
@@ -668,8 +613,8 @@ const AskDegreeDictation = () => {
                 {createSelectionMenu()}
                 {createDegreeDictationInput()}
                 {createCorrectNotationBlock()}
-                {createVolumeRow()}
-                {/*{ exerciseHasBegun && <VolumeRow /> }*/}
+                {/*{createVolumeRow()}*/}
+                { exerciseHasBegun && <VolumeRow /> }
                 {createControlButtons()}
                 <Grid.Row>
                     <Grid.Column>
