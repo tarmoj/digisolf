@@ -21,7 +21,7 @@ const AppFooter = () => {
                         <img className={"footerLogo"} src={euLogo} />
                     </Grid>*/}
                     <Grid item>
-                        {capitalizeFirst(t("version"))} {version} (c) 2022, Tarmo Johannes, Edgar Tereping, Jane Tereping
+                        {capitalizeFirst(t("version"))} {version} (c) 2023, Tarmo Johannes, Edgar Tereping, Jane Tereping
                         </Grid>
                     <Grid item>
                         <small>{capitalizeFirst(t("feedback"))}: <a href={"mailto:tarmo.johannes@otsakool.edu.ee"}>tarmo.johannes@otsakool.edu.ee</a></small>
