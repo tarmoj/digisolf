@@ -75,9 +75,7 @@ const AskInterval = () => {
     const [activeIntervals, setActiveIntervals] = useState([]); // necessary for interval selction by user
     const [currentResponseIndex, setCurrentResponseIndex] = useState(0); // in case there are several intervals
     const [response, setResponse] = useState( Array(intervalCount)); //.fill({degrees:[], intervalShortName:""}));
-    const [mode, setMode] = useState(
-        exerciseName === "tonicTriad" ? "melodicHarmonic" :
-            (parameterDict.mode ? parameterDict.mode : "harmonic"  )) ; // melodic|harmonic|melodicHarmonic
+    const [mode, setMode] = useState(localStorage.getItem("intervalPlayMode")) ; // melodic|harmonic|melodicHarmonic
     const [sampler, setSampler] = useState(null );
     const [dialogOpen, setDialogOpen] = useState(false);
     const [showIntervalSelection, setShowIntervalSelection] = useState(false);
@@ -130,9 +128,6 @@ const AskInterval = () => {
 
 
     const startExercise = () => {
-        setExerciseHasBegun(true);
-        //midiSounds.current.setMasterVolume(0.4); // not too loud TODO: add control slider
-
         if (exerciseName === "randomInterval") { // if interval not in key, set possible intervals:
             let possibleIntervalShortNames = [];
             if (parameterDict.intervals) {
@@ -147,11 +142,12 @@ const AskInterval = () => {
             }
             setPossibleIntervalShortNames(possibleIntervalShortNames);
             setActiveIntervals(possibleIntervalShortNames);
-            renewRandom(possibleIntervalShortNames);
+            renewRandom(possibleIntervalShortNames); // don't play automatically
 
         } else { // intervals in key
-            changeKey(); // calls also renewInKey()
+            changeKey(); // calls also renewInKey() // we want to change key but not to play one yet...
         }
+        setExerciseHasBegun(true);;
     };
 
 
@@ -170,12 +166,9 @@ const AskInterval = () => {
         setIsMajor(isMajor);
         sampler.releaseAll();
         //midiSounds.current.cancelQueue();
-        // also play tonic
         const triadDuration = 1.5;
         playTonicTriad(tonicNote.midiNote, isMajor, triadDuration);
-
-        setTimeout( ()=>renewInKey(isMajor, tonicNote), triadDuration*1000 + 300 ) ; // new exercise after the chord
-
+        setTimeout( ()=>renewInKey(isMajor, tonicNote), triadDuration*1000 + 300 ) ; // new exercise after the chord, but not in the beginniing
     }
 
     const renew = () => {
@@ -246,7 +239,9 @@ const AskInterval = () => {
         }
         //console.log("renew got: ", newIntervalData);
         setIntervalData(newIntervalData);
-        play(newIntervalData);
+        if (exerciseHasBegun) {
+            play(newIntervalData); // do we need to play here?
+        }
     }
 
     const renewRandom = (possibleShortNames) => {
@@ -270,7 +265,10 @@ const AskInterval = () => {
             newIntervalData.push(data);
         }
         setIntervalData(newIntervalData);
-        play(newIntervalData);
+        if (exerciseHasBegun) {
+            play(newIntervalData);
+        }
+
     }
 
 
@@ -283,13 +281,13 @@ const AskInterval = () => {
         const pause = 1;
         let start = 0;
 
-        //console.log("Mode: ", mode);
+        console.log("Mode: ", mode);
         if ( Tone.Transport.state === "started") {
             stopSound();
         }
         Tone.Transport.start("+0.1");
 
-        if (mode=="melodicHarmonic" || exerciseName === "tonicTriad") { // in case of tonicTriad -  always melodic and harmonic
+        if (mode=="melodicHarmonic") {
 
             if (intervalCount === 1) {
                 const midiNote1 = intervalData[0].notes[0].midiNote;
@@ -676,7 +674,7 @@ const AskInterval = () => {
             if ( correct ) {
                 //dispatch(setPositiveMessage(feedBack, 5000));
                 dispatch(incrementCorrectAnswers());
-                const waitTime = intervalCount===1 ?  1000 : 2000; // one seond per interval  to give time to
+                const waitTime = intervalCount===1 ?  2000 : 3000; // give some tim before the next one
                 setTimeout( ()=> renew(), waitTime); // small delay to let user to see the answer -  maybe add this to cofig options
             } else {
                 dispatch(incrementIncorrectAnswers());
@@ -705,13 +703,20 @@ const AskInterval = () => {
             </Select>
         </MenuItem>;
 
+        const playMode =  localStorage.getItem("intervalPlayMode") ||  "harmonic";
+
         const playModeEntry = <MenuItem key={"playMode"}>
             <label id="modeLabel" className={"marginRightSmall"}>{capitalizeFirst(t("playMode"))}:</label>
             <Select
-                disabled={exerciseName === "tonicTriad"} // if tonic triad intervals, no choice, always melodic and harmonic then
+                // disabled={exerciseName === "tonicTriad"} // if tonic triad intervals, no choice, always melodic and harmonic then
                 labelId={"modeLabel"}
-                defaultValue={"harmonic"}
-                onChange={ (e)=>{setMode(e.target.value); closeMenu() } }
+                defaultValue={playMode}
+                onChange={ (e)=>{
+                    const mode = e.target.value;
+                    setMode(mode);
+                    localStorage.setItem("intervalPlayMode", mode);
+                    closeMenu(); }
+                }
             >
 
                 <MenuItem value={"melodic"}>{capitalizeFirst(t("melodic"))}</MenuItem>
