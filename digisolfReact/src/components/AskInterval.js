@@ -712,9 +712,9 @@ const AskInterval = () => {
                 labelId={"modeLabel"}
                 defaultValue={playMode}
                 onChange={ (e)=>{
-                    const mode = e.target.value;
-                    setMode(mode);
-                    localStorage.setItem("intervalPlayMode", mode);
+                    const newMode = e.target.value;
+                    setMode(newMode);
+                    localStorage.setItem("intervalPlayMode", newMode);
                     closeMenu(); }
                 }
             >

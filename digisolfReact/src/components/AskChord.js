@@ -33,7 +33,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import CsoundObj from "@kunstmusik/csound";
 import {dictationOrchestra as orc} from "../csound/orchestras";
 import VolumeRow from "./VolumeRow";
-import {setCustomMenu, setSettingsMenuOpen} from "../actions/component";
+import {setCustomMenu, setIsLoading, setSettingsMenuOpen} from "../actions/component";
 import {TableChart} from "@material-ui/icons";
 
 
@@ -448,7 +448,8 @@ const AskChord = () => {
         if (!csound) {
             return false;
         }
-        console.log("LOAD RESOURCES")
+        console.log("LOAD RESOURCES");
+        dispatch(setIsLoading(true));
         for (let i = startinNote; i <= endingNote; i++) {
             const fileUrl = "sounds/instruments/" + instrument + "/2sec/" + i + ".ogg"; // longer notes for chords
             const serverUrl = `${process.env.PUBLIC_URL}/${fileUrl}`;
@@ -459,6 +460,7 @@ const AskChord = () => {
             // console.log(path, buffer);
             await csound.writeToFS(path, buffer);
         }
+        dispatch(setIsLoading(false));
         return true;
     }
 
@@ -486,7 +488,7 @@ const AskChord = () => {
         const index = shortName.search(/\d+$/);
         if (index>0) { // do not use subscript when the number is first (only number like 1 2 5 etc)
             const newString = (<>{shortName.slice(0, index)}  <sub>  {shortName.slice(index)}  </sub></>);
-            console.log("shortName in subscript: ", shortName.slice(0, index), shortName.slice(index)  );
+            //console.log("shortName in subscript: ", shortName.slice(0, index), shortName.slice(index)  );
             return newString;
         } else {
             return shortName;
@@ -498,14 +500,17 @@ const AskChord = () => {
     }
 
     const createCustomMenu = () => {
-
+        const playMode =  localStorage.getItem("chordPlayMode") ||  "harmonic";
 
         const playModeEntry = <MenuItem key={"playMode"}>
             <label id="modeLabel" className={"marginRightSmall"}>{capitalizeFirst(t("playMode"))}:</label>
             <Select
                 labelId={"modeLabel"}
-                defaultValue={"harmonic"}
-                onChange={ (e)=>{setMode(e.target.value); closeMenu() } }
+                defaultValue={playMode}
+                onChange={ (e)=>{
+                    setMode(e.target.value);
+                    localStorage.setItem("chordPlayMode", e.target.value);
+                    closeMenu() } }
             >
 
                 <MenuItem value={"melodicUp"}>{capitalizeFirst(t("melodicUp"))}</MenuItem>

@@ -11,7 +11,17 @@ import AskDictation from "./components/askdictation/AskDictation";
 import MainMenu from "./components/MainMenu";
 import AppFooter from "./components/AppFooter";
 import LanguageSelect from "./components/LanguageSelect";
-import {Backdrop, Checkbox, CircularProgress, Divider, IconButton, Menu, MenuItem, Tooltip} from '@material-ui/core';
+import {
+    Backdrop,
+    Checkbox,
+    CircularProgress,
+    Divider,
+    IconButton,
+    makeStyles,
+    Menu,
+    MenuItem,
+    Tooltip
+} from '@material-ui/core';
 
 import {useTranslation} from "react-i18next";
 import { BrowserRouter as Router, Switch, Route, } from 'react-router-dom';
@@ -65,14 +75,21 @@ function App() {
         )
     };
 
+    // to raise backdrop:
+    const useStyles = makeStyles((theme) => ({
+        backdrop: {
+            zIndex: theme.zIndex.drawer + 1,
+            color: '#fff',
+        },
+    }));
+
+    const classes = useStyles();
+
     const showDimmer = () => { // not sure if it should be used. disablind "Start exercise" is probably enough
         if (isLoading) {
             // TODO: check that some components are not above backdrop
-            return <Backdrop sx={{ z:0 }} open={isLoading}>
-                {/*<Loader size='massive'>{t("loading")}</Loader>*/}
-                <CircularProgress
-                // should add somewhere: {"aria-describedby":"loading", "aria-busy":isLoading}}
-                />
+            return <Backdrop className={classes.backdrop}  open={isLoading} aria-busy={isLoading} aria-label={"loading"}>
+                <CircularProgress color={"inherit"} />
             </Backdrop>
         }
     };
