@@ -50,7 +50,7 @@ const AskInterval = () => {
         parameters.split("+").forEach(function(item) {parameterDict[item.split("=")[0]] = item.split("=")[1]});
         //console.log("parameters: ", parameterDict);
     }
-    const [intervalCount, setIntervalCount] = useState(  isDigit(parameterDict.count) ? parseInt(parameterDict.count) : (localStorage.getItem("intervalCount") || 1) );
+    const [intervalCount, setIntervalCount] = useState(  isDigit(parameterDict.count) ? parseInt(parameterDict.count) : (parseInt(localStorage.getItem("intervalCount")) || 1) );
 
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
