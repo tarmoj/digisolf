@@ -50,7 +50,7 @@ const AskInterval = () => {
         parameters.split("+").forEach(function(item) {parameterDict[item.split("=")[0]] = item.split("=")[1]});
         //console.log("parameters: ", parameterDict);
     }
-    const [intervalCount, setIntervalCount] = useState(  isDigit(parameterDict.count) ? parseInt(parameterDict.count) : 1 );
+    const [intervalCount, setIntervalCount] = useState(  isDigit(parameterDict.count) ? parseInt(parameterDict.count) : (localStorage.getItem("intervalCount") || 1) );
 
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
@@ -653,6 +653,8 @@ const AskInterval = () => {
                         correct = false;
                         redButtons.push(shortName);
                     }
+                } else {
+                    correct = false;
                 }
 
                 setGreenIntervalButtons(greenButtons);
@@ -694,8 +696,14 @@ const AskInterval = () => {
             <label id="intervalCountLabel" className={"marginRightSmall"}>{capitalizeFirst(t("intervalCount"))}:</label>
             <Select
                 labelId={"intervalCountLabel"}
-                defaultValue={1}
-                onChange={ (e)=>{setIntervalCount(e.target.value); closeMenu() } }
+                defaultValue={intervalCount}
+                onChange={ (e)=>{
+                    const count = e.target.value;
+                    setIntervalCount(parseInt(count));
+                    localStorage.setItem("intervalCount", count);
+                    closeMenu();
+                }
+            }
             >
                 <MenuItem value={1}>1</MenuItem>
                 <MenuItem value={2}>2</MenuItem>
@@ -777,8 +785,7 @@ const AskInterval = () => {
             const responseShortName = getResponseIntervalShortName(i);
             const correctShortName = getCorrectIntervalShortName(i);
             const isCorrect = responseShortName===correctShortName;
-            const color =  answered ?  ( isCorrect ? "green" : "red") :
-                (currentResponseIndex===i ? "primary" : "");
+            //const color =  answered ?  ( isCorrect ? "primary" : "secondary") :  (currentResponseIndex===i ? "primary" : "");
             //TODO: Button pole ilmselt parim siiski sildi jaoks, proovi pigem TextField as button? label?
             elements.push( // was Grid.Column before
                 <React.Fragment key={"intervalLabel"+i}>
@@ -786,7 +793,7 @@ const AskInterval = () => {
                         key={i}
                         className={"marginRight"}
                         onClick={() => setCurrentResponseIndex(i)}
-                        color = {color}
+                        // color = {color}
                         size={"small"}
                         variant={"outlined"}
                     >
