@@ -285,7 +285,7 @@ const AskInterval = () => {
         if ( Tone.Transport.state === "started") {
             stopSound();
         }
-        Tone.Transport.start("+0.1");
+        //Tone.Transport.start("+0.1");
 
         if (mode=="melodicHarmonic") {
 
@@ -356,6 +356,7 @@ const AskInterval = () => {
                 }
             }
         }
+        Tone.Transport.start();
 
     }
 
@@ -496,7 +497,8 @@ const AskInterval = () => {
         // disconnect would stop the sound but this is bad solution
         sampler.releaseAll();
         Tone.Transport.cancel();
-        Tone.Transport.stop("+0.01");
+        //Tone.Transport.stop("+0.01");
+        Tone.Transport.stop();
     }
 
      const playNoteWithMidiSounds = (midiNote, start, duration) => {
@@ -647,7 +649,7 @@ const AskInterval = () => {
                     const intervalCorrect = checkInterval(shortName,i);
                     correct = correct && intervalCorrect;
                     if (intervalCorrect) {
-                        correct = true;
+                        correct = correct && true;
                         greenButtons.push(shortName);
                     } else {
                         correct = false;
@@ -677,6 +679,7 @@ const AskInterval = () => {
                 //dispatch(setPositiveMessage(feedBack, 5000));
                 dispatch(incrementCorrectAnswers());
                 const waitTime = intervalCount===1 ?  2000 : 3000; // give some tim before the next one
+                //Tone.Transport.scheduleOnce( () => renew(), "+3.0"); // does not work - still first note is played later... Csound?
                 setTimeout( ()=> renew(), waitTime); // small delay to let user to see the answer -  maybe add this to cofig options
             } else {
                 dispatch(incrementIncorrectAnswers());
