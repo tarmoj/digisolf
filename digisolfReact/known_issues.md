@@ -2,7 +2,7 @@
 
 <br>
 
-Kontakt: <mailto:tarmo.johannes@otsakool.edu.ee> 
+Kontakt: <mailto:tarmo.johannes@muba.edu.ee> 
 
 Probleemide korral on parim viis kaasa aitamiseks teha vearaport (_bug report_): <https://github.com/tarmoj/digisolf/issues/new>
 
@@ -17,13 +17,9 @@ Probleemide korral on parim viis kaasa aitamiseks teha vearaport (_bug report_):
 
 ##  Intervallid
 
-- "Stop" ei peata heli, mitu  korda "Mängi" vajutamine kuhjab intervallid
 - mõnikord peale "Mängi järgmine" mängib intervalli lühendatult vm imelikult
 
 
-## Akordid
-
-- vaja oleks lisada tabel, kus on akordide lühendid, nimetused ja definitsioonid (intervallid, näidis)
 
 ## Funktsioonid
 
@@ -39,23 +35,5 @@ Probleemide korral on parim viis kaasa aitamiseks teha vearaport (_bug report_):
 
 - Notatsioonis võtmemärgid kuvatakse ka takti sees
 
-- Astmediktaatides on võimalik vastata üht diktaati mitu korda.
 
-- Astmediktaatides "Stop" ei toimi. - Korras.
-
-- Vaja kontrolli, et diktaat oleks valitud, muidu ei saa "Kontrolli" vajutada
-
-
-
-## Intoneeri
-
-- Kas on arusaadav?
-
-- juhist leht - vormistus on ajutine.
-
-
-
-## Kas intervall on puhas
-
-- "JUhuslik kõrvalekalle" juures ütleb: "Intervalli oli lai/ 0 senti" -  midagi on valesti.
 

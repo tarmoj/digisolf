@@ -24,7 +24,7 @@ const AppFooter = () => {
                         {capitalizeFirst(t("version"))} {version} (c) 2023, Tarmo Johannes, Edgar Tereping, Jane Tereping
                         </Grid>
                     <Grid item>
-                        <small>{capitalizeFirst(t("feedback"))}: <a href={"mailto:tarmo.johannes@otsakool.edu.ee"}>tarmo.johannes@otsakool.edu.ee</a></small>
+                        <small>{capitalizeFirst(t("feedback"))}: <a href={"mailto:tarmo.johannes@muba.edu.ee"}>tarmo.johannes@otsakool.edu.ee</a></small>
                     </Grid>
 
             {/*</div>*/}

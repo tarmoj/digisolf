@@ -22,7 +22,7 @@ Software developers: Tarmo Johannes, Edgar Tereping, Janne Tereping
 License: MIT (open source)
 
 
-Questions and feedback: tarmo.johannes@otsakool.edu.ee
+Questions and feedback: tarmo.johannes@muba.edu.ee
 
 ----
 
@@ -44,7 +44,7 @@ Harjutuste autorid: Tarmo Johannes (häälestusharjutused), Andres Lemba, Tõnu 
 
 Tarkvara: Tarmo Johannes, Edgar Tereping, Janne Tereping 
 
-Küsimused ja tagasiside: tarmo.johannes@otsakool.edu.ee
+Küsimused ja tagasiside: tarmo.johannes@muba.edu.ee
 
 
 Harjutused asuvad siin: <https://otsakool.edu.ee/digisolf/> ning on kättesaadavad läbi [e-koolikoti](https://e-koolikott.ee/et/search?q=digisolfed%C5%BEo&lang=est) märksõnaga "Digisolfedžo". *NB! Veel täiendamisel!*
