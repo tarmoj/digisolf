@@ -2,8 +2,7 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import est from "./est";
 import eng from "./eng";
-import lat from "./lat";
-import w6ro from "./w6ro";
+import ru from "./ru";
 
 const resources = {
     est: {
@@ -12,11 +11,8 @@ const resources = {
     eng: {
         translation: eng
     },
-    lat: {
-        translation: lat
-    },
-    w6ro: {
-        translation: w6ro
+    ru: {
+        translation: ru
     }
 };
 

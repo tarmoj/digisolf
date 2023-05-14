@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import './App.css';
 import {useDispatch, useSelector} from "react-redux";
 import HeaderMessage from "./components/HeaderMessage";
@@ -34,6 +34,8 @@ import {capitalizeFirst, isInIframe} from "./util/util";
 import {setSettingsMenuOpen} from "./actions/component"; // not certain if it works this way
 import euLogo from "./images/eu.jpg";
 import AskDegreeDictation from "./components/askdictation/AskDegreeDictation";
+import {setLanguage} from "./actions/language";
+import i18n from "i18next";
 
 function App() {
     const isLoading = useSelector(state => state.componentReducer.isLoading);
@@ -46,6 +48,17 @@ function App() {
 
 
     const settingsMenuButton = useRef();
+
+    const language = useSelector(state => state.languageReducer.language);
+    console.log("Language in app: ", language);
+
+    // set and store language change:
+    useEffect( () => {
+        i18n.changeLanguage(language);
+        localStorage.setItem("digiSolfLanguage", language);
+    }, [language] );
+
+
 
     // vt: https://stackoverflow.com/questions/57222924/override-material-ui-button-text
     const myTheme = createTheme({
@@ -127,7 +140,7 @@ function App() {
                     open={menuOpen}
                     onClose={handleClose}
                 >
-                    <MenuItem disabled={true}><span className={"marginRightSmall"}>{capitalizeFirst(t("language"))}:</span><LanguageSelect /></MenuItem>
+                    <MenuItem disabled={false}><span className={"marginRightSmall"}>{capitalizeFirst(t("language"))}:</span><LanguageSelect /></MenuItem>
                     <Divider />
                     { !isInIframe() && // necessary since in e-koolikott where it shown in iFrame the links don't work
                     [
@@ -167,7 +180,7 @@ function App() {
                     <AppFooter/>
                 </div>
                 {showDimmer()}
-                <img className={"footerLogo_new"} src={euLogo} />
+                <img className={"footerLogo_new"} alt={"Supported by EU"} src={euLogo} />
             </div>
 
         </div>
