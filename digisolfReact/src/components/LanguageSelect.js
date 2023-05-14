@@ -30,7 +30,8 @@ const LanguageSelect = () => {
             onChange={handleLanguageChange}
         >
             <label id="label" hidden>{t("languageSelect")}</label>
-            <MenuItem value={"est"}><img src={flagEE} alt={"Eesti"} aria-label={"Eesti"}/></MenuItem>
+            {/*<MenuItem value={"est"}><img src={flagEE} alt={"Eesti"} aria-label={"Eesti"}/></MenuItem>*/}
+            <MenuItem value={"est"} aria-label={"Eesti"}>EST</MenuItem>
             <MenuItem value={"ru"} aria-label={"Russian"}> RU </MenuItem>
             {/*<MenuItem value={"eng"}><img src={flagGB} alt={"English"} /></MenuItem>*/}
         </Select>

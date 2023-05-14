@@ -26,7 +26,7 @@ import {
 import {useTranslation} from "react-i18next";
 import { BrowserRouter as Router, Switch, Route, } from 'react-router-dom';
 import {setVISupportMode} from "./actions/exercise";
-import {Visibility, VisibilityOff, SentimentDissatisfied} from "@material-ui/icons";
+import {Visibility, VisibilityOff} from "@material-ui/icons";
 import MenuIcon from '@material-ui/icons/Menu';
 import {createTheme} from "@material-ui/core";
 import { MuiThemeProvider as ThemeProvider } from '@material-ui/core/styles';
@@ -34,8 +34,7 @@ import {capitalizeFirst, isInIframe} from "./util/util";
 import {setSettingsMenuOpen} from "./actions/component"; // not certain if it works this way
 import euLogo from "./images/eu.jpg";
 import AskDegreeDictation from "./components/askdictation/AskDegreeDictation";
-import {setLanguage} from "./actions/language";
-import i18n from "i18next";
+
 
 function App() {
     const isLoading = useSelector(state => state.componentReducer.isLoading);
@@ -75,7 +74,7 @@ function App() {
         return (
             <Router>
                 <Switch>
-                    <Route exact path='/digisolf' component={MainMenu}/>
+
                     <Route path='/digisolf/askinterval/:exerciseName/:parameters?' component={AskInterval} />}/>
                     <Route path='/digisolf/askchord/:name/' component={AskChord}/>
                     <Route path='/digisolf/askfunctions/:title?' component={AskFunctions}/>
@@ -83,6 +82,7 @@ function App() {
                     <Route path='/digisolf/askdegreedictation/:name/:title?' component={AskDegreeDictation}/>
                     <Route path='/digisolf/askintonation/:name/:cents' component={AskIntonation}/>
                     <Route path='/digisolf/asktuning' component={AskTuning}/>
+                    <Route exact path='/digisolf/:language?' component={MainMenu}/>
                 </Switch>
             </Router>
         )

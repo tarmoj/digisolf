@@ -1,17 +1,27 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 //import { Grid} from 'semantic-ui-react'
 import {Button, Grid} from "@material-ui/core"
 import {useTranslation} from "react-i18next";
 import {capitalizeFirst} from "../util/util";
-import {BrowserRouter as Router, useHistory} from "react-router-dom";
+import {BrowserRouter as Router, useHistory, useParams} from "react-router-dom";
+import {setLanguage} from "../actions/language";
+import {useDispatch} from "react-redux";
 
 const MainMenu = () => {
     const { t, i18n } = useTranslation();
-    //const dispatch = useDispatch();
+    const dispatch = useDispatch();
     const history = useHistory();
 
-    // TODO: resize buttons in grid, make shure there are 2 columns
-    // võibolla kuidagi stiilis flexGrow: 1
+    const { language } = useParams();
+
+    useEffect( () => {
+        console.log("Mainmenu langugage: ", language);
+        if (language && ["ru", "est"].includes(language)) {
+            dispatch(setLanguage(language));
+        }
+;    }, [] )
+
+
     return (
         <Router>
         <Grid container direction={"column"}>
