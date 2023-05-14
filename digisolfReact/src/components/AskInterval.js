@@ -678,7 +678,7 @@ const AskInterval = () => {
             if ( correct ) {
                 //dispatch(setPositiveMessage(feedBack, 5000));
                 dispatch(incrementCorrectAnswers());
-                const waitTime = intervalCount===1 ?  2000 : 3000; // give some tim before the next one
+                const waitTime = intervalCount===1 ?  1000 : 2500; // give some tim before the next one
                 //Tone.Transport.scheduleOnce( () => renew(), "+3.0"); // does not work - still first note is played later... Csound?
                 setTimeout( ()=> renew(), waitTime); // small delay to let user to see the answer -  maybe add this to cofig options
             } else {

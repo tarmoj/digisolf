@@ -488,21 +488,21 @@ const AskDegreeDictation = () => {
     const createDegreeDictationInput = () => { // if degreedictation, Input for  degrees (text), otherwise lilypondINpute + Notation
         return (exerciseHasBegun) ? (
             <div>
-                <div id={"difficultyChoice"} className={"marginRight"}>
+                {name.includes("random") && <div id={"difficultyChoice"} className={"marginRight"}>
                     <FormControl component="fieldset">
                         <FormLabel component="legend">{capitalizeFirst(t("difficulty"))}</FormLabel>
                         <RadioGroup row aria-label="setDifficultyLevel" name="difficultyLevel" value={difficultyLevel}
-                                    onChange={ (e) => {
+                                    onChange={(e) => {
                                         console.log("difficulty value: ", e.target.value);
-                                        setDifficultyLevel( e.target.value);
+                                        setDifficultyLevel(e.target.value);
                                     }}
                         >
-                            <FormControlLabel value="simple" control={<Radio />} label={t("simpleSingular")} />
-                            <FormControlLabel value="medium" control={<Radio />} label={t("medium")} />
-                            <FormControlLabel value="difficult" control={<Radio />} label={t("difficult")} />
+                            <FormControlLabel value="simple" control={<Radio/>} label={t("simpleSingular")}/>
+                            <FormControlLabel value="medium" control={<Radio/>} label={t("medium")}/>
+                            <FormControlLabel value="difficult" control={<Radio/>} label={t("difficult")}/>
                         </RadioGroup>
                     </FormControl>
-                </div>
+                </div>}
                 <label className={"marginRight"}>{  capitalizeFirst( t("enterDegrees") ) + " " }
                     {name.includes("random") ? t("inMode") : ""} <b>{ t(selectedDictation.scale) }</b>: </label>
                 <Input
