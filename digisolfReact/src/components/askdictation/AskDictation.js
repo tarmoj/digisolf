@@ -439,13 +439,14 @@ const AskDictation = () => {
         //TODO: kuskil peaks näitama, et alumine õige                     <p className={"marginLeft"}>{capitalizeFirst(t("correct"))}:</p>
         // aga praegu notatsioon vist ühes ühises divi-is ja ma ei tea, kuidas sinna teksti saada.
         if (exerciseHasBegun && selectedDictation.title !== "" && showCorrectNotation) {
+            console.log("Correct dictation: ", selectedDictation, selectedDictation.credits,  selectedDictation.hasOwnProperty("credits"))
             return (
                 <>
 
-                    { selectedDictation.hasOwnProperty("credits") &&
-                    <Grid.Row className={"marginTopSmall"}>{ capitalizeFirst(t("credits")) }: {selectedDictation.credits}</Grid.Row>
+                    { selectedDictation && selectedDictation.hasOwnProperty("credits") &&
+                    <Grid item>{ capitalizeFirst(t("credits")) }: {selectedDictation.credits}</Grid>
                     }
-                    <Notation className={"marginTopSmall center"}
+                    <Notation className={"marginTopSmall  maxWidth"}
                           scale={1}
                           vtString={correctVtString}
                           showInput={false}
@@ -478,7 +479,6 @@ const AskDictation = () => {
 
         return ( exerciseHasBegun &&
             <Grid container direction={"row"}>
-                {/*<Grid.Column computer={"8"} tablet={"8"} mobile={"16"}>*/}
                 <Grid item xs={6}>
                   <label className={"marginRight "}>{ capitalizeFirst(t("chooseDictation")) }</label>
                   <Select
