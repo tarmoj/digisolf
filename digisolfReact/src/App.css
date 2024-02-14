@@ -186,8 +186,11 @@ body {
     color: green;
 }
 
+
 .vtDiv {
+    max-width: 630px;
     display: block;
+    width: 95vw;
     overflow-x: auto;
     white-space: nowrap;
 }

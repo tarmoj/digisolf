@@ -436,10 +436,8 @@ const AskDictation = () => {
     };
 
     const createCorrectNotationBlock = () => {
-        //TODO: kuskil peaks näitama, et alumine õige                     <p className={"marginLeft"}>{capitalizeFirst(t("correct"))}:</p>
-        // aga praegu notatsioon vist ühes ühises divi-is ja ma ei tea, kuidas sinna teksti saada.
+
         if (exerciseHasBegun && selectedDictation.title !== "" && showCorrectNotation) {
-            console.log("Correct dictation: ", selectedDictation, selectedDictation.credits,  selectedDictation.hasOwnProperty("credits"))
             return (
                 <>
 
