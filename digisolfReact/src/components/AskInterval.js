@@ -452,8 +452,11 @@ const AskInterval = () => {
         const sampleList = {};
         for (let i=60; i<=84; i++) {
             // rewrite - -> function relativeToRange(notenumber, "instrument");
-            const noteNumber = bassInstruments.includes(instrument) ? i-24  : i; // 2 octaves lower for lower samples for lower instruments
+            // tryout for low instruments. For now Trombone notes are also saves from NN 60 on, although sounding an octava lowe
+            //const noteNumber = bassInstruments.includes(instrument) ? i-24  : i; // 2 octaves lower for lower samples for lower instruments
+            const noteNumber = i;
             //TODO: check if file exists
+
             sampleList[noteNumber]=noteNumber+".mp3";
             // this is slow and deos not work...
             // if ( fileExists(process.env.PUBLIC_URL +"/sounds/instruments/" + instrument + "/" + noteNumber+".mp3") ) {
@@ -481,7 +484,8 @@ const AskInterval = () => {
 
 
     const playNote = (noteNumber, start=0, duration=1,  volume=0.6 ) => { // csound kind of order of parameters:
-        const midiNote = bassInstruments.includes(instrument) ? noteNumber-24 : noteNumber; // 2 octaves lower for bass instrument
+        //const midiNote = bassInstruments.includes(instrument) ? noteNumber-24 : noteNumber; // 2 octaves lower for bass instrument
+        const midiNote = noteNumber; // no transposition any more, sampleas are named all from 60.mp3 etc, just sound octave lower
         console.log("playNote", instrument, noteNumber, midiNote, start, Tone.Transport.state);
         const freq = Tone.Frequency(midiNote, "midi").toFrequency();
         //console.log("masterVolume at playNote: ", masterVolume);
